@@ -1,0 +1,44 @@
+$ff: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+
+:host {
+  display: block;
+  font-family: $ff;
+  font-size: 16px;
+
+  * {
+    box-sizing: border-box;
+  }
+  input,
+  button,
+  textarea {
+    font-family: $ff;
+    font-size: 16px;
+  }
+  input,
+  button {
+    height: 30px;
+  }
+  button {
+    border: none;
+    appearance: none;
+    background-color: blue;
+    color: white;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    justify-items: center;
+  }
+  form {
+    display: flex;
+
+    button {
+      padding: 0 10px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+  }
+}
