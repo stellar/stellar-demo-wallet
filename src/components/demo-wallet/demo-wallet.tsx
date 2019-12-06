@@ -36,7 +36,7 @@ export class DemoWallet {
   }
 
   componentWillLoad() {
-    const keystore = localStorage.hasOwnProperty('KEYSTORE') ? localStorage.getItem('KEYSTORE') : null
+    const keystore = localStorage.hasOwnProperty('KEYSTORE') ? atob(localStorage.getItem('KEYSTORE')) : null
 
     if (!keystore)
       return
@@ -63,7 +63,7 @@ export class DemoWallet {
       })
     }
     
-    localStorage.setItem('KEYSTORE', this.account.keystore)
+    localStorage.setItem('KEYSTORE', btoa(this.account.keystore))
   }
 
   async copySecret(e: Event) {
