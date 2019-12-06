@@ -19,24 +19,11 @@ export const config: Config = {
       serviceWorker: null // disable service workers
     }
   ],
-  commonjs: {
-    namedExports: {
-      'stellar-sdk': ['Keypair'],
-    }
-  },
   plugins: [
-    nodePolyfills(),
-    sass({
-      injectGlobalPaths: [
-        
-      ]
-    }),
+	  nodePolyfills(),
+    sass(),
     postcss({
       plugins: [autoprefixer()]
     })
-  ],
-  nodeResolve: {
-    browser: true,
-    preferBuiltins: true
-  },
+  ]
 };

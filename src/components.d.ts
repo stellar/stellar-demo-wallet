@@ -7,10 +7,15 @@
 
 
 import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
-
+import {
+  Prompt,
+} from './components/prompt-modal/prompt-modal';
 
 export namespace Components {
   interface StellarDemoWallet {}
+  interface StellarPromptModal {
+    'prompt': Prompt;
+  }
 }
 
 declare global {
@@ -21,16 +26,27 @@ declare global {
     prototype: HTMLStellarDemoWalletElement;
     new (): HTMLStellarDemoWalletElement;
   };
+
+  interface HTMLStellarPromptModalElement extends Components.StellarPromptModal, HTMLStencilElement {}
+  var HTMLStellarPromptModalElement: {
+    prototype: HTMLStellarPromptModalElement;
+    new (): HTMLStellarPromptModalElement;
+  };
   interface HTMLElementTagNameMap {
     'stellar-demo-wallet': HTMLStellarDemoWalletElement;
+    'stellar-prompt-modal': HTMLStellarPromptModalElement;
   }
 }
 
 declare namespace LocalJSX {
   interface StellarDemoWallet {}
+  interface StellarPromptModal {
+    'prompt'?: Prompt;
+  }
 
   interface IntrinsicElements {
     'stellar-demo-wallet': StellarDemoWallet;
+    'stellar-prompt-modal': StellarPromptModal;
   }
 }
 
@@ -41,6 +57,7 @@ declare module "@stencil/core" {
   export namespace JSX {
     interface IntrinsicElements {
       'stellar-demo-wallet': LocalJSX.StellarDemoWallet & JSXBase.HTMLAttributes<HTMLStellarDemoWalletElement>;
+      'stellar-prompt-modal': LocalJSX.StellarPromptModal & JSXBase.HTMLAttributes<HTMLStellarPromptModalElement>;
     }
   }
 }
