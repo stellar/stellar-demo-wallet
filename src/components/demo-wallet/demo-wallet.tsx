@@ -17,7 +17,6 @@ interface Account {
 })
 export class DemoWallet {
   @State() account: Account
-  @State() pincode: string = '1234'
   @State() prompt: Prompt = {show: false}
 
   componentWillRender() {
@@ -49,14 +48,19 @@ export class DemoWallet {
     }
   }
 
-  createAccount(e: Event) {
+  async createAccount(e: Event) {
     e.preventDefault()
+
+    const pincode = await this.setPrompt('Enter a keystore pincode')
+
+    if (!pincode)
+      return
 
     const keypair = StellarSdk.Keypair.random()
 
     this.account = {
       publicKey: keypair.publicKey(),
-      keystore: sjcl.encrypt(this.pincode, keypair.secret(), {
+      keystore: sjcl.encrypt(pincode, keypair.secret(), {
         adata: JSON.stringify({
           publicKey: keypair.publicKey()
         })
@@ -69,36 +73,40 @@ export class DemoWallet {
   async copySecret(e: Event) {
     e.preventDefault()
 
-    const secret = sjcl.decrypt(this.pincode, this.account.keystore)
-    copy(secret)
+    const pincode = await this.setPrompt('Enter your keystore pincode')
 
+    if (!pincode)
+      return
+
+    const secret = sjcl.decrypt(pincode, this.account.keystore)
+    copy(secret)
+  }
+
+  setPrompt(
+    message: string = null,
+    placeholder: string = null
+  ) {
     this.prompt = {
       ...this.prompt, 
-      show: true, 
-      message: `Hello World ${Math.random()}`
+      show: true,
+      message,
+      placeholder
     }
 
-    // const pincode = await this.setPrompt('Enter your keystore pincode')
-
-    // if (!pincode)
-    //   return
-
-    // this.error = null
-
-    // Keystore
-    // .keypair(this.keystore, pincode)
-    // .then((keypair) => copy(keypair.secret()))
-    // .catch((err) => this.error = err)
+    return new Promise((resolve, reject) => { 
+      this.prompt.resolve = resolve
+      this.prompt.reject = reject
+    })
   }
 
   render() {
     return (
       <Host>
+        <stellar-prompt-modal prompt={this.prompt} />
         <form>
           {
             this.account 
             ? [
-              <stellar-prompt-modal prompt={this.prompt} />,
               <p>{this.account.publicKey}</p>,
               <button type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>
             ] 

@@ -1,11 +1,12 @@
-import { Component, Prop, Element, Watch, Host, h } from '@stencil/core'
+import { Component, Prop, Element, Watch, Host, h, State } from '@stencil/core'
 import { defer } from 'lodash-es'
 
 export interface Prompt {
   show: boolean
   message?: string
   placeholder?: string
-  input?: string
+  resolve?: Function
+  reject?: Function
 }
 
 @Component({
@@ -14,20 +15,23 @@ export interface Prompt {
   shadow: true
 })
 export class PromptModal {
-  @Element() private element: HTMLElement;
+  @Element() private element: HTMLElement
 
   @Prop({mutable: true}) prompt: Prompt
+
+  @State() private input: string
 
   @Watch('prompt')
   watchHandler(newValue: Prompt, oldValue: Prompt) {
     if (newValue.show === oldValue.show)
       return
 
-    if (newValue.show)
+    if (newValue.show) {
+      this.input = null
       defer(() => this.element.shadowRoot.querySelector('input').focus())
+    }
     
     else {
-      this.prompt.input = null
       this.prompt.message = null
       this.prompt.placeholder = null
     }
@@ -40,6 +44,7 @@ export class PromptModal {
       ...this.prompt, 
       show: false
     }
+    this.prompt.reject(null)
   }
 
   submit(e: Event) {
@@ -49,10 +54,11 @@ export class PromptModal {
       ...this.prompt, 
       show: false
     }
+    this.prompt.resolve(this.input)
   }
 
   update(e) {
-    this.prompt.input = e.target.value
+    this.input = e.target.value
   }
 
   render() {
@@ -65,7 +71,7 @@ export class PromptModal {
             <input type="text" 
               placeholder={this.prompt.placeholder} 
               onKeyUp={(e) => e.keyCode === 13 ? this.submit(e) : e.keyCode === 27 ? this.cancel(e) : null}
-              value={this.prompt.input} 
+              value={this.input} 
               onInput={(e) => this.update(e)}
             ></input>
 
