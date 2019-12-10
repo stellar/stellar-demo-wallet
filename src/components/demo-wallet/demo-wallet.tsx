@@ -3,6 +3,7 @@ declare const StellarSdk: any
 import { Component, State, Host, h } from '@stencil/core'
 import copy from 'copy-to-clipboard'
 import sjcl from 'sjcl'
+import { get, set } from "../../services/storage";
 import { Prompt } from '../prompt-modal/prompt-modal'
 
 interface Account {
@@ -34,11 +35,13 @@ export class DemoWallet {
     })
   }
 
-  componentWillLoad() {
-    const keystore = localStorage.hasOwnProperty('KEYSTORE') ? atob(localStorage.getItem('KEYSTORE')) : null
+  async componentWillLoad() {
+    let keystore = await get('keyStore')
 
     if (!keystore)
       return
+    else
+      keystore = atob(keystore)
 
     const { publicKey } = JSON.parse(atob(JSON.parse(keystore).adata))
 
@@ -67,7 +70,7 @@ export class DemoWallet {
       })
     }
     
-    localStorage.setItem('KEYSTORE', btoa(this.account.keystore))
+    await set('keyStore', btoa(this.account.keystore))
   }
 
   async copySecret(e: Event) {
