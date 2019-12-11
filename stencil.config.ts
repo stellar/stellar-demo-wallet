@@ -19,11 +19,21 @@ export const config: Config = {
       serviceWorker: null // disable service workers
     }
   ],
+  commonjs: {
+    namedExports: {
+      'node_modules/@tinyanvil/stellar-wallet-sdk--built/dist/main.js': ['DataProvider'],
+      'node_modules/@tinyanvil/stellar-sdk--built/dist/main.js': ['Keypair']
+    },
+  },
   plugins: [
-	  nodePolyfills(),
+    nodePolyfills(),
     sass(),
     postcss({
       plugins: [autoprefixer()]
     })
-  ]
+  ],
+  nodeResolve: {
+    browser: true,
+    preferBuiltins: true
+  }
 };

@@ -1,10 +1,9 @@
-declare const StellarSdk: any
-
 import { Component, State, Host, h } from '@stencil/core'
 import copy from 'copy-to-clipboard'
 import sjcl from 'sjcl'
 import { get, set } from "../../services/storage";
 import { Prompt } from '../prompt-modal/prompt-modal'
+import { Keypair } from '@tinyanvil/stellar-sdk--built'
 
 interface Account {
   publicKey: string,
@@ -19,21 +18,6 @@ interface Account {
 export class DemoWallet {
   @State() account: Account
   @State() prompt: Prompt = {show: false}
-
-  componentWillRender() {
-    return new Promise((resolve) => {
-      if (globalThis.StellarSdk)
-        resolve()
-      else {
-        const script = document.createElement('script')
-              script.src = 'https://cdn.jsdelivr.net/npm/stellar-sdk@latest/dist/stellar-sdk.min.js'
-
-        document.body.appendChild(script)
-
-        script.addEventListener('load', () => resolve())
-      }
-    })
-  }
 
   async componentWillLoad() {
     let keystore = await get('keyStore')
@@ -59,7 +43,7 @@ export class DemoWallet {
     if (!pincode)
       return
 
-    const keypair = StellarSdk.Keypair.random()
+    const keypair = Keypair.random()
 
     this.account = {
       publicKey: keypair.publicKey(),
