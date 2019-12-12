@@ -1,5 +1,5 @@
 import { Component, Host, h } from '@stencil/core'
-import { DataProvider } from '@tinyanvil/stellar-wallet-sdk--built'
+import { DataProvider } from '@tinyanvil/wallet-sdk/dist/commonjs/wallet-sdk'
 
 @Component({
   tag: 'stellar-sdk-wallet',

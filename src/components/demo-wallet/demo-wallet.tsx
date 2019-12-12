@@ -3,7 +3,7 @@ import copy from 'copy-to-clipboard'
 import sjcl from 'sjcl'
 import { get, set } from "../../services/storage";
 import { Prompt } from '../prompt-modal/prompt-modal'
-import { Keypair } from '@tinyanvil/stellar-sdk--built'
+import { Keypair } from '@tinyanvil/stellar-sdk/dist/stellar-sdk-common.min'
 
 interface Account {
   publicKey: string,

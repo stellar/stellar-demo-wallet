@@ -12,6 +12,7 @@ import {
 } from './components/prompt-modal/prompt-modal';
 
 export namespace Components {
+  interface StellarBrokenWallet {}
   interface StellarDemoWallet {}
   interface StellarPromptModal {
     'prompt': Prompt;
@@ -21,6 +22,12 @@ export namespace Components {
 
 declare global {
 
+
+  interface HTMLStellarBrokenWalletElement extends Components.StellarBrokenWallet, HTMLStencilElement {}
+  var HTMLStellarBrokenWalletElement: {
+    prototype: HTMLStellarBrokenWalletElement;
+    new (): HTMLStellarBrokenWalletElement;
+  };
 
   interface HTMLStellarDemoWalletElement extends Components.StellarDemoWallet, HTMLStencilElement {}
   var HTMLStellarDemoWalletElement: {
@@ -40,6 +47,7 @@ declare global {
     new (): HTMLStellarSdkWalletElement;
   };
   interface HTMLElementTagNameMap {
+    'stellar-broken-wallet': HTMLStellarBrokenWalletElement;
     'stellar-demo-wallet': HTMLStellarDemoWalletElement;
     'stellar-prompt-modal': HTMLStellarPromptModalElement;
     'stellar-sdk-wallet': HTMLStellarSdkWalletElement;
@@ -47,6 +55,7 @@ declare global {
 }
 
 declare namespace LocalJSX {
+  interface StellarBrokenWallet {}
   interface StellarDemoWallet {}
   interface StellarPromptModal {
     'prompt'?: Prompt;
@@ -54,6 +63,7 @@ declare namespace LocalJSX {
   interface StellarSdkWallet {}
 
   interface IntrinsicElements {
+    'stellar-broken-wallet': StellarBrokenWallet;
     'stellar-demo-wallet': StellarDemoWallet;
     'stellar-prompt-modal': StellarPromptModal;
     'stellar-sdk-wallet': StellarSdkWallet;
@@ -66,6 +76,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
   export namespace JSX {
     interface IntrinsicElements {
+      'stellar-broken-wallet': LocalJSX.StellarBrokenWallet & JSXBase.HTMLAttributes<HTMLStellarBrokenWalletElement>;
       'stellar-demo-wallet': LocalJSX.StellarDemoWallet & JSXBase.HTMLAttributes<HTMLStellarDemoWalletElement>;
       'stellar-prompt-modal': LocalJSX.StellarPromptModal & JSXBase.HTMLAttributes<HTMLStellarPromptModalElement>;
       'stellar-sdk-wallet': LocalJSX.StellarSdkWallet & JSXBase.HTMLAttributes<HTMLStellarSdkWalletElement>;
