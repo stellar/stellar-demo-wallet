@@ -5,6 +5,13 @@
 <!-- Auto Generated Below -->
 
 
+## Properties
+
+| Property | Attribute | Description | Type     | Default     |
+| -------- | --------- | ----------- | -------- | ----------- |
+| `server` | --        |             | `Server` | `undefined` |
+
+
 ## Dependencies
 
 ### Depends on

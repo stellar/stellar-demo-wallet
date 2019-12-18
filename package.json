@@ -1,6 +1,6 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "description": "Stencil Component Starter",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -15,6 +15,7 @@
     "loader/"
   ],
   "scripts": {
+    "prepare": "npm run build",
     "build": "stencil build --docs",
     "start": "stencil build --dev --watch --serve",
     "generate": "stencil generate"

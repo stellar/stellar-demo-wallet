@@ -4,12 +4,12 @@ import sjcl from 'sjcl'
 import axios from 'axios'
 import { get, set } from "../../services/storage"
 import { Prompt } from '../prompt-modal/prompt-modal'
-import { Keypair, Server, Account, TransactionBuilder, BASE_FEE, Networks, Operation, Asset } from 'stellar-sdk'
+import { Keypair, Server, ServerApi, Account, TransactionBuilder, BASE_FEE, Networks, Operation, Asset } from 'stellar-sdk'
 
 interface StellarAccount {
   publicKey: string,
   keystore: string,
-  state?: object
+  state?: ServerApi.AccountRecord
 }
 
 @Component({
@@ -39,6 +39,8 @@ export class DemoWallet {
       publicKey,
       keystore
     }
+
+    this.updateAccount()
   }
 
   async createAccount(e: Event) {
@@ -107,6 +109,7 @@ export class DemoWallet {
     })
     .then((res) => console.log(res))
     .catch((err) => console.error(err))
+    .finally(() => this.updateAccount())
   }
 
   async copySecret(e: Event) {
@@ -119,6 +122,21 @@ export class DemoWallet {
 
     const secret = sjcl.decrypt(pincode, this.account.keystore)
     copy(secret)
+  }
+
+  updateAccount(e?: Event) {
+    if (e)
+      e.preventDefault()
+
+    this.server
+    .accounts()
+    .accountId(this.account.publicKey)
+    .call()
+    .then((account) => {
+      delete account._links
+      this.account = {...this.account, state: account}
+    })
+    .catch((err) => console.error(err))
   }
 
   setPrompt(
@@ -147,8 +165,10 @@ export class DemoWallet {
             this.account 
             ? [
               <p>{this.account.publicKey}</p>,
-              // <button type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>
-              <button type="button" onClick={(e) => this.makePayment(e)}>Make Payment</button>
+              <button type="button" onClick={(e) => this.makePayment(e)}>Make Payment</button>,
+              <button type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>,
+              <button type="button" onClick={(e) => this.updateAccount(e)}>Update Account</button>,
+              this.account.state ? <pre>{JSON.stringify(this.account.state, null, 4)}</pre> : null
             ] 
             : <button type="button" onClick={(e) => this.createAccount(e)}>Create Account</button>
           }
