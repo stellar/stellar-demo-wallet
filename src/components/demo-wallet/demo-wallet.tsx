@@ -1,13 +1,15 @@
-import { Component, State, Host, h } from '@stencil/core'
+import { Component, State, Host, h, Prop } from '@stencil/core'
 import copy from 'copy-to-clipboard'
 import sjcl from 'sjcl'
-import { get, set } from "../../services/storage";
+import axios from 'axios'
+import { get, set } from "../../services/storage"
 import { Prompt } from '../prompt-modal/prompt-modal'
-import { Keypair } from '@tinyanvil/stellar-sdk/dist/stellar-sdk-common.min'
+import { Keypair, Server, Account, TransactionBuilder, BASE_FEE, Networks, Operation, Asset } from 'stellar-sdk'
 
-interface Account {
+interface StellarAccount {
   publicKey: string,
-  keystore: string
+  keystore: string,
+  state?: object
 }
 
 @Component({
@@ -16,11 +18,15 @@ interface Account {
   shadow: true
 })
 export class DemoWallet {
-  @State() account: Account
+  @State() account: StellarAccount
   @State() prompt: Prompt = {show: false}
+
+  @Prop() server: Server
 
   async componentWillLoad() {
     let keystore = await get('keyStore')
+
+    this.server = new Server('https://horizon-testnet.stellar.org')
 
     if (!keystore)
       return
@@ -45,6 +51,8 @@ export class DemoWallet {
 
     const keypair = Keypair.random()
 
+    await axios(`https://friendbot.stellar.org?addr=${keypair.publicKey()}`)
+
     this.account = {
       publicKey: keypair.publicKey(),
       keystore: sjcl.encrypt(pincode, keypair.secret(), {
@@ -53,8 +61,52 @@ export class DemoWallet {
         })
       })
     }
-    
+
     await set('keyStore', btoa(this.account.keystore))
+  }
+
+  async makePayment(e: Event) {
+    e.preventDefault()
+
+    let instructions
+
+    instructions = await this.setPrompt('{Amount} {Destination}')
+    instructions = instructions.split(' ')
+
+    const pincode = await this.setPrompt('Enter your keystore pincode')
+
+    if (
+      !instructions
+      || !pincode
+    ) return
+
+    const keypair = Keypair.fromSecret(
+      sjcl.decrypt(pincode, this.account.keystore)
+    )
+
+    return this.server
+    .accounts()
+    .accountId(keypair.publicKey())
+    .call()
+    .then(({sequence}) => {
+      const account = new Account(keypair.publicKey(), sequence)
+      const transaction = new TransactionBuilder(account, {
+        fee: BASE_FEE,
+        networkPassphrase: Networks.TESTNET
+      })
+      .addOperation(Operation.payment({
+        destination: instructions[1],
+        asset: Asset.native(),
+        amount: instructions[0]
+      }))
+      .setTimeout(0)
+      .build()
+
+      transaction.sign(keypair)
+      return this.server.submitTransaction(transaction)
+    })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
   }
 
   async copySecret(e: Event) {
@@ -72,7 +124,7 @@ export class DemoWallet {
   setPrompt(
     message: string = null,
     placeholder: string = null
-  ) {
+  ): Promise<string> {
     this.prompt = {
       ...this.prompt, 
       show: true,
@@ -95,7 +147,8 @@ export class DemoWallet {
             this.account 
             ? [
               <p>{this.account.publicKey}</p>,
-              <button type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>
+              // <button type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>
+              <button type="button" onClick={(e) => this.makePayment(e)}>Make Payment</button>
             ] 
             : <button type="button" onClick={(e) => this.createAccount(e)}>Create Account</button>
           }
