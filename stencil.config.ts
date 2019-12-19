@@ -19,6 +19,7 @@ export const config: Config = {
       serviceWorker: null // disable service workers
     }
   ],
+  globalStyle: 'src/global/style.scss',
   commonjs: {
     namedExports: {
       'stellar-sdk': ['StrKey', 'xdr', 'Transaction', 'Keypair', 'Networks', 'Account', 'TransactionBuilder', 'BASE_FEE', 'Operation', 'Asset'],

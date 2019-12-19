@@ -65,6 +65,8 @@ export class DemoWallet {
     }
 
     await set('keyStore', btoa(this.account.keystore))
+
+    this.updateAccount()
   }
 
   async makePayment(e: Event) {

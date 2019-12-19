@@ -1,6 +1,6 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Stencil Component Starter",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -23,6 +23,7 @@
   "devDependencies": {
     "@capacitor/cli": "^1.4.0",
     "@capacitor/core": "^1.4.0",
+    "@stellar/wallet-sdk": "npm:@tinyanvil/wallet-sdk@0.0.8-rc.13",
     "@stencil/core": "^1.8.1",
     "@stencil/postcss": "^1.0.1",
     "@stencil/sass": "^1.1.1",
@@ -35,7 +36,6 @@
     "regenerator-runtime": "^0.13.3",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "sjcl": "git+https://github.com/TinyAnvil/sjcl.git",
-    "@stellar/wallet-sdk": "npm:@tinyanvil/wallet-sdk@0.0.8-rc.13",
     "stellar-sdk": "npm:@tinyanvil/stellar-sdk@^3.3.1"
   }
 }
