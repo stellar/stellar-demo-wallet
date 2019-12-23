@@ -1,7 +1,7 @@
 import { Component, Prop, Element, Watch, Host, h, State } from '@stencil/core'
-import { defer } from 'lodash-es'
+import { defer as loDefer } from 'lodash-es'
 
-export interface Prompt {
+export interface Prompter {
   show: boolean
   message?: string
   placeholder?: string
@@ -10,51 +10,51 @@ export interface Prompt {
 }
 
 @Component({
-  tag: 'stellar-prompt-modal',
-  styleUrl: 'prompt-modal.scss',
+  tag: 'stellar-prompt',
+  styleUrl: 'prompt.scss',
   shadow: true
 })
-export class PromptModal {
+export class Prompt {
   @Element() private element: HTMLElement
 
-  @Prop({mutable: true}) prompt: Prompt
+  @Prop({mutable: true}) prompter: Prompter
 
   @State() private input: string
 
-  @Watch('prompt')
-  watchHandler(newValue: Prompt, oldValue: Prompt) {
+  @Watch('prompter')
+  watchHandler(newValue: Prompter, oldValue: Prompter) {
     if (newValue.show === oldValue.show)
       return
 
     if (newValue.show) {
       this.input = null
-      defer(() => this.element.shadowRoot.querySelector('input').focus())
+      loDefer(() => this.element.shadowRoot.querySelector('input').focus())
     }
     
     else {
-      this.prompt.message = null
-      this.prompt.placeholder = null
+      this.prompter.message = null
+      this.prompter.placeholder = null
     }
   }
 
   cancel(e: Event) {
     e.preventDefault()
 
-    this.prompt = {
-      ...this.prompt, 
+    this.prompter = {
+      ...this.prompter, 
       show: false
     }
-    this.prompt.reject(null)
+    this.prompter.reject(null)
   }
 
   submit(e: Event) {
     e.preventDefault()
 
-    this.prompt = {
-      ...this.prompt, 
+    this.prompter = {
+      ...this.prompter, 
       show: false
     }
-    this.prompt.resolve(this.input)
+    this.prompter.resolve(this.input)
   }
 
   update(e) {
@@ -62,14 +62,14 @@ export class PromptModal {
   }
 
   render() {
-    return this.prompt.show ? (
+    return this.prompter.show ? (
       <Host>
         <div class="prompt-wrapper">
           <div class="prompt">
-            {this.prompt.message ? <p>{this.prompt.message}</p> : null}
+            {this.prompter.message ? <p>{this.prompter.message}</p> : null}
             
             <input type="text" 
-              placeholder={this.prompt.placeholder} 
+              placeholder={this.prompter.placeholder} 
               onKeyUp={(e) => e.keyCode === 13 ? this.submit(e) : e.keyCode === 27 ? this.cancel(e) : null}
               value={this.input} 
               onInput={(e) => this.update(e)}

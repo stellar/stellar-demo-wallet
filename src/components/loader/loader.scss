@@ -1,0 +1,21 @@
+@import '../../global/style.scss';
+
+:host {
+  display: block;
+  width: 11px;
+  height: 11px;
+  
+  .loader {
+    display: grid;
+    grid-template-columns: repeat(3, 3px);
+    grid-template-rows: repeat(3, 3px);
+    grid-gap: 1px;
+
+    div {
+      
+      &.on {
+        background-color: white;
+      }
+    }
+  }
+}
