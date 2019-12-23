@@ -3,7 +3,6 @@ import {
   Prop, 
   Element, 
   Watch, 
-  Host, 
   h, 
   State 
 } from '@stencil/core'

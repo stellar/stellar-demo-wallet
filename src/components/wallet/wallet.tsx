@@ -79,11 +79,11 @@ export class Wallet {
 
   async updateAccount(e?: Event) {
     try {
-      this.error = null
-      this.loading = {...this.loading, update: true}
-
       if (e)
         e.preventDefault()
+
+      this.error = null
+      this.loading = {...this.loading, update: true}
 
       await this.server
       .accounts()
@@ -153,12 +153,12 @@ export class Wallet {
         || !pincode
       ) return
 
-      this.error = null
-      this.loading = {...this.loading, pay: true}
-
       const keypair = Keypair.fromSecret(
         sjcl.decrypt(pincode, this.account.keystore)
       )
+
+      this.error = null
+      this.loading = {...this.loading, pay: true}
 
       await this.server
       .accounts()
