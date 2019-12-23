@@ -16,12 +16,12 @@
 
 ### Used by
 
- - [stellar-demo-wallet](../demo-wallet)
+ - [stellar-wallet](../wallet)
 
 ### Graph
 ```mermaid
 graph TD;
-  stellar-demo-wallet --> stellar-loader
+  stellar-wallet --> stellar-loader
   style stellar-loader fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

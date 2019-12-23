@@ -1,4 +1,9 @@
-import { Component, h, State, Prop } from '@stencil/core';
+import { 
+  Component, 
+  h, 
+  State, 
+  Prop 
+} from '@stencil/core';
 import { 
   map as loMap, 
   range as loRange, 

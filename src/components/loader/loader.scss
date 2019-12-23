@@ -2,13 +2,13 @@
 
 :host {
   display: block;
-  width: 11px;
-  height: 11px;
+  width: 14px;
+  height: 14px;
   
   .loader {
     display: grid;
-    grid-template-columns: repeat(3, 3px);
-    grid-template-rows: repeat(3, 3px);
+    grid-template-columns: repeat(3, 4px);
+    grid-template-rows: repeat(3, 4px);
     grid-gap: 1px;
 
     div {

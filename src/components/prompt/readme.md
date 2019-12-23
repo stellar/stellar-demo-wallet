@@ -7,22 +7,22 @@
 
 ## Properties
 
-| Property | Attribute | Description | Type     | Default     |
-| -------- | --------- | ----------- | -------- | ----------- |
-| `prompt` | --        |             | `Prompt` | `undefined` |
+| Property   | Attribute | Description | Type       | Default     |
+| ---------- | --------- | ----------- | ---------- | ----------- |
+| `prompter` | --        |             | `Prompter` | `undefined` |
 
 
 ## Dependencies
 
 ### Used by
 
- - [stellar-demo-wallet](../demo-wallet)
+ - [stellar-wallet](../wallet)
 
 ### Graph
 ```mermaid
 graph TD;
-  stellar-demo-wallet --> stellar-prompt-modal
-  style stellar-prompt-modal fill:#f9f,stroke:#333,stroke-width:4px
+  stellar-wallet --> stellar-prompt
+  style stellar-prompt fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 ----------------------------------------------

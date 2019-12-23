@@ -16,15 +16,15 @@
 
 ### Depends on
 
-- [stellar-prompt-modal](../prompt-modal)
+- [stellar-prompt](../prompt)
 - [stellar-loader](../loader)
 
 ### Graph
 ```mermaid
 graph TD;
-  stellar-demo-wallet --> stellar-prompt-modal
-  stellar-demo-wallet --> stellar-loader
-  style stellar-demo-wallet fill:#f9f,stroke:#333,stroke-width:4px
+  stellar-wallet --> stellar-prompt
+  stellar-wallet --> stellar-loader
+  style stellar-wallet fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 ----------------------------------------------

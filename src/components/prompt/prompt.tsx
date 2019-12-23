@@ -1,4 +1,12 @@
-import { Component, Prop, Element, Watch, Host, h, State } from '@stencil/core'
+import { 
+  Component, 
+  Prop, 
+  Element, 
+  Watch, 
+  Host, 
+  h, 
+  State 
+} from '@stencil/core'
 import { defer as loDefer } from 'lodash-es'
 
 export interface Prompter {
@@ -63,25 +71,24 @@ export class Prompt {
 
   render() {
     return this.prompter.show ? (
-      <Host>
-        <div class="prompt-wrapper">
-          <div class="prompt">
-            {this.prompter.message ? <p>{this.prompter.message}</p> : null}
-            
-            <input type="text" 
-              placeholder={this.prompter.placeholder} 
-              onKeyUp={(e) => e.keyCode === 13 ? this.submit(e) : e.keyCode === 27 ? this.cancel(e) : null}
-              value={this.input} 
-              onInput={(e) => this.update(e)}
-            ></input>
+      <div class="prompt-wrapper">
+        <div class="prompt">
+          {this.prompter.message ? <p>{this.prompter.message}</p> : null}
+          
+          <input type="text" 
+            placeholder={this.prompter.placeholder} 
+            onKeyUp={(e) => e.keyCode === 13 ? this.submit(e) : null}
+            onKeyDown={(e) => e.keyCode === 27 ? this.cancel(e) : null}
+            value={this.input} 
+            onInput={(e) => this.update(e)}
+          ></input>
 
-            <div class="actions">
-              <button class="cancel" type="button" onClick={(e) => this.cancel(e)}>Cancel</button>
-              <button class="submit" type="button" onClick={(e) => this.submit(e)}>OK</button>
-            </div>
+          <div class="actions">
+            <button class="cancel" type="button" onClick={(e) => this.cancel(e)}>Cancel</button>
+            <button class="submit" type="button" onClick={(e) => this.submit(e)}>OK</button>
           </div>
         </div>
-      </Host>
+      </div>
     ) : null
   }
 }

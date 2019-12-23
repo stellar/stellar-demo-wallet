@@ -1,11 +1,29 @@
-import { Component, State, h, Prop } from '@stencil/core'
+import { 
+  Component, 
+  State, 
+  h, 
+  Prop 
+} from '@stencil/core'
 import copy from 'copy-to-clipboard'
 import sjcl from 'sjcl'
 import axios from 'axios'
-import { get, set } from "../../services/storage"
+import { 
+  get, 
+  set 
+} from '../../services/storage'
+import { handleError } from '../../services/error'
 import { Prompter } from '../prompt/prompt'
-import { Keypair, Server, ServerApi, Account, TransactionBuilder, BASE_FEE, Networks, Operation, Asset } from 'stellar-sdk'
-import { get as loGet } from 'lodash-es'
+import { 
+  Keypair, 
+  Server, 
+  ServerApi, 
+  Account, 
+  TransactionBuilder, 
+  BASE_FEE, 
+  Networks, 
+  Operation, 
+  Asset 
+} from 'stellar-sdk'
 
 interface StellarAccount {
   publicKey: string,
@@ -55,7 +73,7 @@ export class Wallet {
     }
 
     catch (err) {
-      this.error = loGet(err, 'response.data', err)
+      this.error = handleError(err)
     }
   }
 
@@ -79,7 +97,7 @@ export class Wallet {
     }
     
     catch (err) {
-      this.error = loGet(err, 'response.data', err)
+      this.error = handleError(err)
     }
   }
 
@@ -115,7 +133,7 @@ export class Wallet {
     } 
     
     catch(err) {
-      this.error = loGet(err, 'response.data', err)
+      this.error = handleError(err)
     }
   }
 
@@ -171,7 +189,7 @@ export class Wallet {
     }
 
     catch (err) {
-      this.error = loGet(err, 'response.data', err)
+      this.error = handleError(err)
     }
   }
 
@@ -184,12 +202,14 @@ export class Wallet {
       if (!pincode)
         return
 
+      this.error = null
+
       const secret = sjcl.decrypt(pincode, this.account.keystore)
       copy(secret)
     }
 
     catch (err) {
-      this.error = loGet(err, 'response.data', err)
+      this.error = handleError(err)
     }
   }
 
@@ -218,12 +238,12 @@ export class Wallet {
           this.account 
           ? [
             <p>{this.account.publicKey}</p>,
-            <button type="button" onClick={(e) => this.makePayment(e)}>{this.loading.pay ? <stellar-loader /> : null} Make Payment</button>,
+            <button class={this.loading.pay ? 'loading' : null} type="button" onClick={(e) => this.makePayment(e)}>{this.loading.pay ? <stellar-loader /> : null} Make Payment</button>,
             <button type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>,
-            <button type="button" onClick={(e) => this.updateAccount(e)}>{this.loading.update ? <stellar-loader /> : null} Update Account</button>,
+            <button class={this.loading.update ? 'loading' : null} type="button" onClick={(e) => this.updateAccount(e)}>{this.loading.update ? <stellar-loader /> : null} Update Account</button>,
             this.account.state ? <pre class="account">{JSON.stringify(this.account.state, null, 2)}</pre> : null
           ] 
-          : <button type="button" onClick={(e) => this.createAccount(e)}>{this.loading.fund ? <stellar-loader /> : null} Create Account</button>
+          : <button class={this.loading.fund ? 'loading' : null} type="button" onClick={(e) => this.createAccount(e)}>{this.loading.fund ? <stellar-loader /> : null} Create Account</button>
         }
       </form>,
       this.error ? <pre class="error">{JSON.stringify(this.error, null, 2)}</pre> : null
