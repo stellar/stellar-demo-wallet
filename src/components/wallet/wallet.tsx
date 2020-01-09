@@ -24,6 +24,9 @@ import {
   Operation, 
   Asset 
 } from 'stellar-sdk'
+import {
+  has as loHas
+} from 'lodash-es'
 
 interface StellarAccount {
   publicKey: string,
@@ -141,10 +144,8 @@ export class Wallet {
     try {
       e.preventDefault()
 
-      let instructions
-
-      instructions = await this.setPrompt('{Amount} {Destination}')
-      instructions = instructions.split(' ')
+      let instructions: any = await this.setPrompt('{Amount} {Destination}')
+          instructions = instructions.split(' ')
 
       const pincode = await this.setPrompt('Enter your keystore pincode')
 
@@ -180,6 +181,29 @@ export class Wallet {
 
         transaction.sign(keypair)
         return this.server.submitTransaction(transaction)
+        .catch((err) => {
+          if ( // Paying an account which doesn't exist, create it instead
+            loHas(err, 'response.data.extras.result_codes.operations') &&
+            err.response.data.status === 400 &&
+            err.response.data.extras.result_codes.operations.indexOf('op_no_destination') !== -1
+          ) {
+            const transaction = new TransactionBuilder(account, {
+              fee: BASE_FEE,
+              networkPassphrase: Networks.TESTNET
+            })
+            .addOperation(Operation.createAccount({
+              destination: instructions[1],
+              startingBalance: instructions[0]
+            }))
+            .setTimeout(0)
+            .build()
+    
+            transaction.sign(keypair)
+            return this.server.submitTransaction(transaction)
+          }
+          
+          else throw err 
+        })
       })
       .then((res) => console.log(res))
       .finally(() => {

@@ -5,7 +5,7 @@ import autoprefixer from 'autoprefixer';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
 
 export const config: Config = {
-  namespace: 'stellar-demo-wallet',
+  namespace: 'stellar-wallet',
   outputTargets: [
     {
       type: 'dist',

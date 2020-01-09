@@ -1,6 +1,6 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Stencil Component Starter",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -9,7 +9,7 @@
   "types": "dist/types/index.d.ts",
   "collection": "dist/collection/collection-manifest.json",
   "collection:main": "dist/collection/index.js",
-  "unpkg": "dist/stellar-demo-wallet/stellar-demo-wallet.js",
+  "unpkg": "dist/stellar-wallet/stellar-wallet.js",
   "files": [
     "dist/",
     "loader/"
@@ -24,12 +24,12 @@
     "@capacitor/cli": "^1.4.0",
     "@capacitor/core": "^1.4.0",
     "@stellar/wallet-sdk": "npm:@tinyanvil/wallet-sdk@0.0.8-rc.13",
-    "@stencil/core": "^1.8.1",
+    "@stencil/core": "^1.8.4",
     "@stencil/postcss": "^1.0.1",
     "@stencil/sass": "^1.1.1",
     "@types/autoprefixer": "^9.6.1",
     "autoprefixer": "^9.7.3",
-    "axios": "^0.19.0",
+    "axios": "^0.19.1",
     "copy-to-clipboard": "^3.2.0",
     "lodash-es": "^4.17.15",
     "readline-sync": "^1.4.10",

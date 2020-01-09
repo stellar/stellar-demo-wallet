@@ -1,4 +1,4 @@
-# stellar-demo-wallet
+# stellar-wallet
 
 
 

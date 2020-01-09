@@ -1,4 +1,4 @@
-import { Plugins } from "@capacitor/core"
+import { Plugins } from '@capacitor/core'
 
 const { Storage } = Plugins
 
