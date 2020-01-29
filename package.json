@@ -1,7 +1,7 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "0.0.17",
-  "description": "Stencil Component Starter",
+  "version": "0.0.18",
+  "description": "Stellar Demo Wallet",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "es2015": "dist/esm/index.mjs",

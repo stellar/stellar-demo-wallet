@@ -1,31 +1,34 @@
-import { 
-  Component, 
-  State, 
-  h, 
-  Prop 
+import {
+  Component,
+  State,
+  h,
+  Prop
 } from '@stencil/core'
 import copy from 'copy-to-clipboard'
 import sjcl from 'sjcl'
 import axios from 'axios'
-import { 
-  get, 
-  set 
+import {
+  get,
+  set
 } from '../../services/storage'
 import { handleError } from '../../services/error'
 import { Prompter } from '../prompt/prompt'
-import { 
-  Keypair, 
-  Server, 
-  ServerApi, 
-  Account, 
-  TransactionBuilder, 
-  BASE_FEE, 
-  Networks, 
-  Operation, 
-  Asset 
+import {
+  Keypair,
+  Server,
+  ServerApi,
+  Account,
+  TransactionBuilder,
+  BASE_FEE,
+  Networks,
+  Operation,
+  Asset
 } from 'stellar-sdk'
 import {
-  has as loHas
+  has as loHas,
+  omit as loOmit,
+  // each as loEach,
+  map as loMap
 } from 'lodash-es'
 
 interface StellarAccount {
@@ -38,6 +41,7 @@ interface Loading {
   fund?: boolean,
   pay?: boolean,
   update?: boolean,
+  trust?: boolean
 }
 
 @Component({
@@ -93,12 +97,32 @@ export class Wallet {
       .accountId(this.account.publicKey)
       .call()
       .then((account) => {
-        delete account._links
-        this.account = {...this.account, state: account}
+        account.balances = loMap(account.balances, (balance) => loOmit(balance, [
+          'limit',
+          'buying_liabilities',
+          'selling_liabilities',
+          'is_authorized',
+          'last_modified_ledger',
+          balance.asset_type !== 'native' ? 'asset_type' : null
+        ]))
+
+        this.account = {...this.account, state: loOmit(account, [
+          'id',
+          '_links',
+          'sequence',
+          'subentry_count',
+          'last_modified_ledger',
+          'flags',
+          'thresholds',
+          'account_id',
+          'signers',
+          'paging_token',
+          'data_attr'
+        ])}
       })
       .finally(() => this.loading = {...this.loading, update: false})
     }
-    
+
     catch (err) {
       this.error = handleError(err)
     }
@@ -133,19 +157,32 @@ export class Wallet {
       await set('keyStore', btoa(this.account.keystore))
 
       this.updateAccount()
-    } 
-    
+    }
+
     catch(err) {
       this.error = handleError(err)
     }
   }
 
-  async makePayment(e: Event) {
+  async trustAsset(
+    e?: Event,
+    asset?: string,
+    issuer?: string
+  ) {
     try {
       e.preventDefault()
 
-      let instructions: any = await this.setPrompt('{Amount} {Destination}')
-          instructions = instructions.split(' ')
+      let instructions
+
+      if (
+        asset
+        && issuer
+      ) instructions = [asset, issuer]
+
+      else {
+        instructions = await this.setPrompt('{Asset} {Issuer}')
+        instructions = instructions.split(' ')
+      }
 
       const pincode = await this.setPrompt('Enter your keystore pincode')
 
@@ -157,6 +194,80 @@ export class Wallet {
       const keypair = Keypair.fromSecret(
         sjcl.decrypt(pincode, this.account.keystore)
       )
+
+      this.error = null
+      this.loading = {...this.loading, trust: true}
+
+      return this.server.accounts()
+      .accountId(keypair.publicKey())
+      .call()
+      .then(({sequence}) => {
+        const account = new Account(keypair.publicKey(), sequence)
+        const transaction = new TransactionBuilder(account, {
+          fee: BASE_FEE,
+          networkPassphrase: Networks.TESTNET
+        })
+        .addOperation(Operation.changeTrust({
+          asset: new Asset(instructions[0], instructions[1])
+        }))
+        .setTimeout(0)
+        .build()
+
+        transaction.sign(keypair)
+        return this.server.submitTransaction(transaction)
+      })
+      .then((res) => console.log(res))
+      .finally(() => {
+        this.loading = {...this.loading, trust: false}
+        this.updateAccount()
+      })
+    }
+
+    catch (err) {
+      this.error = handleError(err)
+    }
+  }
+
+  async makePayment(
+    e?: Event,
+    destination?: string,
+    asset?: string,
+    issuer?: string
+  ) {
+    try {
+      e.preventDefault()
+
+      let instructions
+
+      if (
+        destination
+        && asset
+      ) {
+        instructions = await this.setPrompt(`How much ${asset} to pay?`)
+        instructions = [instructions, asset, destination, issuer]
+      }
+
+      else {
+        instructions = await this.setPrompt('{Amount} {Asset} {Destination}')
+        instructions = instructions.split(' ')
+
+        if (!/xlm/gi.test(instructions[1]))
+          instructions[3] = await this.setPrompt(`Who issues the ${instructions[1]} asset?`, 'Enter ME to refer to yourself')
+      }
+
+      const pincode = await this.setPrompt('Enter your keystore pincode')
+
+      if (
+        !instructions
+        || !pincode
+      ) return
+
+      const keypair = Keypair.fromSecret(
+        sjcl.decrypt(pincode, this.account.keystore)
+      )
+
+      if (/me/gi.test(instructions[3]))
+        instructions[3] = keypair.publicKey()
 
       this.error = null
       this.loading = {...this.loading, pay: true}
@@ -172,8 +283,8 @@ export class Wallet {
           networkPassphrase: Networks.TESTNET
         })
         .addOperation(Operation.payment({
-          destination: instructions[1],
-          asset: Asset.native(),
+          destination: instructions[2],
+          asset: instructions[3] ? new Asset(instructions[1], instructions[3]) : Asset.native(),
           amount: instructions[0]
         }))
         .setTimeout(0)
@@ -183,26 +294,27 @@ export class Wallet {
         return this.server.submitTransaction(transaction)
         .catch((err) => {
           if ( // Paying an account which doesn't exist, create it instead
-            loHas(err, 'response.data.extras.result_codes.operations') &&
-            err.response.data.status === 400 &&
-            err.response.data.extras.result_codes.operations.indexOf('op_no_destination') !== -1
+            loHas(err, 'response.data.extras.result_codes.operations')
+            && err.response.data.status === 400
+            && err.response.data.extras.result_codes.operations.indexOf('op_no_destination') !== -1
+            && !instructions[3]
           ) {
             const transaction = new TransactionBuilder(account, {
               fee: BASE_FEE,
               networkPassphrase: Networks.TESTNET
             })
             .addOperation(Operation.createAccount({
-              destination: instructions[1],
+              destination: instructions[2],
               startingBalance: instructions[0]
             }))
             .setTimeout(0)
             .build()
-    
+
             transaction.sign(keypair)
             return this.server.submitTransaction(transaction)
           }
-          
-          else throw err 
+
+          else throw err
         })
       })
       .then((res) => console.log(res))
@@ -242,13 +354,13 @@ export class Wallet {
     placeholder: string = ''
   ): Promise<string> {
     this.prompter = {
-      ...this.prompter, 
+      ...this.prompter,
       show: true,
       message,
       placeholder
     }
 
-    return new Promise((resolve, reject) => { 
+    return new Promise((resolve, reject) => {
       this.prompter.resolve = resolve
       this.prompter.reject = reject
     })
@@ -259,18 +371,19 @@ export class Wallet {
       <stellar-prompt prompter={this.prompter} />,
       <form>
         {
-          this.account 
+          this.account
           ? [
             <p>{this.account.publicKey}</p>,
             <button class={this.loading.pay ? 'loading' : null} type="button" onClick={(e) => this.makePayment(e)}>{this.loading.pay ? <stellar-loader /> : null} Make Payment</button>,
-            <button type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>,
+            <button class={this.loading.trust ? 'loading' : null} type="button" onClick={(e) => this.trustAsset(e)}>{this.loading.trust ? <stellar-loader /> : null} Trust Asset</button>,
             <button class={this.loading.update ? 'loading' : null} type="button" onClick={(e) => this.updateAccount(e)}>{this.loading.update ? <stellar-loader /> : null} Update Account</button>,
-            this.account.state ? <pre class="account">{JSON.stringify(this.account.state, null, 2)}</pre> : null
-          ] 
+            <button type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>,
+          ]
           : <button class={this.loading.fund ? 'loading' : null} type="button" onClick={(e) => this.createAccount(e)}>{this.loading.fund ? <stellar-loader /> : null} Create Account</button>
         }
       </form>,
-      this.error ? <pre class="error">{JSON.stringify(this.error, null, 2)}</pre> : null
+      this.error ? <pre class="error">{JSON.stringify(this.error, null, 2)}</pre> : null,
+      loHas(this.account, 'state') ? <pre class="account">{JSON.stringify(this.account.state, null, 2)}</pre> : null,
     ]
   }
 }

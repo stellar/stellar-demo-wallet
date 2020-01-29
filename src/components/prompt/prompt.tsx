@@ -65,7 +65,7 @@ export class Prompt {
   }
 
   update(e) {
-    this.input = e.target.value
+    this.input = e.target.value.toUpperCase()
   }
 
   render() {
