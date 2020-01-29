@@ -1,4 +1,4 @@
-import sjcl from 'sjcl'
+import sjcl from '@tinyanvil/sjcl'
 import {
   Keypair,
   Account,
