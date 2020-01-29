@@ -1,20 +1,17 @@
 @import '../../global/style.scss';
 
 :host {
-  display: block;
-  width: 14px;
-  height: 14px;
-  
+
   .loader {
     display: grid;
-    grid-template-columns: repeat(3, 4px);
-    grid-template-rows: repeat(3, 4px);
-    grid-gap: 1px;
+    grid-template-columns: repeat(3, var(--stellar-loader-pixelSize, 4px));
+    grid-template-rows: repeat(3, var(--stellar-loader-pixelSize, 4px));
+    grid-gap: var(--stellar-loader-pixelGap, 1px);
 
     div {
-      
+
       &.on {
-        background-color: white;
+        background-color: var(--stellar-loader-pixelColor, white);
       }
     }
   }
