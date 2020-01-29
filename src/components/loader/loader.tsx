@@ -1,16 +1,13 @@
-import { 
-  Component, 
-  h, 
-  State, 
-  Prop 
+import Combinatorics from 'js-combinatorics'
+import {
+  Component,
+  h,
+  State,
+  Prop
 } from '@stencil/core';
-import { 
-  map as loMap, 
-  range as loRange, 
-  random as loRandom, 
-  uniqWith as loUniqWith, 
-  isEqual as loIsEqual, 
-  sample as loSample 
+import {
+  isEqual as loIsEqual,
+  sample as loSample
 } from 'lodash-es'
 
 @Component({
@@ -36,15 +33,14 @@ export class Loader {
   }
 
   generateChances(int: number) {
-    while (this.chances.length < int * int) {
-      this.chances.push(loMap(loRange(int), () => loRandom(1)))
-      this.chances = loUniqWith(this.chances, loIsEqual)
-    }
+    const baseN = Combinatorics.baseN([0, 1], int)
+
+    this.chances = baseN.toArray()
     this.getChance()
   }
   getChance() {
     const chance = loSample(this.chances)
-    
+
     if (loIsEqual(chance, this.chance))
       this.getChance()
     else

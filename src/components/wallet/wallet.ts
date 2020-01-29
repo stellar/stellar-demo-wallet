@@ -21,16 +21,16 @@ import setPrompt from './methods/setPrompt'
 import { Prompter } from '@prompt/prompt'
 
 interface StellarAccount {
+  state?: ServerApi.AccountRecord,
   publicKey: string,
   keystore: string,
-  state?: ServerApi.AccountRecord
 }
 
 interface Loading {
   fund?: boolean,
   pay?: boolean,
+  trust?: boolean,
   update?: boolean,
-  trust?: boolean
 }
 
 @Component({
