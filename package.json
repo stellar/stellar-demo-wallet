@@ -1,6 +1,6 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Stellar Demo Wallet",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -32,10 +32,16 @@
     "axios": "^0.19.1",
     "copy-to-clipboard": "^3.2.0",
     "lodash-es": "^4.17.15",
+    "module-alias": "^2.2.2",
     "readline-sync": "^1.4.10",
     "regenerator-runtime": "^0.13.3",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "sjcl": "git+https://github.com/TinyAnvil/sjcl.git",
     "stellar-sdk": "npm:@tinyanvil/stellar-sdk@^3.3.1"
-  }
+  },
+  "_moduleAliases": {
+    "@prompt": "dist/collection/components/prompt",
+    "@services": "dist/collection/services"
+  },
+  "dependencies": {}
 }

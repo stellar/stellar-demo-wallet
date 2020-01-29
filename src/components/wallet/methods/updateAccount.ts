@@ -3,7 +3,7 @@ import {
   map as loMap
 } from 'lodash-es'
 
-import { handleError } from '../../../services/error'
+import { handleError } from '@services/error'
 
 export default async function updateAccount(e?: Event) {
   try {

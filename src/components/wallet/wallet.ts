@@ -18,7 +18,7 @@ import trustAsset from './methods/trustAsset'
 import copySecret from './methods/copySecret'
 import setPrompt from './methods/setPrompt'
 
-import { Prompter } from '../prompt/prompt'
+import { Prompter } from '@prompt/prompt'
 
 interface StellarAccount {
   publicKey: string,

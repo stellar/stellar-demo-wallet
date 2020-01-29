@@ -18,11 +18,17 @@
 
 - [stellar-prompt](../prompt)
 - [stellar-loader](../loader)
+- [stellar-loader](../loader)
+- [stellar-loader](../loader)
+- [stellar-loader](../loader)
 
 ### Graph
 ```mermaid
 graph TD;
   stellar-wallet --> stellar-prompt
+  stellar-wallet --> stellar-loader
+  stellar-wallet --> stellar-loader
+  stellar-wallet --> stellar-loader
   stellar-wallet --> stellar-loader
   style stellar-wallet fill:#f9f,stroke:#333,stroke-width:4px
 ```

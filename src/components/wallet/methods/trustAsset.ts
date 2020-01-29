@@ -9,7 +9,7 @@ import {
   Asset
 } from 'stellar-sdk'
 
-import { handleError } from '../../../services/error'
+import { handleError } from '@services/error'
 
 export default async function trustAsset(
   e?: Event,

@@ -1,11 +1,6 @@
-import {
-  Server,
-} from 'stellar-sdk'
-
-import { handleError } from '../../../services/error'
-import {
-  get,
-} from '../../../services/storage'
+import { Server } from 'stellar-sdk'
+import { handleError } from '@services/error'
+import { get } from '@services/storage'
 
 export default async function componentWillLoad() {
   try {

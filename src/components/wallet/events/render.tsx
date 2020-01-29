@@ -1,9 +1,5 @@
-import {
-  h,
-} from '@stencil/core'
-import {
-  has as loHas,
-} from 'lodash-es'
+import { h } from '@stencil/core'
+import { has as loHas } from 'lodash-es'
 
 export default function render() {
   return [

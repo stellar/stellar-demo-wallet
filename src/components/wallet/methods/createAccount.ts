@@ -1,13 +1,9 @@
 import sjcl from 'sjcl'
 import axios from 'axios'
-import {
-  Keypair,
-} from 'stellar-sdk'
+import { Keypair } from 'stellar-sdk'
 
-import { handleError } from '../../../services/error'
-import {
-  set
-} from '../../../services/storage'
+import { handleError } from '@services/error'
+import { set } from '@services/storage'
 
 export default async function createAccount(e: Event) {
   try {

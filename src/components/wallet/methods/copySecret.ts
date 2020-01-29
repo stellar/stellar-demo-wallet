@@ -1,7 +1,7 @@
 import sjcl from 'sjcl'
 import copy from 'copy-to-clipboard'
 
-import { handleError } from '../../../services/error'
+import { handleError } from '@services/error'
 
 export default async function copySecret(e: Event) {
   try {

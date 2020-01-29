@@ -8,11 +8,9 @@ import {
   Operation,
   Asset
 } from 'stellar-sdk'
-import {
-  has as loHas,
-} from 'lodash-es'
+import { has as loHas } from 'lodash-es'
 
-import { handleError } from '../../../services/error'
+import { handleError } from '@services/error'
 
 export default async function makePayment(
   e?: Event,
