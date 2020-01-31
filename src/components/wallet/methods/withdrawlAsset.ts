@@ -11,25 +11,16 @@ import {
 
 import { handleError } from '@services/error'
 
-export default async function trustAsset(
-  e?: Event,
-  asset?: string,
-  issuer?: string
+export default async function withdrawlAsset(
+  e?: Event
 ) {
   try {
     if (e) e.preventDefault()
 
     let instructions
 
-    if (
-      asset
-      && issuer
-    ) instructions = [asset, issuer]
-
-    else {
-      instructions = await this.setPrompt('{Asset} {Issuer}')
-      instructions = instructions.split(' ')
-    }
+    instructions = await this.setPrompt('{Asset} {Issuer}')
+    instructions = instructions.split(' ')
 
     const pincode = await this.setPrompt('Enter your keystore pincode')
 

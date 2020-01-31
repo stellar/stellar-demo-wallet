@@ -15,6 +15,8 @@ import createAccount from './methods/createAccount'
 import updateAccount from './methods/updateAccount'
 import makePayment from './methods/makePayment'
 import trustAsset from './methods/trustAsset'
+import depositAsset from './methods/depositAsset'
+import withdrawlAsset from './methods/withdrawlAsset'
 import copySecret from './methods/copySecret'
 import setPrompt from './methods/setPrompt'
 
@@ -31,6 +33,8 @@ interface Loading {
   pay?: boolean,
   trust?: boolean,
   update?: boolean,
+  deposit?: boolean,
+  withdrawl?: boolean
 }
 
 @Component({
@@ -45,6 +49,8 @@ export class Wallet {
   @State() error: any = null
 
   @Prop() server: Server
+  @Prop() homeDomane: String
+  @Prop() toml: Object
 
   // Component events
   componentWillLoad = componenetWillLoad
@@ -54,6 +60,8 @@ export class Wallet {
   createAccount = createAccount
   updateAccount = updateAccount
   makePayment = makePayment
+  depositAsset = depositAsset
+  withdrawlAsset = withdrawlAsset
   trustAsset = trustAsset
 
   // Misc methods

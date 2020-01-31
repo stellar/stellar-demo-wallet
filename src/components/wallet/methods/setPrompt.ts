@@ -1,12 +1,14 @@
 export default function setPrompt(
   message: string = '',
-  placeholder: string = ''
+  placeholder: string = '',
+  options?: Array<any>
 ): Promise<string> {
   this.prompter = {
     ...this.prompter,
     show: true,
     message,
-    placeholder
+    placeholder,
+    options
   }
 
   return new Promise((resolve, reject) => {

@@ -10,9 +10,13 @@ export default function render() {
         ? [
           <p>{this.account.publicKey}</p>,
           <button class={this.loading.pay ? 'loading' : null} type="button" onClick={(e) => this.makePayment(e)}>{this.loading.pay ? <stellar-loader /> : null} Make Payment</button>,
-          <button class={this.loading.trust ? 'loading' : null} type="button" onClick={(e) => this.trustAsset(e)}>{this.loading.trust ? <stellar-loader /> : null} Trust Asset</button>,
-          <button class={this.loading.update ? 'loading' : null} type="button" onClick={(e) => this.updateAccount(e)}>{this.loading.update ? <stellar-loader /> : null} Update Account</button>,
-          <button type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>,
+          <button class={`${this.loading.trust ? 'loading' : ''} purple`} type="button" onClick={(e) => this.trustAsset(e)}>{this.loading.trust ? <stellar-loader /> : null} Trust Asset</button>,
+
+          <button class={`${this.loading.deposit ? 'loading' : ''} green`} type="button" onClick={(e) => this.depositAsset(e)}>{this.loading.deposit ? <stellar-loader /> : null} Deposit Asset</button>,
+          // <button class={this.loading.withdrawl ? 'loading' : null} type="button" onClick={(e) => this.withdrawlAsset(e)}>{this.loading.withdrawl ? <stellar-loader /> : null} Withdrawl Asset</button>,
+
+          <button class={`${this.loading.update ? 'loading' : ''} black`} type="button" onClick={(e) => this.updateAccount(e)}>{this.loading.update ? <stellar-loader /> : null} Update Account</button>,
+          <button class="red" type="button" onClick={(e) => this.copySecret(e)}>Copy Secret</button>,
         ]
         : <button class={this.loading.fund ? 'loading' : null} type="button" onClick={(e) => this.createAccount(e)}>{this.loading.fund ? <stellar-loader /> : null} Create Account</button>
       }
