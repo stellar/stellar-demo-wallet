@@ -12,6 +12,10 @@
 
     p {
       margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
     }
     button {
       margin-bottom: 10px;

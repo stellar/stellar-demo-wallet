@@ -7,9 +7,11 @@
 
 ## Properties
 
-| Property | Attribute | Description | Type     | Default     |
-| -------- | --------- | ----------- | -------- | ----------- |
-| `server` | --        |             | `Server` | `undefined` |
+| Property     | Attribute | Description | Type     | Default     |
+| ------------ | --------- | ----------- | -------- | ----------- |
+| `homeDomane` | --        |             | `String` | `undefined` |
+| `server`     | --        |             | `Server` | `undefined` |
+| `toml`       | --        |             | `Object` | `undefined` |
 
 
 ## Dependencies
@@ -21,11 +23,13 @@
 - [stellar-loader](../loader)
 - [stellar-loader](../loader)
 - [stellar-loader](../loader)
+- [stellar-loader](../loader)
 
 ### Graph
 ```mermaid
 graph TD;
   stellar-wallet --> stellar-prompt
+  stellar-wallet --> stellar-loader
   stellar-wallet --> stellar-loader
   stellar-wallet --> stellar-loader
   stellar-wallet --> stellar-loader

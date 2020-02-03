@@ -26,7 +26,7 @@
     max-width: 350px;
     width: 100%;
     position: relative;
-    
+
     p {
       margin-bottom: 10px;
     }
@@ -37,17 +37,45 @@
       outline: none;
       border: 1px solid black;
       text-transform: uppercase;
-  
+
       &:focus {
         border-color: blue;
       }
+    }
+  }
+  .select-wrapper {
+    position: relative;
+    display: inline-flex;
+
+    select {
+      border-color: blue;
+      padding: 0 10px;
+      min-width: 100px;
+    }
+
+    &:after,
+    &:before {
+      font-size: 12px;
+      position: absolute;
+      right: 10px;
+      color: blue;
+    }
+    &:after {
+      content: '◀';
+      top: calc(50% - 5px);
+      transform: translate(0, -50%) rotate(90deg);
+    }
+    &:before {
+      content: '▶';
+      top: calc(50% + 5px);
+      transform: translate(0, -50%) rotate(90deg);
     }
   }
   .actions {
     display: flex;
     justify-content: flex-end;
     margin-top: 10px;
-  
+
     button {
       margin: 0;
       min-width: 50px;

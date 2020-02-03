@@ -29,6 +29,11 @@ export default async function depositAsset(
     let currency = await this.setPrompt('Select the currency you\'d like to deposit', null, this.toml.CURRENCIES)
         currency = currency.split(':')
 
+    const pincode = await this.setPrompt('Enter your keystore pincode')
+
+    if (!pincode)
+        return
+
     const balances = loGet(this.account, 'state.balances')
     const hasCurrency = loFindIndex(balances, {
       asset_code: currency[0],
@@ -36,7 +41,7 @@ export default async function depositAsset(
     })
 
     if (hasCurrency === -1)
-      await this.trustAsset(null, currency[0], currency[1])
+      await this.trustAsset(null, currency[0], currency[1], pincode)
 
     const info = await axios.get(`${this.toml.TRANSFER_SERVER}info`)
     .then(({data}) => data)
@@ -50,12 +55,6 @@ export default async function depositAsset(
     })
     .then(async ({data}) => {
       const transaction: any = new Transaction(data.transaction, data.network_passphrase)
-      const pincode = await this.setPrompt('Enter your keystore pincode')
-
-      if (
-        !transaction
-        || !pincode
-      ) return
 
       this.loading = {...this.loading, deposit: true}
 
@@ -109,7 +108,12 @@ export default async function depositAsset(
 
     // TODO: Support postMessage callback
     // https://github.com/stellar/sep24-demo-client/blob/master/src/steps/deposit/show_interactive_webapp.js
-    window.open(interactive.url, 'popup', "width=500,height=800");
+    const popup = window.open(interactive.url, 'popup', 'width=500,height=800')
+
+    if (!popup) {
+      this.loading = {...this.loading, deposit: false}
+      return alert('You\'ll need to enable popups for this demo to work')
+    }
 
     let intervaled = 0
     const interval = setInterval(() => {
@@ -135,6 +139,8 @@ export default async function depositAsset(
         }
       })
     }, 5000)
+
+    return interactive.url
   }
 
   catch (err) {

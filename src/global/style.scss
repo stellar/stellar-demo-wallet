@@ -50,13 +50,16 @@ table {
 }
 input,
 button,
+select,
 textarea {
   font-family: $font-family;
   font-size: 15px;
   outline: none;
   appearance: none;
+  border-radius: 0;
 }
 input,
+select,
 button {
   height: 30px;
 }
@@ -78,6 +81,7 @@ button {
 
   &.loading {
     color: transparent;
+    pointer-events: none;
   }
   // &.green {
   //   background-color: green;

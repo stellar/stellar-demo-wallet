@@ -37,14 +37,6 @@ export class Prompt {
     if (newValue.show) {
       this.input = null
 
-      // window.addEventListener('keyup', (e) => {
-      //   e.keyCode === 13
-      //   ? this.submit(e)
-      //   : e.keyCode === 27
-      //   ? this.cancel(e)
-      //   : null
-      // }, {once: true})
-
       if (newValue.options)
         this.input = this.input || `${newValue.options[0].code}:${newValue.options[0].issuer}`
       else
@@ -56,6 +48,17 @@ export class Prompt {
       this.prompter.placeholder = null
       this.prompter.options = null
     }
+  }
+
+  componentDidLoad() {
+    window.addEventListener('keyup', (e: KeyboardEvent) => {
+      if (this.prompter.show)
+        e.keyCode === 13
+        ? this.submit(e)
+        : e.keyCode === 27
+        ? this.cancel(e)
+        : null
+    })
   }
 
   cancel(e: Event) {
@@ -90,15 +93,17 @@ export class Prompt {
 
           {
             this.prompter.options
-            ? <select
-                onInput={(e) => this.update(e)}
-              > {this.prompter.options.map((option) =>
-                  <option
-                    value={`${option.code}:${option.issuer}`}
-                    selected={this.input === `${option.code}:${option.issuer}`}
-                  >{option.code}</option>
-                )}
-              </select>
+            ? <div class="select-wrapper">
+                <select
+                  onInput={(e) => this.update(e)}
+                > {this.prompter.options.map((option) =>
+                    <option
+                      value={`${option.code}:${option.issuer}`}
+                      selected={this.input === `${option.code}:${option.issuer}`}
+                    >{option.code}</option>
+                  )}
+                </select>
+              </div>
             : <input type="text"
                 placeholder={this.prompter.placeholder}
                 value={this.input}
