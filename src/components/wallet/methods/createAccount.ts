@@ -9,10 +9,14 @@ export default async function createAccount(e: Event) {
   try {
     e.preventDefault()
 
-    const pincode = await this.setPrompt('Enter a keystore pincode')
+    const pincode_1 = await this.setPrompt('Enter a keystore pincode')
+    const pincode_2 = await this.setPrompt('Enter keystore pincode again')
 
-    if (!pincode)
-      return
+    if (
+      !pincode_1
+      || !pincode_2
+      || pincode_1 !== pincode_2
+    ) throw 'Invalid pincode'
 
     this.error = null
     this.loading = {...this.loading, fund: true}
@@ -24,7 +28,7 @@ export default async function createAccount(e: Event) {
 
     this.account = {
       publicKey: keypair.publicKey(),
-      keystore: sjcl.encrypt(pincode, keypair.secret(), {
+      keystore: sjcl.encrypt(pincode_1, keypair.secret(), {
         adata: JSON.stringify({
           publicKey: keypair.publicKey()
         })
