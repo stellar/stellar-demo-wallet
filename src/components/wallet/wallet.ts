@@ -49,7 +49,7 @@ export class Wallet {
   @State() error: any = null
 
   @Prop() server: Server
-  @Prop() homeDomane: String
+  @Prop() homeDomain: String
   @Prop() toml: Object
 
   // Component events
