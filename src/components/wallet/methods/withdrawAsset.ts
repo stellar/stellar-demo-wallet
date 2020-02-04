@@ -61,6 +61,7 @@ export default async function withdrawAsset(
     .then(async ({data}) => {
       const transaction: any = new Transaction(data.transaction, data.network_passphrase)
 
+      this.error = null
       this.loading = {...this.loading, withdraw: true}
 
       transaction.sign(keypair)
@@ -112,7 +113,7 @@ export default async function withdrawAsset(
 
     if (!popup) {
       this.loading = {...this.loading, withdraw: false}
-      return alert('You\'ll need to enable popups for this demo to work')
+      throw 'Popups are blocked. You\'ll need to enable popups for this demo to work'
     }
 
     await new Promise((resolve, reject) => {

@@ -48,6 +48,7 @@ export default async function depositAsset(
     .then(async ({data}) => {
       const transaction: any = new Transaction(data.transaction, data.network_passphrase)
 
+      this.error = null
       this.loading = {...this.loading, deposit: true}
 
       const keypair = Keypair.fromSecret(
@@ -99,7 +100,7 @@ export default async function depositAsset(
 
     if (!popup) {
       this.loading = {...this.loading, deposit: false}
-      return alert('You\'ll need to enable popups for this demo to work')
+      throw 'Popups are blocked. You\'ll need to enable popups for this demo to work'
     }
 
     await new Promise((resolve, reject) => {
