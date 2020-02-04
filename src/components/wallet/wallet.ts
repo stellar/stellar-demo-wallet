@@ -16,7 +16,7 @@ import updateAccount from './methods/updateAccount'
 import makePayment from './methods/makePayment'
 import trustAsset from './methods/trustAsset'
 import depositAsset from './methods/depositAsset'
-import withdrawalAsset from './methods/withdrawalAsset'
+import withdrawAsset from './methods/withdrawAsset'
 import copySecret from './methods/copySecret'
 import setPrompt from './methods/setPrompt'
 
@@ -34,7 +34,7 @@ interface Loading {
   trust?: boolean,
   update?: boolean,
   deposit?: boolean,
-  withdrawal?: boolean
+  withdraw?: boolean
 }
 
 @Component({
@@ -61,7 +61,7 @@ export class Wallet {
   updateAccount = updateAccount
   makePayment = makePayment
   depositAsset = depositAsset
-  withdrawalAsset = withdrawalAsset
+  withdrawAsset = withdrawAsset
   trustAsset = trustAsset
 
   // Misc methods

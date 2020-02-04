@@ -2,7 +2,16 @@ import sjcl from '@tinyanvil/sjcl'
 import {
   Transaction,
   Keypair,
+  Account,
+  TransactionBuilder,
+  BASE_FEE,
+  Networks,
+  Operation,
+  Asset,
+  Memo,
+  MemoHash
 } from 'stellar-sdk'
+
 import axios from 'axios'
 import {
   get as loGet,
@@ -12,19 +21,23 @@ import {
 
 import { handleError } from '@services/error'
 
-export default async function depositAsset(
+export default async function withdrawAsset(
   e?: Event
 ) {
   try {
     if (e) e.preventDefault()
 
-    let currency = await this.setPrompt('Select the currency you\'d like to deposit', null, this.toml.CURRENCIES)
+    let currency = await this.setPrompt('Select the currency you\'d like to withdraw', null, this.toml.CURRENCIES)
         currency = currency.split(':')
 
     const pincode = await this.setPrompt('Enter your keystore pincode')
 
     if (!pincode)
         return
+
+    const keypair = Keypair.fromSecret(
+      sjcl.decrypt(pincode, this.account.keystore)
+    )
 
     const balances = loGet(this.account, 'state.balances')
     const hasCurrency = loFindIndex(balances, {
@@ -48,11 +61,7 @@ export default async function depositAsset(
     .then(async ({data}) => {
       const transaction: any = new Transaction(data.transaction, data.network_passphrase)
 
-      this.loading = {...this.loading, deposit: true}
-
-      const keypair = Keypair.fromSecret(
-        sjcl.decrypt(pincode, this.account.keystore)
-      )
+      this.loading = {...this.loading, withdraw: true}
 
       transaction.sign(keypair)
       return transaction.toXDR()
@@ -70,7 +79,7 @@ export default async function depositAsset(
       lang: 'en'
     }, (value, key) => formData.append(key, value))
 
-    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER}transactions/deposit/interactive`, formData, {
+    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER}transactions/withdraw/interactive`, formData, {
       headers: {
         'Authorization': `Bearer ${auth}`,
         'Content-Type': 'multipart/form-data'
@@ -83,7 +92,7 @@ export default async function depositAsset(
       params: {
         asset_code: currency[0],
         limit: 1,
-        kind: 'deposit',
+        kind: 'withdrawal',
       },
       headers: {
         'Authorization': `Bearer ${auth}`
@@ -100,7 +109,7 @@ export default async function depositAsset(
     const popup = window.open(url, 'popup', 'width=500,height=800')
 
     if (!popup) {
-      this.loading = {...this.loading, deposit: false}
+      this.loading = {...this.loading, withdraw: false}
       return alert('You\'ll need to enable popups for this demo to work')
     }
 
@@ -111,43 +120,69 @@ export default async function depositAsset(
           transactions[0].status === 'incomplete'
           && transaction.status == 'pending_user_transfer_start'
         ) {
-          let intervaled = 0
-
-          const interval = setInterval(() => {
-            axios.get(`${this.toml.TRANSFER_SERVER}transaction`, {
-              params: {
-                id: transactions[0].id
-              },
-              headers: {
-                'Authorization': `Bearer ${auth}`
-              }
-            }).then(({data: {transaction}}) => {
-              intervaled++
-
-              console.log(transaction.status, transaction)
-
-              if (
-                intervaled >= 10
-                || transaction.status === 'completed'
-              ) {
-                this.updateAccount()
-                this.loading = {...this.loading, deposit: false}
-                clearInterval(interval)
-
-                const urlBuilder = new URL(transaction.more_info_url)
-                      urlBuilder.searchParams.set('jwt', auth)
-
-                popup.location.replace(urlBuilder.toString())
-              }
+          this.server
+          .accounts()
+          .accountId(keypair.publicKey())
+          .call()
+          .then(({sequence}) => {
+            const account = new Account(keypair.publicKey(), sequence)
+            const txn = new TransactionBuilder(account, {
+              fee: BASE_FEE,
+              networkPassphrase: Networks.TESTNET
             })
-          }, 1000)
+            .addOperation(Operation.payment({
+              destination: transaction.withdraw_anchor_account,
+              asset: new Asset(currency[0], currency[1]),
+              amount: transaction.amount_in
+            }))
+            .addMemo(new Memo(MemoHash, transaction.withdraw_memo))
+            .setTimeout(0)
+            .build()
+
+            txn.sign(keypair)
+            return this.server.submitTransaction(txn)
+          })
+          .then((res) => {
+            console.log(res)
+
+            let intervaled = 0
+
+            const interval = setInterval(() => {
+              axios.get(`${this.toml.TRANSFER_SERVER}transaction`, {
+                params: {
+                  id: transactions[0].id
+                },
+                headers: {
+                  'Authorization': `Bearer ${auth}`
+                }
+              }).then(({data: {transaction}}) => {
+                intervaled++
+
+                console.log(transaction.status, transaction)
+
+                if (
+                  intervaled >= 10
+                  || transaction.status === 'completed'
+                ) {
+                  this.updateAccount()
+                  this.loading = {...this.loading, withdraw: false}
+                  clearInterval(interval)
+
+                  const urlBuilder = new URL(transaction.more_info_url)
+                        urlBuilder.searchParams.set('jwt', auth)
+
+                  popup.location.replace(urlBuilder.toString())
+                }
+              })
+            }, 1000)
+          })
         }
       }
     )
   }
 
   catch (err) {
-    this.loading = {...this.loading, deposit: false}
+    this.loading = {...this.loading, withdraw: false}
     this.error = handleError(err)
   }
 }

@@ -22,7 +22,7 @@ export const config: Config = {
   globalStyle: 'src/global/style.scss',
   commonjs: {
     namedExports: {
-      'stellar-sdk': ['StrKey', 'xdr', 'Transaction', 'Keypair', 'Networks', 'Account', 'TransactionBuilder', 'BASE_FEE', 'Operation', 'Asset'],
+      'stellar-sdk': ['StrKey', 'xdr', 'Transaction', 'Keypair', 'Networks', 'Account', 'TransactionBuilder', 'BASE_FEE', 'Operation', 'Asset', 'Memo', 'MemoHash'],
       '@stellar/wallet-sdk': ['KeyManager', 'KeyManagerPlugins', 'KeyType'],
     },
   },
