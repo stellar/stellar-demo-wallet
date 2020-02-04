@@ -19,6 +19,7 @@ import depositAsset from './methods/depositAsset'
 import withdrawAsset from './methods/withdrawAsset'
 import copySecret from './methods/copySecret'
 import setPrompt from './methods/setPrompt'
+import signOut from './methods/signOut'
 
 import { Prompter } from '@prompt/prompt'
 
@@ -63,6 +64,7 @@ export class Wallet {
   depositAsset = depositAsset
   withdrawAsset = withdrawAsset
   trustAsset = trustAsset
+  signOut = signOut
 
   // Misc methods
   copySecret = copySecret

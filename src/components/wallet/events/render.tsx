@@ -22,6 +22,9 @@ export default function render() {
       }
     </form>,
     this.error ? <pre class="error">{JSON.stringify(this.error, null, 2)}</pre> : null,
-    loHas(this.account, 'state') ? <pre class="account">{JSON.stringify(this.account.state, null, 2)}</pre> : null,
+    loHas(this.account, 'state') ? [
+      <pre class="account">{JSON.stringify(this.account.state, null, 2)}</pre>,
+      <button type="button" onClick={(e) => this.signOut(e)}>Sign Out</button>
+    ] : null,
   ]
 }

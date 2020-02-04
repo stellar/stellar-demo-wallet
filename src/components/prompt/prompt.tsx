@@ -51,7 +51,7 @@ export class Prompt {
   }
 
   componentDidLoad() {
-    window.addEventListener('keyup', (e: KeyboardEvent) => {
+    addEventListener('keyup', (e: KeyboardEvent) => {
       if (this.prompter.show)
         e.keyCode === 13
         ? this.submit(e)

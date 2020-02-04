@@ -96,7 +96,7 @@ export default async function depositAsset(
 
     const urlBuilder = new URL(interactive.url)
           urlBuilder.searchParams.set('jwt', auth)
-    const popup = window.open(urlBuilder.toString(), 'popup', 'width=500,height=800')
+    const popup = open(urlBuilder.toString(), 'popup', 'width=500,height=800')
 
     if (!popup) {
       this.loading = {...this.loading, deposit: false}
