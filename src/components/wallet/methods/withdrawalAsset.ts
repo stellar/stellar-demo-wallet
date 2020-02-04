@@ -11,7 +11,7 @@ import {
 
 import { handleError } from '@services/error'
 
-export default async function withdrawlAsset(
+export default async function withdrawalAsset(
   e?: Event
 ) {
   try {

@@ -1,3 +1,7 @@
+declare global {
+  interface Window { popup: any }
+}
+
 import sjcl from '@tinyanvil/sjcl'
 // import moment from 'moment'
 // import shajs from 'sha.js'
@@ -106,41 +110,59 @@ export default async function depositAsset(
 
     console.log(transactions)
 
-    // TODO: Support postMessage callback
-    // https://github.com/stellar/sep24-demo-client/blob/master/src/steps/deposit/show_interactive_webapp.js
-    const popup = window.open(interactive.url, 'popup', 'width=500,height=800')
+    const urlBuilder = new URL(interactive.url)
+          urlBuilder.searchParams.set('jwt', auth)
+          urlBuilder.searchParams.set('callback', 'postMessage')
+    const url = urlBuilder.toString()
+    const popup = window.open(url, 'popup', 'width=500,height=800')
 
     if (!popup) {
       this.loading = {...this.loading, deposit: false}
       return alert('You\'ll need to enable popups for this demo to work')
     }
 
-    let intervaled = 0
-    const interval = setInterval(() => {
-      axios.get(`${this.toml.TRANSFER_SERVER}transaction`, {
-        params: {
-          id: transactions[0].id
-        },
-        headers: {
-          'Authorization': `Bearer ${auth}`
-        }
-      }).then(({data: {transaction}}) => {
-        intervaled++
+    window.popup = popup
 
-        console.log(transaction.status, transaction)
-
+    window.addEventListener(
+      'message',
+      ({data: {transaction}}) => {
         if (
-          intervaled >= 10
-          || transaction.status === 'completed'
+          transactions[0].status === 'incomplete'
+          && transaction.status == 'pending_user_transfer_start'
         ) {
-          this.updateAccount()
-          this.loading = {...this.loading, deposit: false}
-          clearInterval(interval)
-        }
-      })
-    }, 5000)
+          let intervaled = 0
 
-    return interactive.url
+          const interval = setInterval(() => {
+            axios.get(`${this.toml.TRANSFER_SERVER}transaction`, {
+              params: {
+                id: transactions[0].id
+              },
+              headers: {
+                'Authorization': `Bearer ${auth}`
+              }
+            }).then(({data: {transaction}}) => {
+              intervaled++
+
+              console.log(transaction.status, transaction)
+
+              if (
+                intervaled >= 10
+                || transaction.status === 'completed'
+              ) {
+                this.updateAccount()
+                this.loading = {...this.loading, deposit: false}
+                clearInterval(interval)
+
+                const urlBuilder = new URL(transaction.more_info_url)
+                      urlBuilder.searchParams.set('jwt', auth)
+
+                popup.location.replace(urlBuilder.toString())
+              }
+            })
+          }, 5000)
+        }
+      }
+    )
   }
 
   catch (err) {
