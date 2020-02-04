@@ -118,7 +118,7 @@ export default async function depositAsset(
           console.log(transaction.status, transaction)
 
           if (intervaled >= 60)
-            throw 'Withdraw flow timed out. Please reload and try again'
+            throw 'Deposit flow timed out. Please reload and try again'
 
           else if (transaction.status === 'completed') {
             this.updateAccount()
