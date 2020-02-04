@@ -19,7 +19,7 @@ export default async function makePayment(
   issuer?: string
 ) {
   try {
-    e.preventDefault()
+    if (e) e.preventDefault()
 
     let instructions
 

@@ -14,10 +14,11 @@ import { handleError } from '@services/error'
 export default async function trustAsset(
   e?: Event,
   asset?: string,
-  issuer?: string
+  issuer?: string,
+  pincode?: string
 ) {
   try {
-    e.preventDefault()
+    if (e) e.preventDefault()
 
     let instructions
 
@@ -31,7 +32,7 @@ export default async function trustAsset(
       instructions = instructions.split(' ')
     }
 
-    const pincode = await this.setPrompt('Enter your keystore pincode')
+    pincode = pincode || await this.setPrompt('Enter your keystore pincode')
 
     if (
       !instructions

@@ -50,19 +50,23 @@ table {
 }
 input,
 button,
+select,
 textarea {
   font-family: $font-family;
   font-size: 15px;
   outline: none;
   appearance: none;
+  border-radius: 0;
 }
 input,
+select,
 button {
   height: 30px;
 }
 button {
   border: none;
   appearance: none;
+  position: relative;
   background-color: blue;
   color: white;
   margin: 0;
@@ -74,4 +78,21 @@ button {
   justify-items: center;
   padding: 0 10px;
   cursor: pointer;
+
+  &.loading {
+    color: transparent;
+    pointer-events: none;
+  }
+  // &.green {
+  //   background-color: green;
+  // }
+  // &.red {
+  //   background-color: orangered;
+  // }
+  // &.black {
+  //   background-color: black;
+  // }
+  // &.purple {
+  //   background-color: purple;
+  // }
 }

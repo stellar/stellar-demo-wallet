@@ -1,10 +1,10 @@
-import { 
-  Component, 
-  Prop, 
-  Element, 
-  Watch, 
-  h, 
-  State 
+import {
+  Component,
+  Prop,
+  Element,
+  Watch,
+  h,
+  State
 } from '@stencil/core'
 import { defer as loDefer } from 'lodash-es'
 
@@ -12,6 +12,7 @@ export interface Prompter {
   show: boolean
   message?: string
   placeholder?: string
+  options?: Array<any>
   resolve?: Function
   reject?: Function
 }
@@ -35,20 +36,36 @@ export class Prompt {
 
     if (newValue.show) {
       this.input = null
-      loDefer(() => this.element.shadowRoot.querySelector('input').focus())
+
+      if (newValue.options)
+        this.input = this.input || `${newValue.options[0].code}:${newValue.options[0].issuer}`
+      else
+        loDefer(() => this.element.shadowRoot.querySelector('input').focus())
     }
-    
+
     else {
       this.prompter.message = null
       this.prompter.placeholder = null
+      this.prompter.options = null
     }
+  }
+
+  componentDidLoad() {
+    addEventListener('keyup', (e: KeyboardEvent) => {
+      if (this.prompter.show)
+        e.keyCode === 13
+        ? this.submit(e)
+        : e.keyCode === 27
+        ? this.cancel(e)
+        : null
+    })
   }
 
   cancel(e: Event) {
     e.preventDefault()
 
     this.prompter = {
-      ...this.prompter, 
+      ...this.prompter,
       show: false
     }
     this.prompter.reject(null)
@@ -58,7 +75,7 @@ export class Prompt {
     e.preventDefault()
 
     this.prompter = {
-      ...this.prompter, 
+      ...this.prompter,
       show: false
     }
     this.prompter.resolve(this.input)
@@ -73,14 +90,26 @@ export class Prompt {
       <div class="prompt-wrapper">
         <div class="prompt">
           {this.prompter.message ? <p>{this.prompter.message}</p> : null}
-          
-          <input type="text" 
-            placeholder={this.prompter.placeholder} 
-            onKeyUp={(e) => e.keyCode === 13 ? this.submit(e) : null}
-            onKeyDown={(e) => e.keyCode === 27 ? this.cancel(e) : null}
-            value={this.input} 
-            onInput={(e) => this.update(e)}
-          ></input>
+
+          {
+            this.prompter.options
+            ? <div class="select-wrapper">
+                <select
+                  onInput={(e) => this.update(e)}
+                > {this.prompter.options.map((option) =>
+                    <option
+                      value={`${option.code}:${option.issuer}`}
+                      selected={this.input === `${option.code}:${option.issuer}`}
+                    >{option.code}</option>
+                  )}
+                </select>
+              </div>
+            : <input type="text"
+                placeholder={this.prompter.placeholder}
+                value={this.input}
+                onInput={(e) => this.update(e)}
+              ></input>
+          }
 
           <div class="actions">
             <button class="cancel" type="button" onClick={(e) => this.cancel(e)}>Cancel</button>
