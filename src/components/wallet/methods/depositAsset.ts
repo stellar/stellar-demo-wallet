@@ -95,55 +95,51 @@ export default async function depositAsset(
 
     const urlBuilder = new URL(interactive.url)
           urlBuilder.searchParams.set('jwt', auth)
-          urlBuilder.searchParams.set('callback', 'postMessage')
-    const url = urlBuilder.toString()
-    const popup = window.open(url, 'popup', 'width=500,height=800')
+    const popup = window.open(urlBuilder.toString(), 'popup', 'width=500,height=800')
 
     if (!popup) {
       this.loading = {...this.loading, deposit: false}
       return alert('You\'ll need to enable popups for this demo to work')
     }
 
-    window.addEventListener(
-      'message',
-      ({data: {transaction}}) => {
-        if (
-          transactions[0].status === 'incomplete'
-          && transaction.status == 'pending_user_transfer_start'
-        ) {
-          let intervaled = 0
+    await new Promise((resolve, reject) => {
+      let intervaled = 0
 
-          const interval = setInterval(() => {
-            axios.get(`${this.toml.TRANSFER_SERVER}transaction`, {
-              params: {
-                id: transactions[0].id
-              },
-              headers: {
-                'Authorization': `Bearer ${auth}`
-              }
-            }).then(({data: {transaction}}) => {
-              intervaled++
+      const interval = setInterval(() => {
+        axios.get(`${this.toml.TRANSFER_SERVER}transaction`, {
+          params: {
+            id: transactions[0].id
+          },
+          headers: {
+            'Authorization': `Bearer ${auth}`
+          }
+        }).then(({data: {transaction}}) => {
+          console.log(transaction.status, transaction)
 
-              console.log(transaction.status, transaction)
+          if (intervaled >= 60)
+            throw 'Withdraw flow timed out. Please reload and try again'
 
-              if (
-                intervaled >= 10
-                || transaction.status === 'completed'
-              ) {
-                this.updateAccount()
-                this.loading = {...this.loading, deposit: false}
-                clearInterval(interval)
+          else if (transaction.status === 'completed') {
+            this.updateAccount()
+            this.loading = {...this.loading, deposit: false}
 
-                const urlBuilder = new URL(transaction.more_info_url)
-                      urlBuilder.searchParams.set('jwt', auth)
+            const urlBuilder = new URL(transaction.more_info_url)
+                  urlBuilder.searchParams.set('jwt', auth)
 
-                popup.location.replace(urlBuilder.toString())
-              }
-            })
-          }, 1000)
-        }
-      }
-    )
+            popup.location.replace(urlBuilder.toString())
+
+            clearInterval(interval)
+            resolve()
+          }
+
+          intervaled++
+        })
+        .catch((err) => {
+          clearInterval(interval)
+          reject(err)
+        })
+      }, 1000)
+    })
   }
 
   catch (err) {

@@ -7,9 +7,9 @@
 // @Prop({mutable: true}) keyManager: KeyManager
 
 //  async componentWillLoad() {
-  // this.keyManager = new KeyManager({keyStore: new KeyManagerPlugins.MemoryKeyStore()});
-  // this.keyManager.registerEncrypter(KeyManagerPlugins.ScryptEncrypter);
-  // this.keyManager.setDefaultNetworkPassphrase(Networks.TESTNET);
+//   this.keyManager = new KeyManager({keyStore: new KeyManagerPlugins.MemoryKeyStore()});
+//   this.keyManager.registerEncrypter(KeyManagerPlugins.ScryptEncrypter);
+//   this.keyManager.setDefaultNetworkPassphrase(Networks.TESTNET);
 // }
 
 // this.keyManager

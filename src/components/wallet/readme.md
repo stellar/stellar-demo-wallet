@@ -9,7 +9,7 @@
 
 | Property     | Attribute | Description | Type     | Default     |
 | ------------ | --------- | ----------- | -------- | ----------- |
-| `homeDomane` | --        |             | `String` | `undefined` |
+| `homeDomain` | --        |             | `String` | `undefined` |
 | `server`     | --        |             | `Server` | `undefined` |
 | `toml`       | --        |             | `Object` | `undefined` |
 

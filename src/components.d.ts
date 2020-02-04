@@ -22,7 +22,7 @@ export namespace Components {
     'prompter': Prompter;
   }
   interface StellarWallet {
-    'homeDomane': String;
+    'homeDomain': String;
     'server': Server;
     'toml': Object;
   }
@@ -63,7 +63,7 @@ declare namespace LocalJSX {
     'prompter'?: Prompter;
   }
   interface StellarWallet {
-    'homeDomane'?: String;
+    'homeDomain'?: String;
     'server'?: Server;
     'toml'?: Object;
   }
