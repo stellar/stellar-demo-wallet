@@ -11,19 +11,18 @@ export default async function componentWillLoad() {
     this.homeDomain = 'stellar-anchor-server.herokuapp.com'
     this.toml = await StellarTomlResolver.resolve(this.homeDomain)
 
-    if (!keystore)
-      return
-    else
+    if (keystore) {
       keystore = atob(keystore)
 
-    const { publicKey } = JSON.parse(atob(JSON.parse(keystore).adata))
+      const { publicKey } = JSON.parse(atob(JSON.parse(keystore).adata))
 
-    this.account = {
-      publicKey,
-      keystore
+      this.account = {
+        publicKey,
+        keystore
+      }
+
+      this.updateAccount()
     }
-
-    this.updateAccount()
   }
 
   catch (err) {

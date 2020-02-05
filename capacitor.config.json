@@ -1,6 +1,6 @@
 {
-  "appId": "wallet.stellar",
-  "appName": "Stellar Wallet",
+  "appId": "com.wallet.stellar",
+  "appName": "stellar-wallet",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",

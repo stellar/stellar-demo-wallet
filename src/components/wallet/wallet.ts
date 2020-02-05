@@ -8,26 +8,26 @@ import {
   ServerApi,
 } from 'stellar-sdk'
 
-import componenetWillLoad from './events/componentWillLoad'
+import componentWillLoad from './events/componentWillLoad'
 import render from './events/render'
 
 import createAccount from './methods/createAccount'
 import updateAccount from './methods/updateAccount'
-import makePayment from './methods/makePayment'
-import trustAsset from './methods/trustAsset'
 import depositAsset from './methods/depositAsset'
 import withdrawAsset from './methods/withdrawAsset'
+import trustAsset from './methods/trustAsset'
+import makePayment from './methods/makePayment'
 import copyAddress from './methods/copyAddress'
 import copySecret from './methods/copySecret'
-import setPrompt from './methods/setPrompt'
 import signOut from './methods/signOut'
+import setPrompt from './methods/setPrompt'
 
 import { Prompter } from '@prompt/prompt'
 
 interface StellarAccount {
-  state?: ServerApi.AccountRecord,
   publicKey: string,
   keystore: string,
+  state?: ServerApi.AccountRecord,
 }
 
 interface Loading {
@@ -55,20 +55,20 @@ export class Wallet {
   @Prop() toml: Object
 
   // Component events
-  componentWillLoad = componenetWillLoad
+  componentWillLoad = componentWillLoad
   render = render
 
   // Stellar methods
   createAccount = createAccount
   updateAccount = updateAccount
-  makePayment = makePayment
   depositAsset = depositAsset
   withdrawAsset = withdrawAsset
   trustAsset = trustAsset
+  makePayment = makePayment
+  copyAddress = copyAddress
+  copySecret = copySecret
   signOut = signOut
 
   // Misc methods
-  copyAddress = copyAddress
-  copySecret = copySecret
   setPrompt = setPrompt
 }
