@@ -21,9 +21,7 @@ import {
 
 import { handleError } from '@services/error'
 
-export default async function withdrawAsset(
-  e?: Event
-) {
+export default async function withdrawAsset(e?: Event) {
   try {
     if (e) e.preventDefault()
 
@@ -103,12 +101,9 @@ export default async function withdrawAsset(
 
     console.log(transactions)
 
-    // 1. Begin polling for a status of `pending_user_transfer_start` indicating the completion of KYC or the entrance of the withdraw values
-    // 2. Once status is `pending_user_transfer_start` stop first poll and submit the transaction
-    // 3. Upon successful payment restart poll watching for a `completed` withdraw status
-
     const urlBuilder = new URL(interactive.url)
           urlBuilder.searchParams.set('jwt', auth)
+          urlBuilder.searchParams.set('callback', 'postMessage')
     const popup = open(urlBuilder.toString(), 'popup', 'width=500,height=800')
 
     if (!popup) {
@@ -117,96 +112,66 @@ export default async function withdrawAsset(
     }
 
     await new Promise((resolve, reject) => {
-      let intervaled = 0
+      let submittedTxn
 
-      const interval = setInterval(() => {
-        axios.get(`${this.toml.TRANSFER_SERVER}transaction`, {
-          params: {
-            id: transactions[0].id
-          },
-          headers: {
-            'Authorization': `Bearer ${auth}`
-          }
-        }).then(({data: {transaction}}) => {
-          console.log(transaction.status, transaction)
+      window.onmessage = ({data: {transaction}}) => {
+        console.log(transaction.status, transaction)
 
-          if (intervaled >= 60)
-            throw 'Withdraw flow timed out. Please reload and try again'
+        if (transaction.status === 'completed') {
+          this.updateAccount()
+          this.loading = {...this.loading, withdraw: false}
+          resolve()
+        }
 
-          else if (transaction.status === 'pending_user_transfer_start') {
-            clearInterval(interval)
-
-            return this.server
-            .accounts()
-            .accountId(keypair.publicKey())
-            .call()
-            .then(({sequence}) => {
-              const account = new Account(keypair.publicKey(), sequence)
-              const txn = new TransactionBuilder(account, {
-                fee: BASE_FEE,
-                networkPassphrase: Networks.TESTNET
-              })
-              .addOperation(Operation.payment({
-                destination: transaction.withdraw_anchor_account,
-                asset: new Asset(currency[0], currency[1]),
-                amount: transaction.amount_in
-              }))
-              .addMemo(new Memo(MemoHash, transaction.withdraw_memo))
-              .setTimeout(0)
-              .build()
-
-              txn.sign(keypair)
-              return this.server.submitTransaction(txn)
+        else if (
+          !submittedTxn
+          && transaction.status === 'pending_user_transfer_start'
+        ) {
+          this.server
+          .accounts()
+          .accountId(keypair.publicKey())
+          .call()
+          .then(({sequence}) => {
+            const account = new Account(keypair.publicKey(), sequence)
+            const txn = new TransactionBuilder(account, {
+              fee: BASE_FEE,
+              networkPassphrase: Networks.TESTNET
             })
-            .then((res) => {
-              console.log(res)
+            .addOperation(Operation.payment({
+              destination: transaction.withdraw_anchor_account,
+              asset: new Asset(currency[0], currency[1]),
+              amount: transaction.amount_in
+            }))
+            .addMemo(new Memo(MemoHash, transaction.withdraw_memo))
+            .setTimeout(0)
+            .build()
 
-              let intervaled = 0
+            txn.sign(keypair)
+            return this.server.submitTransaction(txn)
+          })
+          .then((res) => {
+            console.log(res)
+            submittedTxn = res
 
-              const interval = setInterval(() => {
-                axios.get(`${this.toml.TRANSFER_SERVER}transaction`, {
-                  params: {
-                    id: transactions[0].id
-                  },
-                  headers: {
-                    'Authorization': `Bearer ${auth}`
-                  }
-                }).then(({data: {transaction}}) => {
-                  console.log(transaction.status, transaction)
+            const urlBuilder = new URL(transaction.more_info_url)
+                  urlBuilder.searchParams.set('jwt', auth)
+                  urlBuilder.searchParams.set('callback', 'postMessage')
 
-                  if (intervaled >= 60)
-                    throw 'Withdraw flow timed out. Please reload and try again'
+            popup.location.replace(urlBuilder.toString())
+          })
+          .catch((err) => reject(err))
+        }
 
-                  else if (transaction.status === 'completed') {
-                    this.updateAccount()
-                    this.loading = {...this.loading, withdraw: false}
+        else {
+          setTimeout(() => {
+            const urlBuilder = new URL(transaction.more_info_url)
+                  urlBuilder.searchParams.set('jwt', auth)
+                  urlBuilder.searchParams.set('callback', 'postMessage')
 
-                    const urlBuilder = new URL(transaction.more_info_url)
-                          urlBuilder.searchParams.set('jwt', auth)
-
-                    popup.location.replace(urlBuilder.toString())
-
-                    clearInterval(interval)
-                    resolve()
-                  }
-
-                  intervaled++
-                })
-                .catch((err) => {
-                  clearInterval(interval)
-                  reject(err)
-                })
-              }, 1000)
-            })
-          }
-
-          intervaled++
-        })
-        .catch((err) => {
-          clearInterval(interval)
-          reject(err)
-        })
-      }, 1000)
+            popup.location.replace(urlBuilder.toString())
+          }, 1000)
+        }
+      }
     })
   }
 

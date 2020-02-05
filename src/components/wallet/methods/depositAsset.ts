@@ -12,9 +12,7 @@ import {
 
 import { handleError } from '@services/error'
 
-export default async function depositAsset(
-  e?: Event
-) {
+export default async function depositAsset(e?: Event) {
   try {
     if (e) e.preventDefault()
 
@@ -96,6 +94,7 @@ export default async function depositAsset(
 
     const urlBuilder = new URL(interactive.url)
           urlBuilder.searchParams.set('jwt', auth)
+          urlBuilder.searchParams.set('callback', 'postMessage')
     const popup = open(urlBuilder.toString(), 'popup', 'width=500,height=800')
 
     if (!popup) {
@@ -103,44 +102,24 @@ export default async function depositAsset(
       throw 'Popups are blocked. You\'ll need to enable popups for this demo to work'
     }
 
-    await new Promise((resolve, reject) => {
-      let intervaled = 0
+    window.onmessage = ({data: {transaction}}) => {
+      console.log(transaction.status, transaction)
 
-      const interval = setInterval(() => {
-        axios.get(`${this.toml.TRANSFER_SERVER}transaction`, {
-          params: {
-            id: transactions[0].id
-          },
-          headers: {
-            'Authorization': `Bearer ${auth}`
-          }
-        }).then(({data: {transaction}}) => {
-          console.log(transaction.status, transaction)
+      if (transaction.status === 'completed') {
+        this.updateAccount()
+        this.loading = {...this.loading, deposit: false}
+      }
 
-          if (intervaled >= 60)
-            throw 'Deposit flow timed out. Please reload and try again'
+      else {
+        setTimeout(() => {
+          const urlBuilder = new URL(transaction.more_info_url)
+                urlBuilder.searchParams.set('jwt', auth)
+                urlBuilder.searchParams.set('callback', 'postMessage')
 
-          else if (transaction.status === 'completed') {
-            this.updateAccount()
-            this.loading = {...this.loading, deposit: false}
-
-            const urlBuilder = new URL(transaction.more_info_url)
-                  urlBuilder.searchParams.set('jwt', auth)
-
-            popup.location.replace(urlBuilder.toString())
-
-            clearInterval(interval)
-            resolve()
-          }
-
-          intervaled++
-        })
-        .catch((err) => {
-          clearInterval(interval)
-          reject(err)
-        })
-      }, 1000)
-    })
+          popup.location.replace(urlBuilder.toString())
+        }, 1000)
+      }
+    }
   }
 
   catch (err) {
