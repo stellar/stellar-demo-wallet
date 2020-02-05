@@ -19,7 +19,7 @@
     "build": "stencil build --docs",
     "start": "stencil build --dev --watch --serve",
     "generate": "stencil generate",
-    "deploy": "npm run build ; now deploy ./www --prod --name stellar-demo-wallet"
+    "deploy": "npm publish ; now deploy ./www --prod --name stellar-demo-wallet"
   },
   "devDependencies": {
     "@capacitor/cli": "^1.4.0",

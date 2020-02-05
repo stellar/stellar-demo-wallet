@@ -17,6 +17,7 @@ import makePayment from './methods/makePayment'
 import trustAsset from './methods/trustAsset'
 import depositAsset from './methods/depositAsset'
 import withdrawAsset from './methods/withdrawAsset'
+import copyAddress from './methods/copyAddress'
 import copySecret from './methods/copySecret'
 import setPrompt from './methods/setPrompt'
 import signOut from './methods/signOut'
@@ -67,6 +68,7 @@ export class Wallet {
   signOut = signOut
 
   // Misc methods
+  copyAddress = copyAddress
   copySecret = copySecret
   setPrompt = setPrompt
 }

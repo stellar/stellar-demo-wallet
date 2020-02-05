@@ -70,7 +70,6 @@ button {
   background-color: blue;
   color: white;
   margin: 0;
-  padding: 0;
   display: flex;
   align-items: center;
   align-content: center;
@@ -82,6 +81,10 @@ button {
   &.loading {
     color: transparent;
     pointer-events: none;
+  }
+  &.small {
+    font-size: 12px;
+    height: 20px;
   }
   // &.green {
   //   background-color: green;

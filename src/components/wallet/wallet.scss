@@ -6,17 +6,27 @@
   font-size: 15px;
 
   p {
-    margin-bottom: 10px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
+    display: block;
   }
   button {
     margin-bottom: 10px;
   }
 
-  .account,
+  .account-key {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+
+    .small {
+      margin: 0 0 0 10px;
+      flex-shrink: 0;
+    }
+  }
+  .account-state,
   .error {
     overflow: scroll;
     padding: 10px;
@@ -26,7 +36,7 @@
     margin-bottom: 10px;
     width: 100%;
   }
-  .account {
+  .account-state {
     background-color: whitesmoke;
   }
   .error {
