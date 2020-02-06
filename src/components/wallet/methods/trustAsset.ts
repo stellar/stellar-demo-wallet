@@ -46,7 +46,7 @@ export default async function trustAsset(
     this.error = null
     this.loading = {...this.loading, trust: true}
 
-    return this.server.accounts()
+    await this.server.accounts()
     .accountId(keypair.publicKey())
     .call()
     .then(({sequence}) => {
