@@ -16,8 +16,11 @@ export default async function makePayment(e: Event) {
   try {
     e.preventDefault()
 
-    let instructions = await this.setPrompt('{Amount} {Destination}')
+    let instructions = await this.setPrompt('{Amount} {Asset} {Destination}')
         instructions = instructions.split(' ')
+
+    if (!/xlm/gi.test(instructions[1]))
+      instructions[3] = await this.setPrompt(`Who issues the ${instructions[1]} asset?`, 'Enter ME to refer to yourself')
 
     const pincode = await this.setPrompt('Enter your keystore pincode')
 
@@ -29,6 +32,9 @@ export default async function makePayment(e: Event) {
     const keypair = Keypair.fromSecret(
       sjcl.decrypt(pincode, this.account.keystore)
     )
+
+    if (/me/gi.test(instructions[3]))
+      instructions[3] = keypair.publicKey()
 
     this.error = null
     this.loading = {...this.loading, pay: true}
@@ -44,8 +50,8 @@ export default async function makePayment(e: Event) {
         networkPassphrase: Networks.TESTNET
       })
       .addOperation(Operation.payment({
-        destination: instructions[1],
-        asset: Asset.native(),
+        destination: instructions[2],
+        asset: instructions[3] ? new Asset(instructions[1], instructions[3]) : Asset.native(),
         amount: instructions[0]
       }))
       .setTimeout(0)
@@ -58,13 +64,14 @@ export default async function makePayment(e: Event) {
           loHas(err, 'response.data.extras.result_codes.operations')
           && err.response.data.status === 400
           && err.response.data.extras.result_codes.operations.indexOf('op_no_destination') !== -1
+          && !instructions[3]
         ) {
           const transaction = new TransactionBuilder(account, {
             fee: BASE_FEE,
             networkPassphrase: Networks.TESTNET
           })
           .addOperation(Operation.createAccount({
-            destination: instructions[1],
+            destination: instructions[2],
             startingBalance: instructions[0]
           }))
           .setTimeout(0)
