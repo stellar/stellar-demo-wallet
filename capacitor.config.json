@@ -1,0 +1,8 @@
+{
+  "appId": "com.wallet.stellar",
+  "appName": "Stellar Wallet",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www",
+  "cordova": {}
+}

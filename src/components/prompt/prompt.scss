@@ -1,0 +1,92 @@
+@import '../../global/style.scss';
+
+:host {
+  display: block;
+  font-family: $font-family;
+  font-size: 15px;
+
+  .prompt-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    min-height: 100vh;
+    min-width: 100vw;
+    background-color: rgba(black, 0.2);
+    z-index: 1;
+  }
+  .prompt {
+    background-color: white;
+    padding: 20px;
+    max-width: 350px;
+    width: 100%;
+    position: relative;
+
+    p {
+      margin-bottom: 10px;
+    }
+    input {
+      width: 100%;
+      margin: 0;
+      padding: 5px;
+      outline: none;
+      border: 1px solid black;
+      text-transform: uppercase;
+
+      &:focus {
+        border-color: blue;
+      }
+    }
+  }
+  .select-wrapper {
+    position: relative;
+    display: inline-flex;
+
+    select {
+      border-color: blue;
+      padding: 0 10px;
+      min-width: 100px;
+    }
+
+    &:after,
+    &:before {
+      font-size: 12px;
+      position: absolute;
+      right: 10px;
+      color: blue;
+    }
+    &:after {
+      content: '◀';
+      top: calc(50% - 5px);
+      transform: translate(0, -50%) rotate(90deg);
+    }
+    &:before {
+      content: '▶';
+      top: calc(50% + 5px);
+      transform: translate(0, -50%) rotate(90deg);
+    }
+  }
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+
+    button {
+      margin: 0;
+      min-width: 50px;
+    }
+    .cancel {
+      background: none;
+      border: 1px solid blue;
+      color: blue;
+    }
+    .submit {
+      margin-left: 10px;
+    }
+  }
+}

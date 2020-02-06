@@ -14,7 +14,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "jsx": "react",
-    "jsxFactory": "h"
+    "jsxFactory": "h",
+    "baseUrl": "./src",
+    "paths": {
+      "@prompt/*": ["components/prompt/*"],
+      "@services/*": ["services/*"]
+    },
   },
   "include": [
     "src",
