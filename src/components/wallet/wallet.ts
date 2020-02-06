@@ -28,10 +28,10 @@ interface StellarAccount {
   state?: ServerApi.AccountRecord,
 }
 
-interface Loading {
+interface Loading { // UPDATE
   fund?: boolean,
   pay?: boolean,
-  trust?: boolean, // UPDATE
+  trust?: boolean, // NEW
   update?: boolean,
 }
 
@@ -56,7 +56,7 @@ export class Wallet {
   createAccount = createAccount
   updateAccount = updateAccount
   trustAsset = trustAsset // NEW
-  makePayment = makePayment // UPDATe
+  makePayment = makePayment // UPDATE
   copyAddress = copyAddress
   copySecret = copySecret
   signOut = signOut
