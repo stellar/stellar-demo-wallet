@@ -1,7 +1,7 @@
 import { remove } from '@services/storage'
 import { handleError } from '@services/error'
 
-export default async function copySecret(e: Event) {
+export default async function signOut(e: Event) {
   try {
     e.preventDefault()
 
