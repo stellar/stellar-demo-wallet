@@ -94,9 +94,8 @@ export class Prompt {
           {
             this.prompter.options
             ? <div class="select-wrapper">
-                <select
-                  onInput={(e) => this.update(e)}
-                > {this.prompter.options.map((option) =>
+                <select onInput={(e) => this.update(e)}>
+                  {this.prompter.options.map((option) =>
                     <option
                       value={`${option.code}:${option.issuer}`}
                       selected={this.input === `${option.code}:${option.issuer}`}

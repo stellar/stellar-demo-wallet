@@ -1,4 +1,5 @@
 import sjcl from '@tinyanvil/sjcl'
+import axios from 'axios'
 import { Keypair } from 'stellar-sdk'
 
 import { handleError } from '@services/error'
@@ -18,8 +19,12 @@ export default async function createAccount(e: Event) {
     ) throw 'Invalid pincode'
 
     this.error = null
+    this.loading = {...this.loading, fund: true}
 
     const keypair = Keypair.random()
+
+    await axios(`https://friendbot.stellar.org?addr=${keypair.publicKey()}`)
+    .finally(() => this.loading = {...this.loading, fund: false})
 
     this.account = {
       publicKey: keypair.publicKey(),
@@ -31,6 +36,8 @@ export default async function createAccount(e: Event) {
     }
 
     await set('keyStore', btoa(this.account.keystore))
+
+    this.updateAccount()
   }
 
   catch(err) {
