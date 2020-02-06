@@ -12,6 +12,7 @@ import {
 } from './components/prompt/prompt';
 
 export namespace Components {
+  interface StellarLoader {}
   interface StellarPrompt {
     'prompter': Prompter;
   }
@@ -20,6 +21,12 @@ export namespace Components {
 
 declare global {
 
+
+  interface HTMLStellarLoaderElement extends Components.StellarLoader, HTMLStencilElement {}
+  var HTMLStellarLoaderElement: {
+    prototype: HTMLStellarLoaderElement;
+    new (): HTMLStellarLoaderElement;
+  };
 
   interface HTMLStellarPromptElement extends Components.StellarPrompt, HTMLStencilElement {}
   var HTMLStellarPromptElement: {
@@ -33,18 +40,21 @@ declare global {
     new (): HTMLStellarWalletElement;
   };
   interface HTMLElementTagNameMap {
+    'stellar-loader': HTMLStellarLoaderElement;
     'stellar-prompt': HTMLStellarPromptElement;
     'stellar-wallet': HTMLStellarWalletElement;
   }
 }
 
 declare namespace LocalJSX {
+  interface StellarLoader {}
   interface StellarPrompt {
     'prompter'?: Prompter;
   }
   interface StellarWallet {}
 
   interface IntrinsicElements {
+    'stellar-loader': StellarLoader;
     'stellar-prompt': StellarPrompt;
     'stellar-wallet': StellarWallet;
   }
@@ -56,6 +66,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
   export namespace JSX {
     interface IntrinsicElements {
+      'stellar-loader': LocalJSX.StellarLoader & JSXBase.HTMLAttributes<HTMLStellarLoaderElement>;
       'stellar-prompt': LocalJSX.StellarPrompt & JSXBase.HTMLAttributes<HTMLStellarPromptElement>;
       'stellar-wallet': LocalJSX.StellarWallet & JSXBase.HTMLAttributes<HTMLStellarWalletElement>;
     }
