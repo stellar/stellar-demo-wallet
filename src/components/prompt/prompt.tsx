@@ -50,8 +50,6 @@ export class Prompt {
     }
   }
 
-  componentWillLoad() {}
-
   componentDidLoad() {
     addEventListener('keyup', (e: KeyboardEvent) => {
       if (this.prompter.show)

@@ -55,8 +55,8 @@ export class Wallet {
   @Prop() toml: Object
 
   // Component events
-  componentWillLoad = componentWillLoad
-  render = render
+  componentWillLoad() {}
+  render() {}
 
   // Stellar methods
   createAccount = createAccount
@@ -72,3 +72,6 @@ export class Wallet {
   // Misc methods
   setPrompt = setPrompt
 }
+
+Wallet.prototype.componentWillLoad = componentWillLoad
+Wallet.prototype.render = render
