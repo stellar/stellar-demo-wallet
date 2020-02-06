@@ -12,11 +12,12 @@ import {
 } from './components/prompt/prompt';
 
 export namespace Components {
-  interface StellarLoader {}
+  interface StellarLoader {
+    'interval': any;
+  }
   interface StellarPrompt {
     'prompter': Prompter;
   }
-  interface StellarWallet {}
 }
 
 declare global {
@@ -33,30 +34,23 @@ declare global {
     prototype: HTMLStellarPromptElement;
     new (): HTMLStellarPromptElement;
   };
-
-  interface HTMLStellarWalletElement extends Components.StellarWallet, HTMLStencilElement {}
-  var HTMLStellarWalletElement: {
-    prototype: HTMLStellarWalletElement;
-    new (): HTMLStellarWalletElement;
-  };
   interface HTMLElementTagNameMap {
     'stellar-loader': HTMLStellarLoaderElement;
     'stellar-prompt': HTMLStellarPromptElement;
-    'stellar-wallet': HTMLStellarWalletElement;
   }
 }
 
 declare namespace LocalJSX {
-  interface StellarLoader {}
+  interface StellarLoader {
+    'interval'?: any;
+  }
   interface StellarPrompt {
     'prompter'?: Prompter;
   }
-  interface StellarWallet {}
 
   interface IntrinsicElements {
     'stellar-loader': StellarLoader;
     'stellar-prompt': StellarPrompt;
-    'stellar-wallet': StellarWallet;
   }
 }
 
@@ -68,7 +62,6 @@ declare module "@stencil/core" {
     interface IntrinsicElements {
       'stellar-loader': LocalJSX.StellarLoader & JSXBase.HTMLAttributes<HTMLStellarLoaderElement>;
       'stellar-prompt': LocalJSX.StellarPrompt & JSXBase.HTMLAttributes<HTMLStellarPromptElement>;
-      'stellar-wallet': LocalJSX.StellarWallet & JSXBase.HTMLAttributes<HTMLStellarWalletElement>;
     }
   }
 }
