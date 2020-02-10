@@ -8,13 +8,15 @@ import {
   ServerApi,
 } from 'stellar-sdk'
 
-import componentWillLoad from './events/componentWillLoad'
-import render from './events/render'
+import componentWillLoad from './events/componentWillLoad' // UPDATE
+import render from './events/render' // UPDATE
 
 import createAccount from './methods/createAccount'
 import updateAccount from './methods/updateAccount'
-import trustAsset from './methods/trustAsset' // NEW
-import makePayment from './methods/makePayment' // UPDATE
+import depositAsset from './methods/depositAsset' // NEW
+import withdrawAsset from './methods/withdrawAsset' // NEW
+import trustAsset from './methods/trustAsset'
+import makePayment from './methods/makePayment'
 import copyAddress from './methods/copyAddress'
 import copySecret from './methods/copySecret'
 import signOut from './methods/signOut'
@@ -28,11 +30,13 @@ interface StellarAccount {
   state?: ServerApi.AccountRecord,
 }
 
-interface Loading { // UPDATE
+interface Loading {
   fund?: boolean,
   pay?: boolean,
-  trust?: boolean, // NEW
+  trust?: boolean,
   update?: boolean,
+  deposit?: boolean, // NEW
+  withdraw?: boolean // NEW
 }
 
 @Component({
@@ -47,6 +51,8 @@ export class Wallet {
   @State() error: any = null
 
   @Prop() server: Server
+  @Prop() homeDomain: String // NEW
+  @Prop() toml: Object // NEW
 
   // Component events
   componentWillLoad() {}
@@ -55,8 +61,10 @@ export class Wallet {
   // Stellar methods
   createAccount = createAccount
   updateAccount = updateAccount
-  trustAsset = trustAsset // NEW
-  makePayment = makePayment // UPDATE
+  depositAsset = depositAsset // NEW
+  withdrawAsset = withdrawAsset // NEW
+  trustAsset = trustAsset
+  makePayment = makePayment
   copyAddress = copyAddress
   copySecret = copySecret
   signOut = signOut
