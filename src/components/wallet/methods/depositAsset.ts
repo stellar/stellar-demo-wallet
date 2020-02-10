@@ -57,7 +57,7 @@ export default async function depositAsset(e?: Event) {
       return transaction.toXDR()
     })
     .then((transaction) => axios.post(`${this.toml.WEB_AUTH_ENDPOINT}`, {transaction}, {headers: {'Content-Type': 'application/json'}}))
-    .then(({data: {token}}) => token) // Store the JWT in localStorage
+    .then(({data: {token}}) => token) // TODO: Store the JWT in localStorage
 
     console.log(auth)
 
