@@ -1,6 +1,6 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "description": "Stellar Demo Wallet",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -19,7 +19,7 @@
     "build": "stencil build --docs",
     "start": "stencil build --dev --watch --serve",
     "generate": "stencil generate",
-    "deploy": "npm publish ; now deploy ./www --prod --name stellar-demo-wallet"
+    "deploy": "npm publish ; now --prod --confirm --name stellar-demo-wallet"
   },
   "devDependencies": {
     "@capacitor/cli": "^1.5.0",
