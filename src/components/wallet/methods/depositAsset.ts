@@ -12,9 +12,9 @@ import {
 
 import { handleError } from '@services/error'
 
-export default async function depositAsset(e?: Event) {
+export default async function depositAsset(e: Event) {
   try {
-    if (e) e.preventDefault()
+    e.preventDefault()
 
     let currency = await this.setPrompt('Select the currency you\'d like to deposit', null, this.toml.CURRENCIES)
         currency = currency.split(':')
@@ -33,7 +33,7 @@ export default async function depositAsset(e?: Event) {
     if (hasCurrency === -1)
       await this.trustAsset(null, currency[0], currency[1], pincode)
 
-    const info = await axios.get(`${this.toml.TRANSFER_SERVER}info`)
+    const info = await axios.get(`${this.toml.TRANSFER_SERVER}/info`)
     .then(({data}) => data)
 
     console.log(info)
@@ -69,7 +69,7 @@ export default async function depositAsset(e?: Event) {
       lang: 'en'
     }, (value, key) => formData.append(key, value))
 
-    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER}transactions/deposit/interactive`, formData, {
+    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER}/transactions/deposit/interactive`, formData, {
       headers: {
         'Authorization': `Bearer ${auth}`,
         'Content-Type': 'multipart/form-data'
@@ -78,7 +78,7 @@ export default async function depositAsset(e?: Event) {
 
     console.log(interactive)
 
-    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER}transactions`, {
+    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER}/transactions`, {
       params: {
         asset_code: currency[0],
         limit: 1,
@@ -93,7 +93,6 @@ export default async function depositAsset(e?: Event) {
     console.log(transactions)
 
     const urlBuilder = new URL(interactive.url)
-          urlBuilder.searchParams.set('jwt', auth)
           urlBuilder.searchParams.set('callback', 'postMessage')
     const popup = open(urlBuilder.toString(), 'popup', 'width=500,height=800')
 
@@ -113,7 +112,6 @@ export default async function depositAsset(e?: Event) {
       else {
         setTimeout(() => {
           const urlBuilder = new URL(transaction.more_info_url)
-                urlBuilder.searchParams.set('jwt', auth)
                 urlBuilder.searchParams.set('callback', 'postMessage')
 
           popup.location.replace(urlBuilder.toString())
