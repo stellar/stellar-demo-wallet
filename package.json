@@ -1,6 +1,7 @@
 {
   "name": "stellar-demo-wallet",
-  "private": true,
+  "version": "0.0.32",
+  "description": "Stellar Demo Wallet",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "es2015": "dist/esm/index.mjs",
@@ -14,19 +15,22 @@
     "loader/"
   ],
   "scripts": {
+    "prepare": "npm run build",
     "build": "stencil build --docs",
     "start": "stencil build --dev --watch --serve",
-    "generate": "stencil generate"
+    "generate": "stencil generate",
+    "deploy": "npm publish ; now deploy ./www --prod --name stellar-demo-wallet"
   },
   "devDependencies": {
     "@capacitor/cli": "^1.5.0",
     "@capacitor/core": "^1.5.0",
-    "@stencil/core": "^1.8.4",
+    "@stencil/core": "^1.8.7",
     "@stencil/postcss": "^1.0.1",
     "@stencil/sass": "^1.1.1",
     "@tinyanvil/sjcl": "^1.0.8",
     "@types/autoprefixer": "^9.6.1",
     "autoprefixer": "^9.7.4",
+    "axios": "^0.19.2",
     "copy-to-clipboard": "^3.2.1",
     "js-combinatorics": "^0.5.5",
     "js-xdr": "^1.1.3",
