@@ -1,0 +1,12 @@
+const { menubar } = require('menubar')
+const path = require('path')
+
+const mb = menubar({
+  preloadWindow: true,
+  icon: path.join(__dirname, 'assets', 'img', 'iconTemplate.png'),
+  browserWindow: {
+    height: 500,
+    width: 500,
+    alwaysOnTop: true
+  }
+})

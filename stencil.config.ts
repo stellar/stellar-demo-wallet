@@ -16,7 +16,8 @@ export const config: Config = {
     },
     {
       type: 'www',
-      serviceWorker: null // disable service workers
+      serviceWorker: null, // disable service workers
+      baseUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3333/' : 'https://stellar-demo-wallet.now.sh/'
     }
   ],
   globalStyle: 'src/global/style.scss',
