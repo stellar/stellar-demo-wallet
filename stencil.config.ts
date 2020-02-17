@@ -6,6 +6,9 @@ import nodePolyfills from 'rollup-plugin-node-polyfills'
 
 export const config: Config = {
   namespace: 'stellar-wallet',
+  devServer: {
+    openBrowser: false
+  },
   outputTargets: [
     {
       type: 'dist',

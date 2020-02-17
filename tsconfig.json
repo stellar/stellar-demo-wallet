@@ -19,7 +19,7 @@
     "paths": {
       "@prompt/*": ["components/prompt/*"],
       "@services/*": ["services/*"]
-    },
+    }
   },
   "include": [
     "src",

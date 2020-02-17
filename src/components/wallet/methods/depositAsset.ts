@@ -114,7 +114,7 @@ export default async function depositAsset(e: Event) {
           const urlBuilder = new URL(transaction.more_info_url)
                 urlBuilder.searchParams.set('callback', 'postMessage')
 
-          popup.location.replace(urlBuilder.toString())
+          popup.location.href = urlBuilder.toString()
         }, 1000)
       }
     }

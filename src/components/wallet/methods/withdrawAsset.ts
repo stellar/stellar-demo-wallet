@@ -155,7 +155,7 @@ export default async function withdrawAsset(e: Event) {
             const urlBuilder = new URL(transaction.more_info_url)
                   urlBuilder.searchParams.set('callback', 'postMessage')
 
-            popup.location.replace(urlBuilder.toString())
+            popup.location.href = urlBuilder.toString()
           })
           .catch((err) => reject(err))
         }
@@ -165,7 +165,7 @@ export default async function withdrawAsset(e: Event) {
             const urlBuilder = new URL(transaction.more_info_url)
                   urlBuilder.searchParams.set('callback', 'postMessage')
 
-            popup.location.replace(urlBuilder.toString())
+            popup.location.href = urlBuilder.toString()
           }, 1000)
         }
       }
