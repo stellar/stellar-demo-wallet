@@ -14,9 +14,7 @@ export default async function updateAccount(e?: Event) {
     this.loading = {...this.loading, update: true}
 
     await this.server
-    .accounts()
-    .accountId(this.account.publicKey)
-    .call()
+    .loadAccount(this.account.publicKey)
     .then((account) => {
       account.balances = loMap(account.balances, (balance) => loOmit(balance, [
         'limit',

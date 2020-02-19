@@ -1,7 +1,6 @@
 import sjcl from '@tinyanvil/sjcl'
 import {
   Keypair,
-  Account,
   TransactionBuilder,
   BASE_FEE,
   Networks,
@@ -57,11 +56,8 @@ export default async function makePayment(
     this.loading = {...this.loading, pay: true}
 
     await this.server
-    .accounts()
-    .accountId(keypair.publicKey())
-    .call()
-    .then(({sequence}) => {
-      const account = new Account(keypair.publicKey(), sequence)
+    .loadAccount(keypair.publicKey())
+    .then((account) => {
       const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE,
         networkPassphrase: Networks.TESTNET

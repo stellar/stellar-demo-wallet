@@ -1,7 +1,6 @@
 import sjcl from '@tinyanvil/sjcl'
 import {
   Keypair,
-  Account,
   TransactionBuilder,
   BASE_FEE,
   Networks,
@@ -47,11 +46,9 @@ export default async function trustAsset(
     this.error = null
     this.loading = {...this.loading, trust: true}
 
-    await this.server.accounts()
-    .accountId(keypair.publicKey())
-    .call()
-    .then(({sequence}) => {
-      const account = new Account(keypair.publicKey(), sequence)
+    await this.server
+    .loadAccount(keypair.publicKey())
+    .then((account) => {
       const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE,
         networkPassphrase: Networks.TESTNET

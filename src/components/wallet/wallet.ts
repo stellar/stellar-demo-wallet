@@ -13,8 +13,6 @@ import render from './events/render' // UPDATE
 
 import createAccount from './methods/createAccount'
 import updateAccount from './methods/updateAccount'
-import depositAsset from './methods/depositAsset' // NEW
-import withdrawAsset from './methods/withdrawAsset' // NEW
 import trustAsset from './methods/trustAsset'
 import makePayment from './methods/makePayment'
 import copyAddress from './methods/copyAddress'
@@ -61,8 +59,6 @@ export class Wallet {
   // Stellar methods
   createAccount = createAccount
   updateAccount = updateAccount
-  depositAsset = depositAsset // NEW
-  withdrawAsset = withdrawAsset // NEW
   trustAsset = trustAsset
   makePayment = makePayment
   copyAddress = copyAddress
