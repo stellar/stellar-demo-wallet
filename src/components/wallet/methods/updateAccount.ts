@@ -28,6 +28,7 @@ export default async function updateAccount(e?: Event) {
       this.account = {...this.account, state: loOmit(account, [
         'id',
         '_links',
+        '_baseAccount',
         'sequence',
         'subentry_count',
         'last_modified_ledger',

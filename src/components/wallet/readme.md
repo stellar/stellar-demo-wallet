@@ -23,15 +23,11 @@
 - [stellar-loader](../loader)
 - [stellar-loader](../loader)
 - [stellar-loader](../loader)
-- [stellar-loader](../loader)
-- [stellar-loader](../loader)
 
 ### Graph
 ```mermaid
 graph TD;
   stellar-wallet --> stellar-prompt
-  stellar-wallet --> stellar-loader
-  stellar-wallet --> stellar-loader
   stellar-wallet --> stellar-loader
   stellar-wallet --> stellar-loader
   stellar-wallet --> stellar-loader
