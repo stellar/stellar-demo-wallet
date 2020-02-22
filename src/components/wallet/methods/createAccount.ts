@@ -1,10 +1,10 @@
-import sjcl from '@tinyanvil/sjcl'
 import axios from 'axios'
 import { Keypair } from 'stellar-sdk'
 
 import { set } from '@services/storage'
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
+import { encrypt } from '@services/tweetnacl'
 
 export default async function createAccount(e: Event) {
   try {
@@ -30,14 +30,15 @@ export default async function createAccount(e: Event) {
 
     this.account = {
       publicKey: keypair.publicKey(),
-      keystore: sjcl.encrypt(pincode_stretched, keypair.secret(), {
-        adata: JSON.stringify({
-          publicKey: keypair.publicKey()
-        })
-      })
+      keystore: encrypt(
+        keypair.secret(),
+        keypair.publicKey(),
+        pincode_stretched
+      )
     }
 
-    await set('keyStore', btoa(this.account.keystore))
+    await set('WALLET[publicKey]', keypair.publicKey())
+    await set('WALLET[keystore]', this.account.keystore)
 
     this.updateAccount()
   }

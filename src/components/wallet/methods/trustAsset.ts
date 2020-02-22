@@ -1,4 +1,3 @@
-import sjcl from '@tinyanvil/sjcl'
 import {
   Keypair,
   Account,
@@ -11,12 +10,13 @@ import {
 
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
 export default async function trustAsset(
   e?: Event,
   asset?: string,
   issuer?: string,
-  pincode_stretched?: string
+  pincode_stretched?: Uint8Array
 ) {
   try {
     if (e)
@@ -40,7 +40,11 @@ export default async function trustAsset(
     }
 
     const keypair = Keypair.fromSecret(
-      sjcl.decrypt(pincode_stretched, this.account.keystore)
+      decrypt(
+        this.account.keystore,
+        this.account.publicKey,
+        pincode_stretched
+      )
     )
 
     this.error = null
@@ -73,5 +77,6 @@ export default async function trustAsset(
 
   catch (err) {
     this.error = handleError(err)
+    throw err
   }
 }

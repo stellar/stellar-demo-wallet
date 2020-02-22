@@ -6,7 +6,7 @@ export function stretchPincode(pass, salt) {
     salt,
     time: 100,
     mem: 1024,
-    hashLen: 64,
+    hashLen: 32,
     type: argon2.ArgonType.Argon2d
-  }).then(({hashHex}) => hashHex)
+  }).then(({hash}) => hash)
 }

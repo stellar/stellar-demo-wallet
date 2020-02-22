@@ -1,4 +1,3 @@
-import sjcl from '@tinyanvil/sjcl'
 import {
   Keypair,
   Account,
@@ -12,6 +11,7 @@ import { has as loHas } from 'lodash-es'
 
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
 export default async function makePayment(
   e?: Event,
@@ -44,7 +44,11 @@ export default async function makePayment(
     const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     const keypair = Keypair.fromSecret(
-      sjcl.decrypt(pincode_stretched, this.account.keystore)
+      decrypt(
+        this.account.keystore,
+        this.account.publicKey,
+        pincode_stretched
+      )
     )
 
     if (/me/gi.test(instructions[3]))

@@ -1,4 +1,3 @@
-import sjcl from '@tinyanvil/sjcl'
 import {
   Transaction,
   Keypair,
@@ -12,6 +11,7 @@ import {
 
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
 export default async function depositAsset(e: Event) {
   try {
@@ -49,7 +49,11 @@ export default async function depositAsset(e: Event) {
       this.loading = {...this.loading, deposit: true}
 
       const keypair = Keypair.fromSecret(
-        sjcl.decrypt(pincode_stretched, this.account.keystore)
+        decrypt(
+          this.account.keystore,
+          this.account.publicKey,
+          pincode_stretched
+        )
       )
 
       transaction.sign(keypair)

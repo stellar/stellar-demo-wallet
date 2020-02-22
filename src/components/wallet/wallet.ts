@@ -50,8 +50,8 @@ export class Wallet {
   @State() loading: Loading = {}
   @State() error: any = null
 
-  @Prop() server: Server
-  @Prop() homeDomain: String // NEW
+  @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
+  @Prop() homeDomain: String = 'testanchor.stellar.org'
   @Prop() toml: Object // NEW
 
   // Component events

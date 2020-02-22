@@ -10,11 +10,12 @@ export default async function signOut(e: Event) {
     if (
       !confirm
       || !/nuke/gi.test(confirmNuke)
-    ) return
+    ) throw 'Cannot sign out'
 
     this.error = null
 
-    await remove('keyStore')
+    await remove('WALLET[publicKey]')
+    await remove('WALLET[keystore]')
     location.reload()
   }
 
