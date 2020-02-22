@@ -10,12 +10,13 @@ import {
 } from 'stellar-sdk'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
 
 export default async function trustAsset(
   e?: Event,
   asset?: string,
   issuer?: string,
-  pincode?: string
+  pincode_stretched?: string
 ) {
   try {
     if (e)
@@ -33,15 +34,13 @@ export default async function trustAsset(
       instructions = instructions.split(' ')
     }
 
-    pincode = pincode || await this.setPrompt('Enter your keystore pincode')
-
-    if (
-      !instructions
-      || !pincode
-    ) return
+    if (!pincode_stretched) {
+      const pincode = await this.setPrompt('Enter your keystore pincode')
+      pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
+    }
 
     const keypair = Keypair.fromSecret(
-      sjcl.decrypt(pincode, this.account.keystore)
+      sjcl.decrypt(pincode_stretched, this.account.keystore)
     )
 
     this.error = null

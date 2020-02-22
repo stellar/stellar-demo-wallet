@@ -20,6 +20,7 @@ import {
 } from 'lodash-es'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
 
 export default async function withdrawAsset(e: Event) {
   try {
@@ -29,12 +30,10 @@ export default async function withdrawAsset(e: Event) {
         currency = currency.split(':')
 
     const pincode = await this.setPrompt('Enter your keystore pincode')
-
-    if (!pincode)
-      return
+    const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     const keypair = Keypair.fromSecret(
-      sjcl.decrypt(pincode, this.account.keystore)
+      sjcl.decrypt(pincode_stretched, this.account.keystore)
     )
 
     const balances = loGet(this.account, 'state.balances')

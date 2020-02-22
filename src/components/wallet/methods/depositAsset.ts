@@ -11,6 +11,7 @@ import {
 } from 'lodash-es'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
 
 export default async function depositAsset(e: Event) {
   try {
@@ -20,9 +21,7 @@ export default async function depositAsset(e: Event) {
         currency = currency.split(':')
 
     const pincode = await this.setPrompt('Enter your keystore pincode')
-
-    if (!pincode)
-        return
+    const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     const balances = loGet(this.account, 'state.balances')
     const hasCurrency = loFindIndex(balances, {
@@ -31,7 +30,7 @@ export default async function depositAsset(e: Event) {
     })
 
     if (hasCurrency === -1)
-      await this.trustAsset(null, currency[0], currency[1], pincode)
+      await this.trustAsset(null, currency[0], currency[1], pincode_stretched)
 
     const info = await axios.get(`${this.toml.TRANSFER_SERVER}/info`)
     .then(({data}) => data)
@@ -50,7 +49,7 @@ export default async function depositAsset(e: Event) {
       this.loading = {...this.loading, deposit: true}
 
       const keypair = Keypair.fromSecret(
-        sjcl.decrypt(pincode, this.account.keystore)
+        sjcl.decrypt(pincode_stretched, this.account.keystore)
       )
 
       transaction.sign(keypair)

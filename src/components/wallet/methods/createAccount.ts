@@ -2,8 +2,9 @@ import sjcl from '@tinyanvil/sjcl'
 import axios from 'axios'
 import { Keypair } from 'stellar-sdk'
 
-import { handleError } from '@services/error'
 import { set } from '@services/storage'
+import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
 
 export default async function createAccount(e: Event) {
   try {
@@ -22,13 +23,14 @@ export default async function createAccount(e: Event) {
     this.loading = {...this.loading, fund: true}
 
     const keypair = Keypair.random()
+    const pincode_stretched = await stretchPincode(pincode_1, keypair.publicKey())
 
     await axios(`https://friendbot.stellar.org?addr=${keypair.publicKey()}`)
     .finally(() => this.loading = {...this.loading, fund: false})
 
     this.account = {
       publicKey: keypair.publicKey(),
-      keystore: sjcl.encrypt(pincode_1, keypair.secret(), {
+      keystore: sjcl.encrypt(pincode_stretched, keypair.secret(), {
         adata: JSON.stringify({
           publicKey: keypair.publicKey()
         })

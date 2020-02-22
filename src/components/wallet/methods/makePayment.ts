@@ -11,6 +11,7 @@ import {
 import { has as loHas } from 'lodash-es'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
 
 export default async function makePayment(
   e?: Event,
@@ -40,14 +41,10 @@ export default async function makePayment(
     }
 
     const pincode = await this.setPrompt('Enter your keystore pincode')
-
-    if (
-      !instructions
-      || !pincode
-    ) return
+    const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     const keypair = Keypair.fromSecret(
-      sjcl.decrypt(pincode, this.account.keystore)
+      sjcl.decrypt(pincode_stretched, this.account.keystore)
     )
 
     if (/me/gi.test(instructions[3]))
