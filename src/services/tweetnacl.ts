@@ -1,32 +1,40 @@
 import nacl from 'tweetnacl'
+import {
+  encode as encodeBase64,
+  decode as decodeBase64
+} from '@stablelib/base64'
+import {
+  encode as encodeUtf8,
+  decode as decodeUtf8
+} from '@stablelib/utf8'
 
 export function encrypt(
   message: string,
   nonce: string,
   keyArr: Uint8Array
 ) {
-  const enc = new TextEncoder()
+  const messageArr = encodeUtf8(message)
+  const nonceArr = encodeUtf8(nonce.substr(0, 12) + nonce.substr(nonce.length - 12, nonce.length))
 
-  const messageArr = enc.encode(message)
-  const nonceArr = enc.encode(nonce.substr(0, 24))
-
-  const encrypted = nacl.secretbox(messageArr, nonceArr, keyArr)
+  const encrypted = nacl.secretbox(
+    messageArr,
+    nonceArr,
+    keyArr
+  )
 
   if (!encrypted)
     throw 'Pincode decryption failed'
 
-  return btoa(String.fromCharCode.apply(null, encrypted))
+  return encodeBase64(encrypted)
 }
 
 export function decrypt(
-  encrypted: string,
+  cipher: string,
   nonce: string,
   keyArr: Uint8Array
 ) {
-  const enc = new TextEncoder()
-
-  const encryptedArr = new Uint8Array(atob(encrypted).split('').map(c => c.charCodeAt(0)))
-  const nonceArr = enc.encode(nonce.substr(0, 24))
+  const encryptedArr = decodeBase64(cipher)
+  const nonceArr = encodeUtf8(nonce.substr(0, 12) + nonce.substr(nonce.length - 12, nonce.length))
 
   const decrypted = nacl.secretbox.open(
     encryptedArr,
@@ -37,5 +45,5 @@ export function decrypt(
   if (!decrypted)
     throw 'Pincode decryption failed'
 
-  return String.fromCharCode.apply(null, decrypted)
+  return decodeUtf8(decrypted)
 }

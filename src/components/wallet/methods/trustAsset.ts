@@ -35,13 +35,13 @@ export default async function trustAsset(
     }
 
     if (!pincode_stretched) {
-      const pincode = await this.setPrompt('Enter your keystore pincode')
+      const pincode = await this.setPrompt('Enter your account pincode')
       pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
     }
 
     const keypair = Keypair.fromSecret(
       decrypt(
-        this.account.keystore,
+        this.account.cipher,
         this.account.publicKey,
         pincode_stretched
       )

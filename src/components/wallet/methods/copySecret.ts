@@ -8,13 +8,13 @@ export default async function copySecret(e: Event) {
   try {
     e.preventDefault()
 
-    const pincode = await this.setPrompt('Enter your keystore pincode')
+    const pincode = await this.setPrompt('Enter your account pincode')
     const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     this.error = null
 
     const secret = decrypt(
-      this.account.keystore,
+      this.account.cipher,
       this.account.publicKey,
       pincode_stretched
     )

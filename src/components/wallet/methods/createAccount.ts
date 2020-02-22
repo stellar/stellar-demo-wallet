@@ -10,8 +10,8 @@ export default async function createAccount(e: Event) {
   try {
     e.preventDefault()
 
-    const pincode_1 = await this.setPrompt('Enter a keystore pincode')
-    const pincode_2 = await this.setPrompt('Enter keystore pincode again')
+    const pincode_1 = await this.setPrompt('Enter an account pincode')
+    const pincode_2 = await this.setPrompt('Enter account pincode again')
 
     if (
       !pincode_1
@@ -30,15 +30,14 @@ export default async function createAccount(e: Event) {
 
     this.account = {
       publicKey: keypair.publicKey(),
-      keystore: encrypt(
+      cipher: encrypt(
         keypair.secret(),
         keypair.publicKey(),
         pincode_stretched
       )
     }
 
-    await set('WALLET[publicKey]', keypair.publicKey())
-    await set('WALLET[keystore]', this.account.keystore)
+    set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
 
     this.updateAccount()
   }

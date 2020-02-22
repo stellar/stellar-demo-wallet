@@ -14,7 +14,6 @@ export default async function signOut(e: Event) {
 
     this.error = null
 
-    await remove('WALLET[publicKey]')
     await remove('WALLET[keystore]')
     location.reload()
   }

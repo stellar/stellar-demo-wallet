@@ -20,7 +20,7 @@ export default async function depositAsset(e: Event) {
     let currency = await this.setPrompt('Select the currency you\'d like to deposit', null, this.toml.CURRENCIES)
         currency = currency.split(':')
 
-    const pincode = await this.setPrompt('Enter your keystore pincode')
+    const pincode = await this.setPrompt('Enter your account pincode')
     const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     const balances = loGet(this.account, 'state.balances')
@@ -50,7 +50,7 @@ export default async function depositAsset(e: Event) {
 
       const keypair = Keypair.fromSecret(
         decrypt(
-          this.account.keystore,
+          this.account.cipher,
           this.account.publicKey,
           pincode_stretched
         )

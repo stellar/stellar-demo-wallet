@@ -26,7 +26,7 @@ import { Prompter } from '@prompt/prompt'
 
 interface StellarAccount {
   publicKey: string,
-  keystore: string,
+  cipher: string,
   state?: ServerApi.AccountRecord,
 }
 

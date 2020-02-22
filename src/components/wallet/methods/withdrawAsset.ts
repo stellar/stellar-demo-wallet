@@ -29,12 +29,12 @@ export default async function withdrawAsset(e: Event) {
     let currency = await this.setPrompt('Select the currency you\'d like to withdraw', null, this.toml.CURRENCIES)
         currency = currency.split(':')
 
-    const pincode = await this.setPrompt('Enter your keystore pincode')
+    const pincode = await this.setPrompt('Enter your account pincode')
     const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     const keypair = Keypair.fromSecret(
       decrypt(
-        this.account.keystore,
+        this.account.cipher,
         this.account.publicKey,
         pincode_stretched
       )

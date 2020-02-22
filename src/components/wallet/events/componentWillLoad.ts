@@ -4,18 +4,16 @@ import { get } from '@services/storage'
 
 export default async function componentWillLoad() {
   try {
-    const publicKey = await get('WALLET[publicKey]')
     const keystore = await get('WALLET[keystore]')
 
     this.toml = await StellarTomlResolver.resolve(this.homeDomain)
 
-    if (
-      publicKey
-      && keystore
-    ) {
+    if (keystore) {
+      const {publicKey, cipher} = JSON.parse(atob(keystore))
+
       this.account = {
         publicKey,
-        keystore
+        cipher
       }
 
       this.updateAccount()
