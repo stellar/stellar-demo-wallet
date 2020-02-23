@@ -25,7 +25,7 @@ export default async function depositAsset() {
     })
 
     if (hasCurrency === -1)
-      await this.trustAsset(null, currency[0], currency[1], pincode_stretched)
+      await this.trustAsset(currency[0], currency[1], pincode_stretched)
 
     const info = await axios.get(`${this.toml.TRANSFER_SERVER}/info`)
     .then(({data}) => data)
