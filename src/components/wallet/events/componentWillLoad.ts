@@ -9,18 +9,7 @@ export default async function componentWillLoad() {
     this.toml = await StellarTomlResolver.resolve(this.homeDomain)
 
     if (keystore) {
-      const {
-        publicKey,
-        cipher,
-        nonce
-      } = JSON.parse(atob(keystore))
-
-      this.account = {
-        publicKey,
-        cipher,
-        nonce
-      }
-
+      this.account = {...JSON.parse(atob(keystore))}
       this.updateAccount()
     }
   }

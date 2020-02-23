@@ -6,10 +6,8 @@ import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { encrypt } from '@services/tweetnacl'
 
-export default async function createAccount(e: Event) {
+export default async function createAccount() {
   try {
-    e.preventDefault()
-
     const pincode_1 = await this.setPrompt('Enter an account pincode')
     const pincode_2 = await this.setPrompt('Enter account pincode again')
 

@@ -1,10 +1,8 @@
 import { remove } from '@services/storage'
 import { handleError } from '@services/error'
 
-export default async function signOut(e: Event) {
+export default async function signOut() {
   try {
-    e.preventDefault()
-
     const confirmNuke = await this.setPrompt('Are you sure? This will nuke your account', 'Enter NUKE to confirm')
 
     if (

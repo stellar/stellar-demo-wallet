@@ -10,10 +10,8 @@ import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
 
-export default async function depositAsset(e: Event) {
+export default async function depositAsset() {
   try {
-    e.preventDefault()
-
     let currency = await this.setPrompt('Select the currency you\'d like to deposit', null, this.toml.CURRENCIES)
         currency = currency.split(':')
 

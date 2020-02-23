@@ -12,15 +12,11 @@ import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
 
 export default async function trustAsset(
-  e?: Event,
   asset?: string,
   issuer?: string,
   pincode_stretched?: Uint8Array
 ) {
   try {
-    if (e)
-      e.preventDefault()
-
     let instructions
 
     if (

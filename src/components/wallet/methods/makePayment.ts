@@ -13,14 +13,11 @@ import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
 
 export default async function makePayment(
-  e?: Event,
   destination?: string,
   asset?: string,
   issuer?: string
 ) {
   try {
-    if (e) e.preventDefault()
-
     let instructions
 
     if (

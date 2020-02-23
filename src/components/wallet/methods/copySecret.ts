@@ -4,10 +4,8 @@ import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
 
-export default async function copySecret(e: Event) {
+export default async function copySecret() {
   try {
-    e.preventDefault()
-
     const pincode = await this.setPrompt('Enter your account pincode')
     const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
