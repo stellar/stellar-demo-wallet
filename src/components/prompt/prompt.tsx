@@ -6,6 +6,7 @@ import {
   h,
   State
 } from '@stencil/core'
+import { defer as loDefer } from 'lodash-es'
 
 export interface Prompter {
   show: boolean
@@ -40,7 +41,7 @@ export class Prompt {
       if (newValue.options)
         this.input = this.input || `${newValue.options[0].code}:${newValue.options[0].issuer}`
       else
-        this.element.shadowRoot.querySelector('input').focus()
+        loDefer(() => this.element.shadowRoot.querySelector('input').focus())
     }
 
     else {
