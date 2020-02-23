@@ -1,31 +1,28 @@
 import nacl from 'tweetnacl'
+import { Keypair } from 'stellar-sdk'
 import {
   encode as encodeBase64,
   decode as decodeBase64
 } from '@stablelib/base64'
-import {
-  encode as encodeUtf8,
-  decode as decodeUtf8
-} from '@stablelib/utf8'
 
 export function encrypt(
-  message: string,
-  nonce: string,
-  keyArr: Uint8Array
+  message: Uint8Array,
+  nonce: Uint8Array,
+  key: Uint8Array
 ) {
-  const messageArr = encodeUtf8(message)
-  const nonceArr = encodeUtf8(nonce.substr(0, 12) + nonce.substr(nonce.length - 12, nonce.length))
-
   const encrypted = nacl.secretbox(
-    messageArr,
-    nonceArr,
-    keyArr
+    message,
+    nonce.slice(0, 24),
+    key
   )
 
   if (!encrypted)
     throw 'Pincode decryption failed'
 
-  return encodeBase64(encrypted)
+  return {
+    cipher: encodeBase64(encrypted),
+    nonce: encodeBase64(nonce.slice(0, 24))
+  }
 }
 
 export function decrypt(
@@ -34,9 +31,9 @@ export function decrypt(
   keyArr: Uint8Array
 ) {
   const encryptedArr = decodeBase64(cipher)
-  const nonceArr = encodeUtf8(nonce.substr(0, 12) + nonce.substr(nonce.length - 12, nonce.length))
+  const nonceArr = decodeBase64(nonce)
 
-  const decrypted = nacl.secretbox.open(
+  const decrypted: any = nacl.secretbox.open(
     encryptedArr,
     nonceArr,
     keyArr
@@ -45,5 +42,5 @@ export function decrypt(
   if (!decrypted)
     throw 'Pincode decryption failed'
 
-  return decodeUtf8(decrypted)
+  return Keypair.fromRawEd25519Seed(decrypted)
 }

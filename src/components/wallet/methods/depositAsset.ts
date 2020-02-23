@@ -1,7 +1,4 @@
-import {
-  Transaction,
-  Keypair,
-} from 'stellar-sdk'
+import { Transaction } from 'stellar-sdk'
 import axios from 'axios'
 import {
   get as loGet,
@@ -48,12 +45,10 @@ export default async function depositAsset(e: Event) {
       this.error = null
       this.loading = {...this.loading, deposit: true}
 
-      const keypair = Keypair.fromSecret(
-        decrypt(
-          this.account.cipher,
-          this.account.publicKey,
-          pincode_stretched
-        )
+      const keypair = decrypt(
+        this.account.cipher,
+        this.account.nonce,
+        pincode_stretched
       )
 
       transaction.sign(keypair)

@@ -1,6 +1,9 @@
 import argon2 from '@tinyanvil/argon2'
 
-export function stretchPincode(pass, salt) {
+export function stretchPincode(
+  pass: string,
+  salt: string
+) {
   return argon2.hash({
     pass,
     salt,

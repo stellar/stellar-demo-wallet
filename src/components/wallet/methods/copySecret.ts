@@ -13,13 +13,13 @@ export default async function copySecret(e: Event) {
 
     this.error = null
 
-    const secret = decrypt(
+    const keypair = decrypt(
       this.account.cipher,
-      this.account.publicKey,
+      this.account.nonce,
       pincode_stretched
     )
 
-    copy(secret)
+    copy(keypair.secret())
   }
 
   catch (err) {

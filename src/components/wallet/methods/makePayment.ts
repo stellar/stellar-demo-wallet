@@ -1,5 +1,4 @@
 import {
-  Keypair,
   Account,
   TransactionBuilder,
   BASE_FEE,
@@ -43,12 +42,10 @@ export default async function makePayment(
     const pincode = await this.setPrompt('Enter your account pincode')
     const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
-    const keypair = Keypair.fromSecret(
-      decrypt(
-        this.account.cipher,
-        this.account.publicKey,
-        pincode_stretched
-      )
+    const keypair = decrypt(
+      this.account.cipher,
+      this.account.nonce,
+      pincode_stretched
     )
 
     if (/me/gi.test(instructions[3]))

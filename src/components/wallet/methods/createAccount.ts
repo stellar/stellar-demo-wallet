@@ -24,17 +24,19 @@ export default async function createAccount(e: Event) {
 
     const keypair = Keypair.random()
     const pincode_stretched = await stretchPincode(pincode_1, keypair.publicKey())
+    const { cipher, nonce } = encrypt(
+      keypair.rawSecretKey(),
+      keypair.rawPublicKey(),
+      pincode_stretched
+    )
 
     await axios(`https://friendbot.stellar.org?addr=${keypair.publicKey()}`)
     .finally(() => this.loading = {...this.loading, fund: false})
 
     this.account = {
       publicKey: keypair.publicKey(),
-      cipher: encrypt(
-        keypair.secret(),
-        keypair.publicKey(),
-        pincode_stretched
-      )
+      cipher,
+      nonce
     }
 
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
