@@ -8,8 +8,14 @@ import { encrypt } from '@services/tweetnacl'
 
 export default async function createAccount() {
   try {
-    const pincode_1 = await this.setPrompt('Enter an account pincode')
-    const pincode_2 = await this.setPrompt('Enter account pincode again')
+    const pincode_1 = await this.setPrompt({
+      message: 'Enter an account pincode',
+      type: 'password'
+    })
+    const pincode_2 = await this.setPrompt({
+      message: 'Enter account pincode again',
+      type: 'password'
+    })
 
     if (
       !pincode_1

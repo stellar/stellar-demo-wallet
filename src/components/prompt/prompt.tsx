@@ -6,10 +6,10 @@ import {
   h,
   State
 } from '@stencil/core'
-import { defer as loDefer } from 'lodash-es'
 
 export interface Prompter {
   show: boolean
+  type?: string
   message?: string
   placeholder?: string
   options?: Array<any>
@@ -40,7 +40,7 @@ export class Prompt {
       if (newValue.options)
         this.input = this.input || `${newValue.options[0].code}:${newValue.options[0].issuer}`
       else
-        loDefer(() => this.element.shadowRoot.querySelector('input').focus())
+        this.element.shadowRoot.querySelector('input').focus()
     }
 
     else {
@@ -82,8 +82,8 @@ export class Prompt {
   }
 
   render() {
-    return this.prompter.show ? (
-      <div class="prompt-wrapper">
+    return (
+      <div class="prompt-wrapper" style={this.prompter.show ? null : {display: 'none'}}>
         <div class="prompt">
           {this.prompter.message ? <p>{this.prompter.message}</p> : null}
 
@@ -99,10 +99,12 @@ export class Prompt {
                   )}
                 </select>
               </div>
-            : <input type="text"
+            : <input
+                type={this.prompter.type}
                 placeholder={this.prompter.placeholder}
                 value={this.input}
                 onInput={(e) => this.update(e)}
+                style={this.prompter.type === 'password' ? {'font-size': '18px'} : null}
               ></input>
           }
 
@@ -112,6 +114,6 @@ export class Prompt {
           </div>
         </div>
       </div>
-    ) : null
+    )
   }
 }

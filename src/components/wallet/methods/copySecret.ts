@@ -6,7 +6,10 @@ import { decrypt } from '@services/tweetnacl'
 
 export default async function copySecret() {
   try {
-    const pincode = await this.setPrompt('Enter your account pincode')
+    const pincode = await this.setPrompt({
+      message: 'Enter your account pincode',
+      type: 'password'
+    })
     const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     this.error = null

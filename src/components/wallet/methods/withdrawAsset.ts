@@ -23,10 +23,15 @@ import { decrypt } from '@services/tweetnacl'
 
 export default async function withdrawAsset() {
   try {
-    let currency = await this.setPrompt('Select the currency you\'d like to withdraw', null, this.toml.CURRENCIES)
-        currency = currency.split(':')
+    let currency = await this.setPrompt({
+      message: 'Select the currency you\'d like to withdraw',
+      options: this.toml.CURRENCIES
+    }); currency = currency.split(':')
 
-    const pincode = await this.setPrompt('Enter your account pincode')
+    const pincode = await this.setPrompt({
+      message: 'Enter your account pincode',
+      type: 'password'
+    })
     const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     const keypair = decrypt(

@@ -24,19 +24,25 @@ export default async function makePayment(
       destination
       && asset
     ) {
-      instructions = await this.setPrompt(`How much ${asset} to pay?`)
+      instructions = await this.setPrompt({message: `How much ${asset} to pay?`})
       instructions = [instructions, asset, destination, issuer]
     }
 
     else {
-      instructions = await this.setPrompt('{Amount} {Asset} {Destination}')
+      instructions = await this.setPrompt({message: '{Amount} {Asset} {Destination}'})
       instructions = instructions.split(' ')
 
       if (!/xlm/gi.test(instructions[1]))
-        instructions[3] = await this.setPrompt(`Who issues the ${instructions[1]} asset?`, 'Enter ME to refer to yourself')
+        instructions[3] = await this.setPrompt({
+          message: `Who issues the ${instructions[1]} asset?`,
+          placeholder: 'Enter ME to refer to yourself'
+        })
     }
 
-    const pincode = await this.setPrompt('Enter your account pincode')
+    const pincode = await this.setPrompt({
+      message: 'Enter your account pincode',
+      type: 'password'
+    })
     const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     const keypair = decrypt(

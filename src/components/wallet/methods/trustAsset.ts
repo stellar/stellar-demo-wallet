@@ -25,12 +25,15 @@ export default async function trustAsset(
     ) instructions = [asset, issuer]
 
     else {
-      instructions = await this.setPrompt('{Asset} {Issuer}')
+      instructions = await this.setPrompt({message: '{Asset} {Issuer}'})
       instructions = instructions.split(' ')
     }
 
     if (!pincode_stretched) {
-      const pincode = await this.setPrompt('Enter your account pincode')
+      const pincode = await this.setPrompt({
+        message: 'Enter your account pincode',
+        type: 'password'
+      })
       pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
     }
 

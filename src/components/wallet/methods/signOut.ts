@@ -3,7 +3,10 @@ import { handleError } from '@services/error'
 
 export default async function signOut() {
   try {
-    const confirmNuke = await this.setPrompt('Are you sure? This will nuke your account', 'Enter NUKE to confirm')
+    const confirmNuke = await this.setPrompt({
+      message: 'Are you sure? This will nuke your account',
+      placeholder: 'Enter NUKE to confirm'
+    })
 
     if (
       !confirm
