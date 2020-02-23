@@ -1,6 +1,6 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "description": "Stellar Demo Wallet",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
