@@ -32,7 +32,7 @@
     "@types/autoprefixer": "^9.7.0",
     "autoprefixer": "^9.7.4",
     "axios": "^0.19.2",
-    "copy-to-clipboard": "^3.2.1",
+    "copy-to-clipboard": "^3.3.1",
     "js-combinatorics": "^0.5.5",
     "lodash-es": "^4.17.15",
     "menubar": "^8.0.0",
