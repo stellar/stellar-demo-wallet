@@ -17,7 +17,7 @@ export function encrypt(
   )
 
   if (!encrypted)
-    throw 'Pincode decryption failed'
+    throw 'Pincode encryption failed'
 
   return {
     cipher: encodeBase64(encrypted),
