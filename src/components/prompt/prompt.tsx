@@ -29,14 +29,25 @@ export class Prompt {
   @Prop({mutable: true}) prompter: Prompter
 
   @State() private input: string
+  @State() private remember: boolean
 
   @Watch('prompter')
   watchHandler(newValue: Prompter, oldValue: Prompter) {
     if (newValue.show === oldValue.show)
       return
 
+    if (
+      this.prompter.type === 'password'
+      && sessionStorage.hasOwnProperty('WALLET[pincode]')
+    ) {
+      this.input = sessionStorage.getItem('WALLET[pincode]')
+      this.submit()
+      return
+    }
+
     if (newValue.show) {
       this.input = null
+      this.remember = null
 
       if (newValue.options)
         this.input = this.input || `${newValue.options[0].code}:${newValue.options[0].issuer}`
@@ -76,10 +87,17 @@ export class Prompt {
       show: false
     }
     this.prompter.resolve(this.input)
+
+    if (this.remember)
+      sessionStorage.setItem('WALLET[pincode]', this.input)
   }
 
   update(e: any) {
     this.input = e.target.value.toUpperCase()
+  }
+
+  store(e: any) {
+    this.remember = e.target.checked
   }
 
   render() {
@@ -107,6 +125,15 @@ export class Prompt {
                 onInput={(e) => this.update(e)}
                 style={this.prompter.type === 'password' ? {'font-size': '18px'} : null}
               ></input>
+          }
+
+          {
+            this.prompter.type === 'password'
+            ? <label>
+                <input type="checkbox" checked={this.remember} onChange={(e) => this.store(e)}></input>
+                Store for session
+              </label>
+            : null
           }
 
           <div class="actions">
