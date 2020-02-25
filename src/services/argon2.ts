@@ -7,9 +7,9 @@ export function stretchPincode(
   return argon2.hash({
     pass,
     salt,
-    time: 100,
-    mem: 1024,
+    time: 3,
+    mem: 20 * 1024,
     hashLen: 32,
-    type: argon2.ArgonType.Argon2d
+    parallelism: 1
   }).then(({hash}) => hash)
 }
