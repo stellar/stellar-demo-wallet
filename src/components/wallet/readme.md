@@ -7,11 +7,11 @@
 
 ## Properties
 
-| Property     | Attribute | Description | Type     | Default     |
-| ------------ | --------- | ----------- | -------- | ----------- |
-| `homeDomain` | --        |             | `String` | `undefined` |
-| `server`     | --        |             | `Server` | `undefined` |
-| `toml`       | --        |             | `Object` | `undefined` |
+| Property     | Attribute | Description | Type     | Default                                             |
+| ------------ | --------- | ----------- | -------- | --------------------------------------------------- |
+| `homeDomain` | --        |             | `String` | `'testanchor.stellar.org'`                          |
+| `server`     | --        |             | `Server` | `new Server('https://horizon-testnet.stellar.org')` |
+| `toml`       | --        |             | `Object` | `undefined`                                         |
 
 
 ## Dependencies

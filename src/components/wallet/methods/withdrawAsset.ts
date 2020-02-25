@@ -1,7 +1,5 @@
-import sjcl from '@tinyanvil/sjcl'
 import {
   Transaction,
-  Keypair,
   Account,
   TransactionBuilder,
   BASE_FEE,
@@ -20,21 +18,26 @@ import {
 } from 'lodash-es'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
-export default async function withdrawAsset(e: Event) {
+export default async function withdrawAsset() {
   try {
-    e.preventDefault()
+    let currency = await this.setPrompt({
+      message: 'Select the currency you\'d like to withdraw',
+      options: this.toml.CURRENCIES
+    }); currency = currency.split(':')
 
-    let currency = await this.setPrompt('Select the currency you\'d like to withdraw', null, this.toml.CURRENCIES)
-        currency = currency.split(':')
+    const pincode = await this.setPrompt({
+      message: 'Enter your account pincode',
+      type: 'password'
+    })
+    const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
-    const pincode = await this.setPrompt('Enter your keystore pincode')
-
-    if (!pincode)
-      return
-
-    const keypair = Keypair.fromSecret(
-      sjcl.decrypt(pincode, this.account.keystore)
+    const keypair = decrypt(
+      this.account.cipher,
+      this.account.nonce,
+      pincode_stretched
     )
 
     const balances = loGet(this.account, 'state.balances')
@@ -44,7 +47,7 @@ export default async function withdrawAsset(e: Event) {
     })
 
     if (hasCurrency === -1)
-      await this.trustAsset(null, currency[0], currency[1], pincode)
+      await this.trustAsset(currency[0], currency[1], pincode)
 
     const info = await axios.get(`${this.toml.TRANSFER_SERVER}/info`)
     .then(({data}) => data)

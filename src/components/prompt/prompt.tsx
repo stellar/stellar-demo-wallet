@@ -10,6 +10,7 @@ import { defer as loDefer } from 'lodash-es'
 
 export interface Prompter {
   show: boolean
+  type?: string
   message?: string
   placeholder?: string
   options?: Array<any>
@@ -54,16 +55,14 @@ export class Prompt {
     addEventListener('keyup', (e: KeyboardEvent) => {
       if (this.prompter.show)
         e.keyCode === 13
-        ? this.submit(e)
+        ? this.submit()
         : e.keyCode === 27
-        ? this.cancel(e)
+        ? this.cancel()
         : null
     })
   }
 
-  cancel(e: Event) {
-    e.preventDefault()
-
+  cancel() {
     this.prompter = {
       ...this.prompter,
       show: false
@@ -71,9 +70,7 @@ export class Prompt {
     this.prompter.reject(null)
   }
 
-  submit(e: Event) {
-    e.preventDefault()
-
+  submit() {
     this.prompter = {
       ...this.prompter,
       show: false
@@ -81,13 +78,13 @@ export class Prompt {
     this.prompter.resolve(this.input)
   }
 
-  update(e) {
+  update(e: any) {
     this.input = e.target.value.toUpperCase()
   }
 
   render() {
-    return this.prompter.show ? (
-      <div class="prompt-wrapper">
+    return (
+      <div class="prompt-wrapper" style={this.prompter.show ? null : {display: 'none'}}>
         <div class="prompt">
           {this.prompter.message ? <p>{this.prompter.message}</p> : null}
 
@@ -103,19 +100,21 @@ export class Prompt {
                   )}
                 </select>
               </div>
-            : <input type="text"
+            : <input
+                type={this.prompter.type}
                 placeholder={this.prompter.placeholder}
                 value={this.input}
                 onInput={(e) => this.update(e)}
+                style={this.prompter.type === 'password' ? {'font-size': '18px'} : null}
               ></input>
           }
 
           <div class="actions">
-            <button class="cancel" type="button" onClick={(e) => this.cancel(e)}>Cancel</button>
-            <button class="submit" type="button" onClick={(e) => this.submit(e)}>OK</button>
+            <button class="cancel" type="button" onClick={() => this.cancel()}>Cancel</button>
+            <button class="submit" type="button" onClick={() => this.submit()}>OK</button>
           </div>
         </div>
       </div>
-    ) : null
+    )
   }
 }

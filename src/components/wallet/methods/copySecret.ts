@@ -1,21 +1,26 @@
-import sjcl from '@tinyanvil/sjcl'
 import copy from 'copy-to-clipboard'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
-export default async function copySecret(e: Event) {
+export default async function copySecret() {
   try {
-    e.preventDefault()
-
-    const pincode = await this.setPrompt('Enter your keystore pincode')
-
-    if (!pincode)
-      return
+    const pincode = await this.setPrompt({
+      message: 'Enter your account pincode',
+      type: 'password'
+    })
+    const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     this.error = null
 
-    const secret = sjcl.decrypt(pincode, this.account.keystore)
-    copy(secret)
+    const keypair = decrypt(
+      this.account.cipher,
+      this.account.nonce,
+      pincode_stretched
+    )
+
+    copy(keypair.secret())
   }
 
   catch (err) {

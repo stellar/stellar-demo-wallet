@@ -1,13 +1,22 @@
-export default function setPrompt(
-  message: string,
-  placeholder?: string,
-  options?: Array<any>
-): Promise<string> {
+interface setPrompt {
+  message: string
+  placeholder: string
+  type: string
+  options: Array<any>
+}
+
+export default function setPrompt({
+  message,
+  placeholder,
+  type = 'text',
+  options
+}: setPrompt): Promise<string> {
   this.prompter = {
     ...this.prompter,
     show: true,
     message,
     placeholder,
+    type,
     options
   }
 
