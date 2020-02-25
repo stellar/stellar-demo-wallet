@@ -1,6 +1,6 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "0.0.34",
+  "version": "0.0.42",
   "description": "Stellar Demo Wallet",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -24,10 +24,11 @@
   "devDependencies": {
     "@capacitor/cli": "^1.5.0",
     "@capacitor/core": "^1.5.0",
+    "@stablelib/base64": "^1.0.0",
     "@stencil/core": "^1.8.9",
     "@stencil/postcss": "^1.0.1",
     "@stencil/sass": "^1.1.1",
-    "@tinyanvil/sjcl": "^1.0.8",
+    "@tinyanvil/argon2": "0.0.5",
     "@types/autoprefixer": "^9.7.0",
     "autoprefixer": "^9.7.4",
     "axios": "^0.19.2",
@@ -36,6 +37,7 @@
     "lodash-es": "^4.17.15",
     "menubar": "^8.0.0",
     "rollup-plugin-node-polyfills": "^0.2.1",
-    "stellar-sdk": "^4.0.1"
+    "stellar-sdk": "^4.0.1",
+    "tweetnacl": "^1.0.3"
   }
 }
