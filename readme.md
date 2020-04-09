@@ -1,6 +1,6 @@
 # Stellar Demo Wallet
 
-This Stellar Demo Wallet app is the application companion to the [Build a Stellar Wallet](https://github.com/tyvdh/tutorials-build-a-stellar-wallet) tutorial series. This is a [Stencil](https://stenciljs.com) project intented to kickstart your wallet project. Feel free to clone or copy any pieces which may be helpful.
+This Stellar Demo Wallet app is the application companion to the [Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/) tutorial series. This is a [Stencil](https://stenciljs.com) project intented to kickstart your wallet project. Feel free to clone or copy any pieces which may be helpful.
 
 [View a demo](https://stellar-demo-wallet.now.sh/)
 
