@@ -2,8 +2,8 @@ import { Plugins } from '@capacitor/core'
 
 const { Storage } = Plugins
 
-export async function set(key: string, value: any): Promise<void> {
-  await Storage.set({
+export function set(key: string, value: any): Promise<void> {
+  return Storage.set({
     key,
     value
   })
@@ -14,6 +14,6 @@ export async function get(key: string): Promise<any> {
   return item.value
 }
 
-export async function remove(key: string): Promise<void> {
-  await Storage.remove({ key })
+export function remove(key: string): Promise<void> {
+  return Storage.remove({ key })
 }

@@ -16,6 +16,7 @@ export default async function signOut() {
     this.error = null
 
     await remove('WALLET[keystore]')
+    sessionStorage.removeItem('WALLET[pincode]')
     location.reload()
   }
 
