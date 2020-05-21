@@ -32,7 +32,7 @@ export default async function depositAsset() {
     if (hasCurrency === -1)
       await this.trustAsset(currency[0], currency[1], pincode_stretched)
 
-    const info = await axios.get(`${this.toml.TRANSFER_SERVER}/info`)
+    const info = await axios.get(`${this.toml.TRANSFER_SERVER_SEP0024}/info`)
     .then(({data}) => data)
 
     console.log(info)
@@ -70,7 +70,7 @@ export default async function depositAsset() {
       lang: 'en'
     }, (value, key) => formData.append(key, value))
 
-    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER}/transactions/deposit/interactive`, formData, {
+    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`, formData, {
       headers: {
         'Authorization': `Bearer ${auth}`,
         'Content-Type': 'multipart/form-data'
@@ -79,7 +79,7 @@ export default async function depositAsset() {
 
     console.log(interactive)
 
-    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER}/transactions`, {
+    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions`, {
       params: {
         asset_code: currency[0],
         limit: 1,

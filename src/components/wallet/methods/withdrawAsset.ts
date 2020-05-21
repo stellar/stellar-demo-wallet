@@ -49,7 +49,7 @@ export default async function withdrawAsset() {
     if (hasCurrency === -1)
       await this.trustAsset(currency[0], currency[1], pincode)
 
-    const info = await axios.get(`${this.toml.TRANSFER_SERVER}/info`)
+    const info = await axios.get(`${this.toml.TRANSFER_SERVER_SEP0024}/info`)
     .then(({data}) => data)
 
     console.log(info)
@@ -81,7 +81,7 @@ export default async function withdrawAsset() {
       lang: 'en'
     }, (value, key) => formData.append(key, value))
 
-    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER}/transactions/withdraw/interactive`, formData, {
+    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions/withdraw/interactive`, formData, {
       headers: {
         'Authorization': `Bearer ${auth}`,
         'Content-Type': 'multipart/form-data'
@@ -90,7 +90,7 @@ export default async function withdrawAsset() {
 
     console.log(interactive)
 
-    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER}/transactions`, {
+    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions`, {
       params: {
         asset_code: currency[0],
         limit: 1,
@@ -144,7 +144,14 @@ export default async function withdrawAsset() {
               asset: new Asset(currency[0], currency[1]),
               amount: transaction.amount_in
             }))
-            .addMemo(new Memo(MemoHash, transaction.withdraw_memo))
+            .addMemo(new Memo(
+              MemoHash,
+              atob(transaction.withdraw_memo)
+              .split('')
+              .map((aChar) => `0${aChar.charCodeAt(0).toString(16)}`.slice(-2))
+              .join('')
+              .toUpperCase()
+            ))
             .setTimeout(0)
             .build()
 
