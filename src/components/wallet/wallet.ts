@@ -47,13 +47,14 @@ interface Loading {
 })
 export class Wallet {
   @State() account: StellarAccount
-  @State() prompter: Prompter = {show: false}
+  @State() prompter: Prompter
   @State() loading: Loading = {}
   @State() error: any
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() homeDomain: String = 'testanchor.stellar.org'
   @Prop() toml: Object // NEW
+  @Prop() _id: string
 
   // Component events
   componentWillLoad() {}

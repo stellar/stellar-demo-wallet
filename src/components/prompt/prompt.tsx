@@ -9,6 +9,7 @@ import {
 import { defer as loDefer } from 'lodash-es'
 
 export interface Prompter {
+  _id: string
   show: boolean
   type?: string
   message?: string
@@ -38,9 +39,9 @@ export class Prompt {
 
     if (
       this.prompter.type === 'password'
-      && sessionStorage.hasOwnProperty('WALLET[pincode]')
+      && sessionStorage.hasOwnProperty(`wallet.${this.prompter._id}.pincode`)
     ) {
-      this.input = sessionStorage.getItem('WALLET[pincode]')
+      this.input = sessionStorage.getItem(`wallet.${this.prompter._id}.pincode`)
       this.submit()
       return
     }
@@ -89,7 +90,7 @@ export class Prompt {
     this.prompter.resolve(this.input)
 
     if (this.remember)
-      sessionStorage.setItem('WALLET[pincode]', this.input)
+      sessionStorage.setItem(`wallet.${this.prompter._id}.pincode`, this.input)
   }
 
   update(e: any) {

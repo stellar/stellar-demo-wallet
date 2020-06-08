@@ -9,6 +9,7 @@
 
 | Property     | Attribute | Description | Type     | Default                                             |
 | ------------ | --------- | ----------- | -------- | --------------------------------------------------- |
+| `_id`        | `_id`     |             | `string` | `undefined`                                         |
 | `homeDomain` | --        |             | `String` | `'testanchor.stellar.org'`                          |
 | `server`     | --        |             | `Server` | `new Server('https://horizon-testnet.stellar.org')` |
 | `toml`       | --        |             | `Object` | `undefined`                                         |

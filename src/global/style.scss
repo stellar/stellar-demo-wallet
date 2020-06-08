@@ -89,3 +89,16 @@ button {
     height: 20px;
   }
 }
+
+body {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+stellar-wallet {
+  width: calc(50% - 5px);
+}
+iframe {
+  display: none !important;
+}

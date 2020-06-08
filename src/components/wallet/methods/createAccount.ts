@@ -43,7 +43,7 @@ export default async function createAccount() {
       nonce
     }
 
-    set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
+    set(`wallet.${this._id}.keystore`, btoa(JSON.stringify(this.account)))
 
     this.updateAccount()
   }
