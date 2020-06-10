@@ -32,10 +32,18 @@
     "autoprefixer": "^9.7.4",
     "axios": "^0.19.2",
     "copy-to-clipboard": "^3.2.1",
+    "husky": "^4.2.5",
     "js-combinatorics": "^0.5.5",
     "lodash-es": "^4.17.15",
     "menubar": "^8.0.0",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "stellar-sdk": "^4.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
