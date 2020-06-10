@@ -27,6 +27,7 @@ npm run build
 ---
 
 ### Helpful links:
+
 - [https://www.stellar.org/developers](https://www.stellar.org/developers)
 - [https://stellar.github.io/js-stellar-sdk/](https://stellar.github.io/js-stellar-sdk/)
 - [https://github.com/stellar/js-stellar-sdk](https://github.com/stellar/js-stellar-sdk)

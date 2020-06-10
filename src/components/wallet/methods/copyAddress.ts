@@ -1,5 +1,5 @@
-import copy from 'copy-to-clipboard'
+import copy from "copy-to-clipboard";
 
 export default async function copyAddress() {
-  copy(this.account.publicKey)
+  copy(this.account.publicKey);
 }
