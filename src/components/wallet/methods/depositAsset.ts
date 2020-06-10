@@ -1,8 +1,4 @@
-import sjcl from '@tinyanvil/sjcl'
-import {
-  Transaction,
-  Keypair,
-} from 'stellar-sdk'
+import { Transaction } from 'stellar-sdk'
 import axios from 'axios'
 import {
   get as loGet,
@@ -11,18 +7,21 @@ import {
 } from 'lodash-es'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
-export default async function depositAsset(e: Event) {
+export default async function depositAsset() {
   try {
-    e.preventDefault()
+    let currency = await this.setPrompt({
+      message: 'Select the currency you\'d like to deposit',
+      options: this.toml.CURRENCIES
+    }); currency = currency.split(':')
 
-    let currency = await this.setPrompt('Select the currency you\'d like to deposit', null, this.toml.CURRENCIES)
-        currency = currency.split(':')
-
-    const pincode = await this.setPrompt('Enter your keystore pincode')
-
-    if (!pincode)
-        return
+    const pincode = await this.setPrompt({
+      message: 'Enter your account pincode',
+      type: 'password'
+    })
+    const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
     const balances = loGet(this.account, 'state.balances')
     const hasCurrency = loFindIndex(balances, {
@@ -31,9 +30,9 @@ export default async function depositAsset(e: Event) {
     })
 
     if (hasCurrency === -1)
-      await this.trustAsset(null, currency[0], currency[1], pincode)
+      await this.trustAsset(currency[0], currency[1], pincode_stretched)
 
-    const info = await axios.get(`${this.toml.TRANSFER_SERVER}/info`)
+    const info = await axios.get(`${this.toml.TRANSFER_SERVER_SEP0024}/info`)
     .then(({data}) => data)
 
     console.log(info)
@@ -49,8 +48,10 @@ export default async function depositAsset(e: Event) {
       this.error = null
       this.loading = {...this.loading, deposit: true}
 
-      const keypair = Keypair.fromSecret(
-        sjcl.decrypt(pincode, this.account.keystore)
+      const keypair = decrypt(
+        this.account.cipher,
+        this.account.nonce,
+        pincode_stretched
       )
 
       transaction.sign(keypair)
@@ -69,7 +70,7 @@ export default async function depositAsset(e: Event) {
       lang: 'en'
     }, (value, key) => formData.append(key, value))
 
-    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER}/transactions/deposit/interactive`, formData, {
+    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`, formData, {
       headers: {
         'Authorization': `Bearer ${auth}`,
         'Content-Type': 'multipart/form-data'
@@ -78,7 +79,7 @@ export default async function depositAsset(e: Event) {
 
     console.log(interactive)
 
-    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER}/transactions`, {
+    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions`, {
       params: {
         asset_code: currency[0],
         limit: 1,

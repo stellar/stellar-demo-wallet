@@ -5,10 +5,10 @@ export default function render() {
   const loggedInContent = () => [
     <div class="account-key">
       <p>{this.account.publicKey}</p>
-      <button class="small" type="button" onClick={(e) => this.copyAddress(e)}>
+      <button class="small" type="button" onClick={() => this.copyAddress()}>
         Copy Address
       </button>
-      <button class="small" type="button" onClick={(e) => this.copySecret(e)}>
+      <button class="small" type="button" onClick={() => this.copySecret()}>
         Copy Secret
       </button>
     </div>,
@@ -16,14 +16,14 @@ export default function render() {
     <button
       class={this.loading.deposit ? "loading" : null}
       type="button"
-      onClick={(e) => this.depositAsset(e)}
+      onClick={() => this.depositAsset()}
     >
       {this.loading.deposit ? <stellar-loader /> : null} Deposit Asset
     </button>,
     <button
       class={this.loading.withdraw ? "loading" : null}
       type="button"
-      onClick={(e) => this.withdrawAsset(e)}
+      onClick={() => this.withdrawAsset()}
     >
       {this.loading.withdraw ? <stellar-loader /> : null} Withdraw Asset
     </button>,
@@ -31,14 +31,14 @@ export default function render() {
     <button
       class={this.loading.trust ? "loading" : null}
       type="button"
-      onClick={(e) => this.trustAsset(e)}
+      onClick={() => this.trustAsset()}
     >
       {this.loading.trust ? <stellar-loader /> : null} Trust Asset
     </button>,
     <button
       class={this.loading.pay ? "loading" : null}
       type="button"
-      onClick={(e) => this.makePayment(e)}
+      onClick={() => this.makePayment()}
     >
       {this.loading.pay ? <stellar-loader /> : null} Make Payment
     </button>,
@@ -48,7 +48,7 @@ export default function render() {
     <button
       class={this.loading.fund ? "loading" : null}
       type="button"
-      onClick={(e) => this.createAccount(e)}
+      onClick={() => this.createAccount()}
     >
       {this.loading.fund ? <stellar-loader /> : null} Create Account
     </button>,
@@ -75,16 +75,26 @@ export default function render() {
       </pre>
     ) : null,
 
+    this.error ? (
+      <pre class="error">{JSON.stringify(this.error, null, 2)}</pre>
+    ) : null,
+
+    loHas(this.account, "state") ? (
+      <pre class="account-state">
+        {JSON.stringify(this.account.state, null, 2)}
+      </pre>
+    ) : null,
+
     this.account
       ? [
           <button
             class={this.loading.update ? "loading" : null}
             type="button"
-            onClick={(e) => this.updateAccount(e)}
+            onClick={() => this.updateAccount()}
           >
             {this.loading.update ? <stellar-loader /> : null} Update Account
           </button>,
-          <button type="button" onClick={(e) => this.signOut(e)}>
+          <button type="button" onClick={() => this.signOut()}>
             Sign Out
           </button>,
         ]

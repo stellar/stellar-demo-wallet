@@ -20,7 +20,8 @@ import { Prompter } from "@prompt/prompt";
 
 interface StellarAccount {
   publicKey: string;
-  keystore: string;
+  cipher: string;
+  nonce: string;
   state?: ServerApi.AccountRecord;
 }
 
@@ -42,10 +43,10 @@ export class Wallet {
   @State() account: StellarAccount;
   @State() prompter: Prompter = { show: false };
   @State() loading: Loading = {};
-  @State() error: any = null;
+  @State() error: any;
 
-  @Prop() server: Server;
-  @Prop() homeDomain: String; // NEW
+  @Prop() server: Server = new Server("https://horizon-testnet.stellar.org");
+  @Prop() homeDomain: String = "testanchor.stellar.org";
   @Prop() toml: Object; // NEW
 
   // Component events

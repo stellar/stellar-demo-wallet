@@ -1,6 +1,4 @@
-import sjcl from '@tinyanvil/sjcl'
 import {
-  Keypair,
   Account,
   TransactionBuilder,
   BASE_FEE,
@@ -10,17 +8,15 @@ import {
 } from 'stellar-sdk'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
 export default async function trustAsset(
-  e?: Event,
   asset?: string,
   issuer?: string,
-  pincode?: string
+  pincode_stretched?: Uint8Array
 ) {
   try {
-    if (e)
-      e.preventDefault()
-
     let instructions
 
     if (
@@ -29,19 +25,22 @@ export default async function trustAsset(
     ) instructions = [asset, issuer]
 
     else {
-      instructions = await this.setPrompt('{Asset} {Issuer}')
+      instructions = await this.setPrompt({message: '{Asset} {Issuer}'})
       instructions = instructions.split(' ')
     }
 
-    pincode = pincode || await this.setPrompt('Enter your keystore pincode')
+    if (!pincode_stretched) {
+      const pincode = await this.setPrompt({
+        message: 'Enter your account pincode',
+        type: 'password'
+      })
+      pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
+    }
 
-    if (
-      !instructions
-      || !pincode
-    ) return
-
-    const keypair = Keypair.fromSecret(
-      sjcl.decrypt(pincode, this.account.keystore)
+    const keypair = decrypt(
+      this.account.cipher,
+      this.account.nonce,
+      pincode_stretched
     )
 
     this.error = null
@@ -74,5 +73,6 @@ export default async function trustAsset(
 
   catch (err) {
     this.error = handleError(err)
+    throw err
   }
 }

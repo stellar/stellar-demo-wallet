@@ -10,6 +10,7 @@ import { defer as loDefer } from 'lodash-es'
 
 export interface Prompter {
   show: boolean
+  type?: string
   message?: string
   placeholder?: string
   options?: Array<any>
@@ -28,14 +29,25 @@ export class Prompt {
   @Prop({mutable: true}) prompter: Prompter
 
   @State() private input: string
+  @State() private remember: boolean
 
   @Watch('prompter')
   watchHandler(newValue: Prompter, oldValue: Prompter) {
     if (newValue.show === oldValue.show)
       return
 
+    if (
+      this.prompter.type === 'password'
+      && sessionStorage.hasOwnProperty('WALLET[pincode]')
+    ) {
+      this.input = sessionStorage.getItem('WALLET[pincode]')
+      this.submit()
+      return
+    }
+
     if (newValue.show) {
       this.input = null
+      this.remember = null
 
       if (newValue.options)
         this.input = this.input || `${newValue.options[0].code}:${newValue.options[0].issuer}`
@@ -54,16 +66,14 @@ export class Prompt {
     addEventListener('keyup', (e: KeyboardEvent) => {
       if (this.prompter.show)
         e.keyCode === 13
-        ? this.submit(e)
+        ? this.submit()
         : e.keyCode === 27
-        ? this.cancel(e)
+        ? this.cancel()
         : null
     })
   }
 
-  cancel(e: Event) {
-    e.preventDefault()
-
+  cancel() {
     this.prompter = {
       ...this.prompter,
       show: false
@@ -71,23 +81,28 @@ export class Prompt {
     this.prompter.reject(null)
   }
 
-  submit(e: Event) {
-    e.preventDefault()
-
+  submit() {
     this.prompter = {
       ...this.prompter,
       show: false
     }
     this.prompter.resolve(this.input)
+
+    if (this.remember)
+      sessionStorage.setItem('WALLET[pincode]', this.input)
   }
 
-  update(e) {
+  update(e: any) {
     this.input = e.target.value.toUpperCase()
   }
 
+  store(e: any) {
+    this.remember = e.target.checked
+  }
+
   render() {
-    return this.prompter.show ? (
-      <div class="prompt-wrapper">
+    return (
+      <div class="prompt-wrapper" style={this.prompter.show ? null : {display: 'none'}}>
         <div class="prompt">
           {this.prompter.message ? <p>{this.prompter.message}</p> : null}
 
@@ -103,19 +118,30 @@ export class Prompt {
                   )}
                 </select>
               </div>
-            : <input type="text"
+            : <input
+                type={this.prompter.type}
                 placeholder={this.prompter.placeholder}
                 value={this.input}
                 onInput={(e) => this.update(e)}
+                style={this.prompter.type === 'password' ? {'font-size': '18px'} : null}
               ></input>
           }
 
+          {
+            this.prompter.type === 'password'
+            ? <label>
+                <input type="checkbox" checked={this.remember} onChange={(e) => this.store(e)}></input>
+                Store for session
+              </label>
+            : null
+          }
+
           <div class="actions">
-            <button class="cancel" type="button" onClick={(e) => this.cancel(e)}>Cancel</button>
-            <button class="submit" type="button" onClick={(e) => this.submit(e)}>OK</button>
+            <button class="cancel" type="button" onClick={() => this.cancel()}>Cancel</button>
+            <button class="submit" type="button" onClick={() => this.submit()}>OK</button>
           </div>
         </div>
       </div>
-    ) : null
+    )
   }
 }

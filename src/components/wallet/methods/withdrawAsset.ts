@@ -1,7 +1,5 @@
-import sjcl from '@tinyanvil/sjcl'
 import {
   Transaction,
-  Keypair,
   Account,
   TransactionBuilder,
   BASE_FEE,
@@ -20,21 +18,26 @@ import {
 } from 'lodash-es'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
-export default async function withdrawAsset(e: Event) {
+export default async function withdrawAsset() {
   try {
-    e.preventDefault()
+    let currency = await this.setPrompt({
+      message: 'Select the currency you\'d like to withdraw',
+      options: this.toml.CURRENCIES
+    }); currency = currency.split(':')
 
-    let currency = await this.setPrompt('Select the currency you\'d like to withdraw', null, this.toml.CURRENCIES)
-        currency = currency.split(':')
+    const pincode = await this.setPrompt({
+      message: 'Enter your account pincode',
+      type: 'password'
+    })
+    const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
-    const pincode = await this.setPrompt('Enter your keystore pincode')
-
-    if (!pincode)
-      return
-
-    const keypair = Keypair.fromSecret(
-      sjcl.decrypt(pincode, this.account.keystore)
+    const keypair = decrypt(
+      this.account.cipher,
+      this.account.nonce,
+      pincode_stretched
     )
 
     const balances = loGet(this.account, 'state.balances')
@@ -44,9 +47,9 @@ export default async function withdrawAsset(e: Event) {
     })
 
     if (hasCurrency === -1)
-      await this.trustAsset(null, currency[0], currency[1], pincode)
+      await this.trustAsset(currency[0], currency[1], pincode)
 
-    const info = await axios.get(`${this.toml.TRANSFER_SERVER}/info`)
+    const info = await axios.get(`${this.toml.TRANSFER_SERVER_SEP0024}/info`)
     .then(({data}) => data)
 
     console.log(info)
@@ -78,7 +81,7 @@ export default async function withdrawAsset(e: Event) {
       lang: 'en'
     }, (value, key) => formData.append(key, value))
 
-    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER}/transactions/withdraw/interactive`, formData, {
+    const interactive = await axios.post(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions/withdraw/interactive`, formData, {
       headers: {
         'Authorization': `Bearer ${auth}`,
         'Content-Type': 'multipart/form-data'
@@ -87,7 +90,7 @@ export default async function withdrawAsset(e: Event) {
 
     console.log(interactive)
 
-    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER}/transactions`, {
+    const transactions = await axios.get(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions`, {
       params: {
         asset_code: currency[0],
         limit: 1,
@@ -141,7 +144,14 @@ export default async function withdrawAsset(e: Event) {
               asset: new Asset(currency[0], currency[1]),
               amount: transaction.amount_in
             }))
-            .addMemo(new Memo(MemoHash, transaction.withdraw_memo))
+            .addMemo(new Memo(
+              MemoHash,
+              atob(transaction.withdraw_memo)
+              .split('')
+              .map((aChar) => `0${aChar.charCodeAt(0).toString(16)}`.slice(-2))
+              .join('')
+              .toUpperCase()
+            ))
             .setTimeout(0)
             .build()
 

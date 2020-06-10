@@ -48,7 +48,8 @@ table {
 * {
   box-sizing: border-box;
 }
-input,
+input[type="text"]
+input[type="password"],
 button,
 select,
 textarea {
@@ -58,7 +59,8 @@ textarea {
   appearance: none;
   border-radius: 0;
 }
-input,
+input[type="text"]
+input[type="password"],
 select,
 button {
   height: 30px;

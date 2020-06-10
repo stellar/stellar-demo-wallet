@@ -1,6 +1,4 @@
-import sjcl from '@tinyanvil/sjcl'
 import {
-  Keypair,
   Account,
   TransactionBuilder,
   BASE_FEE,
@@ -11,43 +9,46 @@ import {
 import { has as loHas } from 'lodash-es'
 
 import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
 export default async function makePayment(
-  e?: Event,
   destination?: string,
   asset?: string,
   issuer?: string
 ) {
   try {
-    if (e) e.preventDefault()
-
     let instructions
 
     if (
       destination
       && asset
     ) {
-      instructions = await this.setPrompt(`How much ${asset} to pay?`)
+      instructions = await this.setPrompt({message: `How much ${asset} to pay?`})
       instructions = [instructions, asset, destination, issuer]
     }
 
     else {
-      instructions = await this.setPrompt('{Amount} {Asset} {Destination}')
+      instructions = await this.setPrompt({message: '{Amount} {Asset} {Destination}'})
       instructions = instructions.split(' ')
 
       if (!/xlm/gi.test(instructions[1]))
-        instructions[3] = await this.setPrompt(`Who issues the ${instructions[1]} asset?`, 'Enter ME to refer to yourself')
+        instructions[3] = await this.setPrompt({
+          message: `Who issues the ${instructions[1]} asset?`,
+          placeholder: 'Enter ME to refer to yourself'
+        })
     }
 
-    const pincode = await this.setPrompt('Enter your keystore pincode')
+    const pincode = await this.setPrompt({
+      message: 'Enter your account pincode',
+      type: 'password'
+    })
+    const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
 
-    if (
-      !instructions
-      || !pincode
-    ) return
-
-    const keypair = Keypair.fromSecret(
-      sjcl.decrypt(pincode, this.account.keystore)
+    const keypair = decrypt(
+      this.account.cipher,
+      this.account.nonce,
+      pincode_stretched
     )
 
     if (/me/gi.test(instructions[3]))

@@ -30,17 +30,31 @@
     p {
       margin-bottom: 10px;
     }
-    input {
+    input[type="text"],
+    input[type="password"] {
       width: 100%;
       margin: 0;
       padding: 5px;
       outline: none;
       border: 1px solid black;
       text-transform: uppercase;
+      font-size: 15px;
 
       &:focus {
         border-color: blue;
       }
+    }
+    label {
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+    }
+    input[type="checkbox"] {
+      font-size: 18px;
+      margin: 0 5px 0 0;
+      position: relative;
+      top: -1px;
     }
   }
   .select-wrapper {

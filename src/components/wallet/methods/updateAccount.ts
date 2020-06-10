@@ -5,11 +5,8 @@ import {
 
 import { handleError } from '@services/error'
 
-export default async function updateAccount(e?: Event) {
+export default async function updateAccount() {
   try {
-    if (e)
-      e.preventDefault()
-
     this.error = null
     this.loading = {...this.loading, update: true}
 
