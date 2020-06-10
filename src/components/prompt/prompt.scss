@@ -1,4 +1,4 @@
-@import '../../global/style.scss';
+@import "../../global/style.scss";
 
 :host {
   display: block;
@@ -61,12 +61,12 @@
       color: blue;
     }
     &:after {
-      content: '◀';
+      content: "◀";
       top: calc(50% - 5px);
       transform: translate(0, -50%) rotate(90deg);
     }
     &:before {
-      content: '▶';
+      content: "▶";
       top: calc(50% + 5px);
       transform: translate(0, -50%) rotate(90deg);
     }

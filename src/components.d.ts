@@ -5,87 +5,86 @@
  * It contains typing information for all components that exist in this project.
  */
 
-
-import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
-import {
-  Prompter,
-} from './components/prompt/prompt';
-import {
-  Server,
-} from 'stellar-sdk';
+import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { Prompter } from "./components/prompt/prompt";
+import { Server } from "stellar-sdk";
 
 export namespace Components {
   interface StellarLoader {
-    'interval': any;
+    interval: any;
   }
   interface StellarPrompt {
-    'prompter': Prompter;
+    prompter: Prompter;
   }
   interface StellarWallet {
-    'homeDomain': String;
-    'server': Server;
-    'toml': Object;
+    homeDomain: String;
+    server: Server;
+    toml: Object;
   }
 }
 
 declare global {
-
-
-  interface HTMLStellarLoaderElement extends Components.StellarLoader, HTMLStencilElement {}
+  interface HTMLStellarLoaderElement
+    extends Components.StellarLoader,
+      HTMLStencilElement {}
   var HTMLStellarLoaderElement: {
     prototype: HTMLStellarLoaderElement;
     new (): HTMLStellarLoaderElement;
   };
 
-  interface HTMLStellarPromptElement extends Components.StellarPrompt, HTMLStencilElement {}
+  interface HTMLStellarPromptElement
+    extends Components.StellarPrompt,
+      HTMLStencilElement {}
   var HTMLStellarPromptElement: {
     prototype: HTMLStellarPromptElement;
     new (): HTMLStellarPromptElement;
   };
 
-  interface HTMLStellarWalletElement extends Components.StellarWallet, HTMLStencilElement {}
+  interface HTMLStellarWalletElement
+    extends Components.StellarWallet,
+      HTMLStencilElement {}
   var HTMLStellarWalletElement: {
     prototype: HTMLStellarWalletElement;
     new (): HTMLStellarWalletElement;
   };
   interface HTMLElementTagNameMap {
-    'stellar-loader': HTMLStellarLoaderElement;
-    'stellar-prompt': HTMLStellarPromptElement;
-    'stellar-wallet': HTMLStellarWalletElement;
+    "stellar-loader": HTMLStellarLoaderElement;
+    "stellar-prompt": HTMLStellarPromptElement;
+    "stellar-wallet": HTMLStellarWalletElement;
   }
 }
 
 declare namespace LocalJSX {
   interface StellarLoader {
-    'interval'?: any;
+    interval?: any;
   }
   interface StellarPrompt {
-    'prompter'?: Prompter;
+    prompter?: Prompter;
   }
   interface StellarWallet {
-    'homeDomain'?: String;
-    'server'?: Server;
-    'toml'?: Object;
+    homeDomain?: String;
+    server?: Server;
+    toml?: Object;
   }
 
   interface IntrinsicElements {
-    'stellar-loader': StellarLoader;
-    'stellar-prompt': StellarPrompt;
-    'stellar-wallet': StellarWallet;
+    "stellar-loader": StellarLoader;
+    "stellar-prompt": StellarPrompt;
+    "stellar-wallet": StellarWallet;
   }
 }
 
 export { LocalJSX as JSX };
 
-
 declare module "@stencil/core" {
   export namespace JSX {
     interface IntrinsicElements {
-      'stellar-loader': LocalJSX.StellarLoader & JSXBase.HTMLAttributes<HTMLStellarLoaderElement>;
-      'stellar-prompt': LocalJSX.StellarPrompt & JSXBase.HTMLAttributes<HTMLStellarPromptElement>;
-      'stellar-wallet': LocalJSX.StellarWallet & JSXBase.HTMLAttributes<HTMLStellarWalletElement>;
+      "stellar-loader": LocalJSX.StellarLoader &
+        JSXBase.HTMLAttributes<HTMLStellarLoaderElement>;
+      "stellar-prompt": LocalJSX.StellarPrompt &
+        JSXBase.HTMLAttributes<HTMLStellarPromptElement>;
+      "stellar-wallet": LocalJSX.StellarWallet &
+        JSXBase.HTMLAttributes<HTMLStellarWalletElement>;
     }
   }
 }
-
-

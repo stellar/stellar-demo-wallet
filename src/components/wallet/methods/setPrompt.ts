@@ -8,11 +8,11 @@ export default function setPrompt(
     show: true,
     message,
     placeholder,
-    options
-  }
+    options,
+  };
 
   return new Promise((resolve, reject) => {
-    this.prompter.resolve = resolve
-    this.prompter.reject = reject
-  })
+    this.prompter.resolve = resolve;
+    this.prompter.reject = reject;
+  });
 }
