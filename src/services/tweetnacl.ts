@@ -26,7 +26,10 @@ export function decrypt(cipher: string, nonce: string, keyArr: Uint8Array) {
 
   const decrypted: any = nacl.secretbox.open(encryptedArr, nonceArr, keyArr)
 
-  if (!decrypted) throw 'Pincode decryption failed'
+  if (!decrypted) {
+    sessionStorage.removeItem('WALLET[pincode]')
+    throw 'Pincode decryption failed'
+  }
 
   return Keypair.fromRawEd25519Seed(decrypted)
 }
