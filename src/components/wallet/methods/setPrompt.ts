@@ -1,14 +1,14 @@
 interface setPrompt {
-  message: string;
-  placeholder: string;
-  type: string;
-  options: Array<any>;
+  message: string
+  placeholder: string
+  type: string
+  options: Array<any>
 }
 
 export default function setPrompt({
   message,
   placeholder,
-  type = "text",
+  type = 'text',
   options,
 }: setPrompt): Promise<string> {
   this.prompter = {
@@ -18,10 +18,10 @@ export default function setPrompt({
     placeholder,
     type,
     options,
-  };
+  }
 
   return new Promise((resolve, reject) => {
-    this.prompter.resolve = resolve;
-    this.prompter.reject = reject;
-  });
+    this.prompter.resolve = resolve
+    this.prompter.reject = reject
+  })
 }

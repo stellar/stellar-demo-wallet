@@ -1,4 +1,4 @@
-@import "../../global/style.scss";
+@import '../../global/style.scss';
 
 :host {
   display: block;
@@ -30,8 +30,8 @@
     p {
       margin-bottom: 10px;
     }
-    input[type="text"],
-    input[type="password"] {
+    input[type='text'],
+    input[type='password'] {
       width: 100%;
       margin: 0;
       padding: 5px;
@@ -50,7 +50,7 @@
       align-items: center;
       font-size: 12px;
     }
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       font-size: 18px;
       margin: 0 5px 0 0;
       position: relative;
@@ -75,12 +75,12 @@
       color: blue;
     }
     &:after {
-      content: "◀";
+      content: '◀';
       top: calc(50% - 5px);
       transform: translate(0, -50%) rotate(90deg);
     }
     &:before {
-      content: "▶";
+      content: '▶';
       top: calc(50% + 5px);
       transform: translate(0, -50%) rotate(90deg);
     }

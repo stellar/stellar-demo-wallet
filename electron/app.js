@@ -1,9 +1,9 @@
-const { menubar } = require("menubar");
-const path = require("path");
+const { menubar } = require('menubar')
+const path = require('path')
 
 const cb = menubar({
   preloadWindow: true,
-  icon: path.join(__dirname, "assets", "img", "iconTemplate.png"),
+  icon: path.join(__dirname, 'assets', 'img', 'iconTemplate.png'),
   browserWindow: {
     height: 600,
     width: 500,
@@ -13,4 +13,4 @@ const cb = menubar({
       nativeWindowOpen: true,
     },
   },
-});
+})

@@ -1,4 +1,4 @@
-import argon2 from "@tinyanvil/argon2";
+import argon2 from '@tinyanvil/argon2'
 
 export function stretchPincode(pass: string, salt: string) {
   return argon2
@@ -10,5 +10,5 @@ export function stretchPincode(pass: string, salt: string) {
       hashLen: 32,
       parallelism: 1,
     })
-    .then(({ hash }) => hash);
+    .then(({ hash }) => hash)
 }

@@ -5,12 +5,12 @@ import {
   Networks,
   Operation,
   Asset,
-} from "stellar-sdk";
-import { has as loHas } from "lodash-es";
+} from 'stellar-sdk'
+import { has as loHas } from 'lodash-es'
 
-import { handleError } from "@services/error";
-import { stretchPincode } from "@services/argon2";
-import { decrypt } from "@services/tweetnacl";
+import { handleError } from '@services/error'
+import { stretchPincode } from '@services/argon2'
+import { decrypt } from '@services/tweetnacl'
 
 export default async function makePayment(
   destination?: string,
@@ -18,52 +18,52 @@ export default async function makePayment(
   issuer?: string
 ) {
   try {
-    let instructions;
+    let instructions
 
     if (destination && asset) {
       instructions = await this.setPrompt({
         message: `How much ${asset} to pay?`,
-      });
-      instructions = [instructions, asset, destination, issuer];
+      })
+      instructions = [instructions, asset, destination, issuer]
     } else {
       instructions = await this.setPrompt({
-        message: "{Amount} {Asset} {Destination}",
-      });
-      instructions = instructions.split(" ");
+        message: '{Amount} {Asset} {Destination}',
+      })
+      instructions = instructions.split(' ')
 
       if (!/xlm/gi.test(instructions[1]))
         instructions[3] = await this.setPrompt({
           message: `Who issues the ${instructions[1]} asset?`,
-          placeholder: "Enter ME to refer to yourself",
-        });
+          placeholder: 'Enter ME to refer to yourself',
+        })
     }
 
     const pincode = await this.setPrompt({
-      message: "Enter your account pincode",
-      type: "password",
-    });
+      message: 'Enter your account pincode',
+      type: 'password',
+    })
     const pincode_stretched = await stretchPincode(
       pincode,
       this.account.publicKey
-    );
+    )
 
     const keypair = decrypt(
       this.account.cipher,
       this.account.nonce,
       pincode_stretched
-    );
+    )
 
-    if (/me/gi.test(instructions[3])) instructions[3] = keypair.publicKey();
+    if (/me/gi.test(instructions[3])) instructions[3] = keypair.publicKey()
 
-    this.error = null;
-    this.loading = { ...this.loading, pay: true };
+    this.error = null
+    this.loading = { ...this.loading, pay: true }
 
     await this.server
       .accounts()
       .accountId(keypair.publicKey())
       .call()
       .then(({ sequence }) => {
-        const account = new Account(keypair.publicKey(), sequence);
+        const account = new Account(keypair.publicKey(), sequence)
         const transaction = new TransactionBuilder(account, {
           fee: BASE_FEE,
           networkPassphrase: Networks.TESTNET,
@@ -78,16 +78,16 @@ export default async function makePayment(
             })
           )
           .setTimeout(0)
-          .build();
+          .build()
 
-        transaction.sign(keypair);
+        transaction.sign(keypair)
         return this.server.submitTransaction(transaction).catch((err) => {
           if (
             // Paying an account which doesn't exist, create it instead
-            loHas(err, "response.data.extras.result_codes.operations") &&
+            loHas(err, 'response.data.extras.result_codes.operations') &&
             err.response.data.status === 400 &&
             err.response.data.extras.result_codes.operations.indexOf(
-              "op_no_destination"
+              'op_no_destination'
             ) !== -1 &&
             !instructions[3]
           ) {
@@ -102,19 +102,19 @@ export default async function makePayment(
                 })
               )
               .setTimeout(0)
-              .build();
+              .build()
 
-            transaction.sign(keypair);
-            return this.server.submitTransaction(transaction);
-          } else throw err;
-        });
+            transaction.sign(keypair)
+            return this.server.submitTransaction(transaction)
+          } else throw err
+        })
       })
       .then((res) => console.log(res))
       .finally(() => {
-        this.loading = { ...this.loading, pay: false };
-        this.updateAccount();
-      });
+        this.loading = { ...this.loading, pay: false }
+        this.updateAccount()
+      })
   } catch (err) {
-    this.error = handleError(err);
+    this.error = handleError(err)
   }
 }

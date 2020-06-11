@@ -1,5 +1,5 @@
-import { h } from "@stencil/core";
-import { has as loHas } from "lodash-es";
+import { h } from '@stencil/core'
+import { has as loHas } from 'lodash-es'
 
 export default function render() {
   return [
@@ -22,14 +22,14 @@ export default function render() {
         </div>,
 
         <button
-          class={this.loading.deposit ? "loading" : null}
+          class={this.loading.deposit ? 'loading' : null}
           type="button"
           onClick={() => this.depositAsset()}
         >
           {this.loading.deposit ? <stellar-loader /> : null} Deposit Asset
         </button>,
         <button
-          class={this.loading.withdraw ? "loading" : null}
+          class={this.loading.withdraw ? 'loading' : null}
           type="button"
           onClick={() => this.withdrawAsset()}
         >
@@ -37,14 +37,14 @@ export default function render() {
         </button>,
 
         <button
-          class={this.loading.trust ? "loading" : null}
+          class={this.loading.trust ? 'loading' : null}
           type="button"
           onClick={() => this.trustAsset()}
         >
           {this.loading.trust ? <stellar-loader /> : null} Trust Asset
         </button>,
         <button
-          class={this.loading.pay ? "loading" : null}
+          class={this.loading.pay ? 'loading' : null}
           type="button"
           onClick={() => this.makePayment()}
         >
@@ -53,7 +53,7 @@ export default function render() {
       ]
     ) : (
       <button
-        class={this.loading.fund ? "loading" : null}
+        class={this.loading.fund ? 'loading' : null}
         type="button"
         onClick={() => this.createAccount()}
       >
@@ -65,7 +65,7 @@ export default function render() {
       <pre class="error">{JSON.stringify(this.error, null, 2)}</pre>
     ) : null,
 
-    loHas(this.account, "state") ? (
+    loHas(this.account, 'state') ? (
       <pre class="account-state">
         {JSON.stringify(this.account.state, null, 2)}
       </pre>
@@ -74,7 +74,7 @@ export default function render() {
     this.account
       ? [
           <button
-            class={this.loading.update ? "loading" : null}
+            class={this.loading.update ? 'loading' : null}
             type="button"
             onClick={() => this.updateAccount()}
           >
@@ -85,5 +85,5 @@ export default function render() {
           </button>,
         ]
       : null,
-  ];
+  ]
 }

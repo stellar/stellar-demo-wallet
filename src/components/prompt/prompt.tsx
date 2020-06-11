@@ -1,101 +1,100 @@
-import { Component, Prop, Element, Watch, h, State } from "@stencil/core";
-import { defer as loDefer } from "lodash-es";
+import { Component, Prop, Element, Watch, h, State } from '@stencil/core'
+import { defer as loDefer } from 'lodash-es'
 
 export interface Prompter {
-  show: boolean;
-  type?: string;
-  message?: string;
-  placeholder?: string;
-  options?: Array<any>;
-  resolve?: Function;
-  reject?: Function;
+  show: boolean
+  type?: string
+  message?: string
+  placeholder?: string
+  options?: Array<any>
+  resolve?: Function
+  reject?: Function
 }
 
 @Component({
-  tag: "stellar-prompt",
-  styleUrl: "prompt.scss",
+  tag: 'stellar-prompt',
+  styleUrl: 'prompt.scss',
   shadow: true,
 })
 export class Prompt {
-  @Element() private element: HTMLElement;
+  @Element() private element: HTMLElement
 
-  @Prop({ mutable: true }) prompter: Prompter;
+  @Prop({ mutable: true }) prompter: Prompter
 
-  @State() private input: string;
-  @State() private remember: boolean;
+  @State() private input: string
+  @State() private remember: boolean
 
-  @Watch("prompter")
+  @Watch('prompter')
   watchHandler(newValue: Prompter, oldValue: Prompter) {
-    if (newValue.show === oldValue.show) return;
+    if (newValue.show === oldValue.show) return
 
     if (
-      this.prompter.type === "password" &&
-      sessionStorage.hasOwnProperty("WALLET[pincode]")
+      this.prompter.type === 'password' &&
+      sessionStorage.hasOwnProperty('WALLET[pincode]')
     ) {
-      this.input = sessionStorage.getItem("WALLET[pincode]");
-      this.submit();
-      return;
+      this.input = sessionStorage.getItem('WALLET[pincode]')
+      this.submit()
+      return
     }
 
     if (newValue.show) {
-      this.input = null;
-      this.remember = null;
+      this.input = null
+      this.remember = null
 
       if (newValue.options)
         this.input =
           this.input ||
-          `${newValue.options[0].code}:${newValue.options[0].issuer}`;
-      else
-        loDefer(() => this.element.shadowRoot.querySelector("input").focus());
+          `${newValue.options[0].code}:${newValue.options[0].issuer}`
+      else loDefer(() => this.element.shadowRoot.querySelector('input').focus())
     } else {
-      this.prompter.message = null;
-      this.prompter.placeholder = null;
-      this.prompter.options = null;
+      this.prompter.message = null
+      this.prompter.placeholder = null
+      this.prompter.options = null
     }
   }
 
   componentDidLoad() {
-    addEventListener("keyup", (e: KeyboardEvent) => {
+    addEventListener('keyup', (e: KeyboardEvent) => {
       if (this.prompter.show)
         e.keyCode === 13
           ? this.submit()
           : e.keyCode === 27
           ? this.cancel()
-          : null;
-    });
+          : null
+    })
   }
 
   cancel() {
     this.prompter = {
       ...this.prompter,
       show: false,
-    };
-    this.prompter.reject(null);
+    }
+    this.prompter.reject(null)
   }
 
   submit() {
     this.prompter = {
       ...this.prompter,
       show: false,
-    };
-    this.prompter.resolve(this.input);
+    }
+    this.prompter.resolve(this.input)
 
-    if (this.remember) sessionStorage.setItem("WALLET[pincode]", this.input);
+    if (this.remember) sessionStorage.setItem('WALLET[pincode]', this.input)
   }
 
   update(e: any) {
-    this.input = e.target.value.toUpperCase();
+    this.input = e.target.value.toUpperCase()
   }
 
   store(e: any) {
-    this.remember = e.target.checked;
+    this.remember = e.target.checked
   }
 
   render() {
     return (
       <div
         class="prompt-wrapper"
-        style={this.prompter.show ? null : { display: "none" }}
+        style={this.prompter.show ? null : { display: 'none' }}
       >
         <div class="prompt">
           {this.prompter.message ? <p>{this.prompter.message}</p> : null}
@@ -120,14 +119,14 @@ export class Prompt {
               value={this.input}
               onInput={(e) => this.update(e)}
               style={
-                this.prompter.type === "password"
-                  ? { "font-size": "18px" }
+                this.prompter.type === 'password'
+                  ? { 'font-size': '18px' }
                   : null
               }
             ></input>
           )}
 
-          {this.prompter.type === "password" ? (
+          {this.prompter.type === 'password' ? (
             <label>
               <input
                 type="checkbox"
@@ -148,6 +147,6 @@ export class Prompt {
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
