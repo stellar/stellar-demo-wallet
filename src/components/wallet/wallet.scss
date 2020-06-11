@@ -39,6 +39,17 @@
   .account-state {
     background-color: whitesmoke;
   }
+
+  .balance-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    div {
+      margin: 16px;
+    }
+  }
+
   .error {
     background-color: orangered;
     color: white;

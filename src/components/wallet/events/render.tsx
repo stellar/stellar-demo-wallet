@@ -42,7 +42,7 @@ export default function render() {
     >
       {this.loading.pay ? <stellar-loader /> : null} Make Payment
     </button>,
-
+    this.balanceDisplay(),
     loHas(this.account, 'state') ? (
       <pre class="account-state">
         {JSON.stringify(this.account.state, null, 2)}

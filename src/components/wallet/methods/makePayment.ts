@@ -14,29 +14,30 @@ import { decrypt } from '@services/tweetnacl'
 
 export default async function makePayment(
   destination?: string,
-  asset?: string,
+  assetCode?: string,
   issuer?: string
 ) {
   try {
-    let instructions
-
-    if (destination && asset) {
-      instructions = await this.setPrompt({
-        message: `How much ${asset} to pay?`,
-      })
-      instructions = [instructions, asset, destination, issuer]
-    } else {
-      instructions = await this.setPrompt({
-        message: '{Amount} {Asset} {Destination}',
-      })
-      instructions = instructions.split(' ')
-
-      if (!/xlm/gi.test(instructions[1]))
-        instructions[3] = await this.setPrompt({
-          message: `Who issues the ${instructions[1]} asset?`,
-          placeholder: 'Enter ME to refer to yourself',
-        })
+    if (!destination) {
+      destination = await this.setPrompt({ message: 'Destination address' })
     }
+
+    console.log(destination, assetCode, issuer)
+
+    if (!assetCode || (!issuer && assetCode != 'XLM')) {
+      const assetAndIssuer = await this.setPrompt({
+        message: '{Asset} {Issuer} (leave empty for XLM)',
+      })
+      if (assetAndIssuer === '') {
+        assetCode = 'XLM'
+      } else {
+        ;[assetCode, issuer] = assetAndIssuer.split(' ')
+      }
+    }
+
+    const amount = await this.setPrompt({
+      message: `How much ${assetCode} to pay?`,
+    })
 
     const pincode = await this.setPrompt({
       message: 'Enter your account pincode',
@@ -53,11 +54,11 @@ export default async function makePayment(
       pincode_stretched
     )
 
-    if (/me/gi.test(instructions[3])) instructions[3] = keypair.publicKey()
-
     this.error = null
     this.loading = { ...this.loading, pay: true }
 
+    const asset =
+      assetCode === 'XLM' ? Asset.native() : new Asset(assetCode, issuer)
     await this.server
       .accounts()
       .accountId(keypair.publicKey())
@@ -70,11 +71,9 @@ export default async function makePayment(
         })
           .addOperation(
             Operation.payment({
-              destination: instructions[2],
-              asset: instructions[3]
-                ? new Asset(instructions[1], instructions[3])
-                : Asset.native(),
-              amount: instructions[0],
+              destination,
+              asset,
+              amount,
             })
           )
           .setTimeout(0)
@@ -89,7 +88,7 @@ export default async function makePayment(
             err.response.data.extras.result_codes.operations.indexOf(
               'op_no_destination'
             ) !== -1 &&
-            !instructions[3]
+            !issuer
           ) {
             const transaction = new TransactionBuilder(account, {
               fee: BASE_FEE,
@@ -97,8 +96,8 @@ export default async function makePayment(
             })
               .addOperation(
                 Operation.createAccount({
-                  destination: instructions[2],
-                  startingBalance: instructions[0],
+                  destination,
+                  startingBalance: amount,
                 })
               )
               .setTimeout(0)
