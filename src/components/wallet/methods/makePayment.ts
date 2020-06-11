@@ -22,8 +22,6 @@ export default async function makePayment(
       destination = await this.setPrompt({ message: 'Destination address' })
     }
 
-    console.log(destination, assetCode, issuer)
-
     if (!assetCode || (!issuer && assetCode != 'XLM')) {
       const assetAndIssuer = await this.setPrompt({
         message: '{Asset} {Issuer} (leave empty for XLM)',
