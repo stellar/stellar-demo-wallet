@@ -8,6 +8,16 @@ import { encrypt } from '@services/tweetnacl'
 
 export default async function createAccount() {
   try {
+    const secret = await this.setPrompt({
+      message: 'Enter your Stellar secret key',
+    })
+    let keypair
+
+    try {
+      keypair = Keypair.fromSecret(secret)
+    } catch (e) {
+      throw 'Invalid secret key'
+    }
     const pincode_1 = await this.setPrompt({
       message: 'Enter an account pincode',
       type: 'password',
@@ -21,9 +31,8 @@ export default async function createAccount() {
       throw 'Invalid pincode'
 
     this.error = null
-    this.loading = { ...this.loading, create: true }
+    this.loading = { ...this.loading, load: true }
 
-    const keypair = Keypair.random()
     const pincode_stretched = await stretchPincode(
       pincode_1,
       keypair.publicKey()
@@ -34,9 +43,9 @@ export default async function createAccount() {
       pincode_stretched
     )
 
-    await axios(
-      `https://friendbot.stellar.org?addr=${keypair.publicKey()}`
-    ).finally(() => (this.loading = { ...this.loading, create: false }))
+    await axios(`https://friendbot.stellar.org?addr=${keypair.publicKey()}`)
+      .catch(() => null) // If account already exists don't catch the error
+      .finally(() => (this.loading = { ...this.loading, load: false }))
 
     this.account = {
       publicKey: keypair.publicKey(),
