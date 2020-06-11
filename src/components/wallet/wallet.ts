@@ -1,12 +1,5 @@
-import {
-  Component,
-  State,
-  Prop
-} from '@stencil/core'
-import {
-  Server,
-  ServerApi,
-} from 'stellar-sdk'
+import { Component, State, Prop } from '@stencil/core'
+import { Server, ServerApi } from 'stellar-sdk'
 
 import componentWillLoad from './events/componentWillLoad' // UPDATE
 import render from './events/render' // UPDATE
@@ -25,29 +18,29 @@ import setPrompt from './methods/setPrompt'
 import { Prompter } from '@prompt/prompt'
 
 interface StellarAccount {
-  publicKey: string,
-  cipher: string,
-  nonce: string,
-  state?: ServerApi.AccountRecord,
+  publicKey: string
+  cipher: string
+  nonce: string
+  state?: ServerApi.AccountRecord
 }
 
 interface Loading {
-  fund?: boolean,
-  pay?: boolean,
-  trust?: boolean,
-  update?: boolean,
-  deposit?: boolean, // NEW
+  fund?: boolean
+  pay?: boolean
+  trust?: boolean
+  update?: boolean
+  deposit?: boolean // NEW
   withdraw?: boolean // NEW
 }
 
 @Component({
   tag: 'stellar-wallet',
   styleUrl: 'wallet.scss',
-  shadow: true
+  shadow: true,
 })
 export class Wallet {
   @State() account: StellarAccount
-  @State() prompter: Prompter = {show: false}
+  @State() prompter: Prompter = { show: false }
   @State() loading: Loading = {}
   @State() error: any
 

@@ -8,9 +8,12 @@ export default async function copySecret() {
   try {
     const pincode = await this.setPrompt({
       message: 'Enter your account pincode',
-      type: 'password'
+      type: 'password',
     })
-    const pincode_stretched = await stretchPincode(pincode, this.account.publicKey)
+    const pincode_stretched = await stretchPincode(
+      pincode,
+      this.account.publicKey
+    )
 
     this.error = null
 
@@ -21,9 +24,7 @@ export default async function copySecret() {
     )
 
     copy(keypair.secret())
-  }
-
-  catch (err) {
+  } catch (err) {
     this.error = handleError(err)
   }
 }

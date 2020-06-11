@@ -1,9 +1,6 @@
 # stellar-loader
 
-
-
 <!-- Auto Generated Below -->
-
 
 ## Properties
 
@@ -11,20 +8,20 @@
 | ---------- | ---------- | ----------- | ----- | ----------- |
 | `interval` | `interval` |             | `any` | `undefined` |
 
-
 ## Dependencies
 
 ### Used by
 
- - [stellar-wallet](../wallet)
+- [stellar-wallet](../wallet)
 
 ### Graph
+
 ```mermaid
 graph TD;
   stellar-wallet --> stellar-loader
   style stellar-loader fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
-----------------------------------------------
+---
 
-*Built with [StencilJS](https://stenciljs.com/)*
+_Built with [StencilJS](https://stenciljs.com/)_

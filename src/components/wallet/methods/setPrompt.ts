@@ -9,7 +9,7 @@ export default function setPrompt({
   message,
   placeholder,
   type = 'text',
-  options
+  options,
 }: setPrompt): Promise<string> {
   this.prompter = {
     ...this.prompter,
@@ -17,7 +17,7 @@ export default function setPrompt({
     message,
     placeholder,
     type,
-    options
+    options,
   }
 
   return new Promise((resolve, reject) => {

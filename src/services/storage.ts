@@ -5,7 +5,7 @@ const { Storage } = Plugins
 export function set(key: string, value: any): Promise<void> {
   return Storage.set({
     key,
-    value
+    value,
   })
 }
 

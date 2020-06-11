@@ -5,22 +5,17 @@ export default async function signOut() {
   try {
     const confirmNuke = await this.setPrompt({
       message: 'Are you sure? This will nuke your account',
-      placeholder: 'Enter NUKE to confirm'
+      placeholder: 'Enter NUKE to confirm',
     })
 
-    if (
-      !confirm
-      || !/nuke/gi.test(confirmNuke)
-    ) throw 'Cannot sign out'
+    if (!confirm || !/nuke/gi.test(confirmNuke)) throw 'Cannot sign out'
 
     this.error = null
 
     await remove('WALLET[keystore]')
     sessionStorage.removeItem('WALLET[pincode]')
     location.reload()
-  }
-
-  catch (err) {
+  } catch (err) {
     this.error = handleError(err)
   }
 }

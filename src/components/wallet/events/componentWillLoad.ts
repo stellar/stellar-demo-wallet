@@ -9,12 +9,10 @@ export default async function componentWillLoad() {
     this.toml = await StellarTomlResolver.resolve(this.homeDomain)
 
     if (keystore) {
-      this.account = {...JSON.parse(atob(keystore))}
+      this.account = { ...JSON.parse(atob(keystore)) }
       this.updateAccount()
     }
-  }
-
-  catch (err) {
+  } catch (err) {
     this.error = handleError(err)
   }
 }

@@ -10,7 +10,7 @@ const cb = menubar({
     alwaysOnTop: true,
     frame: true,
     webPreferences: {
-      nativeWindowOpen: true
-    }
-  }
+      nativeWindowOpen: true,
+    },
+  },
 })
