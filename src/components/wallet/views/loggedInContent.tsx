@@ -3,7 +3,7 @@ import { has as loHas } from 'lodash-es'
 
 import balanceDisplay from './balanceDisplay'
 
-export default function () {
+export default function loggedInContent() {
   return [
     <div class="account-key">
       <p>{this.account.publicKey}</p>

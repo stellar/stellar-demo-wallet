@@ -9,7 +9,7 @@ interface Balance {
   asset_issuer: string
 }
 
-export default function () {
+export default function balanceDisplay() {
   const balanceRow = (balance: Balance) => {
     const assetCode =
       balance.asset_type === 'native' ? 'XLM' : balance.asset_code
