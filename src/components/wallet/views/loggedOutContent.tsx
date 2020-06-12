@@ -1,6 +1,6 @@
 import { h } from '@stencil/core'
 
-export default function () {
+export default function loggedOutContent() {
   return [
     <button
       class={this.loading.create ? 'loading' : null}
