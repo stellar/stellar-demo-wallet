@@ -18,19 +18,16 @@ export default async function makePayment(
   issuer?: string
 ) {
   try {
-    if (!destination) {
+    if (!destination)
       destination = await this.setPrompt({ message: 'Destination address' })
-    }
 
-    if (!assetCode || (!issuer && assetCode != 'XLM')) {
+    if (!assetCode || (!issuer && assetCode !== 'XLM')) {
       const assetAndIssuer = await this.setPrompt({
         message: '{Asset} {Issuer} (leave empty for XLM)',
       })
-      if (assetAndIssuer === '') {
-        assetCode = 'XLM'
-      } else {
-        ;[assetCode, issuer] = assetAndIssuer.split(' ')
-      }
+
+      if (assetAndIssuer === '') assetCode = 'XLM'
+      else [assetCode, issuer] = assetAndIssuer.split(' ')
     }
 
     const amount = await this.setPrompt({
@@ -57,6 +54,7 @@ export default async function makePayment(
 
     const asset =
       assetCode === 'XLM' ? Asset.native() : new Asset(assetCode, issuer)
+
     await this.server
       .accounts()
       .accountId(keypair.publicKey())
