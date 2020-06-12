@@ -9,21 +9,26 @@ interface Balance {
   asset_issuer: string
 }
 
-export default function BalanceDisplay() {
+export default function () {
   const balanceRow = (balance: Balance) => {
-    const name = balance.asset_type === 'native' ? 'XLM' : balance.asset_code
+    const assetCode =
+      balance.asset_type === 'native' ? 'XLM' : balance.asset_code
+
     return (
       <div class="balance-row">
-        <div class="asset-code">{name}</div>
-        <div class="balance">{parseFloat(balance.balance).toFixed(2)}</div>
+        <div class="asset-code">{assetCode}</div>
+        <div class="balance">{balance.balance}</div>
         <button
-          onClick={() => this.makePayment(null, name, balance.asset_issuer)}
+          onClick={() =>
+            this.makePayment(null, assetCode, balance.asset_issuer)
+          }
         >
           Send
         </button>
       </div>
     )
   }
+
   return (
     <div>
       {loHas(this.account, 'state') ? (

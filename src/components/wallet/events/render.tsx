@@ -1,91 +1,13 @@
 import { h } from '@stencil/core'
-import { has as loHas } from 'lodash-es'
 
-export default function render() {
-  const loggedInContent = () => [
-    <div class="account-key">
-      <p>{this.account.publicKey}</p>
-      <button class="small" type="button" onClick={() => this.copyAddress()}>
-        Copy Address
-      </button>
-      <button class="small" type="button" onClick={() => this.copySecret()}>
-        Copy Secret
-      </button>
-    </div>,
+import loggedInContent from '../views/loggedInContent'
+import loggedOutContent from '../views/loggedOutContent'
 
-    <button
-      class={this.loading.deposit ? 'loading' : null}
-      type="button"
-      onClick={() => this.depositAsset()}
-    >
-      {this.loading.deposit ? <stellar-loader /> : null} Deposit Asset
-    </button>,
-    <button
-      class={this.loading.withdraw ? 'loading' : null}
-      type="button"
-      onClick={() => this.withdrawAsset()}
-    >
-      {this.loading.withdraw ? <stellar-loader /> : null} Withdraw Asset
-    </button>,
-
-    <button
-      class={this.loading.trust ? 'loading' : null}
-      type="button"
-      onClick={() => this.trustAsset()}
-    >
-      {this.loading.trust ? <stellar-loader /> : null} Trust Asset
-    </button>,
-    <button
-      class={this.loading.pay ? 'loading' : null}
-      type="button"
-      onClick={() => this.makePayment()}
-    >
-      {this.loading.pay ? <stellar-loader /> : null} Make Payment
-    </button>,
-    this.balanceDisplay(),
-    loHas(this.account, 'state') ? (
-      <pre class="account-state">
-        {JSON.stringify(this.account.state, null, 2)}
-      </pre>
-    ) : null,
-
-    this.account
-      ? [
-          <button
-            class={this.loading.update ? 'loading' : null}
-            type="button"
-            onClick={() => this.updateAccount()}
-          >
-            {this.loading.update ? <stellar-loader /> : null} Update Account
-          </button>,
-          <button type="button" onClick={() => this.signOut()}>
-            Sign Out
-          </button>,
-        ]
-      : null,
-  ]
-
-  const loggedOutContent = () => [
-    <button
-      class={this.loading.create ? 'loading' : null}
-      type="button"
-      onClick={() => this.createAccount()}
-    >
-      {this.loading.create ? <stellar-loader /> : null} Create Account
-    </button>,
-    <button
-      class={this.loading.load ? 'loading' : null}
-      type="button"
-      onClick={(e) => this.loadAccount(e)}
-    >
-      {this.loading.load ? <stellar-loader /> : null} Load Account
-    </button>,
-  ]
-
+export default function () {
   return [
     <stellar-prompt prompter={this.prompter} />,
 
-    this.account ? loggedInContent() : loggedOutContent(),
+    this.account ? loggedInContent.call(this) : loggedOutContent.call(this),
 
     this.error ? (
       <pre class="error">{JSON.stringify(this.error, null, 2)}</pre>

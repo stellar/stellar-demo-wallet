@@ -1,8 +1,6 @@
 import { Component, State, Prop } from '@stencil/core'
 import { Server, ServerApi } from 'stellar-sdk'
 
-import balanceDisplay from './events/views/balanceDisplay'
-
 import componentWillLoad from './events/componentWillLoad' // UPDATE
 import render from './events/render' // UPDATE
 
@@ -51,8 +49,6 @@ export class Wallet {
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() homeDomain: String = 'testanchor.stellar.org'
   @Prop() toml: Object // NEW
-
-  balanceDisplay = balanceDisplay
 
   // Component events
   componentWillLoad() {}
