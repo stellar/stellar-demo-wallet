@@ -10,6 +10,7 @@ import depositAsset from './methods/depositAsset' // NEW
 import withdrawAsset from './methods/withdrawAsset' // NEW
 import trustAsset from './methods/trustAsset'
 import makePayment from './methods/makePayment'
+import makeRegulatedPayment from './methods/makeRegulatedPayment'
 import copyAddress from './methods/copyAddress'
 import copySecret from './methods/copySecret'
 import signOut from './methods/signOut'
@@ -62,6 +63,7 @@ export class Wallet {
   withdrawAsset = withdrawAsset // NEW
   trustAsset = trustAsset
   makePayment = makePayment
+  makeRegulatedPayment = makeRegulatedPayment
   copyAddress = copyAddress
   copySecret = copySecret
   signOut = signOut
