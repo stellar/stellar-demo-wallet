@@ -1,3 +1,4 @@
+import { Component, Prop, Element, Watch, h, State } from '@stencil/core'
 import {
   Account,
   TransactionBuilder,
@@ -129,14 +130,22 @@ export default async function makeRegulatedPayment(
       '<b>Revised Transaction from compliance server</b>' +
         makeTransactionSummary(revisedTx)
     )
+    console.log('YES')
     try {
-      await this.setPrompt(
-        'Confirm revised transaction from compliance server?',
-        'Just press ok or cancel',
-        null,
-        makeTransactionSummary(revisedTx)
-      )
+      await new Promise((res, rej) => {
+        this.promptContents = (
+          <div>
+            <div innerHTML={makeTransactionSummary(revisedTx)}></div>
+            <div>
+              <button onClick={rej}>Cancel</button>
+              <button onClick={res}>Confirm</button>
+            </div>
+          </div>
+        )
+      })
+      this.promptContents = null
     } catch (e) {
+      this.promptContents = null
       console.log('❌ Not signing the revised transaction, nothing happens')
       this.loading = { ...this.loading, [loadingKey]: false }
       return
@@ -159,6 +168,7 @@ export default async function makeRegulatedPayment(
     )
 
     this.loading = { ...this.loading, [loadingKey]: false }
+    this.updateAccount()
   } catch (err) {
     this.error = handleError(err)
   }
