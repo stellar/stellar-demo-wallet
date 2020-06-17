@@ -45,6 +45,7 @@ export class Wallet {
   @State() prompter: Prompter = { show: false }
   @State() loading: Loading = {}
   @State() error: any
+  @State() promptContents: string = null
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() homeDomain: String = 'testanchor.stellar.org'

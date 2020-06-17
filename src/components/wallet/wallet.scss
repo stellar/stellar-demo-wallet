@@ -4,6 +4,7 @@
   display: block;
   font-family: $font-family;
   font-size: 15px;
+  position: relative;
 
   p {
     white-space: nowrap;
@@ -56,6 +57,17 @@
   .error {
     background-color: orangered;
     color: white;
+  }
+
+  .popup {
+    position: absolute;
+    top: 200px;
+    left: calc(50% - 150px);
+    background: rgba(255, 255, 255, 0.7);
+    width: 300px;
+    height: 200px;
+    z-index: 100;
+    border: 1px solid black;
   }
 
   stellar-loader {
