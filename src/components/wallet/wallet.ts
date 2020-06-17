@@ -16,6 +16,7 @@ import copySecret from './methods/copySecret'
 import signOut from './methods/signOut'
 import setPrompt from './methods/setPrompt'
 import loadAccount from './methods/loadAccount'
+import popup from './methods/popup'
 
 import { Prompter } from '@prompt/prompt'
 
@@ -71,6 +72,7 @@ export class Wallet {
 
   // Misc methods
   setPrompt = setPrompt
+  popup = popup
 }
 
 Wallet.prototype.componentWillLoad = componentWillLoad

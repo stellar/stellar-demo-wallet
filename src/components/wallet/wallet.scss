@@ -64,10 +64,20 @@
     top: 200px;
     left: calc(50% - 150px);
     background: white;
-    width: 300px;
-    height: 200px;
+    width: 400px;
     z-index: 100;
+    padding: 8px;
     border: 1px solid black;
+
+    .button-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+
+      button {
+        margin: 4px;
+      }
+    }
   }
 
   stellar-loader {

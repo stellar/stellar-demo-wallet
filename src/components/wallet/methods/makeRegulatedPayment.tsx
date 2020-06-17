@@ -1,8 +1,6 @@
-import { Component, Prop, Element, Watch, h, State } from '@stencil/core'
+import { h } from '@stencil/core'
 import {
-  Account,
   TransactionBuilder,
-  BASE_FEE,
   Transaction,
   Networks,
   Operation,
@@ -11,38 +9,41 @@ import {
   xdr,
 } from 'stellar-sdk'
 import TOML from 'toml'
-import { has as loHas } from 'lodash-es'
 
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
 
-function makeTransactionSummary(tx: Transaction): string {
+function makeTransactionSummary(tx: Transaction): HTMLElement {
   const opMessages = tx.operations.map((operation) => {
     switch (operation.type) {
       case 'allowTrust':
-        return `<div>
-        ${operation.authorize ? 'Authorize' : 'Deauthorize'} ${
-          operation.assetCode
-        } access for ${operation.trustor.substr(0, 6)}
-        </div>`
+        return (
+          <div>
+            {`${operation.authorize ? 'Authorize' : 'Deauthorize'} ${
+              operation.assetCode
+            } access for ${operation.trustor.substr(0, 6)}`}
+          </div>
+        )
       case 'payment':
-        return `<div>
-          ${(operation.source || tx.source).substr(0, 6)}
-          pays ${operation.destination.substr(0, 6)}
-          ${parseFloat(operation.amount).toFixed(2)}
-          ${operation.asset.code}
-        </div>`
+        return (
+          <div>
+            {`${(operation.source || tx.source).substr(0, 6)}
+            pays ${operation.destination.substr(0, 6)} ${parseFloat(
+              operation.amount
+            ).toFixed(2)} ${operation.asset.code}`}
+          </div>
+        )
       default:
-        return `<div>Unknown op type: <pre>${JSON.stringify(
-          operation,
-          null,
-          2
-        )}</pre></div>`
+        return (
+          <div>
+            Unknown op type: <pre>${JSON.stringify(operation, null, 2)}</pre>
+          </div>
+        )
     }
   })
 
-  return `<div class="popup-code-set code-set">${opMessages.join('\n')}</div>`
+  return <div class="popup-code-set code-set">{opMessages}</div>
 }
 
 export default async function makeRegulatedPayment(
@@ -130,23 +131,21 @@ export default async function makeRegulatedPayment(
       '<b>Revised Transaction from compliance server</b>' +
         makeTransactionSummary(revisedTx)
     )
-    console.log('YES')
+
     try {
-      await new Promise((res, rej) => {
-        this.promptContents = (
-          <div>
-            <div innerHTML={makeTransactionSummary(revisedTx)}></div>
-            <div>
-              <button onClick={rej}>Cancel</button>
-              <button onClick={res}>Confirm</button>
-            </div>
-          </div>
-        )
+      await this.popup({
+        contents: makeTransactionSummary(revisedTx),
+        confirmLabel: 'Confirm',
+        cancelLabel: 'Reject',
       })
-      this.promptContents = null
     } catch (e) {
-      this.promptContents = null
       console.log('❌ Not signing the revised transaction, nothing happens')
+      await this.popup({
+        contents: (
+          <div>❌ Not signing the revised transaction, nothing happens</div>
+        ),
+        confirmLabel: 'OK',
+      })
       this.loading = { ...this.loading, [loadingKey]: false }
       return
     }
