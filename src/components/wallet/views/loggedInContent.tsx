@@ -48,7 +48,7 @@ export default function loggedInContent() {
     balanceDisplay.call(this),
 
     loHas(this.account, 'state') ? (
-      <collapsible-container>
+      <collapsible-container hideText="Hide Details" showText="Show Details">
         <pre class="account-state">
           {JSON.stringify(this.account.state, null, 2)}
         </pre>

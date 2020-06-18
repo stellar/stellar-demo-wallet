@@ -5,6 +5,14 @@
 <!-- Auto Generated Below -->
 
 
+## Properties
+
+| Property   | Attribute   | Description | Type     | Default  |
+| ---------- | ----------- | ----------- | -------- | -------- |
+| `hideText` | `hide-text` |             | `string` | `'Hide'` |
+| `showText` | `show-text` |             | `string` | `'Show'` |
+
+
 ## Dependencies
 
 ### Used by

@@ -9,6 +9,8 @@ import { Prompter, } from "./components/prompt/prompt";
 import { Server, } from "stellar-sdk";
 export namespace Components {
     interface CollapsibleContainer {
+        "hideText": string;
+        "showText": string;
     }
     interface StellarLoader {
         "interval": any;
@@ -56,6 +58,8 @@ declare global {
 }
 declare namespace LocalJSX {
     interface CollapsibleContainer {
+        "hideText"?: string;
+        "showText"?: string;
     }
     interface StellarLoader {
         "interval"?: any;

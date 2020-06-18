@@ -3,6 +3,8 @@ import { Component, State, Prop, h, Listen } from '@stencil/core'
   tag: 'collapsible-container',
 })
 export class CollapsibleContainer {
+  @Prop() hideText: string = 'Hide'
+  @Prop() showText: string = 'Show'
   @State() open: boolean
   @Listen('click', { capture: true })
   handleClick() {
@@ -12,7 +14,7 @@ export class CollapsibleContainer {
   render() {
     return (
       <div>
-        <button>{this.open ? 'Hide Details' : 'Show Details'}</button>
+        <button>{this.open ? this.hideText : this.showText}</button>
         <div style={{ display: this.open ? 'block' : 'none' }}>
           <slot></slot>
         </div>
