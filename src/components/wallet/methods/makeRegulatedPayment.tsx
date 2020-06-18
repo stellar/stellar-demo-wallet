@@ -121,7 +121,6 @@ export default async function makeRegulatedPayment(
     const approvalUrl = new URL(approvalServer)
     approvalUrl.searchParams.set('tx', transaction.toXDR())
     const json = await fetch(approvalUrl.toString()).then((resp) => resp.json())
-    console.log(json)
     console.log('Response from approval server: ' + json.status)
 
     //@ts-ignore
