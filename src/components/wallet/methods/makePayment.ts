@@ -18,7 +18,6 @@ export default async function makePayment(
   issuer?: string
 ) {
   try {
-    this.promptContents = 'HELLO'
     if (!destination)
       destination = await this.setPrompt({ message: 'Destination address' })
 
