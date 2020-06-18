@@ -5,7 +5,9 @@ import loggedOutContent from '../views/loggedOutContent'
 
 export default function () {
   const popup = this.promptContents ? (
-    <div class="popup">{this.promptContents}</div>
+    <div class="popup-scrim">
+      <div class="popup">{this.promptContents}</div>
+    </div>
   ) : null
   return [
     <stellar-prompt prompter={this.prompter} />,
