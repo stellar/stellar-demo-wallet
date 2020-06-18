@@ -43,7 +43,12 @@ function makeTransactionSummary(tx: Transaction): HTMLElement {
     }
   })
 
-  return <div class="popup-code-set code-set">{opMessages}</div>
+  return (
+    <div class="popup-code-set code-set">
+      <h3>Approve revised transaction from approval server?</h3>
+      {opMessages}
+    </div>
+  )
 }
 
 export default async function makeRegulatedPayment(
