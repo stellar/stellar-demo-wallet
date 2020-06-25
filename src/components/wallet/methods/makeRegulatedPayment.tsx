@@ -79,19 +79,11 @@ export default async function makeRegulatedPayment(
       fee: '100',
       networkPassphrase: Networks.TESTNET,
     })
-      // .addOperation(
-      //   Operation.payment({
-      //     destination,
-      //     amount,
-      //     asset,
-      //   })
-      // )
       .addOperation(
-        Operation.manageBuyOffer({
-          buyAmount: '33',
-          selling: Asset.native(),
-          buying: asset,
-          price: '100',
+        Operation.payment({
+          destination,
+          amount,
+          asset,
         })
       )
       .setTimeout(30)
