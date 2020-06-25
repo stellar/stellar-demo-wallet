@@ -13,43 +13,7 @@ import TOML from 'toml'
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
-
-function makeTransactionSummary(tx: Transaction): HTMLElement {
-  const opMessages = tx.operations.map((operation) => {
-    switch (operation.type) {
-      case 'allowTrust':
-        return (
-          <div>
-            {`${operation.authorize ? 'Authorize' : 'Deauthorize'} ${
-              operation.assetCode
-            } access for ${operation.trustor.substr(0, 6)}`}
-          </div>
-        )
-      case 'payment':
-        return (
-          <div>
-            {`${(operation.source || tx.source).substr(0, 6)}
-            pays ${operation.destination.substr(0, 6)} ${parseFloat(
-              operation.amount
-            ).toFixed(2)} ${operation.asset.code}`}
-          </div>
-        )
-      default:
-        return (
-          <div>
-            Unknown op type: <pre>${JSON.stringify(operation, null, 2)}</pre>
-          </div>
-        )
-    }
-  })
-
-  return (
-    <div class="popup-code-set code-set">
-      <h3>Approve revised transaction from approval server?</h3>
-      {opMessages}
-    </div>
-  )
-}
+import TransactionSummary from '../views/transactionSummary'
 
 export default async function makeRegulatedPayment(
   destination?: string,
@@ -76,6 +40,8 @@ export default async function makeRegulatedPayment(
 
     const loadingKey = `sendRegulated:${assetCode}:${issuer}`
     this.loading = { ...this.loading, [loadingKey]: true }
+    const finish = () =>
+      (this.loading = { ...this.loading, [loadingKey]: false })
 
     const pincode = await this.setPrompt({
       message: 'Enter your account pincode',
@@ -113,11 +79,19 @@ export default async function makeRegulatedPayment(
       fee: '100',
       networkPassphrase: Networks.TESTNET,
     })
+      // .addOperation(
+      //   Operation.payment({
+      //     destination,
+      //     amount,
+      //     asset,
+      //   })
+      // )
       .addOperation(
-        Operation.payment({
-          destination,
-          amount,
-          asset,
+        Operation.manageBuyOffer({
+          buyAmount: '33',
+          selling: Asset.native(),
+          buying: asset,
+          price: '100',
         })
       )
       .setTimeout(30)
@@ -126,19 +100,32 @@ export default async function makeRegulatedPayment(
     const approvalUrl = new URL(approvalServer)
     approvalUrl.searchParams.set('tx', transaction.toXDR())
     const json = await fetch(approvalUrl.toString()).then((resp) => resp.json())
-    console.log('Response from approval server: ' + json.status)
+    console.log('Response from approval server: ', json)
 
+    if (json.status == 'rejected') {
+      await this.popup({
+        contents: (
+          <div>
+            <div>❌Transaction rejected by approval server</div>
+            <div>{json.error}</div>
+          </div>
+        ),
+        confirmLabel: 'Ok',
+      })
+      finish()
+      return
+    }
     //@ts-ignore
     const revisedEnvelope = xdr.TransactionEnvelope.fromXDR(json.tx, 'base64')
     const revisedTx = new Transaction(revisedEnvelope, Networks.TESTNET)
     console.log(
       '<b>Revised Transaction from compliance server</b>' +
-        makeTransactionSummary(revisedTx)
+        TransactionSummary(revisedTx)
     )
 
     try {
       await this.popup({
-        contents: makeTransactionSummary(revisedTx),
+        contents: TransactionSummary(revisedTx),
         confirmLabel: 'Confirm',
         cancelLabel: 'Reject',
       })
@@ -150,7 +137,7 @@ export default async function makeRegulatedPayment(
         ),
         confirmLabel: 'OK',
       })
-      this.loading = { ...this.loading, [loadingKey]: false }
+      finish()
       return
     }
     const tx = new Transaction(revisedEnvelope, Networks.TESTNET)
@@ -170,7 +157,7 @@ export default async function makeRegulatedPayment(
       )}</a>!`
     )
 
-    this.loading = { ...this.loading, [loadingKey]: false }
+    finish()
     this.updateAccount()
   } catch (err) {
     this.error = handleError(err)
