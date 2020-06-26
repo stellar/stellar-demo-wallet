@@ -10,11 +10,13 @@ import depositAsset from './methods/depositAsset' // NEW
 import withdrawAsset from './methods/withdrawAsset' // NEW
 import trustAsset from './methods/trustAsset'
 import makePayment from './methods/makePayment'
+import makeRegulatedPayment from './methods/makeRegulatedPayment'
 import copyAddress from './methods/copyAddress'
 import copySecret from './methods/copySecret'
 import signOut from './methods/signOut'
 import setPrompt from './methods/setPrompt'
 import loadAccount from './methods/loadAccount'
+import popup from './methods/popup'
 
 import { Prompter } from '@prompt/prompt'
 
@@ -45,6 +47,7 @@ export class Wallet {
   @State() prompter: Prompter = { show: false }
   @State() loading: Loading = {}
   @State() error: any
+  @State() promptContents: string = null
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() homeDomain: String = 'testanchor.stellar.org'
@@ -62,12 +65,14 @@ export class Wallet {
   withdrawAsset = withdrawAsset // NEW
   trustAsset = trustAsset
   makePayment = makePayment
+  makeRegulatedPayment = makeRegulatedPayment
   copyAddress = copyAddress
   copySecret = copySecret
   signOut = signOut
 
   // Misc methods
   setPrompt = setPrompt
+  popup = popup
 }
 
 Wallet.prototype.componentWillLoad = componentWillLoad

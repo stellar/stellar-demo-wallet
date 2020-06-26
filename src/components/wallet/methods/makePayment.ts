@@ -50,8 +50,8 @@ export default async function makePayment(
     )
 
     this.error = null
-    this.loading = { ...this.loading, pay: true }
-
+    const loadingKey = `send:${assetCode}:${issuer}`
+    this.loading = { ...this.loading, [loadingKey]: true }
     const asset =
       assetCode === 'XLM' ? Asset.native() : new Asset(assetCode, issuer)
 
@@ -106,7 +106,7 @@ export default async function makePayment(
       })
       .then((res) => console.log(res))
       .finally(() => {
-        this.loading = { ...this.loading, pay: false }
+        this.loading = { ...this.loading, [loadingKey]: false }
         this.updateAccount()
       })
   } catch (err) {
