@@ -1,4 +1,4 @@
-import { Component, State, Prop } from '@stencil/core'
+import { Component, State, Prop, Element } from '@stencil/core'
 import { Server, ServerApi } from 'stellar-sdk'
 
 import componentWillLoad from './events/componentWillLoad' // UPDATE
@@ -41,6 +41,8 @@ interface Loading {
   shadow: true,
 })
 export class Wallet {
+  @Element() private element: HTMLElement
+
   @State() account: StellarAccount
   @State() prompter: Prompter = { show: false }
   @State() loading: Loading = {}
@@ -53,6 +55,8 @@ export class Wallet {
   // Component events
   componentWillLoad() {}
   render() {}
+
+  logger!: HTMLLogViewElement
 
   // Stellar methods
   createAccount = createAccount

@@ -8,6 +8,12 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { Prompter, } from "./components/prompt/prompt";
 import { Server, } from "stellar-sdk";
 export namespace Components {
+    interface LogView {
+        "error": (text: string) => Promise<void>;
+        "instruction": (text: string) => Promise<void>;
+        "request": (url: any, body: any) => Promise<void>;
+        "response": (url: any, body: any) => Promise<void>;
+    }
     interface StellarLoader {
         "interval": any;
     }
@@ -21,6 +27,12 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLLogViewElement extends Components.LogView, HTMLStencilElement {
+    }
+    var HTMLLogViewElement: {
+        prototype: HTMLLogViewElement;
+        new (): HTMLLogViewElement;
+    };
     interface HTMLStellarLoaderElement extends Components.StellarLoader, HTMLStencilElement {
     }
     var HTMLStellarLoaderElement: {
@@ -40,12 +52,15 @@ declare global {
         new (): HTMLStellarWalletElement;
     };
     interface HTMLElementTagNameMap {
+        "log-view": HTMLLogViewElement;
         "stellar-loader": HTMLStellarLoaderElement;
         "stellar-prompt": HTMLStellarPromptElement;
         "stellar-wallet": HTMLStellarWalletElement;
     }
 }
 declare namespace LocalJSX {
+    interface LogView {
+    }
     interface StellarLoader {
         "interval"?: any;
     }
@@ -58,6 +73,7 @@ declare namespace LocalJSX {
         "toml"?: Object;
     }
     interface IntrinsicElements {
+        "log-view": LogView;
         "stellar-loader": StellarLoader;
         "stellar-prompt": StellarPrompt;
         "stellar-wallet": StellarWallet;
@@ -67,6 +83,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "log-view": LocalJSX.LogView & JSXBase.HTMLAttributes<HTMLLogViewElement>;
             "stellar-loader": LocalJSX.StellarLoader & JSXBase.HTMLAttributes<HTMLStellarLoaderElement>;
             "stellar-prompt": LocalJSX.StellarPrompt & JSXBase.HTMLAttributes<HTMLStellarPromptElement>;
             "stellar-wallet": LocalJSX.StellarWallet & JSXBase.HTMLAttributes<HTMLStellarWalletElement>;
