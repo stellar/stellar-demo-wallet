@@ -38,11 +38,13 @@ export class LogView {
 
   @Method()
   async instruction(text: string) {
+    console.log('Instruction', text)
     this.append({ type: LogDataType.Instruction, body: text })
   }
 
   @Method()
   async error(text: string) {
+    console.error(text)
     this.append({ type: LogDataType.Error, body: text })
   }
 
