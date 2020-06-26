@@ -19,6 +19,7 @@
 - [stellar-prompt](../prompt)
 - [log-view](../logview)
 - [stellar-loader](../loader)
+- [collapsible-container](views)
 
 ### Graph
 ```mermaid
@@ -26,6 +27,7 @@ graph TD;
   stellar-wallet --> stellar-prompt
   stellar-wallet --> log-view
   stellar-wallet --> stellar-loader
+  stellar-wallet --> collapsible-container
   style stellar-wallet fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

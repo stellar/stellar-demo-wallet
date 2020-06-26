@@ -47,5 +47,8 @@
     "hooks": {
       "pre-commit": "pretty-quick --staged"
     }
+  },
+  "dependencies": {
+    "toml": "^3.0.0"
   }
 }
