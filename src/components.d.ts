@@ -13,8 +13,8 @@ export namespace Components {
         "showText": string;
     }
     interface LogView {
-        "error": (text: string) => Promise<void>;
-        "instruction": (text: string) => Promise<void>;
+        "error": (title: string, body: string) => Promise<void>;
+        "instruction": (title: string, body: string) => Promise<void>;
         "request": (url: any, body: any) => Promise<void>;
         "response": (url: any, body: any) => Promise<void>;
     }

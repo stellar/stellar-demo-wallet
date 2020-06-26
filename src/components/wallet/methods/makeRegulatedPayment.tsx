@@ -62,17 +62,27 @@ export default async function makeRegulatedPayment(
 
     const asset =
       assetCode === 'XLM' ? Asset.native() : new Asset(assetCode, issuer)
+    this.logger.instruction(
+      `Loading issuer account to find home_domain for regulated asset ${asset.toString()}`
+    )
     const issuerAccount = await server.loadAccount(issuer)
     const homeDomain: string = (issuerAccount as any).home_domain
+    this.logger.instruction(
+      `Found home_domain '${homeDomain}' as issuer's domain, fetching the TOML file to find the approval server`
+    )
     const tomlURL = new URL(homeDomain)
     tomlURL.pathname = '/.well-known/stellar.toml'
+    this.logger.request(tomlURL.toString())
     const tomlText = await fetch(tomlURL.toString()).then((r) => r.text())
+    this.logger.response(tomlURL.toString(), tomlText)
     const toml = TOML.parse(tomlText)
     const tomlCurrency = toml.CURRENCIES.find((c) => c.code === assetCode)
-    if (!tomlCurrency || !tomlCurrency.approval_server)
+    if (!tomlCurrency || !tomlCurrency.approval_server) {
+      this.logger.error('No approval srever for asset')
       throw 'No approval server for asset'
+    }
     const approvalServer = tomlCurrency.approval_server
-    console.log('Found approval server: ' + approvalServer)
+    this.logger.instruction('Found approval server: ' + approvalServer)
 
     const account = await server.loadAccount(keypair.publicKey())
     const transaction = new TransactionBuilder(account, {
@@ -88,13 +98,20 @@ export default async function makeRegulatedPayment(
       )
       .setTimeout(30)
       .build()
-    console.log('Built a transaction to request approval for:' + transaction)
+    this.logger.instruction(
+      'Built a request to ask for approval for: ',
+      TransactionSummary(transaction)
+    )
     const approvalUrl = new URL(approvalServer)
     approvalUrl.searchParams.set('tx', transaction.toXDR())
+    this.logger.request(approvalUrl.toString())
     const json = await fetch(approvalUrl.toString()).then((resp) => resp.json())
-    console.log('Response from approval server: ', json)
-
+    this.logger.response(approvalUrl.toString(), json)
     if (json.status == 'rejected') {
+      this.logger.error(
+        'Transaction has been rejected by the approval server',
+        json.error
+      )
       await this.popup({
         contents: (
           <div>
@@ -110,19 +127,26 @@ export default async function makeRegulatedPayment(
     //@ts-ignore
     const revisedEnvelope = xdr.TransactionEnvelope.fromXDR(json.tx, 'base64')
     const revisedTx = new Transaction(revisedEnvelope, Networks.TESTNET)
-    console.log(
-      '<b>Revised Transaction from compliance server</b>' +
-        TransactionSummary(revisedTx)
+    this.logger.instruction(
+      'Ask the user to approve revised transaction from approval server',
+      TransactionSummary(revisedTx)
     )
 
     try {
       await this.popup({
-        contents: TransactionSummary(revisedTx),
+        contents: (
+          <div>
+            <h3>Approve revised transaction from approval server?</h3>
+            {TransactionSummary(revisedTx)}
+          </div>
+        ),
         confirmLabel: 'Confirm',
         cancelLabel: 'Reject',
       })
     } catch (e) {
-      console.log('❌ Not signing the revised transaction, nothing happens')
+      this.logger.error(
+        '❌ Not signing the revised transaction, nothing happens'
+      )
       await this.popup({
         contents: (
           <div>❌ Not signing the revised transaction, nothing happens</div>
@@ -137,13 +161,15 @@ export default async function makeRegulatedPayment(
     const labURL = `https://www.stellar.org/laboratory/#xdr-viewer?input=${encodeURIComponent(
       tx.toXDR()
     )}`
-    console.log(
-      `Submitting <a href="${labURL}" target="_blank">Signed Transaction (Open in stellar lab)</a>`
+    this.logger.instruction(
+      'Submitting signed transaction',
+      `<a href="${labURL}" target="_blank">Open in stellar lab</a>`
     )
 
     const { hash: txHash } = await server.submitTransaction(tx)
-    console.log(
-      `✅ Succesfully submitted regulated payment in transaction <a href="https://stellar.expert/explorer/testnet/tx/${txHash}" target="_blank">${txHash.substr(
+    this.logger.instruction(
+      `✅ Succesfully submitted regulated payment`,
+      `Transaction <a href="https://stellar.expert/explorer/testnet/tx/${txHash}" target="_blank">${txHash.substr(
         0,
         8
       )}</a>!`

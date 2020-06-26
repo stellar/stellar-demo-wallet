@@ -7,7 +7,7 @@
 
 ## Methods
 
-### `error(text: string) => Promise<void>`
+### `error(title: string, body: string) => Promise<void>`
 
 
 
@@ -17,7 +17,7 @@ Type: `Promise<void>`
 
 
 
-### `instruction(text: string) => Promise<void>`
+### `instruction(title: string, body: string) => Promise<void>`
 
 
 

@@ -43,6 +43,7 @@ interface Loading {
   shadow: true,
 })
 export class Wallet {
+  // @ts-ignore This is used in the prompter
   @Element() private element: HTMLElement
 
   @State() account: StellarAccount

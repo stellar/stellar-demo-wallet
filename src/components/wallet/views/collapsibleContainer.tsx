@@ -14,7 +14,7 @@ export class CollapsibleContainer {
   render() {
     return (
       <div>
-        <button onClick={(e) => this.handleClick()}>
+        <button onClick={() => this.handleClick()}>
           {this.open ? this.hideText : this.showText}
         </button>
         <div style={{ display: this.open ? 'block' : 'none' }}>

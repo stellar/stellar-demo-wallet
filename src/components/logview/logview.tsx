@@ -9,6 +9,7 @@ enum LogDataType {
 interface LogData {
   type: LogDataType
   url?: string
+  title?: string
   body?: string
 }
 
@@ -37,38 +38,63 @@ export class LogView {
   }
 
   @Method()
-  async instruction(text: string) {
-    console.log('Instruction', text)
-    this.append({ type: LogDataType.Instruction, body: text })
+  async instruction(title: string, body: string) {
+    console.log('Instruction', title, body)
+    this.append({ type: LogDataType.Instruction, title, body })
   }
 
   @Method()
-  async error(text: string) {
-    console.error(text)
-    this.append({ type: LogDataType.Error, body: text })
+  async error(title: string, body: string) {
+    console.error(title, body)
+    this.append({ type: LogDataType.Error, title, body })
+  }
+
+  clear() {
+    this.logs = []
   }
 
   transformToElement(data: LogData) {
     switch (data.type) {
       case LogDataType.Instruction:
-        return <div class="instruction entry">{data.body}</div>
+        return (
+          <div class="instruction entry">
+            <div class="title">{data.title}</div>
+            {data.body ? <div class="body">{data.body}</div> : null}
+          </div>
+        )
+
       case LogDataType.Error:
-        return <div class="error entry">{data.body}</div>
+        return (
+          <div class="error entry">
+            <div class="title">{data.title}</div>
+            {data.body ? <div class="body">{data.body}</div> : null}
+          </div>
+        )
+
       case LogDataType.Request:
+        const requestBody =
+          typeof data.body == 'string'
+            ? data.body
+            : JSON.stringify(data.body, null, 2)
         return (
           <div class="request entry">
             <div class="title">{data.url}</div>
-            <div class="body">{JSON.stringify(data.body, null, 2)}</div>
+            <div class="body">{requestBody}</div>
           </div>
         )
 
       case LogDataType.Response:
+        const responseBody =
+          typeof data.body == 'string'
+            ? data.body
+            : JSON.stringify(data.body, null, 2)
         return (
           <div class="response entry">
             <div class="title">{data.url}</div>
-            <div class="body">{JSON.stringify(data.body, null, 2)}</div>
+            <div class="body">{responseBody}</div>
           </div>
         )
+
       default:
         return null
     }
@@ -77,7 +103,9 @@ export class LogView {
   render() {
     return (
       <div class="logview">
-        <h1>Log View</h1>
+        <button class="clear-button" onClick={(_) => this.clear()}>
+          Clear
+        </button>
         {this.logs.map((l) => this.transformToElement(l))}
       </div>
     )
