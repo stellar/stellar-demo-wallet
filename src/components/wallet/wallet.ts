@@ -1,4 +1,4 @@
-import { Component, State, Prop, Element } from '@stencil/core'
+import { Component, State, Prop } from '@stencil/core'
 import { Server, ServerApi } from 'stellar-sdk'
 
 import componentWillLoad from './events/componentWillLoad' // UPDATE
@@ -43,9 +43,6 @@ interface Loading {
   shadow: true,
 })
 export class Wallet {
-  // @ts-ignore This is used in the prompter
-  @Element() private element: HTMLElement
-
   @State() account: StellarAccount
   @State() prompter: Prompter = { show: false }
   @State() loading: Loading = {}

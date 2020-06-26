@@ -144,9 +144,7 @@ export default async function makeRegulatedPayment(
         cancelLabel: 'Reject',
       })
     } catch (e) {
-      this.logger.error(
-        '❌ Not signing the revised transaction, nothing happens'
-      )
+      this.logger.error('Not signing the revised transaction, nothing happens')
       await this.popup({
         contents: (
           <div>❌ Not signing the revised transaction, nothing happens</div>
