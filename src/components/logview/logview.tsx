@@ -1,4 +1,4 @@
-import { Component, h, State, Method, getAssetPath } from '@stencil/core'
+import { Component, h, State, Method } from '@stencil/core'
 
 enum LogDataType {
   Instruction = 1,
@@ -19,15 +19,6 @@ interface LogData {
 })
 export class LogView {
   @State() logs: LogData[] = []
-
-  componentWillLoad() {
-    console.log(getAssetPath('/assets/message.svg'))
-    this.instruction('This is an instruction')
-    this.error('This is an error')
-    this.request('http://www.google.com', { data: { a: 1, b: 2 } })
-    this.response('http://www.google.com', { data: { a: 1, b: 2 } })
-    console.log(this.logs)
-  }
 
   append(data: LogData) {
     this.logs = [...this.logs, data]
