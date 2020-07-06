@@ -57,6 +57,8 @@ export class Wallet {
   componentWillLoad() {}
   render() {}
 
+  logger!: HTMLLogViewElement
+
   // Stellar methods
   createAccount = createAccount
   loadAccount = loadAccount

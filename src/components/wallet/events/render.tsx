@@ -13,6 +13,9 @@ export default function () {
     <stellar-prompt prompter={this.prompter} />,
     popup,
     this.account ? loggedInContent.call(this) : loggedOutContent.call(this),
+    <collapsible-container show-text="Show Logs" hide-text="Hide Logs">
+      <log-view ref={(el) => (this.logger = el)}></log-view>
+    </collapsible-container>,
     this.error ? (
       <pre class="error">{JSON.stringify(this.error, null, 2)}</pre>
     ) : null,

@@ -12,6 +12,12 @@ export namespace Components {
         "hideText": string;
         "showText": string;
     }
+    interface LogView {
+        "error": (title: string, body: string) => Promise<void>;
+        "instruction": (title: string, body: string) => Promise<void>;
+        "request": (url: any, body: any) => Promise<void>;
+        "response": (url: any, body: any) => Promise<void>;
+    }
     interface StellarLoader {
         "interval": any;
     }
@@ -30,6 +36,12 @@ declare global {
     var HTMLCollapsibleContainerElement: {
         prototype: HTMLCollapsibleContainerElement;
         new (): HTMLCollapsibleContainerElement;
+    };
+    interface HTMLLogViewElement extends Components.LogView, HTMLStencilElement {
+    }
+    var HTMLLogViewElement: {
+        prototype: HTMLLogViewElement;
+        new (): HTMLLogViewElement;
     };
     interface HTMLStellarLoaderElement extends Components.StellarLoader, HTMLStencilElement {
     }
@@ -51,6 +63,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "collapsible-container": HTMLCollapsibleContainerElement;
+        "log-view": HTMLLogViewElement;
         "stellar-loader": HTMLStellarLoaderElement;
         "stellar-prompt": HTMLStellarPromptElement;
         "stellar-wallet": HTMLStellarWalletElement;
@@ -60,6 +73,8 @@ declare namespace LocalJSX {
     interface CollapsibleContainer {
         "hideText"?: string;
         "showText"?: string;
+    }
+    interface LogView {
     }
     interface StellarLoader {
         "interval"?: any;
@@ -74,6 +89,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "collapsible-container": CollapsibleContainer;
+        "log-view": LogView;
         "stellar-loader": StellarLoader;
         "stellar-prompt": StellarPrompt;
         "stellar-wallet": StellarWallet;
@@ -84,6 +100,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "collapsible-container": LocalJSX.CollapsibleContainer & JSXBase.HTMLAttributes<HTMLCollapsibleContainerElement>;
+            "log-view": LocalJSX.LogView & JSXBase.HTMLAttributes<HTMLLogViewElement>;
             "stellar-loader": LocalJSX.StellarLoader & JSXBase.HTMLAttributes<HTMLStellarLoaderElement>;
             "stellar-prompt": LocalJSX.StellarPrompt & JSXBase.HTMLAttributes<HTMLStellarPromptElement>;
             "stellar-wallet": LocalJSX.StellarWallet & JSXBase.HTMLAttributes<HTMLStellarWalletElement>;

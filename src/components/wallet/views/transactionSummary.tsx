@@ -30,10 +30,5 @@ export default function TransactionSummary(tx: Transaction) {
     }
   })
 
-  return (
-    <div class="popup-code-set code-set">
-      <h3>Approve revised transaction from approval server?</h3>
-      {opMessages}
-    </div>
-  )
+  return <div class="popup-code-set code-set">{opMessages}</div>
 }
