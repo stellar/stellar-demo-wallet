@@ -25,24 +25,28 @@ export class LogView {
     this.logs = [...this.logs, data]
   }
 
+  // Log an outgoing network request with a url and optional body
   @Method()
   async request(url, body) {
     console.log('Request', url, body)
     this.append({ type: LogDataType.Request, url, body })
   }
 
+  // Log the incoming response from a request
   @Method()
   async response(url, body) {
     console.log('Response', url, body)
     this.append({ type: LogDataType.Response, url, body })
   }
 
+  // Log an informational statement with a title and optional body
   @Method()
   async instruction(title: string, body: string) {
     console.log('Instruction', title, body)
     this.append({ type: LogDataType.Instruction, title, body })
   }
 
+  // Log an error with a title and optional body
   @Method()
   async error(title: string, body: string) {
     console.error(title, body)
