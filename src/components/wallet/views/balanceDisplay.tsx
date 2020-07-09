@@ -43,12 +43,22 @@ export default function balanceDisplay() {
         Send Regulated
       </button>
     )
+
+    const depositWithdrawButtons =
+      balance.asset_code === 'native'
+        ? null
+        : [<button>Deposit</button>, <button>Withdraw</button>]
     return (
-      <div class="balance-row">
-        <div class="asset-code">{assetCode}</div>
-        <div class="balance">{balance.balance}</div>
-        {sendButton}
-        {regulatedSendButton}
+      <div class="asset-row">
+        <div class="balance-row">
+          <div class="asset-code">{assetCode}:</div>
+          <div class="balance">{balance.balance}</div>
+        </div>
+        <div class="actions">
+          {sendButton}
+          {regulatedSendButton}
+          {depositWithdrawButtons}
+        </div>
       </div>
     )
   }

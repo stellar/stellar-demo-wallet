@@ -5,11 +5,12 @@
 
 ## Properties
 
-| Property     | Attribute | Description | Type     | Default                                             |
-| ------------ | --------- | ----------- | -------- | --------------------------------------------------- |
-| `homeDomain` | --        |             | `String` | `'testanchor.stellar.org'`                          |
-| `server`     | --        |             | `Server` | `new Server('https://horizon-testnet.stellar.org')` |
-| `toml`       | --        |             | `Object` | `undefined`                                         |
+| Property     | Attribute | Description | Type      | Default                                             |
+| ------------ | --------- | ----------- | --------- | --------------------------------------------------- |
+| `homeDomain` | --        |             | `String`  | `'testanchor.stellar.org'`                          |
+| `logger`     | --        |             | `ILogger` | `MockLogger`                                        |
+| `server`     | --        |             | `Server`  | `new Server('https://horizon-testnet.stellar.org')` |
+| `toml`       | --        |             | `Object`  | `undefined`                                         |
 
 
 ## Dependencies
@@ -17,17 +18,15 @@
 ### Depends on
 
 - [stellar-prompt](../prompt)
-- [collapsible-container](views)
-- [log-view](../logview)
 - [stellar-loader](../loader)
+- [collapsible-container](views)
 
 ### Graph
 ```mermaid
 graph TD;
   stellar-wallet --> stellar-prompt
-  stellar-wallet --> collapsible-container
-  stellar-wallet --> log-view
   stellar-wallet --> stellar-loader
+  stellar-wallet --> collapsible-container
   style stellar-wallet fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

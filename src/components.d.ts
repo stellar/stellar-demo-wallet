@@ -7,6 +7,7 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { Prompter, } from "./components/prompt/prompt";
 import { Server, } from "stellar-sdk";
+import { ILogger, } from "./components/logview/logview";
 export namespace Components {
     interface CollapsibleContainer {
         "hideText": string;
@@ -26,6 +27,7 @@ export namespace Components {
     }
     interface StellarWallet {
         "homeDomain": String;
+        "logger": ILogger;
         "server": Server;
         "toml": Object;
     }
@@ -84,6 +86,7 @@ declare namespace LocalJSX {
     }
     interface StellarWallet {
         "homeDomain"?: String;
+        "logger"?: ILogger;
         "server"?: Server;
         "toml"?: Object;
     }
