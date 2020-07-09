@@ -1,6 +1,7 @@
 import { h } from '@stencil/core'
 import { has as loHas } from 'lodash-es'
-
+import WalletButton from './walletButton'
+import { Wallet } from '../wallet'
 interface Balance {
   balance: string
   is_authorized: boolean
@@ -11,43 +12,38 @@ interface Balance {
 
 export default function balanceDisplay() {
   const balanceRow = (balance: Balance) => {
+    const loadingKey = (type: string) => {
+      return `${type}:${balance.asset_code}:${balance.asset_issuer}`
+    }
     const isRegulated =
       !balance.is_authorized && balance.asset_type !== 'native'
     const assetCode =
       balance.asset_type === 'native' ? 'XLM' : balance.asset_code
 
-    const sendLoadingState = this.loading[
-      `send:${balance.asset_code}:${balance.asset_issuer}`
-    ]
-    const sendButton = (
-      <button
-        class={sendLoadingState ? 'loading' : null}
-        onClick={() => this.makePayment(null, assetCode, balance.asset_issuer)}
-      >
-        {sendLoadingState ? <stellar-loader /> : null}
-        Send
-      </button>
+    const sendButton = WalletButton.call(this, 'Send', loadingKey('send'), () =>
+      this.makePayment(null, assetCode, balance.asset_issuer)
     )
 
-    const sendRegulatedLoadingState = this.loading[
-      `sendRegulated:${balance.asset_code}:${balance.asset_issuer}`
-    ]
-    const regulatedSendButton = !isRegulated ? null : (
-      <button
-        class={sendRegulatedLoadingState ? 'loading' : null}
-        onClick={() =>
-          this.makeRegulatedPayment(null, assetCode, balance.asset_issuer)
-        }
-      >
-        {sendRegulatedLoadingState ? <stellar-loader /> : null}
-        Send Regulated
-      </button>
-    )
+    const regulatedSendButton = !isRegulated
+      ? null
+      : WalletButton.call(
+          this,
+          'Send Regulated',
+          loadingKey('sendRegulated'),
+          () => this.makeRegulatedPayment(null, assetCode, balance.asset_issuer)
+        )
 
     const depositWithdrawButtons =
       balance.asset_code === 'native'
         ? null
-        : [<button>Deposit</button>, <button>Withdraw</button>]
+        : [
+            WalletButton.call(this, 'Deposit', loadingKey('deposit'), () => {
+              this.depositAsset(balance.asset_code, balance.asset_issuer)
+            }),
+            WalletButton.call(this, 'Withdraw', loadingKey('withdraw'), () => {
+              this.withdrawAsset(balance.asset_code, balance.asset_issuer)
+            }),
+          ]
     return (
       <div class="asset-row">
         <div class="balance-row">

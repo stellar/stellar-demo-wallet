@@ -1,4 +1,4 @@
-import { Component, State, Prop, Method } from '@stencil/core'
+import { Component, State, Prop } from '@stencil/core'
 import { Server, ServerApi } from 'stellar-sdk'
 import { ILogger } from '../logview/logview'
 
