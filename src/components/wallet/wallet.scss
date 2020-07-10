@@ -6,14 +6,26 @@
   font-size: 15px;
   position: relative;
 
+  button {
+    position: relative;
+    appearance: none;
+    border: 0;
+    font-size: 12px;
+    height: 20px;
+    color: black;
+    border-bottom: 1px solid blue;
+    background: none;
+
+    &:hover {
+      background: rgba(0, 0, 255, 0.3);
+    }
+  }
+
   p {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
-  }
-  button {
-    margin-bottom: 10px;
   }
 
   .account-key {
@@ -29,6 +41,7 @@
   }
   .account-state,
   .error {
+    box-sizing: border-box;
     overflow: scroll;
     padding: 10px;
     font-size: 12px;
@@ -41,17 +54,17 @@
     background-color: whitesmoke;
   }
 
-  .balance-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    div {
-      margin: 15px;
+  .asset-row {
+    .balance-row {
+      & > div {
+        margin-right: 8px;
+      }
+      font-size: 20px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
-    button {
-      margin: 0 15px;
-    }
+    margin-bottom: 16px;
   }
 
   .error {
@@ -86,6 +99,12 @@
         margin: 4px;
       }
     }
+  }
+
+  #account-details-container {
+    margin-top: 16px;
+    display: block;
+    overflow: scroll;
   }
 
   stellar-loader {

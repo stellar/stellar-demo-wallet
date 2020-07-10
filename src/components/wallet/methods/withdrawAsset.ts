@@ -8,7 +8,9 @@ import {
   Asset,
   Memo,
   MemoHash,
+  Server,
 } from 'stellar-sdk'
+import TOML from 'toml'
 
 import axios from 'axios'
 import {
@@ -22,14 +24,16 @@ import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
 import { Wallet } from '../wallet'
 
-export default async function withdrawAsset(this: Wallet) {
-  try {
-    let currency: any = await this.setPrompt({
-      message: "Select the currency you'd like to withdraw",
-      options: this.toml.CURRENCIES,
-    })
-    currency = currency.split(':')
+export default async function withdrawAsset(
+  this: Wallet,
+  assetCode: string,
+  assetIssuer: string
+) {
+  const loadingKey = `withdraw:${assetCode}:${assetIssuer}`
+  this.loading = { ...this.loading, [loadingKey]: true }
+  const finish = () => (this.loading = { ...this.loading, [loadingKey]: false })
 
+  try {
     const pincode = await this.setPrompt({
       message: 'Enter your account pincode',
       type: 'password',
@@ -47,22 +51,40 @@ export default async function withdrawAsset(this: Wallet) {
 
     const balances = loGet(this.account, 'state.balances')
     const hasCurrency = loFindIndex(balances, {
-      asset_code: currency[0],
-      asset_issuer: currency[1],
+      asset_code: assetCode,
+      asset_issuer: assetIssuer,
     })
 
     if (hasCurrency === -1)
       //@ts-ignore
-      await this.trustAsset(currency[0], currency[1], pincode)
+      await this.trustAsset(assetCode, assetIssuer, pincode)
+
+    const server = this.server as Server
+    const issuerAccount = await server.loadAccount(assetIssuer)
+    const homeDomain: string = (issuerAccount as any).home_domain
+    if (!homeDomain) {
+      this.logger.error("Couldn't find a home_domain on the assets issuer")
+      finish()
+      return
+    }
+    this.logger.instruction(
+      `Found home_domain '${homeDomain}' as issuer's domain, fetching the TOML file to find the approval server`
+    )
+    const tomlURL = new URL(homeDomain)
+    tomlURL.pathname = '/.well-known/stellar.toml'
+    this.logger.request(tomlURL.toString())
+    const tomlText = await fetch(tomlURL.toString()).then((r) => r.text())
+    this.logger.response(tomlURL.toString(), tomlText)
+    const toml = TOML.parse(tomlText)
 
     const info = await axios
-      .get(`${this.toml.TRANSFER_SERVER_SEP0024}/info`)
+      .get(`${toml.TRANSFER_SERVER_SEP0024}/info`)
       .then(({ data }) => data)
 
     console.log(info)
 
     const auth = await axios
-      .get(`${this.toml.WEB_AUTH_ENDPOINT}`, {
+      .get(`${toml.WEB_AUTH_ENDPOINT}`, {
         params: {
           account: this.account.publicKey,
         },
@@ -71,14 +93,13 @@ export default async function withdrawAsset(this: Wallet) {
         const txn: any = new Transaction(transaction, network_passphrase)
 
         this.error = null
-        this.loading = { ...this.loading, withdraw: true }
 
         txn.sign(keypair)
         return txn.toXDR()
       })
       .then((transaction) =>
         axios.post(
-          `${this.toml.WEB_AUTH_ENDPOINT}`,
+          `${toml.WEB_AUTH_ENDPOINT}`,
           { transaction },
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -91,7 +112,7 @@ export default async function withdrawAsset(this: Wallet) {
 
     loEach(
       {
-        asset_code: currency[0],
+        asset_code: assetCode,
         account: this.account.publicKey,
         lang: 'en',
       },
@@ -100,7 +121,7 @@ export default async function withdrawAsset(this: Wallet) {
 
     const interactive = await axios
       .post(
-        `${this.toml.TRANSFER_SERVER_SEP0024}/transactions/withdraw/interactive`,
+        `${toml.TRANSFER_SERVER_SEP0024}/transactions/withdraw/interactive`,
         formData,
         {
           headers: {
@@ -114,9 +135,9 @@ export default async function withdrawAsset(this: Wallet) {
     console.log(interactive)
 
     const transactions = await axios
-      .get(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions`, {
+      .get(`${toml.TRANSFER_SERVER_SEP0024}/transactions`, {
         params: {
-          asset_code: currency[0],
+          asset_code: assetCode,
           limit: 1,
           kind: 'withdrawal',
         },
@@ -133,7 +154,7 @@ export default async function withdrawAsset(this: Wallet) {
     const popup = open(urlBuilder.toString(), 'popup', 'width=500,height=800')
 
     if (!popup) {
-      this.loading = { ...this.loading, withdraw: false }
+      finish()
       throw 'Popups are blocked. You\'ll need to enable popups for this demo to work'
     }
 
@@ -145,7 +166,7 @@ export default async function withdrawAsset(this: Wallet) {
 
         if (transaction.status === 'completed') {
           this.updateAccount()
-          this.loading = { ...this.loading, withdraw: false }
+          finish()
           resolve()
         } else if (
           !submittedTxn &&
@@ -164,7 +185,7 @@ export default async function withdrawAsset(this: Wallet) {
                 .addOperation(
                   Operation.payment({
                     destination: transaction.withdraw_anchor_account,
-                    asset: new Asset(currency[0], currency[1]),
+                    asset: new Asset(assetCode, assetIssuer),
                     amount: transaction.amount_in,
                   })
                 )
@@ -207,7 +228,7 @@ export default async function withdrawAsset(this: Wallet) {
       }
     })
   } catch (err) {
-    this.loading = { ...this.loading, withdraw: false }
+    finish()
     this.error = handleError(err)
   }
 }

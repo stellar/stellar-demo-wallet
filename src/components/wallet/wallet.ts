@@ -1,5 +1,6 @@
 import { Component, State, Prop } from '@stencil/core'
 import { Server, ServerApi } from 'stellar-sdk'
+import { ILogger } from '../logview/logview'
 
 import componentWillLoad from './events/componentWillLoad' // UPDATE
 import render from './events/render' // UPDATE
@@ -19,6 +20,21 @@ import loadAccount from './methods/loadAccount'
 import popup from './methods/popup'
 
 import { Prompter } from '@prompt/prompt'
+
+const MockLogger = {
+  request: (url, body) => {
+    console.log('Request', url, body)
+  },
+  response: (url, body) => {
+    console.log('Response', url, body)
+  },
+  instruction: (title, body) => {
+    console.log('Instruction', title, body)
+  },
+  error: (url, body) => {
+    console.error('Error', url, body)
+  },
+}
 
 interface StellarAccount {
   publicKey: string
@@ -57,7 +73,8 @@ export class Wallet {
   componentWillLoad() {}
   render() {}
 
-  logger!: HTMLLogViewElement
+  @Prop()
+  logger: ILogger = MockLogger
 
   // Stellar methods
   createAccount = createAccount

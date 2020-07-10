@@ -1,6 +1,7 @@
 import { Component, State, Prop, h } from '@stencil/core'
 @Component({
   tag: 'collapsible-container',
+  shadow: true,
 })
 export class CollapsibleContainer {
   @Prop() hideText: string = 'Hide'

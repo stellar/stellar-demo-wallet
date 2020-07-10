@@ -1,24 +1,26 @@
-import { Transaction } from 'stellar-sdk'
+import { Transaction, Server } from 'stellar-sdk'
 import axios from 'axios'
 import {
   get as loGet,
   each as loEach,
   findIndex as loFindIndex,
 } from 'lodash-es'
+import TOML from 'toml'
 
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
 import { Wallet } from '../wallet'
 
-export default async function depositAsset(this: Wallet) {
+export default async function depositAsset(
+  this: Wallet,
+  asset_code: string,
+  asset_issuer: string
+) {
+  const loadingKey = `deposit:${asset_code}:${asset_issuer}`
+  this.loading = { ...this.loading, [loadingKey]: true }
+  const finish = () => (this.loading = { ...this.loading, [loadingKey]: false })
   try {
-    let currency: any = await this.setPrompt({
-      message: "Select the currency you'd like to deposit",
-      options: this.toml.CURRENCIES,
-    })
-    currency = currency.split(':')
-
     const pincode = await this.setPrompt({
       message: 'Enter your account pincode',
       type: 'password',
@@ -30,20 +32,39 @@ export default async function depositAsset(this: Wallet) {
 
     const balances = loGet(this.account, 'state.balances')
     const hasCurrency = loFindIndex(balances, {
-      asset_code: currency[0],
-      asset_issuer: currency[1],
+      asset_code,
+      asset_issuer,
     })
 
     if (hasCurrency === -1)
-      await this.trustAsset(currency[0], currency[1], pincode_stretched)
-    const infoURL = `${this.toml.TRANSFER_SERVER_SEP0024}/info`
+      await this.trustAsset(asset_code, asset_issuer, pincode_stretched)
+
+    const server = this.server as Server
+    const issuerAccount = await server.loadAccount(asset_issuer)
+    const homeDomain: string = (issuerAccount as any).home_domain
+    if (!homeDomain) {
+      this.logger.error("Couldn't find a home_domain on the assets issuer")
+      finish()
+      return
+    }
+    this.logger.instruction(
+      `Found home_domain '${homeDomain}' as issuer's domain, fetching the TOML file to find the approval server`
+    )
+    const tomlURL = new URL(homeDomain)
+    tomlURL.pathname = '/.well-known/stellar.toml'
+    this.logger.request(tomlURL.toString())
+    const tomlText = await fetch(tomlURL.toString()).then((r) => r.text())
+    this.logger.response(tomlURL.toString(), tomlText)
+    const toml = TOML.parse(tomlText)
+
+    const infoURL = `${toml.TRANSFER_SERVER_SEP0024}/info`
     this.logger.request(infoURL)
     const info = await axios.get(infoURL).then(({ data }) => data)
     this.logger.response(infoURL, info)
     console.log(info)
 
     const auth = await axios
-      .get(`${this.toml.WEB_AUTH_ENDPOINT}`, {
+      .get(`${toml.WEB_AUTH_ENDPOINT}`, {
         params: {
           account: this.account.publicKey,
         },
@@ -68,7 +89,7 @@ export default async function depositAsset(this: Wallet) {
       })
       .then((transaction) =>
         axios.post(
-          `${this.toml.WEB_AUTH_ENDPOINT}`,
+          `${toml.WEB_AUTH_ENDPOINT}`,
           { transaction },
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -81,7 +102,7 @@ export default async function depositAsset(this: Wallet) {
 
     loEach(
       {
-        asset_code: currency[0],
+        asset_code,
         account: this.account.publicKey,
         lang: 'en',
       },
@@ -90,7 +111,7 @@ export default async function depositAsset(this: Wallet) {
 
     const interactive = await axios
       .post(
-        `${this.toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
+        `${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
         formData,
         {
           headers: {
@@ -104,9 +125,9 @@ export default async function depositAsset(this: Wallet) {
     console.log(interactive)
 
     const transactions = await axios
-      .get(`${this.toml.TRANSFER_SERVER_SEP0024}/transactions`, {
+      .get(`${toml.TRANSFER_SERVER_SEP0024}/transactions`, {
         params: {
-          asset_code: currency[0],
+          asset_code,
           limit: 1,
           kind: 'deposit',
         },

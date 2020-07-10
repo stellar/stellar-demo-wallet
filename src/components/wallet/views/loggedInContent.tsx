@@ -7,7 +7,10 @@ import { Wallet } from '../wallet'
 export default function loggedInContent(this: Wallet) {
   return [
     <div class="account-key">
-      <p>{this.account.publicKey}</p>
+      <p>
+        {this.account.publicKey.substring(0, 6)}...
+        {this.account.publicKey.substring(this.account.publicKey.length - 6)}
+      </p>
       <button class="small" type="button" onClick={() => this.copyAddress()}>
         Copy Address
       </button>
@@ -16,45 +19,15 @@ export default function loggedInContent(this: Wallet) {
       </button>
     </div>,
 
-    <button
-      class={this.loading.deposit ? 'loading' : null}
-      type="button"
-      onClick={() => this.depositAsset()}
-    >
-      {this.loading.deposit ? <stellar-loader /> : null} Deposit Asset
-    </button>,
-    <button
-      class={this.loading.withdraw ? 'loading' : null}
-      type="button"
-      onClick={() => this.withdrawAsset()}
-    >
-      {this.loading.withdraw ? <stellar-loader /> : null} Withdraw Asset
-    </button>,
+    balanceDisplay.call(this),
 
     <button
       class={this.loading.trust ? 'loading' : null}
       type="button"
       onClick={() => this.trustAsset()}
     >
-      {this.loading.trust ? <stellar-loader /> : null} Trust Asset
+      {this.loading.trust ? <stellar-loader /> : null} + Trust Asset
     </button>,
-    <button
-      class={this.loading.pay ? 'loading' : null}
-      type="button"
-      onClick={() => this.makePayment()}
-    >
-      {this.loading.pay ? <stellar-loader /> : null} Make Payment
-    </button>,
-
-    balanceDisplay.call(this),
-
-    loHas(this.account, 'state') ? (
-      <collapsible-container hideText="Hide Details" showText="Show Details">
-        <pre class="account-state">
-          {JSON.stringify(this.account.state, null, 2)}
-        </pre>
-      </collapsible-container>
-    ) : null,
 
     this.account
       ? [
@@ -70,5 +43,17 @@ export default function loggedInContent(this: Wallet) {
           </button>,
         ]
       : null,
+
+    loHas(this.account, 'state') ? (
+      <collapsible-container
+        id="account-details-container"
+        hideText="Hide Account Details"
+        showText="Show Account Details"
+      >
+        <pre class="account-state" style={{ overflow: 'scroll' }}>
+          {JSON.stringify(this.account.state, null, 2)}
+        </pre>
+      </collapsible-container>
+    ) : null,
   ]
 }

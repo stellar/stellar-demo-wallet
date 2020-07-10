@@ -13,6 +13,13 @@ interface LogData {
   body?: string
 }
 
+export interface ILogger {
+  request: (url: string, body?: string) => Promise<void> | void
+  response: (url: string, body?: string) => Promise<void> | void
+  instruction: (title: string, body?: string) => Promise<void> | void
+  error: (title: string, body?: string) => Promise<void> | void
+}
+
 @Component({
   tag: 'log-view',
   styleUrl: 'logview.scss',
