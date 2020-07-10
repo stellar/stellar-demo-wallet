@@ -10,8 +10,10 @@ import TOML from 'toml'
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
+import { Wallet } from '../wallet'
 
 export default async function depositAsset(
+  this: Wallet,
   asset_code: string,
   asset_issuer: string
 ) {

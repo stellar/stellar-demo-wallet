@@ -2,6 +2,7 @@ import { h } from '@stencil/core'
 import { has as loHas } from 'lodash-es'
 import WalletButton from './walletButton'
 import { Wallet } from '../wallet'
+
 interface Balance {
   balance: string
   is_authorized: boolean
@@ -10,7 +11,7 @@ interface Balance {
   asset_issuer: string
 }
 
-export default function balanceDisplay() {
+export default function balanceDisplay(this: Wallet) {
   const balanceRow = (balance: Balance) => {
     const loadingKey = (type: string) => {
       return `${type}:${balance.asset_code}:${balance.asset_issuer}`

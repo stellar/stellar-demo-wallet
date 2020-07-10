@@ -5,8 +5,9 @@ import { set } from '@services/storage'
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { encrypt } from '@services/tweetnacl'
+import { Wallet } from '../wallet'
 
-export default async function createAccount() {
+export default async function createAccount(this: Wallet) {
   try {
     const pincode_1 = await this.setPrompt({
       message: 'Enter an account pincode',

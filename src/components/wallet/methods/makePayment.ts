@@ -11,8 +11,10 @@ import { has as loHas } from 'lodash-es'
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
+import { Wallet } from '../wallet'
 
 export default async function makePayment(
+  this: Wallet,
   destination?: string,
   assetCode?: string,
   issuer?: string

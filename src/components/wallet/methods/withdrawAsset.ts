@@ -22,14 +22,17 @@ import {
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
+import { Wallet } from '../wallet'
 
 export default async function withdrawAsset(
+  this: Wallet,
   assetCode: string,
   assetIssuer: string
 ) {
   const loadingKey = `withdraw:${assetCode}:${assetIssuer}`
   this.loading = { ...this.loading, [loadingKey]: true }
   const finish = () => (this.loading = { ...this.loading, [loadingKey]: false })
+
   try {
     const pincode = await this.setPrompt({
       message: 'Enter your account pincode',
@@ -53,6 +56,7 @@ export default async function withdrawAsset(
     })
 
     if (hasCurrency === -1)
+      //@ts-ignore
       await this.trustAsset(assetCode, assetIssuer, pincode)
 
     const server = this.server as Server

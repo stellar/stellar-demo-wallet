@@ -7,7 +7,7 @@
 
 ## Methods
 
-### `error(title: string, body: string) => Promise<void>`
+### `error(title: string, body?: string) => Promise<void>`
 
 
 
@@ -17,7 +17,7 @@ Type: `Promise<void>`
 
 
 
-### `instruction(title: string, body: string) => Promise<void>`
+### `instruction(title: string, body?: string) => Promise<void>`
 
 
 
@@ -27,7 +27,7 @@ Type: `Promise<void>`
 
 
 
-### `request(url: any, body: any) => Promise<void>`
+### `request(url: string, body?: string) => Promise<void>`
 
 
 
@@ -37,7 +37,7 @@ Type: `Promise<void>`
 
 
 
-### `response(url: any, body: any) => Promise<void>`
+### `response(url: string, body?: string) => Promise<void>`
 
 
 

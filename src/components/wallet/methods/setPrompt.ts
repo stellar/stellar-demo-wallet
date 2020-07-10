@@ -1,8 +1,8 @@
 interface setPrompt {
   message: string
-  placeholder: string
-  type: string
-  options: Array<any>
+  placeholder?: string
+  type?: string
+  options?: Array<any>
 }
 
 export default function setPrompt({
