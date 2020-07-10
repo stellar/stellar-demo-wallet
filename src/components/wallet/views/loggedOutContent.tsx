@@ -1,6 +1,7 @@
 import { h } from '@stencil/core'
+import { Wallet } from '../wallet'
 
-export default function loggedOutContent() {
+export default function loggedOutContent(this: Wallet) {
   return [
     <button
       class={this.loading.create ? 'loading' : null}

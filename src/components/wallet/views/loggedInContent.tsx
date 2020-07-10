@@ -2,8 +2,9 @@ import { h } from '@stencil/core'
 import { has as loHas } from 'lodash-es'
 
 import balanceDisplay from './balanceDisplay'
+import { Wallet } from '../wallet'
 
-export default function loggedInContent() {
+export default function loggedInContent(this: Wallet) {
   return [
     <div class="account-key">
       <p>{this.account.publicKey}</p>

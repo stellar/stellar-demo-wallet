@@ -1,8 +1,9 @@
 import { StellarTomlResolver } from 'stellar-sdk'
 import { handleError } from '@services/error'
 import { get } from '@services/storage'
+import { Wallet } from '../wallet'
 
-export default async function componentWillLoad() {
+export default async function componentWillLoad(this: Wallet) {
   try {
     const keystore = await get('WALLET[keystore]')
 
