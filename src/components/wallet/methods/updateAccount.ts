@@ -4,8 +4,9 @@ import {
 } from 'lodash-es'
 
 import { handleError } from '@services/error'
+import { Wallet } from '../wallet'
 
-export default async function updateAccount() {
+export default async function updateAccount(this: Wallet) {
   try {
     this.error = null
     this.loading = { ...this.loading, update: true }

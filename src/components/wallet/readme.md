@@ -9,7 +9,7 @@
 | ------------ | --------- | ----------- | -------- | --------------------------------------------------- |
 | `homeDomain` | --        |             | `String` | `'testanchor.stellar.org'`                          |
 | `server`     | --        |             | `Server` | `new Server('https://horizon-testnet.stellar.org')` |
-| `toml`       | --        |             | `Object` | `undefined`                                         |
+| `toml`       | `toml`    |             | `any`    | `undefined`                                         |
 
 
 ## Dependencies

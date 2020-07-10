@@ -51,7 +51,7 @@ export class Wallet {
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() homeDomain: String = 'testanchor.stellar.org'
-  @Prop() toml: Object // NEW
+  @Prop() toml: any // NEW
 
   // Component events
   componentWillLoad() {}

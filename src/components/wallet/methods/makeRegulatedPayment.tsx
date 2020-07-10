@@ -14,8 +14,10 @@ import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
 import TransactionSummary from '../views/transactionSummary'
+import { Wallet } from '../wallet'
 
 export default async function makeRegulatedPayment(
+  this: Wallet,
   destination?: string,
   assetCode?: string,
   issuer?: string

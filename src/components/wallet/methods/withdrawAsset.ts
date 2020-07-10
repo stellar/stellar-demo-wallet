@@ -20,10 +20,11 @@ import {
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
+import { Wallet } from '../wallet'
 
-export default async function withdrawAsset() {
+export default async function withdrawAsset(this: Wallet) {
   try {
-    let currency = await this.setPrompt({
+    let currency: any = await this.setPrompt({
       message: "Select the currency you'd like to withdraw",
       options: this.toml.CURRENCIES,
     })
@@ -51,6 +52,7 @@ export default async function withdrawAsset() {
     })
 
     if (hasCurrency === -1)
+      //@ts-ignore
       await this.trustAsset(currency[0], currency[1], pincode)
 
     const info = await axios
