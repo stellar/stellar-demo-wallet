@@ -1,7 +1,8 @@
 import { remove } from '@services/storage'
 import { handleError } from '@services/error'
+import { Wallet } from '../wallet'
 
-export default async function signOut() {
+export default async function signOut(this: Wallet) {
   try {
     const confirmNuke = await this.setPrompt({
       message: 'Are you sure? This will nuke your account',

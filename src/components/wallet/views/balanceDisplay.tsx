@@ -1,5 +1,6 @@
 import { h } from '@stencil/core'
 import { has as loHas } from 'lodash-es'
+import { Wallet } from '../wallet'
 
 interface Balance {
   balance: string
@@ -9,7 +10,7 @@ interface Balance {
   asset_issuer: string
 }
 
-export default function balanceDisplay() {
+export default function balanceDisplay(this: Wallet) {
   const balanceRow = (balance: Balance) => {
     const isRegulated =
       !balance.is_authorized && balance.asset_type !== 'native'

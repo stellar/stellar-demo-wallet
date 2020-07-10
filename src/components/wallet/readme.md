@@ -5,11 +5,11 @@
 
 ## Properties
 
-| Property     | Attribute | Description | Type     | Default                                             |
-| ------------ | --------- | ----------- | -------- | --------------------------------------------------- |
-| `homeDomain` | --        |             | `String` | `'testanchor.stellar.org'`                          |
-| `server`     | --        |             | `Server` | `new Server('https://horizon-testnet.stellar.org')` |
-| `toml`       | --        |             | `Object` | `undefined`                                         |
+| Property     | Attribute     | Description | Type     | Default                                             |
+| ------------ | ------------- | ----------- | -------- | --------------------------------------------------- |
+| `homeDomain` | `home-domain` |             | `string` | `'testanchor.stellar.org'`                          |
+| `server`     | --            |             | `Server` | `new Server('https://horizon-testnet.stellar.org')` |
+| `toml`       | `toml`        |             | `any`    | `undefined`                                         |
 
 
 ## Dependencies

@@ -1,11 +1,12 @@
 import { h } from '@stencil/core'
+import { Wallet } from '../wallet'
 
 export interface PopupContents {
   contents: HTMLElement
   confirmLabel?: string
   cancelLabel?: string
 }
-const popup = async function (popup: PopupContents) {
+const popup = async function (this: Wallet, popup: PopupContents) {
   try {
     await new Promise((res, rej) => {
       const cancelButton = popup.cancelLabel ? (

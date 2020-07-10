@@ -50,8 +50,8 @@ export class Wallet {
   @State() promptContents: string = null
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
-  @Prop() homeDomain: String = 'testanchor.stellar.org'
-  @Prop() toml: Object // NEW
+  @Prop() homeDomain: string = 'testanchor.stellar.org'
+  @Prop() toml: any // NEW
 
   // Component events
   componentWillLoad() {}

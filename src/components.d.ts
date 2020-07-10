@@ -13,10 +13,10 @@ export namespace Components {
         "showText": string;
     }
     interface LogView {
-        "error": (title: string, body: string) => Promise<void>;
-        "instruction": (title: string, body: string) => Promise<void>;
-        "request": (url: any, body: any) => Promise<void>;
-        "response": (url: any, body: any) => Promise<void>;
+        "error": (title: string, body?: string) => Promise<void>;
+        "instruction": (title: string, body?: string) => Promise<void>;
+        "request": (url: string, body?: string) => Promise<void>;
+        "response": (url: string, body?: string) => Promise<void>;
     }
     interface StellarLoader {
         "interval": any;
@@ -25,9 +25,9 @@ export namespace Components {
         "prompter": Prompter;
     }
     interface StellarWallet {
-        "homeDomain": String;
+        "homeDomain": string;
         "server": Server;
-        "toml": Object;
+        "toml": any;
     }
 }
 declare global {
@@ -83,9 +83,9 @@ declare namespace LocalJSX {
         "prompter"?: Prompter;
     }
     interface StellarWallet {
-        "homeDomain"?: String;
+        "homeDomain"?: string;
         "server"?: Server;
-        "toml"?: Object;
+        "toml"?: any;
     }
     interface IntrinsicElements {
         "collapsible-container": CollapsibleContainer;

@@ -9,10 +9,11 @@ import {
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
+import { Wallet } from '../wallet'
 
-export default async function depositAsset() {
+export default async function depositAsset(this: Wallet) {
   try {
-    let currency = await this.setPrompt({
+    let currency: any = await this.setPrompt({
       message: "Select the currency you'd like to deposit",
       options: this.toml.CURRENCIES,
     })

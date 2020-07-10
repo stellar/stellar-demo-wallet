@@ -10,8 +10,10 @@ import {
 import { handleError } from '@services/error'
 import { stretchPincode } from '@services/argon2'
 import { decrypt } from '@services/tweetnacl'
+import { Wallet } from '../wallet'
 
 export default async function trustAsset(
+  this: Wallet,
   asset?: string,
   issuer?: string,
   pincode_stretched?: Uint8Array
