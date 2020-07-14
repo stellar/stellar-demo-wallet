@@ -13,7 +13,7 @@ export default function loggedOutContent(this: Wallet) {
     <button
       class={this.loading.load ? 'loading' : null}
       type="button"
-      onClick={(e) => this.loadAccount(e)}
+      onClick={(_) => this.loadAccount()}
     >
       {this.loading.load ? <stellar-loader /> : null} Load Account
     </button>,
