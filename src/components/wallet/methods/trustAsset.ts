@@ -21,8 +21,19 @@ export default async function trustAsset(
   try {
     let instructions
 
-    if (asset && issuer) instructions = [asset, issuer]
-    else {
+    this.logger.instruction(
+      'We need to add a trustline to the asset to ensure the deposit will be expected'
+    )
+
+    if (asset && issuer) {
+      instructions = [asset, issuer]
+      this.logger.instruction(
+        'There is already a trustline on this account, no need to recreate it'
+      )
+    } else {
+      this.logger.instruction(
+        'There isn’t currently a trustline on this account so we need to add one'
+      )
       instructions = await this.setPrompt({ message: '{Asset} {Issuer}' })
       instructions = instructions.split(' ')
     }

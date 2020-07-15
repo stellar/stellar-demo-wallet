@@ -1,5 +1,6 @@
 import {
   omit as loOmit,
+  find as loFind,
   // map as loMap
 } from 'lodash-es'
 
@@ -10,12 +11,15 @@ export default async function updateAccount(this: Wallet) {
   try {
     this.error = null
     this.loading = { ...this.loading, update: true }
-
+    this.logger.instruction('Updating account...')
     await this.server
       .accounts()
       .accountId(this.account.publicKey)
       .call()
       .then((account) => {
+        const selfURL = loFind(account, 'self')
+        this.logger.request(selfURL.self.href)
+
         this.account = {
           ...this.account,
           state: loOmit(account, [
@@ -25,6 +29,7 @@ export default async function updateAccount(this: Wallet) {
             'paging_token',
           ]),
         }
+        this.logger.response(selfURL.self.href, account)
       })
       .finally(() => (this.loading = { ...this.loading, update: false }))
   } catch (err) {
