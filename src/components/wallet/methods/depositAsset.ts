@@ -57,11 +57,31 @@ export default async function depositAsset(
     this.logger.response(tomlURL.toString(), tomlText)
     const toml = TOML.parse(tomlText)
 
+    this.logger.instruction(
+      `Received WEB_AUTH_ENDPOINT from TOML: ${toml.WEB_AUTH_ENDPOINT}`
+    )
+    this.logger.instruction(
+      `Received TRANSFER_SERVER from TOML: ${toml.TRANSFER_SERVER}`
+    )
+    this.logger.instruction(
+      `Received asset issuer from TOML: ${toml.SIGNING_KEY}`
+    )
+    this.logger.instruction(
+      'Check /info endpoint to see if we need to authenticate'
+    )
     const infoURL = `${toml.TRANSFER_SERVER_SEP0024}/info`
     this.logger.request(infoURL)
     const info = await axios.get(infoURL).then(({ data }) => data)
     this.logger.response(infoURL, info)
-    console.log(info)
+
+    this.logger.instruction(
+      'Deposit is enabled, and requires authentication so we should go through SEP-0010'
+    )
+    this.logger.instruction(
+      'Start the SEP-0010 flow to authenticate the wallet’s Stellar account'
+    )
+    const params = { account: this.account.publicKey }
+    this.logger.request(this.toml.WEB_AUTH_ENDPOINT, params)
 
     const auth = await axios
       .get(`${toml.WEB_AUTH_ENDPOINT}`, {
@@ -70,10 +90,15 @@ export default async function depositAsset(
         },
       })
       .then(async ({ data }) => {
+        this.logger.response(this.toml.WEB_AUTH_ENDPOINT, data)
+        this.logger.instruction(
+          'We’ve received a challenge transaction from the server that we need the client to sign with our Stellar account.'
+        )
         const transaction: any = new Transaction(
           data.transaction,
           data.network_passphrase
         )
+        this.logger.request('SEP-0010 Signed Transaction', transaction)
 
         this.error = null
         this.loading = { ...this.loading, deposit: true }
@@ -85,6 +110,12 @@ export default async function depositAsset(
         )
 
         transaction.sign(keypair)
+        this.logger.response('Base64 Encoded', transaction.toXDR())
+        this.logger.instruction(
+          'We need to send the signed SEP10 challenge back to the server to get a JWT token to authenticate our stellar account with future actions'
+        )
+        const jwtParams = { account: this.account.publicKey }
+        this.logger.request('POST /auth', jwtParams)
         return transaction.toXDR()
       })
       .then((transaction) =>
@@ -94,9 +125,12 @@ export default async function depositAsset(
           { headers: { 'Content-Type': 'application/json' } }
         )
       )
-      .then(({ data: { token } }) => token) // TODO: Store the JWT in localStorage
+      .then(({ data: { token } }) =>
+        localStorage.setItem('token', JSON.stringify(token))
+      )
 
-    console.log(auth)
+    const tokenParams = { token: JSON.parse(localStorage.getItem('token')) }
+    this.logger.request('POST /auth', tokenParams)
 
     const formData = new FormData()
 
@@ -107,6 +141,14 @@ export default async function depositAsset(
         lang: 'en',
       },
       (value, key) => formData.append(key, value)
+    )
+
+    this.logger.instruction(
+      'To get the url for the interactive flow check the /transactions/deposit/interactive endpoint'
+    )
+    this.logger.request(
+      toml.TRANSFER_SERVER_SEP0024 + '/transactions/deposit/interactive',
+      'TODO: form data'
     )
 
     const interactive = await axios
@@ -122,7 +164,10 @@ export default async function depositAsset(
       )
       .then(({ data }) => data)
 
-    console.log(interactive)
+    this.logger.response(
+      toml.TRANSFER_SERVER_SEP0024 + '/transactions/deposit/interactive',
+      interactive
+    )
 
     const transactions = await axios
       .get(`${toml.TRANSFER_SERVER_SEP0024}/transactions`, {
@@ -137,24 +182,30 @@ export default async function depositAsset(
       })
       .then(({ data: { transactions } }) => transactions)
 
-    console.log(transactions)
+    this.logger.response(
+      `${toml.TRANSFER_SERVER_SEP0024}/transactions`,
+      transactions
+    )
 
     const urlBuilder = new URL(interactive.url)
     urlBuilder.searchParams.set('callback', 'postMessage')
+    this.logger.instruction(
+      'To collect the interactive information we launch the interactive URL in a frame or webview, and await payment details from a postMessage callback'
+    )
     const popup = open(urlBuilder.toString(), 'popup', 'width=500,height=800')
 
     if (!popup) {
       this.loading = { ...this.loading, deposit: false }
-      throw 'Popups are blocked. You\'ll need to enable popups for this demo to work'
+      throw 'Popups are blocked. You’ll need to enable popups for this demo to work'
     }
 
     window.onmessage = ({ data: { transaction } }) => {
-      console.log(transaction.status, transaction)
-
       if (transaction.status === 'completed') {
         this.updateAccount()
+        this.logger.instruction('Transaction status complete')
         this.loading = { ...this.loading, deposit: false }
       } else {
+        this.logger.instruction('Transaction status pending...')
         setTimeout(() => {
           const urlBuilder = new URL(transaction.more_info_url)
           urlBuilder.searchParams.set('callback', 'postMessage')
@@ -166,5 +217,6 @@ export default async function depositAsset(
   } catch (err) {
     this.loading = { ...this.loading, deposit: false }
     this.error = handleError(err)
+    this.logger.error(err)
   }
 }
