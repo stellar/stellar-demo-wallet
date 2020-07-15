@@ -16,8 +16,8 @@ export namespace Components {
     interface LogView {
         "error": (title: string, body?: string) => Promise<void>;
         "instruction": (title: string, body?: string) => Promise<void>;
-        "request": (url: string, body?: string) => Promise<void>;
-        "response": (url: string, body?: string) => Promise<void>;
+        "request": (url: string, body?: string | object) => Promise<void>;
+        "response": (url: string, body?: string | object) => Promise<void>;
     }
     interface StellarLoader {
         "interval": any;

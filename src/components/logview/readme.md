@@ -27,7 +27,7 @@ Type: `Promise<void>`
 
 
 
-### `request(url: string, body?: string) => Promise<void>`
+### `request(url: string, body?: string | object) => Promise<void>`
 
 
 
@@ -37,7 +37,7 @@ Type: `Promise<void>`
 
 
 
-### `response(url: string, body?: string) => Promise<void>`
+### `response(url: string, body?: string | object) => Promise<void>`
 
 
 

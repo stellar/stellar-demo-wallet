@@ -10,14 +10,14 @@ interface LogData {
   type: LogDataType
   url?: string
   title?: string
-  body?: string
+  body?: string | object
 }
 
 export interface ILogger {
-  request: (url: string, body?: string) => Promise<void> | void
-  response: (url: string, body?: string) => Promise<void> | void
+  request: (url: string, body?: string | object) => Promise<void> | void
+  response: (url: string, body?: string | object) => Promise<void> | void
   instruction: (title: string, body?: string) => Promise<void> | void
-  error: (title: string, body?: string) => Promise<void> | void
+  error: (title: string, body?: string | object) => Promise<void> | void
 }
 
 @Component({
@@ -34,14 +34,14 @@ export class LogView {
 
   // Log an outgoing network request with a url and optional body
   @Method()
-  async request(url: string, body?: string) {
+  async request(url: string, body?: string | object) {
     console.log('Request', url, body)
     this.append({ type: LogDataType.Request, url, body })
   }
 
   // Log the incoming response from a request
   @Method()
-  async response(url: string, body?: string) {
+  async response(url: string, body?: string | object) {
     console.log('Response', url, body)
     this.append({ type: LogDataType.Response, url, body })
   }
