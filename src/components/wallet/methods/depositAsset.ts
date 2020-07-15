@@ -80,14 +80,12 @@ export default async function depositAsset(
     this.logger.instruction(
       'Start the SEP-0010 flow to authenticate the wallet’s Stellar account'
     )
-    const params = { account: this.account.publicKey }
-    this.logger.request(this.toml.WEB_AUTH_ENDPOINT, params)
+    const authParams = { account: this.account.publicKey }
+    this.logger.request(this.toml.WEB_AUTH_ENDPOINT, authParams)
 
     const auth = await axios
       .get(`${toml.WEB_AUTH_ENDPOINT}`, {
-        params: {
-          account: this.account.publicKey,
-        },
+        params: authParams,
       })
       .then(async ({ data }) => {
         this.logger.response(this.toml.WEB_AUTH_ENDPOINT, data)
@@ -147,8 +145,8 @@ export default async function depositAsset(
       'To get the url for the interactive flow check the /transactions/deposit/interactive endpoint'
     )
     this.logger.request(
-      toml.TRANSFER_SERVER_SEP0024 + '/transactions/deposit/interactive',
-      'TODO: form data'
+      `${toml.TRANSFER_SERVER_SEP0024} /transactions/deposit/interactive`
+      /* TODO add form data object */
     )
 
     const interactive = await axios
