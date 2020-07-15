@@ -1,4 +1,4 @@
-import { Transaction, Server } from 'stellar-sdk'
+import { Transaction } from 'stellar-sdk'
 import TOML from 'toml'
 import { get } from 'lodash-es'
 
