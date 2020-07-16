@@ -35,7 +35,7 @@ export default function balanceDisplay(this: Wallet) {
         )
 
     const depositWithdrawButtons =
-      balance.asset_code === 'native'
+      balance.asset_type === 'native'
         ? null
         : [
             WalletButton.call(this, 'Deposit', loadingKey('deposit'), () => {

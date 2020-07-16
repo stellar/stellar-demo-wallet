@@ -26,7 +26,7 @@ export default function loggedInContent(this: Wallet) {
       type="button"
       onClick={() => this.trustAsset()}
     >
-      {this.loading.trust ? <stellar-loader /> : null} + Trust Asset
+      + Trust Asset {this.loading.trust ? <stellar-loader /> : null}
     </button>,
 
     this.account
@@ -36,7 +36,7 @@ export default function loggedInContent(this: Wallet) {
             type="button"
             onClick={() => this.updateAccount()}
           >
-            {this.loading.update ? <stellar-loader /> : null} Update Account
+            Update Account {this.loading.update ? <stellar-loader /> : null}
           </button>,
           <button type="button" onClick={() => this.signOut()}>
             Sign Out
