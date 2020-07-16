@@ -33,7 +33,7 @@ export default function balanceDisplay(this: Wallet) {
           loadingKey('sendRegulated'),
           () => this.makeRegulatedPayment(null, assetCode, balance.asset_issuer)
         )
-    console.log(balance)
+
     const depositWithdrawButtons =
       balance.asset_type === 'native'
         ? null
