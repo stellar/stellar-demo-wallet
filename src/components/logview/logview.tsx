@@ -8,7 +8,6 @@ enum LogDataType {
 }
 interface LogData {
   type: LogDataType
-  url?: string
   title?: string
   body?: string | object
 }
@@ -36,14 +35,14 @@ export class LogView {
   @Method()
   async request(url: string, body?: string | object) {
     console.log('Request', url, body)
-    this.append({ type: LogDataType.Request, url, body })
+    this.append({ type: LogDataType.Request, title: url, body })
   }
 
   // Log the incoming response from a request
   @Method()
   async response(url: string, body?: string | object) {
     console.log('Response', url, body)
-    this.append({ type: LogDataType.Response, url, body })
+    this.append({ type: LogDataType.Response, title: url, body })
   }
 
   // Log an informational statement with a title and optional body
@@ -65,50 +64,24 @@ export class LogView {
   }
 
   transformToElement(data: LogData) {
-    switch (data.type) {
-      case LogDataType.Instruction:
-        return (
-          <div class="instruction entry">
-            <div class="title">{data.title}</div>
-            {data.body ? <div class="body">{data.body}</div> : null}
-          </div>
-        )
-
-      case LogDataType.Error:
-        return (
-          <div class="error entry">
-            <div class="title">{data.title}</div>
-            {data.body ? <div class="body">{data.body}</div> : null}
-          </div>
-        )
-
-      case LogDataType.Request:
-        const requestBody =
-          typeof data.body == 'string'
-            ? data.body
-            : JSON.stringify(data.body, null, 2)
-        return (
-          <div class="request entry">
-            <div class="title">{data.url}</div>
-            <div class="body">{requestBody}</div>
-          </div>
-        )
-
-      case LogDataType.Response:
-        const responseBody =
-          typeof data.body == 'string'
-            ? data.body
-            : JSON.stringify(data.body, null, 2)
-        return (
-          <div class="response entry">
-            <div class="title">{data.url}</div>
-            <div class="body">{responseBody}</div>
-          </div>
-        )
-
-      default:
-        return null
-    }
+    const className = {
+      [LogDataType.Instruction]: 'instruction',
+      [LogDataType.Error]: 'error',
+      [LogDataType.Request]: 'request',
+      [LogDataType.Response]: 'response',
+    }[data.type]
+    const body =
+      typeof data.body === 'object' ? (
+        <json-viewer data={data.body}></json-viewer>
+      ) : (
+        data.body
+      )
+    return (
+      <div class={`entry ${className}`}>
+        <div class="title">{data.title}</div>
+        {body ? <div class="body">{body}</div> : null}
+      </div>
+    )
   }
 
   render() {
