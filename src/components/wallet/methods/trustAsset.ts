@@ -1,5 +1,4 @@
 import {
-  Account,
   TransactionBuilder,
   BASE_FEE,
   Networks,
