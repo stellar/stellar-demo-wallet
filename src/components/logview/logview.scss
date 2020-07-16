@@ -15,30 +15,19 @@ $error-icon: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxN
 }
 
 .entry {
-  margin-top: 8px;
+  margin: 16px 8px;
   border-radius: 8px;
   overflow: hidden;
-}
+  border-radius: 8px;
 
-.entry {
   .title {
-    background-color: #ddd;
     padding: 8px;
-    padding-bottom: 16px;
   }
 
   .body {
     padding: 8px;
     padding-bottom: 16px;
-    background: #fff;
   }
-}
-
-.instruction,
-.error {
-  padding: 8px;
-  border-radius: 8px;
-  overflow: hidden;
 }
 
 .instruction .title,
@@ -58,8 +47,6 @@ $error-icon: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxN
 
 .request,
 .response {
-  margin-left: 8px;
-  margin-right: 8px;
   color: white;
 
   .title {
@@ -85,7 +72,7 @@ $error-icon: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxN
 }
 
 .clear-button {
-  position: absolute;
+  position: fixed;
   top: 8px;
   right: 8px;
 }
