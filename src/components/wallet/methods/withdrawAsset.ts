@@ -49,16 +49,6 @@ export default async function withdrawAsset(
       pincode_stretched
     )
 
-    const balances = loGet(this.account, 'state.balances')
-    const hasCurrency = loFindIndex(balances, {
-      asset_code: assetCode,
-      asset_issuer: assetIssuer,
-    })
-
-    if (hasCurrency === -1)
-      //@ts-ignore
-      await this.trustAsset(assetCode, assetIssuer, pincode)
-
     const server = this.server as Server
     const issuerAccount = await server.loadAccount(assetIssuer)
     const homeDomain: string = (issuerAccount as any).home_domain

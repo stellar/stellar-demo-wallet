@@ -18,24 +18,14 @@ export default async function trustAsset(
   issuer?: string,
   pincode_stretched?: Uint8Array
 ) {
+  this.loading = { ...this.loading, trust: true }
+  this.error = null
+  console.log(this.loading)
+  const finish = () => (this.loading = { ...this.loading, trust: false })
   try {
-    let instructions
-
-    this.logger.instruction(
-      'We need to add a trustline to the asset to ensure the deposit will be expected'
-    )
-
-    if (asset && issuer) {
-      instructions = [asset, issuer]
-      this.logger.instruction(
-        'There is already a trustline on this account, no need to recreate it'
-      )
-    } else {
-      this.logger.instruction(
-        'There isn’t currently a trustline on this account so we need to add one'
-      )
-      instructions = await this.setPrompt({ message: '{Asset} {Issuer}' })
-      instructions = instructions.split(' ')
+    if (!asset || !issuer) {
+      let instructions = await this.setPrompt({ message: '{Asset} {Issuer}' })
+      ;[asset, issuer] = instructions.split(' ')
     }
 
     if (!pincode_stretched) {
@@ -52,37 +42,33 @@ export default async function trustAsset(
       pincode_stretched
     )
 
-    this.error = null
-    this.loading = { ...this.loading, trust: true }
+    this.logger.instruction(
+      'Loading account to get sequence number for trust transaction'
+    )
+    const account = await this.server.loadAccount(keypair.publicKey())
 
-    await this.server
-      .accounts()
-      .accountId(keypair.publicKey())
-      .call()
-      .then(({ sequence }) => {
-        const account = new Account(keypair.publicKey(), sequence)
-        const transaction = new TransactionBuilder(account, {
-          fee: BASE_FEE,
-          networkPassphrase: Networks.TESTNET,
+    const transaction = new TransactionBuilder(account, {
+      fee: BASE_FEE,
+      networkPassphrase: Networks.TESTNET,
+    })
+      .addOperation(
+        Operation.changeTrust({
+          asset: new Asset(asset, issuer),
         })
-          .addOperation(
-            Operation.changeTrust({
-              asset: new Asset(instructions[0], instructions[1]),
-            })
-          )
-          .setTimeout(0)
-          .build()
+      )
+      .setTimeout(0)
+      .build()
 
-        transaction.sign(keypair)
-        return this.server.submitTransaction(transaction)
-      })
-      .then((res) => console.log(res))
-      .finally(() => {
-        this.loading = { ...this.loading, trust: false }
-        this.updateAccount()
-      })
+    transaction.sign(keypair)
+    this.logger.request('Submitting changeTrust transaction', transaction)
+    const result = await this.server.submitTransaction(transaction)
+    this.logger.response('Submitted changeTrust transaction', result)
+    await this.updateAccount()
+    finish()
   } catch (err) {
     this.error = handleError(err)
+    this.logger.error('Error in trust transaction', err)
+    finish()
     throw err
   }
 }
