@@ -1,6 +1,6 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "0.0.31",
+  "version": "0.0.47",
   "description": "Stellar Demo Wallet",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -9,7 +9,7 @@
   "types": "dist/types/index.d.ts",
   "collection": "dist/collection/collection-manifest.json",
   "collection:main": "dist/collection/index.js",
-  "unpkg": "dist/stellar-wallet/stellar-wallet.js",
+  "unpkg": "dist/stellar-demo-wallet/stellar-demo-wallet.js",
   "files": [
     "dist/",
     "loader/"
@@ -19,29 +19,35 @@
     "build": "stencil build --docs",
     "start": "stencil build --dev --watch --serve",
     "generate": "stencil generate",
-    "deploy": "npm publish ; now deploy ./www --prod --name stellar-demo-wallet"
+    "deploy": "npm publish ; vercel --prod --confirm --name stellar-demo-wallet"
   },
   "devDependencies": {
-    "@capacitor/cli": "^1.5.0",
-    "@capacitor/core": "^1.5.0",
-    "@stencil/core": "^1.8.7",
+    "@capacitor/cli": "^2.2.0",
+    "@capacitor/core": "^2.2.0",
+    "@stablelib/base64": "^1.0.0",
+    "@stencil/core": "1.9.2",
     "@stencil/postcss": "^1.0.1",
-    "@stencil/sass": "^1.1.1",
+    "@stencil/sass": "^1.3.2",
+    "@tinyanvil/argon2": "0.0.5",
     "@tinyanvil/sjcl": "^1.0.8",
-    "@types/autoprefixer": "^9.6.1",
-    "autoprefixer": "^9.7.4",
+    "@types/autoprefixer": "^9.7.2",
+    "autoprefixer": "^9.8.4",
     "axios": "^0.19.2",
-    "copy-to-clipboard": "^3.2.1",
-    "js-combinatorics": "^0.5.5",
-    "js-xdr": "^1.1.3",
+    "copy-to-clipboard": "^3.3.1",
+    "husky": "^4.2.5",
+    "js-combinatorics": "^0.6.1",
     "lodash-es": "^4.17.15",
-    "module-alias": "^2.2.2",
+    "menubar": "^9.0.1",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
     "rollup-plugin-node-polyfills": "^0.2.1",
-    "stellar-sdk": "^3.3.0"
+    "stellar-sdk": "^5.0.3",
+    "toml": "^3.0.0",
+    "tweetnacl": "^1.0.3"
   },
-  "_moduleAliases": {
-    "@prompt": "dist/collection/components/prompt",
-    "@services": "dist/collection/services"
-  },
-  "dependencies": {}
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  }
 }
