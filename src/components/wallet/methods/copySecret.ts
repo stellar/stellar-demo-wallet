@@ -1,30 +1,11 @@
 import copy from 'copy-to-clipboard'
 
 import { handleError } from '@services/error'
-import { stretchPincode } from '@services/argon2'
-import { decrypt } from '@services/tweetnacl'
 import { Wallet } from '../wallet'
 
 export default async function copySecret(this: Wallet) {
   try {
-    const pincode = await this.setPrompt({
-      message: 'Enter your account pincode',
-      type: 'password',
-    })
-    const pincode_stretched = await stretchPincode(
-      pincode,
-      this.account.publicKey
-    )
-
-    this.error = null
-
-    const keypair = decrypt(
-      this.account.cipher,
-      this.account.nonce,
-      pincode_stretched
-    )
-
-    copy(keypair.secret())
+    copy(this.account.secretKey)
   } catch (err) {
     this.error = handleError(err)
   }

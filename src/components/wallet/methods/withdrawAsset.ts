@@ -9,6 +9,7 @@ import {
   Memo,
   MemoHash,
   Server,
+  Keypair,
 } from 'stellar-sdk'
 import TOML from 'toml'
 
@@ -20,8 +21,6 @@ import {
 } from 'lodash-es'
 
 import { handleError } from '@services/error'
-import { stretchPincode } from '@services/argon2'
-import { decrypt } from '@services/tweetnacl'
 import { Wallet } from '../wallet'
 
 export default async function withdrawAsset(
@@ -34,20 +33,7 @@ export default async function withdrawAsset(
   const finish = () => (this.loading = { ...this.loading, [loadingKey]: false })
 
   try {
-    const pincode = await this.setPrompt({
-      message: 'Enter your account pincode',
-      type: 'password',
-    })
-    const pincode_stretched = await stretchPincode(
-      pincode,
-      this.account.publicKey
-    )
-
-    const keypair = decrypt(
-      this.account.cipher,
-      this.account.nonce,
-      pincode_stretched
-    )
+    const keypair = Keypair.fromSecret(this.account.secretKey)
 
     const balances = loGet(this.account, 'state.balances')
     const hasCurrency = loFindIndex(balances, {
@@ -57,7 +43,7 @@ export default async function withdrawAsset(
 
     if (hasCurrency === -1)
       //@ts-ignore
-      await this.trustAsset(assetCode, assetIssuer, pincode)
+      await this.trustAsset(assetCode, assetIssuer)
 
     const server = this.server as Server
     const issuerAccount = await server.loadAccount(assetIssuer)
@@ -155,7 +141,7 @@ export default async function withdrawAsset(
 
     if (!popup) {
       finish()
-      throw 'Popups are blocked. You\'ll need to enable popups for this demo to work'
+      throw "Popups are blocked. You'll need to enable popups for this demo to work"
     }
 
     await new Promise((resolve, reject) => {

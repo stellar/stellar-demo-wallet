@@ -22,24 +22,13 @@ export class Prompt {
   @Prop({ mutable: true }) prompter: Prompter
 
   @State() private input: string
-  @State() private remember: boolean
 
   @Watch('prompter')
   watchHandler(newValue: Prompter, oldValue: Prompter) {
     if (newValue.show === oldValue.show) return
 
-    if (
-      this.prompter.type === 'password' &&
-      sessionStorage.hasOwnProperty('WALLET[pincode]')
-    ) {
-      this.input = sessionStorage.getItem('WALLET[pincode]')
-      this.submit()
-      return
-    }
-
     if (newValue.show) {
       this.input = null
-      this.remember = null
 
       if (newValue.options)
         this.input =
@@ -53,16 +42,7 @@ export class Prompt {
     }
   }
 
-  componentDidLoad() {
-    addEventListener('keyup', (e: KeyboardEvent) => {
-      if (this.prompter.show)
-        e.keyCode === 13
-          ? this.submit()
-          : e.keyCode === 27
-          ? this.cancel()
-          : null
-    })
-  }
+  componentDidLoad() {}
 
   cancel() {
     this.prompter = {
@@ -78,16 +58,10 @@ export class Prompt {
       show: false,
     }
     this.prompter.resolve(this.input)
-
-    if (this.remember) sessionStorage.setItem('WALLET[pincode]', this.input)
   }
 
   update(e: any) {
     this.input = e.target.value.toUpperCase()
-  }
-
-  store(e: any) {
-    this.remember = e.target.checked
   }
 
   render() {
@@ -125,17 +99,6 @@ export class Prompt {
               }
             ></input>
           )}
-
-          {this.prompter.type === 'password' ? (
-            <label>
-              <input
-                type="checkbox"
-                checked={this.remember}
-                onChange={(e) => this.store(e)}
-              ></input>
-              Store for session
-            </label>
-          ) : null}
 
           <div class="actions">
             <button class="cancel" type="button" onClick={() => this.cancel()}>

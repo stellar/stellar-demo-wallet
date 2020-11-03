@@ -7,12 +7,11 @@ import {
   Server,
   Asset,
   xdr,
+  Keypair,
 } from 'stellar-sdk'
 import TOML from 'toml'
 
 import { handleError } from '@services/error'
-import { stretchPincode } from '@services/argon2'
-import { decrypt } from '@services/tweetnacl'
 import TransactionSummary from '../views/transactionSummary'
 import { Wallet } from '../wallet'
 
@@ -45,20 +44,7 @@ export default async function makeRegulatedPayment(
     const finish = () =>
       (this.loading = { ...this.loading, [loadingKey]: false })
 
-    const pincode = await this.setPrompt({
-      message: 'Enter your account pincode',
-      type: 'password',
-    })
-    const pincode_stretched = await stretchPincode(
-      pincode,
-      this.account.publicKey
-    )
-
-    const keypair = decrypt(
-      this.account.cipher,
-      this.account.nonce,
-      pincode_stretched
-    )
+    const keypair = Keypair.fromSecret(this.account.secretKey)
 
     this.error = null
 
@@ -80,7 +66,7 @@ export default async function makeRegulatedPayment(
     const toml = TOML.parse(tomlText)
     const tomlCurrency = toml.CURRENCIES.find((c) => c.code === assetCode)
     if (!tomlCurrency || !tomlCurrency.approval_server) {
-      this.logger.error('No approval srever for asset')
+      this.logger.error('No approval server for asset')
       throw 'No approval server for asset'
     }
     const approvalServer = tomlCurrency.approval_server
