@@ -38,8 +38,7 @@ const MockLogger = {
 
 interface StellarAccount {
   publicKey: string
-  cipher: string
-  nonce: string
+  secretKey: string
   state?: ServerApi.AccountRecord
 }
 

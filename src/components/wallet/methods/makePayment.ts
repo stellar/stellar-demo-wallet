@@ -5,12 +5,11 @@ import {
   Networks,
   Operation,
   Asset,
+  Keypair,
 } from 'stellar-sdk'
 import { has as loHas } from 'lodash-es'
 
 import { handleError } from '@services/error'
-import { stretchPincode } from '@services/argon2'
-import { decrypt } from '@services/tweetnacl'
 import { Wallet } from '../wallet'
 
 export default async function makePayment(
@@ -36,20 +35,7 @@ export default async function makePayment(
       message: `How much ${assetCode} to pay?`,
     })
 
-    const pincode = await this.setPrompt({
-      message: 'Enter your account pincode',
-      type: 'password',
-    })
-    const pincode_stretched = await stretchPincode(
-      pincode,
-      this.account.publicKey
-    )
-
-    const keypair = decrypt(
-      this.account.cipher,
-      this.account.nonce,
-      pincode_stretched
-    )
+    const keypair = Keypair.fromSecret(this.account.secretKey)
 
     this.error = null
     const loadingKey = `send:${assetCode}:${issuer}`

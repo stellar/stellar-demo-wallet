@@ -1,10 +1,8 @@
-import { Transaction } from 'stellar-sdk'
+import { Transaction, Keypair } from 'stellar-sdk'
 import TOML from 'toml'
 import { get } from 'lodash-es'
 
 import { handleError } from '@services/error'
-import { stretchPincode } from '@services/argon2'
-import { decrypt } from '@services/tweetnacl'
 import { Wallet } from '../wallet'
 
 export default async function depositAsset(
@@ -17,15 +15,6 @@ export default async function depositAsset(
   const finish = () => (this.loading = { ...this.loading, [loadingKey]: false })
 
   try {
-    const pincode = await this.setPrompt({
-      message: 'Enter your account pincode',
-      type: 'password',
-    })
-    const pincode_stretched = await stretchPincode(
-      pincode,
-      this.account.publicKey
-    )
-
     this.logger.request('Fetch issuer account from Horizon', asset_issuer)
     const issuerAccount = await this.server.loadAccount(asset_issuer)
     this.logger.response('Fetch issuer account from Horizon', issuerAccount)
@@ -94,11 +83,7 @@ export default async function depositAsset(
     )
     this.logger.request('SEP-0010 Signed Transaction', transaction)
 
-    const keypair = decrypt(
-      this.account.cipher,
-      this.account.nonce,
-      pincode_stretched
-    )
+    const keypair = Keypair.fromSecret(this.account.secretKey)
 
     transaction.sign(keypair)
     this.logger.response('Base64 Encoded', transaction.toXDR())
