@@ -10,7 +10,7 @@ export default function setPrompt({
   inputs,
 }: setPrompt): Promise<string> {
   if (!inputs) {
-    inputs = [new PromptInput('text')]
+    inputs = [new PromptInput()]
   }
   this.prompter = {
     ...this.prompter,

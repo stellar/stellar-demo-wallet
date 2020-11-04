@@ -8,7 +8,7 @@ export class PromptSelectInputOption {
 
 export class PromptInput {
   constructor(
-    public placeholder: string,
+    public placeholder?: string,
     public type: string = 'text',
     public value?: string,
     public options?: Array<PromptSelectInputOption>
