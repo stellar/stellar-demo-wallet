@@ -63,7 +63,9 @@ export default async function makeRegulatedPayment(
     this.logger.instruction(
       `Found home_domain '${homeDomain}' as issuer's domain, fetching the TOML file to find the approval server`
     )
-    const tomlURL = new URL(homeDomain)
+    const tomlURL = new URL(
+      homeDomain.includes('https://') ? homeDomain : 'https://' + homeDomain
+    )
     tomlURL.pathname = '/.well-known/stellar.toml'
     this.logger.request(tomlURL.toString())
     const tomlText = await fetch(tomlURL.toString()).then((r) => r.text())
