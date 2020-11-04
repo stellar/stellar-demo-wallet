@@ -1,12 +1,13 @@
 import { remove } from '@services/storage'
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
+import { PromptInput } from '../../prompt/promptInput'
 
 export default async function signOut(this: Wallet) {
   try {
     const confirmNuke = await this.setPrompt({
       message: 'Are you sure? This will nuke your account',
-      placeholder: 'Enter NUKE to confirm',
+      inputs: [new PromptInput('Enter NUKE to confirm')],
     })
 
     if (!confirm || !/nuke/gi.test(confirmNuke)) throw 'Cannot sign out'
