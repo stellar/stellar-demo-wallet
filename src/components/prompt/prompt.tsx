@@ -1,4 +1,4 @@
-import { Component, Prop, h, State } from '@stencil/core'
+import { Component, Prop, h } from '@stencil/core'
 import { PromptInput } from './promptInput'
 
 export interface Prompter {
@@ -20,8 +20,6 @@ export class Prompt {
 
   @Prop({ mutable: true }) prompter: Prompter
 
-  @State() private inputs: Array<PromptInput>
-
   cancel() {
     this.prompter = {
       ...this.prompter,
@@ -35,7 +33,9 @@ export class Prompt {
       ...this.prompter,
       show: false,
     }
-    this.prompter.resolve(this.inputs)
+    console.log('resolving this.prompter.inputs')
+    console.log(typeof this.prompter.inputs)
+    this.prompter.resolve(this.prompter.inputs)
   }
 
   render() {

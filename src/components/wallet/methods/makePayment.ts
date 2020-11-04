@@ -18,22 +18,27 @@ export default async function makePayment(
   assetCode?: string,
   issuer?: string
 ) {
+  let inputs
   try {
-    if (!destination)
-      destination = await this.setPrompt({ message: 'Destination address' })
+    if (!destination) {
+      inputs = await this.setPrompt({ message: 'Destination address' })
+      destination = inputs[0].value
+    }
 
     if (!assetCode || (!issuer && assetCode !== 'XLM')) {
-      const assetAndIssuer = await this.setPrompt({
+      inputs = await this.setPrompt({
         message: '{Asset} {Issuer} (leave empty for XLM)',
       })
+      const assetAndIssuer: string = inputs[0].value
 
       if (assetAndIssuer === '') assetCode = 'XLM'
       else [assetCode, issuer] = assetAndIssuer.split(' ')
     }
 
-    const amount = await this.setPrompt({
+    inputs = await this.setPrompt({
       message: `How much ${assetCode} to pay?`,
     })
+    const amount = inputs[0].value
 
     const keypair = Keypair.fromSecret(this.account.secretKey)
 

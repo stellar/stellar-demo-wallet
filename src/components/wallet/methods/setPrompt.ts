@@ -8,7 +8,7 @@ interface setPrompt {
 export default function setPrompt({
   message,
   inputs,
-}: setPrompt): Promise<string> {
+}: setPrompt): Promise<Array<PromptInput>> {
   if (!inputs) {
     inputs = [new PromptInput()]
   }
