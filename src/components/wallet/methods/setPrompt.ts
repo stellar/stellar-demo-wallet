@@ -1,23 +1,22 @@
+import { PromptInput } from '../../prompt/promptInput'
+
 interface setPrompt {
   message: string
-  placeholder?: string
-  type?: string
-  options?: Array<any>
+  inputs?: Array<any>
 }
 
 export default function setPrompt({
   message,
-  placeholder,
-  type = 'text',
-  options,
-}: setPrompt): Promise<string> {
+  inputs,
+}: setPrompt): Promise<Array<PromptInput>> {
+  if (!inputs) {
+    inputs = [new PromptInput()]
+  }
   this.prompter = {
     ...this.prompter,
     show: true,
     message,
-    placeholder,
-    type,
-    options,
+    inputs,
   }
 
   return new Promise((resolve, reject) => {

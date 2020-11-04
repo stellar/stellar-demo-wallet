@@ -7,9 +7,10 @@ import { Wallet } from '../wallet'
 
 export default async function createAccount(this: Wallet) {
   try {
-    const secret = await this.setPrompt({
+    let inputs = await this.setPrompt({
       message: 'Enter your Stellar secret key',
     })
+    const secret = inputs[0].value
 
     let keypair
     try {

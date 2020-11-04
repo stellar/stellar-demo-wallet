@@ -59,7 +59,7 @@ interface Loading {
 })
 export class Wallet {
   @State() account: StellarAccount
-  @State() prompter: Prompter = { show: false }
+  @State() prompter: Prompter = { show: false, inputs: [] }
   @State() loading: Loading = {}
   @State() error: any
   @State() promptContents: string = null

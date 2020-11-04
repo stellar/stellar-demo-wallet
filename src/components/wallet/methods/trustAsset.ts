@@ -19,10 +19,11 @@ export default async function trustAsset(
   this.error = null
   console.log(this.loading)
   const finish = () => (this.loading = { ...this.loading, trust: false })
+  let inputs
   try {
     if (!asset || !issuer) {
-      let instructions = await this.setPrompt({ message: '{Asset} {Issuer}' })
-      ;[asset, issuer] = instructions.split(' ')
+      inputs = await this.setPrompt({ message: '{Asset} {Issuer}' })
+      ;[asset, issuer] = inputs[0].value.split(' ')
     }
 
     const keypair = Keypair.fromSecret(this.account.secretKey)

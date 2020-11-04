@@ -1,12 +1,10 @@
-import { Component, Prop, Element, Watch, h, State } from '@stencil/core'
-import { defer as loDefer } from 'lodash-es'
+import { Component, Prop, h } from '@stencil/core'
+import { PromptInput } from './promptInput'
 
 export interface Prompter {
   show: boolean
-  type?: string
   message?: string
-  placeholder?: string
-  options?: Array<any>
+  inputs?: Array<PromptInput>
   resolve?: Function
   reject?: Function
 }
@@ -17,32 +15,10 @@ export interface Prompter {
   shadow: true,
 })
 export class Prompt {
-  @Element() private element: HTMLElement
+  // Unused currently, but it may be helpful for someone in the future
+  // @Element() private element: HTMLElement
 
   @Prop({ mutable: true }) prompter: Prompter
-
-  @State() private input: string
-
-  @Watch('prompter')
-  watchHandler(newValue: Prompter, oldValue: Prompter) {
-    if (newValue.show === oldValue.show) return
-
-    if (newValue.show) {
-      this.input = null
-
-      if (newValue.options)
-        this.input =
-          this.input ||
-          `${newValue.options[0].code}:${newValue.options[0].issuer}`
-      else loDefer(() => this.element.shadowRoot.querySelector('input').focus())
-    } else {
-      this.prompter.message = null
-      this.prompter.placeholder = null
-      this.prompter.options = null
-    }
-  }
-
-  componentDidLoad() {}
 
   cancel() {
     this.prompter = {
@@ -57,11 +33,9 @@ export class Prompt {
       ...this.prompter,
       show: false,
     }
-    this.prompter.resolve(this.input)
-  }
-
-  update(e: any) {
-    this.input = e.target.value.toUpperCase()
+    console.log('resolving this.prompter.inputs')
+    console.log(typeof this.prompter.inputs)
+    this.prompter.resolve(this.prompter.inputs)
   }
 
   render() {
@@ -73,32 +47,33 @@ export class Prompt {
         <div class="prompt">
           {this.prompter.message ? <p>{this.prompter.message}</p> : null}
 
-          {this.prompter.options ? (
-            <div class="select-wrapper">
-              <select onInput={(e) => this.update(e)}>
-                {this.prompter.options.map((option) => (
-                  <option
-                    value={`${option.code}:${option.issuer}`}
-                    selected={this.input === `${option.code}:${option.issuer}`}
-                  >
-                    {option.code}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <input
-              type={this.prompter.type}
-              placeholder={this.prompter.placeholder}
-              value={this.input}
-              onInput={(e) => this.update(e)}
-              style={
-                this.prompter.type === 'password'
-                  ? { 'font-size': '18px' }
-                  : null
-              }
-            ></input>
-          )}
+          <div class="inputs-wrapper">
+            {this.prompter.inputs.map((i) =>
+              i.type !== 'select' ? (
+                <input
+                  type={i.type}
+                  placeholder={i.placeholder}
+                  value={i.value}
+                  onInput={(e) => i.update(e)}
+                ></input>
+              ) : (
+                <select
+                  onInput={(e) => {
+                    i.update(e)
+                  }}
+                >
+                  {i.options.map((option) => {
+                    ;<option
+                      value={option.value}
+                      selected={i.value === option.value}
+                    >
+                      {option.showValue}
+                    </option>
+                  })}
+                </select>
+              )
+            )}
+          </div>
 
           <div class="actions">
             <button class="cancel" type="button" onClick={() => this.cancel()}>
