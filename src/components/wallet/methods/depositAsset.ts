@@ -24,7 +24,6 @@ export default async function depositAsset(
     this.logger.instruction(
       `Found home_domain '${homeDomain}' as issuer's domain, fetching the TOML file to find the transfer server`
     )
-    debugger
     const tomlURL = new URL(
       homeDomain.includes('https://') ? homeDomain : 'https://' + homeDomain
     )
