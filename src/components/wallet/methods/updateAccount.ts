@@ -7,25 +7,21 @@ import {
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
 
-export function claimableBalanceQuery({ this: wallet }) {
-  wallet.server
-    .claimableBalances()
-    .claimant(wallet.account.publicKey)
-    .call()
-    .then(function (resp) {
-      resp.records.forEach((record) => {
-        wallet.logger.response(
-          'Claimable Balances Available ',
-          loOmit(record, ['_links', 'paging_token', 'self'])
-        )
-      })
-      console.log(resp)
+async function claimableBalanceQuery(wallet: Wallet) {
+  try {
+    let resp = await wallet.server
+      .claimableBalances()
+      .claimant(wallet.account.publicKey)
+      .call()
+    resp.records.forEach((record) => {
+      wallet.logger.response(
+        'Claimable Balances Available ',
+        loOmit(record, ['_links', 'paging_token', 'self'])
+      )
     })
-    .catch(function (err) {
-      wallet.error = handleError(err)
-      console.error(err)
-    })
-  wallet.loading = { ...wallet.loading, update: false }
+  } catch (err) {
+    wallet.error = handleError(err)
+  }
 }
 
 export default async function updateAccount(this: Wallet) {
@@ -47,7 +43,11 @@ export default async function updateAccount(this: Wallet) {
           ]),
         }
       })
-      .finally(() => claimableBalanceQuery({ this: this }))
+      .finally(() =>
+        claimableBalanceQuery(this).finally(() => {
+          this.loading = { ...this.loading, update: false }
+        })
+      )
   } catch (err) {
     this.error = handleError(err)
   }
