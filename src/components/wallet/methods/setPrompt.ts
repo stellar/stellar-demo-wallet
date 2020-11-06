@@ -9,9 +9,7 @@ export default function setPrompt({
   message,
   inputs,
 }: setPrompt): Promise<Array<PromptInput>> {
-  if (!inputs) {
-    inputs = [new PromptInput()]
-  }
+  if (!inputs) inputs = [new PromptInput()]
   this.prompter = {
     ...this.prompter,
     show: true,

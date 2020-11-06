@@ -14,14 +14,19 @@ import { PromptInput } from '@prompt/promptInput'
 
 async function getAssetAndIssuer(wallet: Wallet) {
   // collect user input
-  let inputs = await wallet.setPrompt({
-    message: 'REQUIRED: asset code AND (home domain OR issuer)',
-    inputs: [
-      new PromptInput('asset code (ex. USD)'),
-      new PromptInput('anchor home domain (ex. example.com)'),
-      new PromptInput('issuer public key'),
-    ],
-  })
+  let inputs
+  try {
+    inputs = await wallet.setPrompt({
+      message: 'REQUIRED: asset code AND (home domain OR issuer)',
+      inputs: [
+        new PromptInput('asset code (ex. USD)'),
+        new PromptInput('anchor home domain (ex. example.com)'),
+        new PromptInput('issuer public key'),
+      ],
+    })
+  } catch (e) {
+    return null
+  }
   let asset = inputs[0].value
   let homeDomain = inputs[1].value
   let issuer = inputs[2].value
@@ -77,7 +82,12 @@ export default async function trustAsset(
   const finish = () => (this.loading = { ...this.loading, trust: false })
   try {
     if (!asset || !issuer) {
-      ;[asset, issuer] = await getAssetAndIssuer(this)
+      let nullOrData = await getAssetAndIssuer(this)
+      if (!nullOrData) {
+        finish()
+        return nullOrData
+      }
+      ;[asset, issuer] = nullOrData
     }
     this.logger.instruction(
       'Loading account to get sequence number for trust transaction'
