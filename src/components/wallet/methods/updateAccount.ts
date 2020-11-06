@@ -7,19 +7,6 @@ import {
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
 
-async function claimableBalanceQuery(wallet: Wallet) {
-  let resp = await wallet.server
-    .claimableBalances()
-    .claimant(wallet.account.publicKey)
-    .call()
-  resp.records.forEach((record) => {
-    wallet.logger.response(
-      'Claimable Balances Available ',
-      loOmit(record, ['_links', 'paging_token', 'self'])
-    )
-  })
-}
-
 export default async function updateAccount(this: Wallet) {
   try {
     this.error = null
@@ -28,11 +15,21 @@ export default async function updateAccount(this: Wallet) {
       .accounts()
       .accountId(this.account.publicKey)
       .call()
+    let claimableBalanceResp = await this.server
+      .claimableBalances()
+      .claimant(this.account.publicKey)
+      .call()
+    // claimableBalanceResp.records.forEach((record) => {
+    //   this.logger.response(
+    //     'Claimable Balances Available ',
+    //     loOmit(record, ['_links', 'paging_token', 'self'])
+    //   )
+    // })
     this.account = {
       ...this.account,
       state: loOmit(account, ['id', '_links', 'account_id', 'paging_token']),
+      claimableBalances: loOmit(claimableBalanceResp),
     }
-    await claimableBalanceQuery(this)
     this.loading = { ...this.loading, update: false }
   } catch (err) {
     this.error = handleError(err)
