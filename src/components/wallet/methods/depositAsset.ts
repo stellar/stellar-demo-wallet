@@ -109,6 +109,7 @@ export default async function depositAsset(
       asset_code,
       account: this.account.publicKey,
       lang: 'en',
+      claimable_balance_supported: true,
     }
     Object.keys(postDepositParams).forEach((key) => {
       formData.append(key, postDepositParams[key])
