@@ -30,6 +30,7 @@ export const config: Config = {
   commonjs: {
     namedExports: {
       'stellar-sdk': [
+        'Server',
         'StrKey',
         'xdr',
         'Transaction',
@@ -42,6 +43,7 @@ export const config: Config = {
         'Asset',
         'Memo',
         'MemoHash',
+        'StellarTomlResolver',
       ],
     },
   },

@@ -40,6 +40,7 @@ interface StellarAccount {
   publicKey: string
   secretKey: string
   state?: ServerApi.AccountRecord
+  claimableBalances?: ServerApi.ClaimableBalanceRecord
 }
 
 interface Loading {
