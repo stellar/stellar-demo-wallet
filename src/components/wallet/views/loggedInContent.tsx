@@ -56,9 +56,9 @@ export default function loggedInContent(this: Wallet) {
       </collapsible-container>
     ) : null,
 
-    loHas(this.account, 'state') ? (
+    loHas(this.account, 'claimableBalances') ? (
       <collapsible-container
-        id="account-details-container"
+        id="claimable-balance-container"
         hideText="Hide Claimable Balance Details"
         showText="Show Claimable Balance Details"
       >
