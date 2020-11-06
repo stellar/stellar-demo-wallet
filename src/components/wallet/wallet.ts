@@ -43,10 +43,14 @@ interface StellarAccount {
   claimableBalances?: ServerApi.ClaimableBalanceRecord
 }
 
-interface WalletAsset {
+interface WalletAssetKey {
   code: string
   issuer?: string
+}
+
+interface WalletAssetDetails {
   homeDomain?: string
+  toml?: any
 }
 
 interface Loading {
@@ -72,9 +76,7 @@ export class Wallet {
   @State() promptContents: string = null
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
-  @Prop() assets: Array<WalletAsset>
-  @Prop() homeDomain: string = 'testanchor.stellar.org'
-  @Prop() toml: any // NEW
+  @Prop() assets: Map<WalletAssetKey, WalletAssetDetails>
 
   // Component events
   componentWillLoad() {}
