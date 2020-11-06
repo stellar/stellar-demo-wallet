@@ -55,5 +55,17 @@ export default function loggedInContent(this: Wallet) {
         </pre>
       </collapsible-container>
     ) : null,
+
+    loHas(this.account, 'state') ? (
+      <collapsible-container
+        id="account-details-container"
+        hideText="Hide Claimable Balance Details"
+        showText="Show Claimable Balance Details"
+      >
+        <pre class="account-state" style={{ overflow: 'scroll' }}>
+          {JSON.stringify(this.account.claimableBalances, null, 2)}
+        </pre>
+      </collapsible-container>
+    ) : null,
   ]
 }
