@@ -15,7 +15,7 @@ import { PromptInput } from '@prompt/promptInput'
 async function getAssetAndIssuer(wallet: Wallet) {
   // collect user input
   let inputs = await wallet.setPrompt({
-    message: 'Required: asset code AND (home domain OR issuer)',
+    message: 'REQUIRED: asset code AND (home domain OR issuer)',
     inputs: [
       new PromptInput('asset code (ex. USD)'),
       new PromptInput('anchor home domain (ex. example.com)'),
