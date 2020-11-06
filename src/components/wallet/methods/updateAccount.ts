@@ -19,12 +19,12 @@ export default async function updateAccount(this: Wallet) {
       .claimableBalances()
       .claimant(this.account.publicKey)
       .call()
-    // claimableBalanceResp.records.forEach((record) => {
-    //   this.logger.response(
-    //     'Claimable Balances Available ',
-    //     loOmit(record, ['_links', 'paging_token', 'self'])
-    //   )
-    // })
+    claimableBalanceResp.records.forEach((record) => {
+      this.logger.response(
+        'Claimable Balances Available ',
+        loOmit(record, ['_links', 'paging_token', 'self'])
+      )
+    })
     this.account = {
       ...this.account,
       state: loOmit(account, ['id', '_links', 'account_id', 'paging_token']),
