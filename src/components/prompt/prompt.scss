@@ -23,7 +23,7 @@
   .prompt {
     background-color: white;
     padding: 20px;
-    max-width: 350px;
+    max-width: 400px;
     width: 100%;
     position: relative;
 
@@ -37,8 +37,8 @@
       padding: 5px;
       outline: none;
       border: 1px solid black;
-      text-transform: uppercase;
       font-size: 15px;
+      margin-bottom: 5px;
 
       &:focus {
         border-color: blue;

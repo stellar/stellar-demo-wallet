@@ -33,8 +33,6 @@ export class Prompt {
       ...this.prompter,
       show: false,
     }
-    console.log('resolving this.prompter.inputs')
-    console.log(typeof this.prompter.inputs)
     this.prompter.resolve(this.prompter.inputs)
   }
 
