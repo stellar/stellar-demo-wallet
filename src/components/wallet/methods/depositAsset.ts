@@ -1,9 +1,9 @@
-import { Transaction, Keypair } from 'stellar-sdk'
-import TOML from 'toml'
+import { Transaction, Keypair, StellarTomlResolver } from 'stellar-sdk'
 import { get } from 'lodash-es'
 
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
+import { PromptInput } from '@prompt/promptInput'
 
 export default async function depositAsset(
   this: Wallet,
@@ -15,23 +15,38 @@ export default async function depositAsset(
   const finish = () => (this.loading = { ...this.loading, [loadingKey]: false })
 
   try {
-    this.logger.request('Fetch issuer account from Horizon', asset_issuer)
-    const issuerAccount = await this.server.loadAccount(asset_issuer)
-    this.logger.response('Fetch issuer account from Horizon', issuerAccount)
-    const homeDomain = issuerAccount.home_domain
-    if (!homeDomain) throw "Couldn't find a home_domain on the assets issuer"
+    // If the asset exists in the wallet UI, there exists a record in this.assets
+    // however, the homeDomain may not be defined if a trustline for that asset
+    // wasn't added in the same session
+    let homeDomain = this.assets.get({ code: asset_code, issuer: asset_issuer })
+      .homeDomain
+    if (!homeDomain) {
+      let accountRecord = await this.server
+        .accounts()
+        .accountId(this.account.publicKey)
+        .call()
+      homeDomain = accountRecord.home_domain
+    }
+    if (!homeDomain) {
+      let inputs
+      try {
+        inputs = await this.setPrompt({
+          message: "Enter the anchor's home domain",
+          inputs: [new PromptInput('anchor home domain (ex. example.com)')],
+        })
+      } catch (e) {
+        finish()
+        return
+      }
+      homeDomain = inputs[0].value
+    }
 
-    this.logger.instruction(
-      `Found home_domain '${homeDomain}' as issuer's domain, fetching the TOML file to find the transfer server`
-    )
     const tomlURL = new URL(
       homeDomain.includes('https://') ? homeDomain : 'https://' + homeDomain
     )
     tomlURL.pathname = '/.well-known/stellar.toml'
     this.logger.request(tomlURL.toString())
-    const tomlText = await fetch(tomlURL.toString()).then((r) => r.text())
-    this.logger.response(tomlURL.toString(), tomlText)
-    const toml = TOML.parse(tomlText)
+    const toml = await StellarTomlResolver.resolve(tomlURL.toString())
 
     this.logger.instruction(
       `Received WEB_AUTH_ENDPOINT from TOML: ${toml.WEB_AUTH_ENDPOINT}`
@@ -50,6 +65,12 @@ export default async function depositAsset(
       throw 'TOML must contain a SIGNING_KEY, TRANSFER_SERVER_SEP0024 and WEB_AUTH_ENDPOINT'
     }
 
+    // Set asset here because we have the homeDomain and toml contents
+    this.assets.set(
+      { code: asset_code, issuer: asset_issuer },
+      { homeDomain, toml }
+    )
+
     this.logger.instruction(
       'Check /info endpoint to ensure this currency is enabled for deposit'
     )
@@ -67,13 +88,13 @@ export default async function depositAsset(
       'Start the SEP-0010 flow to authenticate the wallet’s Stellar account'
     )
     const authParams = { account: this.account.publicKey }
-    this.logger.request(this.toml.WEB_AUTH_ENDPOINT, authParams)
+    this.logger.request(toml.WEB_AUTH_ENDPOINT, authParams)
     const getChallengeURL = new URL(toml.WEB_AUTH_ENDPOINT)
     getChallengeURL.searchParams.set('account', this.account.publicKey)
     const challengeResponse = await fetch(
       getChallengeURL.toString()
     ).then((r) => r.json())
-    this.logger.response(this.toml.WEB_AUTH_ENDPOINT, challengeResponse)
+    this.logger.response(toml.WEB_AUTH_ENDPOINT, challengeResponse)
     if (!challengeResponse.transaction)
       throw "The WEB_AUTH_ENDPOINT didn't return a challenge transaction"
     this.logger.instruction(

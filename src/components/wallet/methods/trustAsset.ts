@@ -6,7 +6,7 @@ import {
   Asset,
   Keypair,
 } from 'stellar-sdk'
-import { parse } from 'toml'
+import { StellarTomlResolver } from 'stellar-sdk'
 
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
@@ -53,12 +53,13 @@ async function getAssetAndIssuer(wallet: Wallet) {
 
   // if the issuer was not provided, extract if from the home domain's TOML
   if (!issuer && homeDomain) {
-    let resp = await fetch(homeDomain + '/.well-known/stellar.toml')
-    let tomlContents = parse(await resp.text())
-    if (!tomlContents.CURRENCIES) {
+    let toml = await StellarTomlResolver.resolve(
+      homeDomain + '/.well-known/stellar.toml'
+    )
+    if (!toml.CURRENCIES) {
       throw "the home domain specified does not have a CURRENCIES section on it's TOML file"
     }
-    for (let c of tomlContents.CURRENCIES) {
+    for (let c of toml.CURRENCIES) {
       if (c.code === asset) {
         issuer = c.issuer
         break
@@ -66,9 +67,11 @@ async function getAssetAndIssuer(wallet: Wallet) {
     }
     if (!issuer)
       throw `unable to find the ${asset} issuer on the home domain's TOML file`
+    // update here because homeDomain and toml are not fetched during updateAccount()
+    this.assets.set({ code: asset, issuer: issuer }, { homeDomain, toml })
   }
 
-  return [asset, issuer]
+  return [asset, issuer, homeDomain]
 }
 
 export default async function trustAsset(
@@ -80,6 +83,7 @@ export default async function trustAsset(
   this.error = null
   console.log(this.loading)
   const finish = () => (this.loading = { ...this.loading, trust: false })
+  let homeDomain
   try {
     if (!asset || !issuer) {
       let nullOrData = await getAssetAndIssuer(this)
@@ -87,7 +91,7 @@ export default async function trustAsset(
         finish()
         return nullOrData
       }
-      ;[asset, issuer] = nullOrData
+      ;[asset, issuer, homeDomain] = nullOrData
     }
     this.logger.instruction(
       'Loading account to get sequence number for trust transaction'
@@ -109,6 +113,7 @@ export default async function trustAsset(
     this.logger.request('Submitting changeTrust transaction', transaction)
     const result = await this.server.submitTransaction(transaction)
     this.logger.response('Submitted changeTrust transaction', result)
+    this.assets.set({ code: asset, issuer: issuer }, { homeDomain: homeDomain })
     await this.updateAccount()
     finish()
   } catch (err) {

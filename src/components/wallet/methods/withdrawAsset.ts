@@ -8,10 +8,9 @@ import {
   Asset,
   Memo,
   MemoHash,
-  Server,
   Keypair,
 } from 'stellar-sdk'
-import TOML from 'toml'
+import { StellarTomlResolver } from 'stellar-sdk'
 
 import axios from 'axios'
 import {
@@ -22,6 +21,7 @@ import {
 
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
+import { PromptInput } from '@prompt/promptInput'
 
 export default async function withdrawAsset(
   this: Wallet,
@@ -35,6 +35,8 @@ export default async function withdrawAsset(
   try {
     const keypair = Keypair.fromSecret(this.account.secretKey)
 
+    // I don't understand this. Why are we making requests for /account JSON elsewhere
+    // when it seems to be stored in 'state'? Where is this populated?
     const balances = loGet(this.account, 'state.balances')
     const hasCurrency = loFindIndex(balances, {
       asset_code: assetCode,
@@ -45,31 +47,37 @@ export default async function withdrawAsset(
       //@ts-ignore
       await this.trustAsset(assetCode, assetIssuer)
 
-    const server = this.server as Server
-    const issuerAccount = await server.loadAccount(assetIssuer)
-    const homeDomain: string = (issuerAccount as any).home_domain
+    let homeDomain = this.assets.get({ code: assetCode, issuer: assetIssuer })
+      .homeDomain
     if (!homeDomain) {
-      this.logger.error("Couldn't find a home_domain on the assets issuer")
-      finish()
-      return
+      const issuerAccount = await this.server.loadAccount(assetIssuer)
+      homeDomain = issuerAccount.home_domain
     }
-    this.logger.instruction(
-      `Found home_domain '${homeDomain}' as issuer's domain, fetching the TOML file to find the approval server`
-    )
+    if (!homeDomain) {
+      let inputs
+      try {
+        inputs = await this.setPrompt({
+          message: "Enter the anchor's home domain",
+          inputs: [new PromptInput('anchor home domain (ex. example.com)')],
+        })
+      } catch {
+        finish()
+        return
+      }
+      homeDomain = inputs[0].value
+    }
     const tomlURL = new URL(
       homeDomain.includes('https://') ? homeDomain : 'https://' + homeDomain
     )
     tomlURL.pathname = '/.well-known/stellar.toml'
     this.logger.request(tomlURL.toString())
-    const tomlText = await fetch(tomlURL.toString()).then((r) => r.text())
-    this.logger.response(tomlURL.toString(), tomlText)
-    const toml = TOML.parse(tomlText)
+    let toml = await StellarTomlResolver.resolve(tomlURL.toString())
+    this.logger.response(tomlURL.toString(), toml)
 
-    const info = await axios
-      .get(`${toml.TRANSFER_SERVER_SEP0024}/info`)
-      .then(({ data }) => data)
-
-    console.log(info)
+    this.assets.set(
+      { code: assetCode, issuer: assetIssuer },
+      { homeDomain, toml }
+    )
 
     const auth = await axios
       .get(`${toml.WEB_AUTH_ENDPOINT}`, {
@@ -94,8 +102,6 @@ export default async function withdrawAsset(
       )
       .then(({ data: { token } }) => token) // Store the JWT in localStorage
 
-    console.log(auth)
-
     const formData = new FormData()
 
     loEach(
@@ -119,23 +125,6 @@ export default async function withdrawAsset(
         }
       )
       .then(({ data }) => data)
-
-    console.log(interactive)
-
-    const transactions = await axios
-      .get(`${toml.TRANSFER_SERVER_SEP0024}/transactions`, {
-        params: {
-          asset_code: assetCode,
-          limit: 1,
-          kind: 'withdrawal',
-        },
-        headers: {
-          Authorization: `Bearer ${auth}`,
-        },
-      })
-      .then(({ data: { transactions } }) => transactions)
-
-    console.log(transactions)
 
     const urlBuilder = new URL(interactive.url)
     urlBuilder.searchParams.set('callback', 'postMessage')
