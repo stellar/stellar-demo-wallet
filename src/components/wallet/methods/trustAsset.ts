@@ -71,7 +71,7 @@ async function getAssetAndIssuer(wallet: Wallet) {
     this.assets.set({ code: asset, issuer: issuer }, { homeDomain, toml })
   }
 
-  return [asset, issuer, homeDomain]
+  return [asset, issuer]
 }
 
 export default async function trustAsset(
@@ -91,7 +91,7 @@ export default async function trustAsset(
         finish()
         return nullOrData
       }
-      ;[asset, issuer, homeDomain] = nullOrData
+      ;[asset, issuer] = nullOrData
     }
     this.logger.instruction(
       'Loading account to get sequence number for trust transaction'
@@ -113,7 +113,6 @@ export default async function trustAsset(
     this.logger.request('Submitting changeTrust transaction', transaction)
     const result = await this.server.submitTransaction(transaction)
     this.logger.response('Submitted changeTrust transaction', result)
-    this.assets.set({ code: asset, issuer: issuer }, { homeDomain: homeDomain })
     await this.updateAccount()
     finish()
   } catch (err) {

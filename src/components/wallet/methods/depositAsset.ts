@@ -21,10 +21,15 @@ export default async function depositAsset(
     let homeDomain = this.assets.get({ code: asset_code, issuer: asset_issuer })
       .homeDomain
     if (!homeDomain) {
+      this.logger.request('Fetching issuer account from Horizon', asset_issuer)
       let accountRecord = await this.server
         .accounts()
-        .accountId(this.account.publicKey)
+        .accountId(asset_issuer)
         .call()
+      this.logger.response(
+        'Fetching issuer account from Horizon',
+        accountRecord
+      )
       homeDomain = accountRecord.home_domain
     }
     if (!homeDomain) {
