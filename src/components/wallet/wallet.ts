@@ -43,12 +43,12 @@ interface StellarAccount {
   claimableBalances?: ServerApi.ClaimableBalanceRecord
 }
 
-interface WalletAssetKey {
+export interface WalletAssetKey {
   code: string
   issuer?: string
 }
 
-interface WalletAssetDetails {
+export interface WalletAssetDetails {
   homeDomain?: string
   toml?: any
 }
@@ -76,7 +76,7 @@ export class Wallet {
   @State() promptContents: string = null
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
-  @Prop() assets: Map<WalletAssetKey, WalletAssetDetails>
+  @Prop() assets: Map<WalletAssetKey, WalletAssetDetails> = new Map()
 
   // Component events
   componentWillLoad() {}

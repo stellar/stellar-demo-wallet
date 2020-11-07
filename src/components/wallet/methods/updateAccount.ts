@@ -35,7 +35,8 @@ export default async function updateAccount(this: Wallet) {
         this.assets.set({ code: 'XLM' }, {})
         return
       }
-      this.assets.set({ code: b.asset_code, issuer: b.asset_issuer }, {})
+      if (!this.assets.get({ code: b.asset_code, issuer: b.asset_issuer }))
+        this.assets.set({ code: b.asset_code, issuer: b.asset_issuer }, {})
     })
     this.loading = { ...this.loading, update: false }
   } catch (err) {

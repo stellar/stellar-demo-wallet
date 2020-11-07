@@ -45,17 +45,16 @@ async function getAssetAndIssuer(wallet: Wallet) {
     homeDomain[homeDomain.length - 1] !== '/'
       ? homeDomain
       : homeDomain.slice(0, -1)
+  let homeDomainURL
   try {
-    new URL(homeDomain)
+    homeDomainURL = new URL(homeDomain)
   } catch (e) {
     throw 'anchor home domain is not a valid URL using HTTPS'
   }
 
   // if the issuer was not provided, extract if from the home domain's TOML
   if (!issuer && homeDomain) {
-    let toml = await StellarTomlResolver.resolve(
-      homeDomain + '/.well-known/stellar.toml'
-    )
+    let toml = await StellarTomlResolver.resolve(homeDomainURL.origin)
     if (!toml.CURRENCIES) {
       throw "the home domain specified does not have a CURRENCIES section on it's TOML file"
     }
@@ -81,9 +80,7 @@ export default async function trustAsset(
 ) {
   this.loading = { ...this.loading, trust: true }
   this.error = null
-  console.log(this.loading)
   const finish = () => (this.loading = { ...this.loading, trust: false })
-  let homeDomain
   try {
     if (!asset || !issuer) {
       let nullOrData = await getAssetAndIssuer(this)
@@ -116,6 +113,7 @@ export default async function trustAsset(
     await this.updateAccount()
     finish()
   } catch (err) {
+    console.log(err)
     this.error = handleError(err)
     this.logger.error('Error in trust transaction', err)
     finish()

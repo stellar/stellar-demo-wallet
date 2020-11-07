@@ -1,6 +1,6 @@
 import { handleError } from '@services/error'
 import { get } from '@services/storage'
-import { Wallet, WalletAsset } from '../wallet'
+import { Wallet } from '../wallet'
 
 export default async function componentWillLoad(this: Wallet) {
   try {

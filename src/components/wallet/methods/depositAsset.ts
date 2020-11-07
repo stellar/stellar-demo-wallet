@@ -39,6 +39,7 @@ export default async function depositAsset(
           message: "Enter the anchor's home domain",
           inputs: [new PromptInput('anchor home domain (ex. example.com)')],
         })
+        console.log(inputs)
       } catch (e) {
         finish()
         return
@@ -46,12 +47,13 @@ export default async function depositAsset(
       homeDomain = inputs[0].value
     }
 
-    const tomlURL = new URL(
-      homeDomain.includes('https://') ? homeDomain : 'https://' + homeDomain
-    )
+    homeDomain = homeDomain.startsWith('https://')
+      ? homeDomain
+      : 'https://' + homeDomain
+    const tomlURL = new URL(homeDomain)
     tomlURL.pathname = '/.well-known/stellar.toml'
     this.logger.request(tomlURL.toString())
-    const toml = await StellarTomlResolver.resolve(tomlURL.toString())
+    const toml = await StellarTomlResolver.resolve(tomlURL.origin)
 
     this.logger.instruction(
       `Received WEB_AUTH_ENDPOINT from TOML: ${toml.WEB_AUTH_ENDPOINT}`

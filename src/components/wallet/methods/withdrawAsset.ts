@@ -66,12 +66,13 @@ export default async function withdrawAsset(
       }
       homeDomain = inputs[0].value
     }
-    const tomlURL = new URL(
-      homeDomain.includes('https://') ? homeDomain : 'https://' + homeDomain
-    )
+    homeDomain = homeDomain.includes('https://')
+      ? homeDomain
+      : 'https://' + homeDomain
+    const tomlURL = new URL(homeDomain)
     tomlURL.pathname = '/.well-known/stellar.toml'
     this.logger.request(tomlURL.toString())
-    let toml = await StellarTomlResolver.resolve(tomlURL.toString())
+    let toml = await StellarTomlResolver.resolve(tomlURL.origin)
     this.logger.response(tomlURL.toString(), toml)
 
     this.assets.set(
