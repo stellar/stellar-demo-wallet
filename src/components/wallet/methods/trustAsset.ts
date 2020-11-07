@@ -113,7 +113,6 @@ export default async function trustAsset(
     await this.updateAccount()
     finish()
   } catch (err) {
-    console.log(err)
     this.error = handleError(err)
     this.logger.error('Error in trust transaction', err)
     finish()

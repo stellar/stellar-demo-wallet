@@ -39,7 +39,6 @@ export default async function depositAsset(
           message: "Enter the anchor's home domain",
           inputs: [new PromptInput('anchor home domain (ex. example.com)')],
         })
-        console.log(inputs)
       } catch (e) {
         finish()
         return
