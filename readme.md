@@ -1,8 +1,8 @@
 # Stellar Demo Wallet
 
-This Stellar Demo Wallet app is the application companion to the [Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/) tutorial series. This is a [Stencil](https://stenciljs.com) project intented to kickstart your wallet project. Feel free to clone or copy any pieces which may be helpful.
+This Stellar Demo Wallet app will soon be the defacto application to use when testing anchor services interactively. If you would live to automate testing of your anchor service, check out the SDF's [anchor validation suite](https://github.com/stellar/transfer-server-validator) viewable at [anchor-validator.stellar.org](anchor-validator.stellar.org).
 
-[View a demo](https://stellar-demo-wallet.now.sh/)
+This project was originally created for the [Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/) tutorial series. If you want to use parts or all of the project to kickstart your own wallet, feel free to clone or copy any pieces which may be helpful.
 
 ## Getting Started
 
