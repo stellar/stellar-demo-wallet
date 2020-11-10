@@ -7,7 +7,7 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { Prompter, } from "./components/prompt/prompt";
 import { Server, } from "stellar-sdk";
-import { WalletAssetDetails, WalletAssetKey, } from "./components/wallet/wallet";
+import { WalletAssetDetails, } from "./components/wallet/wallet";
 import { ILogger, } from "./components/logview/logview";
 export namespace Components {
     interface CollapsibleContainer {
@@ -30,7 +30,7 @@ export namespace Components {
         "prompter": Prompter;
     }
     interface StellarWallet {
-        "assets": Map<WalletAssetKey, WalletAssetDetails>;
+        "assets": Map<string, WalletAssetDetails>;
         "logger": ILogger;
         "server": Server;
     }
@@ -98,7 +98,7 @@ declare namespace LocalJSX {
         "prompter"?: Prompter;
     }
     interface StellarWallet {
-        "assets"?: Map<WalletAssetKey, WalletAssetDetails>;
+        "assets"?: Map<string, WalletAssetDetails>;
         "logger"?: ILogger;
         "server"?: Server;
     }

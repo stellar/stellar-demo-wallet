@@ -5,11 +5,11 @@
 
 ## Properties
 
-| Property | Attribute | Description | Type                                      | Default                                             |
-| -------- | --------- | ----------- | ----------------------------------------- | --------------------------------------------------- |
-| `assets` | --        |             | `Map<WalletAssetKey, WalletAssetDetails>` | `new Map()`                                         |
-| `logger` | --        |             | `ILogger`                                 | `MockLogger`                                        |
-| `server` | --        |             | `Server`                                  | `new Server('https://horizon-testnet.stellar.org')` |
+| Property | Attribute | Description | Type                              | Default                                             |
+| -------- | --------- | ----------- | --------------------------------- | --------------------------------------------------- |
+| `assets` | --        |             | `Map<string, WalletAssetDetails>` | `new Map()`                                         |
+| `logger` | --        |             | `ILogger`                         | `MockLogger`                                        |
+| `server` | --        |             | `Server`                          | `new Server('https://horizon-testnet.stellar.org')` |
 
 
 ## Dependencies

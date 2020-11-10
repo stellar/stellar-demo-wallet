@@ -43,11 +43,6 @@ interface StellarAccount {
   claimableBalances?: ServerApi.ClaimableBalanceRecord
 }
 
-export interface WalletAssetKey {
-  code: string
-  issuer?: string
-}
-
 export interface WalletAssetDetails {
   homeDomain?: string
   toml?: any
