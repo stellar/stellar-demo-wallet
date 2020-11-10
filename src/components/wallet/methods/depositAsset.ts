@@ -52,7 +52,7 @@ export default async function depositAsset(
     const tomlURL = new URL(homeDomain)
     tomlURL.pathname = '/.well-known/stellar.toml'
     this.logger.request(tomlURL.toString())
-    const toml = await StellarTomlResolver.resolve(tomlURL.origin)
+    const toml = await StellarTomlResolver.resolve(tomlURL.host)
 
     this.logger.instruction(
       `Received WEB_AUTH_ENDPOINT from TOML: ${toml.WEB_AUTH_ENDPOINT}`
