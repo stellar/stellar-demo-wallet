@@ -30,6 +30,14 @@ export default async function updateAccount(this: Wallet) {
       state: loOmit(account, ['id', '_links', 'account_id', 'paging_token']),
       claimableBalances: loOmit(claimableBalanceResp),
     }
+    account.balances.forEach((b) => {
+      if (b.asset_type === 'native') {
+        this.assets.set('XLM', {})
+        return
+      }
+      if (!this.assets.get(`${b.asset_code}:${b.asset_issuer}`))
+        this.assets.set(`${b.asset_code}:${b.asset_issuer}`, {})
+    })
     this.loading = { ...this.loading, update: false }
   } catch (err) {
     this.error = handleError(err)

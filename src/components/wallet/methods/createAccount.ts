@@ -20,6 +20,7 @@ export default async function createAccount(this: Wallet) {
       publicKey: keypair.publicKey(),
       secretKey: keypair.secret(),
     }
+    this.assets.set('XLM', {})
 
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
 
