@@ -46,7 +46,6 @@ async function getAssetAndIssuer(wallet: Wallet) {
       ? homeDomain
       : homeDomain.slice(0, -1)
 
-  console.log(homeDomain)
   let homeDomainURL
   try {
     homeDomainURL = new URL(homeDomain)
@@ -55,7 +54,6 @@ async function getAssetAndIssuer(wallet: Wallet) {
   }
 
   // if the issuer was not provided, extract if from the home domain's TOML
-  console.log(homeDomainURL.origin)
   if (!issuer && homeDomain) {
     let toml = await StellarTomlResolver.resolve(homeDomainURL.host)
     if (!toml.CURRENCIES) {
