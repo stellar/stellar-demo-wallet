@@ -45,6 +45,8 @@ async function getAssetAndIssuer(wallet: Wallet) {
     homeDomain[homeDomain.length - 1] !== '/'
       ? homeDomain
       : homeDomain.slice(0, -1)
+
+  console.log(homeDomain)
   let homeDomainURL
   try {
     homeDomainURL = new URL(homeDomain)
@@ -53,8 +55,9 @@ async function getAssetAndIssuer(wallet: Wallet) {
   }
 
   // if the issuer was not provided, extract if from the home domain's TOML
+  console.log(homeDomainURL.origin)
   if (!issuer && homeDomain) {
-    let toml = await StellarTomlResolver.resolve(homeDomainURL.origin)
+    let toml = await StellarTomlResolver.resolve(homeDomainURL.host)
     if (!toml.CURRENCIES) {
       throw "the home domain specified does not have a CURRENCIES section on it's TOML file"
     }
@@ -67,7 +70,7 @@ async function getAssetAndIssuer(wallet: Wallet) {
     if (!issuer)
       throw `unable to find the ${asset} issuer on the home domain's TOML file`
     // update here because homeDomain and toml are not fetched during updateAccount()
-    this.assets.set({ code: asset, issuer: issuer }, { homeDomain, toml })
+    wallet.assets.set({ code: asset, issuer: issuer }, { homeDomain, toml })
   }
 
   return [asset, issuer]
