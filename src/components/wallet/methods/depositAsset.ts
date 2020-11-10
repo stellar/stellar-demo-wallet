@@ -18,8 +18,7 @@ export default async function depositAsset(
     // If the asset exists in the wallet UI, there exists a record in this.assets
     // however, the homeDomain may not be defined if a trustline for that asset
     // wasn't added in the same session
-    let homeDomain = this.assets.get({ code: asset_code, issuer: asset_issuer })
-      .homeDomain
+    let homeDomain = this.assets.get(`${asset_code}:${asset_issuer}`).homeDomain
     if (!homeDomain) {
       this.logger.request('Fetching issuer account from Horizon', asset_issuer)
       let accountRecord = await this.server
@@ -72,10 +71,7 @@ export default async function depositAsset(
     }
 
     // Set asset here because we have the homeDomain and toml contents
-    this.assets.set(
-      { code: asset_code, issuer: asset_issuer },
-      { homeDomain, toml }
-    )
+    this.assets.set(`${asset_code}:${asset_issuer}`, { homeDomain, toml })
 
     this.logger.instruction(
       'Check /info endpoint to ensure this currency is enabled for deposit'

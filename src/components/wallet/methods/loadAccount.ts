@@ -32,10 +32,10 @@ export default async function createAccount(this: Wallet) {
       .call()
     accountRecord.balances.forEach((b) => {
       if (b.asset_type === 'native') {
-        this.assets.set({ code: 'XLM' }, {})
+        this.assets.set('XLM', {})
         return
       }
-      this.assets.set({ code: b.asset_code, issuer: b.asset_issuer }, {})
+      this.assets.set(`${b.asset_code}:${b.asset_issuer}`, {})
     })
 
     this.account = {

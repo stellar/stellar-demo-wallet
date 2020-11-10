@@ -68,7 +68,7 @@ async function getAssetAndIssuer(wallet: Wallet) {
     if (!issuer)
       throw `unable to find the ${asset} issuer on the home domain's TOML file`
     // update here because homeDomain and toml are not fetched during updateAccount()
-    wallet.assets.set({ code: asset, issuer: issuer }, { homeDomain, toml })
+    wallet.assets.set(`${asset}:${issuer}`, { homeDomain, toml })
   }
 
   return [asset, issuer]

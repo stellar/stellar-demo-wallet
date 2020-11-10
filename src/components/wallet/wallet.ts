@@ -76,7 +76,7 @@ export class Wallet {
   @State() promptContents: string = null
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
-  @Prop() assets: Map<WalletAssetKey, WalletAssetDetails> = new Map()
+  @Prop() assets: Map<string, WalletAssetDetails> = new Map()
 
   // Component events
   componentWillLoad() {}

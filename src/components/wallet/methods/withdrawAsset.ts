@@ -47,8 +47,7 @@ export default async function withdrawAsset(
       //@ts-ignore
       await this.trustAsset(assetCode, assetIssuer)
 
-    let homeDomain = this.assets.get({ code: assetCode, issuer: assetIssuer })
-      .homeDomain
+    let homeDomain = this.assets.get(`${assetCode}:${assetIssuer}`).homeDomain
     if (!homeDomain) {
       const issuerAccount = await this.server.loadAccount(assetIssuer)
       homeDomain = issuerAccount.home_domain
@@ -75,10 +74,7 @@ export default async function withdrawAsset(
     let toml = await StellarTomlResolver.resolve(tomlURL.host)
     this.logger.response(tomlURL.toString(), toml)
 
-    this.assets.set(
-      { code: assetCode, issuer: assetIssuer },
-      { homeDomain, toml }
-    )
+    this.assets.set(`${assetCode}:${assetIssuer}`, { homeDomain, toml })
 
     const auth = await axios
       .get(`${toml.WEB_AUTH_ENDPOINT}`, {
