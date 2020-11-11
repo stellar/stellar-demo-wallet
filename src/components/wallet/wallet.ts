@@ -8,6 +8,7 @@ import render from './events/render' // UPDATE
 import createAccount from './methods/createAccount'
 import updateAccount from './methods/updateAccount'
 import depositAsset from './methods/depositAsset' // NEW
+import claimAsset from './methods/claimAsset' // NEW
 import withdrawAsset from './methods/withdrawAsset' // NEW
 import trustAsset from './methods/trustAsset'
 import makePayment from './methods/makePayment'
@@ -39,6 +40,7 @@ const MockLogger = {
 interface StellarAccount {
   publicKey: string
   secretKey: string
+  availableBalances: boolean
   state?: ServerApi.AccountRecord
   claimableBalances?: ServerApi.ClaimableBalanceRecord
 }
@@ -82,6 +84,7 @@ export class Wallet {
   updateAccount = updateAccount
   depositAsset = depositAsset // NEW
   withdrawAsset = withdrawAsset // NEW
+  claimAsset = claimAsset
   trustAsset = trustAsset
   makePayment = makePayment
   makeRegulatedPayment = makeRegulatedPayment

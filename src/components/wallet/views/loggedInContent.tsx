@@ -2,6 +2,7 @@ import { h } from '@stencil/core'
 import { has as loHas } from 'lodash-es'
 
 import balanceDisplay from './balanceDisplay'
+import claimableDisplay from './claimableDisplay'
 import { Wallet } from '../wallet'
 
 export default function loggedInContent(this: Wallet) {
@@ -20,6 +21,7 @@ export default function loggedInContent(this: Wallet) {
     </div>,
 
     balanceDisplay.call(this),
+    claimableDisplay.call(this),
 
     <button
       class={this.loading.trust ? 'loading' : null}
