@@ -19,6 +19,9 @@ export default async function updateAccount(this: Wallet) {
       .claimableBalances()
       .claimant(this.account.publicKey)
       .call()
+    this.account.availableBalances = claimableBalanceResp.records.length
+      ? true
+      : false
     claimableBalanceResp.records.forEach((record) => {
       this.logger.response(
         'Claimable Balances Available ',
