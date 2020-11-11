@@ -53,6 +53,7 @@ interface Loading {
   update?: boolean
   deposit?: boolean // NEW
   withdraw?: boolean // NEW
+  claim?: boolean // NEW
 }
 
 @Component({

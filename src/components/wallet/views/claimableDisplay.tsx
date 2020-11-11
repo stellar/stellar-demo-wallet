@@ -14,19 +14,24 @@ interface ClaimableBalance {
 export default function claimableDisplay(this: Wallet) {
   if (this.account.availableBalances) {
     const claimableRecords = (claimableBalances: any) => {
-      return claimableBalances.records.map(balanceRow)
+      return claimableBalances.records.map(claimableBalanceRow)
     }
-    const balanceRow = (balance: ClaimableBalance) => {
+    const claimableBalanceRow = (balance: ClaimableBalance) => {
       const loadingKey = (type: string) => {
-        return `${type}:${balance.asset.split(':')[0]}:${balance.sponsor}`
+        return `${type}:${balance.asset.split(':')[0]}:${balance.id}`
       }
       const assetCode = balance.asset.split(':')[0]
       const claimBalanceButton = WalletButton.call(
         this,
         'Claim',
-        loadingKey('Claim'),
+        loadingKey('claim'),
         () => {
-          this.claimAsset(balance.asset, balance.sponsor)
+          this.claimAsset(
+            balance.id,
+            assetCode,
+            balance.sponsor,
+            balance.amount
+          )
         }
       )
       return (
