@@ -49,6 +49,7 @@ export default function claimableDisplay(this: Wallet) {
       <div>
         {loHas(this.account, 'claimableBalances') ? (
           <pre class="account-state">
+            <h2 class="balance-headers">Claimable Balances</h2>
             {claimableRecords(this.account.claimableBalances)}
           </pre>
         ) : null}

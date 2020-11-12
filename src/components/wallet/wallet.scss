@@ -111,4 +111,12 @@
     display: inline-block;
     vertical-align: middle;
   }
+
+  .balance-headers {
+    font-size: 25px;
+    color: black;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
 }

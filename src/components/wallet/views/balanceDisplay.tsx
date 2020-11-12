@@ -64,6 +64,7 @@ export default function balanceDisplay(this: Wallet) {
     <div>
       {loHas(this.account, 'state') ? (
         <pre class="account-state">
+          <h2 class="balance-headers">Balances</h2>
           {(this.account.state.balances as Balance[]).map(balanceRow)}
         </pre>
       ) : null}
