@@ -47,7 +47,10 @@ export default async function claimAsset(
       .setTimeout(0)
       .build()
     transaction.sign(keypair)
-    this.logger.request('Submitting changeTrust transaction', transaction)
+    this.logger.request(
+      'Submitting claimClaimableBalance transaction',
+      transaction
+    )
     const result = await this.server.submitTransaction(transaction)
     this.logger.response('Submitted claimClaimableBalance transaction', result)
     await this.updateAccount()
