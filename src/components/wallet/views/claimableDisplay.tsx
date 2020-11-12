@@ -20,7 +20,8 @@ export default function claimableDisplay(this: Wallet) {
       const loadingKey = (type: string) => {
         return `${type}:${balance.asset.split(':')[0]}:${balance.id}`
       }
-      const assetCode = balance.asset.split(':')[0]
+      const assetCode =
+        balance.asset === 'native' ? 'XLM' : balance.asset.split(':')[0]
       const claimBalanceButton = WalletButton.call(
         this,
         'Claim',
