@@ -7,9 +7,9 @@ import render from './events/render' // UPDATE
 
 import createAccount from './methods/createAccount'
 import updateAccount from './methods/updateAccount'
-import depositAsset from './methods/depositAsset' // NEW
-import claimAsset from './methods/claimAsset' // NEW
-import withdrawAsset from './methods/withdrawAsset' // NEW
+import depositAsset from './methods/depositAsset'
+import claimAsset from './methods/claimAsset'
+import withdrawAsset from './methods/withdrawAsset'
 import trustAsset from './methods/trustAsset'
 import makePayment from './methods/makePayment'
 import makeRegulatedPayment from './methods/makeRegulatedPayment'
@@ -51,9 +51,9 @@ interface Loading {
   pay?: boolean
   trust?: boolean
   update?: boolean
-  deposit?: boolean // NEW
-  withdraw?: boolean // NEW
-  claim?: boolean // NEW
+  deposit?: boolean
+  withdraw?: boolean
+  claim?: boolean
 }
 
 @Component({
@@ -70,7 +70,7 @@ export class Wallet {
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() homeDomain: string = 'testanchor.stellar.org'
-  @Prop() toml: any // NEW
+  @Prop() toml: any
 
   // Component events
   componentWillLoad() {}
@@ -83,8 +83,8 @@ export class Wallet {
   createAccount = createAccount
   loadAccount = loadAccount
   updateAccount = updateAccount
-  depositAsset = depositAsset // NEW
-  withdrawAsset = withdrawAsset // NEW
+  depositAsset = depositAsset
+  withdrawAsset = withdrawAsset
   claimAsset = claimAsset
   trustAsset = trustAsset
   makePayment = makePayment
