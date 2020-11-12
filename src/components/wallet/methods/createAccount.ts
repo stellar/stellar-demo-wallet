@@ -24,7 +24,8 @@ export default async function createAccount(this: Wallet) {
 
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
 
-    this.updateAccount()
+    await this.updateAccount()
+    history.replaceState(null, '', `?secretKey=${this.account.secretKey}`)
   } catch (err) {
     this.error = handleError(err)
   }
