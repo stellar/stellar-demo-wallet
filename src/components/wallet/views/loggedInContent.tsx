@@ -38,7 +38,7 @@ export default function loggedInContent(this: Wallet) {
             type="button"
             onClick={() => this.updateAccount()}
           >
-            Update Account {this.loading.update ? <stellar-loader /> : null}
+            Refresh Account {this.loading.update ? <stellar-loader /> : null}
           </button>,
           <button type="button" onClick={() => this.signOut()}>
             Sign Out
