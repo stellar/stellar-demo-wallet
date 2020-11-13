@@ -3,7 +3,7 @@ import { has as loHas } from 'lodash-es'
 import WalletButton from './walletButton'
 import { Wallet } from '../wallet'
 
-interface ClaimableBalance {
+export interface ClaimableBalance {
   id: string
   asset: string
   amount: string
@@ -13,9 +13,6 @@ interface ClaimableBalance {
 
 export default function claimableDisplay(this: Wallet) {
   if (this.account.claimableBalances.length) {
-    const claimableRecords = (claimableBalances: ClaimableBalance[]) => {
-      return claimableBalances.map(claimableBalanceRow)
-    }
     const claimableBalanceRow = (balance: ClaimableBalance) => {
       const loadingKey = (type: string) => {
         return `${type}:${balance.asset.split(':')[0]}:${balance.id}`
@@ -27,12 +24,7 @@ export default function claimableDisplay(this: Wallet) {
         'Claim',
         loadingKey('claim'),
         () => {
-          this.claimAsset(
-            balance.id,
-            assetCode,
-            balance.sponsor,
-            balance.amount
-          )
+          this.claimAsset(balance)
         }
       )
       return (
@@ -51,7 +43,7 @@ export default function claimableDisplay(this: Wallet) {
         {loHas(this.account, 'claimableBalances') ? (
           <pre class="account-state">
             <h2 class="balance-headers">Claimable Balances</h2>
-            {claimableRecords(this.account.claimableBalances)}
+            {this.account.claimableBalances.map(claimableBalanceRow)}
           </pre>
         ) : null}
       </div>
