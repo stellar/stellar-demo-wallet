@@ -5,12 +5,11 @@
 
 ## Properties
 
-| Property     | Attribute     | Description | Type      | Default                                             |
-| ------------ | ------------- | ----------- | --------- | --------------------------------------------------- |
-| `homeDomain` | `home-domain` |             | `string`  | `'testanchor.stellar.org'`                          |
-| `logger`     | --            |             | `ILogger` | `MockLogger`                                        |
-| `server`     | --            |             | `Server`  | `new Server('https://horizon-testnet.stellar.org')` |
-| `toml`       | `toml`        |             | `any`     | `undefined`                                         |
+| Property | Attribute | Description | Type                              | Default                                             |
+| -------- | --------- | ----------- | --------------------------------- | --------------------------------------------------- |
+| `assets` | --        |             | `Map<string, WalletAssetDetails>` | `new Map()`                                         |
+| `logger` | --        |             | `ILogger`                         | `MockLogger`                                        |
+| `server` | --        |             | `Server`                          | `new Server('https://horizon-testnet.stellar.org')` |
 
 
 ## Dependencies

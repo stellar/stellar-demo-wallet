@@ -28,7 +28,7 @@ npm run build
 
 ## Roadmap
 
-- [ ] Improve local development story
+- [x] Improve local development story
 - [ ] Add config-by-url support
 - [ ] Implement Claimable Balance support
 - [ ] Improve UX

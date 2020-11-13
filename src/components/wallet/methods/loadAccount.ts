@@ -26,6 +26,18 @@ export default async function createAccount(this: Wallet) {
       .catch(() => null) // If account already exists don't catch the error
       .finally(() => (this.loading = { ...this.loading, load: false }))
 
+    let accountRecord = await this.server
+      .accounts()
+      .accountId(keypair.publicKey())
+      .call()
+    accountRecord.balances.forEach((b) => {
+      if (b.asset_type === 'native') {
+        this.assets.set('XLM', {})
+        return
+      }
+      this.assets.set(`${b.asset_code}:${b.asset_issuer}`, {})
+    })
+
     this.account = {
       publicKey: keypair.publicKey(),
       secretKey: keypair.secret(),
