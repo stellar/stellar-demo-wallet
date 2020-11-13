@@ -19,9 +19,6 @@ export default async function updateAccount(this: Wallet) {
       .claimableBalances()
       .claimant(this.account.publicKey)
       .call()
-    this.account.availableBalances = claimableBalanceResp.records.length
-      ? true
-      : false
     claimableBalanceResp.records.forEach((record) => {
       this.logger.response(
         'Claimable Balances Available ',
@@ -31,7 +28,7 @@ export default async function updateAccount(this: Wallet) {
     this.account = {
       ...this.account,
       state: loOmit(account, ['id', '_links', 'account_id', 'paging_token']),
-      claimableBalances: loOmit(claimableBalanceResp),
+      claimableBalances: claimableBalanceResp.records,
     }
     this.loading = { ...this.loading, update: false }
   } catch (err) {

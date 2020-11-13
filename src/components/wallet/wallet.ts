@@ -40,9 +40,8 @@ const MockLogger = {
 interface StellarAccount {
   publicKey: string
   secretKey: string
-  availableBalances: boolean
   state?: ServerApi.AccountRecord
-  claimableBalances?: ServerApi.ClaimableBalanceRecord
+  claimableBalances?: ServerApi.ClaimableBalanceRecord[]
 }
 
 interface Loading {

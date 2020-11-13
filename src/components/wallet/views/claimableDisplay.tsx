@@ -12,9 +12,9 @@ interface ClaimableBalance {
 }
 
 export default function claimableDisplay(this: Wallet) {
-  if (this.account.availableBalances) {
-    const claimableRecords = (claimableBalances: any) => {
-      return claimableBalances.records.map(claimableBalanceRow)
+  if (this.account.claimableBalances.length) {
+    const claimableRecords = (claimableBalances: ClaimableBalance[]) => {
+      return claimableBalances.map(claimableBalanceRow)
     }
     const claimableBalanceRow = (balance: ClaimableBalance) => {
       const loadingKey = (type: string) => {

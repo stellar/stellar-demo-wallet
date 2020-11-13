@@ -19,7 +19,6 @@ export default async function createAccount(this: Wallet) {
     this.account = {
       publicKey: keypair.publicKey(),
       secretKey: keypair.secret(),
-      availableBalances: false,
     }
 
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
