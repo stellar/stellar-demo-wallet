@@ -28,7 +28,7 @@ export default async function updateAccount(this: Wallet) {
     this.account = {
       ...this.account,
       state: loOmit(account, ['id', '_links', 'account_id', 'paging_token']),
-      claimableBalances: loOmit(claimableBalanceResp),
+      claimableBalances: claimableBalanceResp.records,
     }
     account.balances.forEach((b) => {
       if (b.asset_type === 'native') {

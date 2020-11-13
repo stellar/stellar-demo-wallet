@@ -107,14 +107,16 @@
     overflow: scroll;
   }
 
-  #claimable-balance-container {
-    margin-top: 16px;
-    display: block;
-    overflow: scroll;
-  }
-
   stellar-loader {
     display: inline-block;
     vertical-align: middle;
+  }
+
+  .balance-headers {
+    font-size: 25px;
+    color: black;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 }

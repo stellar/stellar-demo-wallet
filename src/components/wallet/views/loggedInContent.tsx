@@ -2,6 +2,7 @@ import { h } from '@stencil/core'
 import { has as loHas } from 'lodash-es'
 
 import balanceDisplay from './balanceDisplay'
+import claimableDisplay from './claimableDisplay'
 import { Wallet } from '../wallet'
 
 export default function loggedInContent(this: Wallet) {
@@ -20,6 +21,7 @@ export default function loggedInContent(this: Wallet) {
     </div>,
 
     balanceDisplay.call(this),
+    claimableDisplay.call(this),
 
     <button
       class={this.loading.trust ? 'loading' : null}
@@ -36,7 +38,7 @@ export default function loggedInContent(this: Wallet) {
             type="button"
             onClick={() => this.updateAccount()}
           >
-            Update Account {this.loading.update ? <stellar-loader /> : null}
+            Refresh Account {this.loading.update ? <stellar-loader /> : null}
           </button>,
           <button type="button" onClick={() => this.signOut()}>
             Sign Out
@@ -52,18 +54,6 @@ export default function loggedInContent(this: Wallet) {
       >
         <pre class="account-state" style={{ overflow: 'scroll' }}>
           {JSON.stringify(this.account.state, null, 2)}
-        </pre>
-      </collapsible-container>
-    ) : null,
-
-    loHas(this.account, 'claimableBalances') ? (
-      <collapsible-container
-        id="claimable-balance-container"
-        hideText="Hide Claimable Balance Details"
-        showText="Show Claimable Balance Details"
-      >
-        <pre class="account-state" style={{ overflow: 'scroll' }}>
-          {JSON.stringify(this.account.claimableBalances, null, 2)}
         </pre>
       </collapsible-container>
     ) : null,
