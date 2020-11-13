@@ -12,7 +12,7 @@ export interface ClaimableBalance {
 }
 
 export default function claimableDisplay(this: Wallet) {
-  if (this.account.claimableBalances.length) {
+  if (this.account.claimableBalances && this.account.claimableBalances.length) {
     const claimableBalanceRow = (balance: ClaimableBalance) => {
       const loadingKey = (type: string) => {
         return `${type}:${balance.asset.split(':')[0]}:${balance.id}`
