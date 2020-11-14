@@ -5,7 +5,7 @@ import { Wallet } from '../wallet'
 
 export default async function loadAccount(
   this: Wallet,
-  { displayPrompt = false }: { displayPrompt?: boolean } = {}
+  { displayPrompt }: { displayPrompt?: boolean } = {}
 ) {
   try {
     let inputs
