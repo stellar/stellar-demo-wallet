@@ -1,7 +1,6 @@
 import { remove } from '@services/storage'
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
-import { PromptInput } from '@prompt/promptInput'
 
 export default async function signOut(this: Wallet) {
   try {
