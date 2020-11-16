@@ -1,16 +1,23 @@
-import axios from 'axios'
 import { Keypair } from 'stellar-sdk'
-
 import { set } from '@services/storage'
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
 
-export default async function createAccount(this: Wallet) {
+export default async function loadAccount(
+  this: Wallet,
+  { displayPrompt }: { displayPrompt?: boolean } = {}
+) {
   try {
-    let inputs = await this.setPrompt({
-      message: 'Enter your Stellar secret key',
-    })
-    const secret = inputs[0].value
+    let inputs
+    let secret
+    if (displayPrompt || !this.account.secretKey) {
+      inputs = await this.setPrompt({
+        message: 'Enter your Stellar secret key',
+      })
+      secret = inputs[0].value
+    } else {
+      secret = this.account.secretKey
+    }
 
     let keypair
     try {
@@ -18,13 +25,6 @@ export default async function createAccount(this: Wallet) {
     } catch (e) {
       throw 'Invalid secret key'
     }
-
-    this.error = null
-    this.loading = { ...this.loading, load: true }
-
-    await axios(`https://friendbot.stellar.org?addr=${keypair.publicKey()}`)
-      .catch(() => null) // If account already exists don't catch the error
-      .finally(() => (this.loading = { ...this.loading, load: false }))
 
     let accountRecord = await this.server
       .accounts()
@@ -39,13 +39,15 @@ export default async function createAccount(this: Wallet) {
     })
 
     this.account = {
+      ...this.account,
       publicKey: keypair.publicKey(),
       secretKey: keypair.secret(),
     }
 
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
 
-    this.updateAccount()
+    await this.updateAccount()
+    history.replaceState(null, '', `?secretKey=${this.account.secretKey}`)
   } catch (err) {
     this.error = handleError(err)
   }

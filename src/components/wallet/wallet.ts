@@ -2,8 +2,8 @@ import { Component, State, Prop } from '@stencil/core'
 import { Server, ServerApi } from 'stellar-sdk'
 import { ILogger } from '../logview/logview'
 
-import componentWillLoad from './events/componentWillLoad' // UPDATE
-import render from './events/render' // UPDATE
+import componentWillLoad from './events/componentWillLoad'
+import render from './events/render'
 
 import createAccount from './methods/createAccount'
 import updateAccount from './methods/updateAccount'

@@ -1,22 +1,18 @@
 import { remove } from '@services/storage'
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
-import { PromptInput } from '../../prompt/promptInput'
 
 export default async function signOut(this: Wallet) {
   try {
-    const inputs = await this.setPrompt({
-      message: 'Are you sure? This will nuke your account',
-      inputs: [new PromptInput('Enter NUKE to confirm')],
+    await this.setPrompt({
+      message: 'You can reload the account using your Secret Key or press back in your browser to sign back in.',
+      inputs: [], // No inputs, by default it displays an empty text field
     })
-    const confirmNuke = inputs[0].value
 
-    if (!confirm || !/nuke/gi.test(confirmNuke)) throw 'Cannot sign out'
-
-    this.error = null
-
+    // flush browser storage
     await remove('WALLET[keystore]')
-    location.reload()
+    // remove secretKey param if present and reload
+    location.assign(location.protocol + '//' + location.host)
   } catch (err) {
     this.error = handleError(err)
   }
