@@ -29,8 +29,8 @@ npm run build
 ## Roadmap
 
 - [x] Improve local development story
-- [ ] Add config-by-url support
-- [ ] Implement Claimable Balance support
+- [x] Add config-by-url support
+- [x] Implement Claimable Balance support
 - [ ] Improve UX
 - [ ] Forward sep24.stellar.org traffic to demo-wallet.stellar.org
 - [ ] Implement SEP-31 support
