@@ -4,6 +4,7 @@ import { has as loHas } from 'lodash-es'
 import balanceDisplay from './balanceDisplay'
 import claimableDisplay from './claimableDisplay'
 import { Wallet } from '../wallet'
+import { Networks } from 'stellar-sdk'
 
 export default function loggedInContent(this: Wallet) {
   return [
@@ -17,6 +18,15 @@ export default function loggedInContent(this: Wallet) {
       </button>
       <button class="small" type="button" onClick={() => this.copySecret()}>
         Copy Secret
+      </button>
+      <button
+        class="small"
+        type="button"
+        onClick={(_) => this.switchNetworks({ loggedIn: true })}
+      >
+        {this.network_passphrase === Networks.TESTNET
+          ? 'Use Pubnet'
+          : 'Use Testnet'}
       </button>
     </div>,
 

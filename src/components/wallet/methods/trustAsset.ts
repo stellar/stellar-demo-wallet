@@ -1,7 +1,6 @@
 import {
   TransactionBuilder,
   BASE_FEE,
-  Networks,
   Operation,
   Asset,
   Keypair,
@@ -98,7 +97,7 @@ export default async function trustAsset(
     const account = await this.server.loadAccount(keypair.publicKey())
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
-      networkPassphrase: Networks.TESTNET,
+      networkPassphrase: this.network_passphrase,
     })
       .addOperation(
         Operation.changeTrust({

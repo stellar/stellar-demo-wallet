@@ -3,7 +3,6 @@ import {
   Account,
   TransactionBuilder,
   BASE_FEE,
-  Networks,
   Operation,
   Asset,
   Memo,
@@ -154,7 +153,7 @@ export default async function withdrawAsset(
               const account = new Account(keypair.publicKey(), sequence)
               const txn = new TransactionBuilder(account, {
                 fee: BASE_FEE,
-                networkPassphrase: Networks.TESTNET,
+                networkPassphrase: this.network_passphrase,
               })
                 .addOperation(
                   Operation.payment({
