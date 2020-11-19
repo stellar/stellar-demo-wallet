@@ -31,7 +31,7 @@ npm run build
 - [x] Improve local development story
 - [x] Add config-by-url support
 - [x] Implement Claimable Balance support
-- [ ] Add Pubnet Support
+- [x] Add Pubnet Support
 - [ ] Improve UX
 - [ ] Forward sep24.stellar.org traffic to demo-wallet.stellar.org
 - [ ] Implement SEP-31 support
