@@ -25,6 +25,8 @@ export default async function createAccount(this: Wallet) {
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
 
     await this.updateAccount()
+    // No need to check for this.network_passphrase === Networks.PUBLIC
+    // since this button is not displayed when that condition is true
     history.replaceState(null, '', `?secretKey=${this.account.secretKey}`)
   } catch (err) {
     this.error = handleError(err)

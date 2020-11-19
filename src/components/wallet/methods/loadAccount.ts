@@ -1,4 +1,4 @@
-import { Keypair } from 'stellar-sdk'
+import { Keypair, Networks } from 'stellar-sdk'
 import { set } from '@services/storage'
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
@@ -47,7 +47,11 @@ export default async function loadAccount(
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
 
     await this.updateAccount()
-    history.replaceState(null, '', `?secretKey=${this.account.secretKey}`)
+    let query = `?secretKey=${this.account.secretKey}`
+    if (this.network_passphrase === Networks.PUBLIC) {
+      query += `&pubnet=true`
+    }
+    history.replaceState(null, '', query)
   } catch (err) {
     this.error = handleError(err)
   }
