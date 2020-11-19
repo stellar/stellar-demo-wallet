@@ -1,5 +1,5 @@
 import { Component, State, Prop } from '@stencil/core'
-import { Server, ServerApi } from 'stellar-sdk'
+import { Server, ServerApi, Networks } from 'stellar-sdk'
 import { ILogger } from '../logview/logview'
 
 import componentWillLoad from './events/componentWillLoad'
@@ -19,6 +19,7 @@ import signOut from './methods/signOut'
 import setPrompt from './methods/setPrompt'
 import loadAccount from './methods/loadAccount'
 import popup from './methods/popup'
+import switchNetworks from './methods/switchNetworks'
 
 import { Prompter } from '@prompt/prompt'
 
@@ -73,6 +74,7 @@ export class Wallet {
   @State() promptContents: string = null
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
+  @Prop() network_passphrase: string = Networks.TESTNET
   @Prop() assets: Map<string, WalletAssetDetails> = new Map()
 
   // Component events
@@ -95,6 +97,7 @@ export class Wallet {
   copyAddress = copyAddress
   copySecret = copySecret
   signOut = signOut
+  switchNetworks = switchNetworks
 
   // Misc methods
   setPrompt = setPrompt

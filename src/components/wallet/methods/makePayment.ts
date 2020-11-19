@@ -2,7 +2,6 @@ import {
   Account,
   TransactionBuilder,
   BASE_FEE,
-  Networks,
   Operation,
   Asset,
   Keypair,
@@ -56,7 +55,7 @@ export default async function makePayment(
         const account = new Account(keypair.publicKey(), sequence)
         const transaction = new TransactionBuilder(account, {
           fee: BASE_FEE,
-          networkPassphrase: Networks.TESTNET,
+          networkPassphrase: this.network_passphrase,
         })
           .addOperation(
             Operation.payment({
@@ -81,7 +80,7 @@ export default async function makePayment(
           ) {
             const transaction = new TransactionBuilder(account, {
               fee: BASE_FEE,
-              networkPassphrase: Networks.TESTNET,
+              networkPassphrase: this.network_passphrase,
             })
               .addOperation(
                 Operation.createAccount({

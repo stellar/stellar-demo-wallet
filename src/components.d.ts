@@ -32,6 +32,7 @@ export namespace Components {
     interface StellarWallet {
         "assets": Map<string, WalletAssetDetails>;
         "logger": ILogger;
+        "network_passphrase": string;
         "server": Server;
     }
 }
@@ -100,6 +101,7 @@ declare namespace LocalJSX {
     interface StellarWallet {
         "assets"?: Map<string, WalletAssetDetails>;
         "logger"?: ILogger;
+        "network_passphrase"?: string;
         "server"?: Server;
     }
     interface IntrinsicElements {

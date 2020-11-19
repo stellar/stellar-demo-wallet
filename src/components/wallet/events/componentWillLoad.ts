@@ -1,7 +1,7 @@
 import { handleError } from '@services/error'
 import { get } from '@services/storage'
 import { Wallet } from '../wallet'
-import { Keypair } from 'stellar-sdk'
+import { Keypair, Networks, Server } from 'stellar-sdk'
 
 export default async function componentWillLoad(this: Wallet) {
   try {
@@ -17,6 +17,13 @@ async function loadAccountFromBrowser(wallet: Wallet) {
     query = Object.fromEntries(new URLSearchParams(location.search).entries())
   } catch {
     throw 'Unable to parse query string'
+  }
+  if (query.pubnet === 'true') {
+    wallet.network_passphrase = Networks.PUBLIC
+    wallet.server = new Server('https://horizon.stellar.org')
+  } else {
+    wallet.network_passphrase = Networks.TESTNET
+    wallet.server = new Server('https://horizon-testnet.stellar.org')
   }
   if (query.secretKey) {
     await loadAccountFromSecretKey(wallet, query.secretKey)

@@ -2,7 +2,6 @@ import {
   Account,
   TransactionBuilder,
   BASE_FEE,
-  Networks,
   Operation,
   Keypair,
 } from 'stellar-sdk'
@@ -37,7 +36,7 @@ export default async function claimAsset(
     this.logger.instruction('Building claimClaimableBalance transaction')
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
-      networkPassphrase: Networks.TESTNET,
+      networkPassphrase: this.network_passphrase,
     })
       .addOperation(
         Operation.claimClaimableBalance({

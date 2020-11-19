@@ -2,7 +2,6 @@ import { h } from '@stencil/core'
 import {
   TransactionBuilder,
   Transaction,
-  Networks,
   Operation,
   Server,
   Asset,
@@ -82,7 +81,7 @@ export default async function makeRegulatedPayment(
     const account = await server.loadAccount(keypair.publicKey())
     const transaction = new TransactionBuilder(account, {
       fee: '100',
-      networkPassphrase: Networks.TESTNET,
+      networkPassphrase: this.network_passphrase,
     })
       .addOperation(
         Operation.payment({
@@ -121,7 +120,7 @@ export default async function makeRegulatedPayment(
     }
     //@ts-ignore
     const revisedEnvelope = xdr.TransactionEnvelope.fromXDR(json.tx, 'base64')
-    const revisedTx = new Transaction(revisedEnvelope, Networks.TESTNET)
+    const revisedTx = new Transaction(revisedEnvelope, this.network_passphrase)
     this.logger.instruction(
       'Ask the user to approve revised transaction from approval server',
       TransactionSummary(revisedTx)
@@ -149,7 +148,7 @@ export default async function makeRegulatedPayment(
       finish()
       return
     }
-    const tx = new Transaction(revisedEnvelope, Networks.TESTNET)
+    const tx = new Transaction(revisedEnvelope, this.network_passphrase)
     tx.sign(keypair)
     const labURL = `https://www.stellar.org/laboratory/#xdr-viewer?input=${encodeURIComponent(
       tx.toXDR()
