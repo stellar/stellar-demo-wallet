@@ -163,9 +163,8 @@ export default async function depositAsset(
     if (!interactiveResponse.url) {
       throw 'No URL Returned from POST /transactions/deposit/interactive'
     }
-    const urlBuilder = new URL(
-      interactiveResponse.url.replace(/^http:\/\//i, 'https://')
-    )
+    const urlBuilder = new URL(interactiveResponse.url)
+    urlBuilder.protocol = 'https'
     urlBuilder.searchParams.set('callback', 'postMessage')
     this.logger.instruction(
       'To collect the interactive information we launch the interactive URL in a frame or webview, and await payment details from a postMessage callback'
@@ -184,9 +183,8 @@ export default async function depositAsset(
       } else {
         this.logger.instruction('Transaction status pending...')
         setTimeout(() => {
-          const urlBuilder = new URL(
-            transaction.more_info_url.replace(/^http:\/\//i, 'https://')
-          )
+          const urlBuilder = new URL(transaction.more_info_url)
+          urlBuilder.protocol = 'https'
           urlBuilder.searchParams.set('callback', 'postMessage')
 
           popup.location.href = urlBuilder.toString()
