@@ -21,7 +21,10 @@
     "build": "stencil build --docs",
     "start": "stencil build --dev --watch --serve",
     "generate": "stencil generate",
-    "deploy": "npm publish ; vercel --prod --confirm --name stellar-demo-wallet"
+    "deploy": "npm publish ; vercel --prod --confirm --name stellar-demo-wallet",
+    "test": "stencil test --spec",
+    "test.watch": "stencil test --spec --watch",
+    "test.e2e": "stencil test --e2e"
   },
   "devDependencies": {
     "@capacitor/cli": "^2.4.2",
