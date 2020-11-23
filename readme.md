@@ -9,19 +9,19 @@ This project was originally created for the [Build a Stellar Wallet](https://dev
 To start building with this project clone this repo and install the deps:
 
 ```bash
-npm i
+yarn install
 ```
 
 and run:
 
 ```bash
-npm start
+yarn start
 ```
 
 To build the app for production, run:
 
 ```bash
-npm run build
+yarn build
 ```
 
 ---
