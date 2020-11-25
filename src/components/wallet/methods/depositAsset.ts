@@ -44,9 +44,10 @@ export default async function depositAsset(
       }
       homeDomain = inputs[0].value
     }
-    homeDomain = (homeDomain.startsWith('http://') || homeDomain.startsWith('https://'))
-      ? homeDomain
-      : 'https://' + homeDomain
+    homeDomain =
+      homeDomain.startsWith('http://') || homeDomain.startsWith('https://')
+        ? homeDomain
+        : 'https://' + homeDomain
     const tomlURL = new URL(homeDomain)
     tomlURL.pathname = '/.well-known/stellar.toml'
     this.logger.request(tomlURL.toString())
