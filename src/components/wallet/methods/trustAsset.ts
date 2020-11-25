@@ -37,7 +37,7 @@ async function getAssetAndIssuer(wallet: Wallet) {
   }
 
   // if the provided home domain is invalid, throw an error
-  homeDomain = homeDomain.startsWith('https')
+  homeDomain = homeDomain.startsWith('http')
     ? homeDomain
     : 'https://' + homeDomain
   homeDomain =
@@ -54,7 +54,12 @@ async function getAssetAndIssuer(wallet: Wallet) {
 
   // if the issuer was not provided, extract if from the home domain's TOML
   if (!issuer && homeDomain) {
-    let toml = await StellarTomlResolver.resolve(homeDomainURL.host)
+    const toml =
+      homeDomainURL.protocol == 'http:'
+        ? await StellarTomlResolver.resolve(homeDomainURL.host, {
+            allowHttp: true,
+          })
+        : await StellarTomlResolver.resolve(homeDomainURL.host)
     if (!toml.CURRENCIES) {
       throw "the home domain specified does not have a CURRENCIES section on it's TOML file"
     }

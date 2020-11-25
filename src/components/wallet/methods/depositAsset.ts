@@ -44,14 +44,16 @@ export default async function depositAsset(
       }
       homeDomain = inputs[0].value
     }
-
-    homeDomain = homeDomain.startsWith('https://')
+    homeDomain = homeDomain.startsWith('http')
       ? homeDomain
       : 'https://' + homeDomain
     const tomlURL = new URL(homeDomain)
     tomlURL.pathname = '/.well-known/stellar.toml'
     this.logger.request(tomlURL.toString())
-    const toml = await StellarTomlResolver.resolve(tomlURL.host)
+    const toml =
+      tomlURL.protocol == 'http:'
+        ? await StellarTomlResolver.resolve(tomlURL.host, { allowHttp: true })
+        : await StellarTomlResolver.resolve(tomlURL.host)
 
     this.logger.instruction(
       `Received WEB_AUTH_ENDPOINT from TOML: ${toml.WEB_AUTH_ENDPOINT}`
@@ -164,7 +166,6 @@ export default async function depositAsset(
       throw 'No URL Returned from POST /transactions/deposit/interactive'
     }
     const urlBuilder = new URL(interactiveResponse.url)
-    urlBuilder.protocol = 'https'
     urlBuilder.searchParams.set('callback', 'postMessage')
     this.logger.instruction(
       'To collect the interactive information we launch the interactive URL in a frame or webview, and await payment details from a postMessage callback'
@@ -184,7 +185,6 @@ export default async function depositAsset(
         this.logger.instruction('Transaction status pending...')
         setTimeout(() => {
           const urlBuilder = new URL(transaction.more_info_url)
-          urlBuilder.protocol = 'https'
           urlBuilder.searchParams.set('callback', 'postMessage')
 
           popup.location.href = urlBuilder.toString()
