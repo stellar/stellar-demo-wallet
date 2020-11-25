@@ -37,10 +37,9 @@ async function getAssetAndIssuer(wallet: Wallet) {
   }
 
   // if the provided home domain is invalid, throw an error
-  homeDomain =
-    homeDomain.startsWith('http://') || homeDomain.startsWith('https://')
-      ? homeDomain
-      : 'https://' + homeDomain
+  homeDomain = homeDomain.startsWith('http')
+    ? homeDomain
+    : 'https://' + homeDomain
   homeDomain =
     homeDomain[homeDomain.length - 1] !== '/'
       ? homeDomain
