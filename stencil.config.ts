@@ -40,4 +40,14 @@ export const config: Config = {
     browser: true,
     preferBuiltins: true,
   },
+  testing: {
+    transformIgnorePatterns: ['<rootDir>/node_modules/(?!lodash-es)'],
+    transform: {
+      '^.+\\.(js|jsx)$': 'ts-jest',
+    },
+    moduleNameMapper: {
+      '^@services/(.*)$': '<rootDir>/src/services/$1',
+      '^@prompt/(.*)$': '<rootDir>/src/components/prompt/$1',
+    },
+  },
 }
