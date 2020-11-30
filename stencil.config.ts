@@ -27,28 +27,10 @@ export const config: Config = {
     },
   ],
   globalStyle: 'src/global/style.scss',
-  commonjs: {
-    namedExports: {
-      'stellar-sdk': [
-        'Server',
-        'StrKey',
-        'xdr',
-        'Transaction',
-        'Keypair',
-        'Networks',
-        'Account',
-        'TransactionBuilder',
-        'BASE_FEE',
-        'Operation',
-        'Asset',
-        'Memo',
-        'MemoHash',
-        'StellarTomlResolver',
-      ],
-    },
+  rollupPlugins: {
+    after: [nodePolyfills()],
   },
   plugins: [
-    nodePolyfills(),
     sass(),
     postcss({
       plugins: [autoprefixer()],
@@ -57,5 +39,15 @@ export const config: Config = {
   nodeResolve: {
     browser: true,
     preferBuiltins: true,
+  },
+  testing: {
+    transformIgnorePatterns: ['<rootDir>/node_modules/(?!lodash-es)'],
+    transform: {
+      '^.+\\.(js|jsx)$': 'ts-jest',
+    },
+    moduleNameMapper: {
+      '^@services/(.*)$': '<rootDir>/src/services/$1',
+      '^@prompt/(.*)$': '<rootDir>/src/components/prompt/$1',
+    },
   },
 }

@@ -5,10 +5,10 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { Prompter, } from "./components/prompt/prompt";
-import { Server, } from "stellar-sdk";
-import { WalletAssetDetails, } from "./components/wallet/wallet";
-import { ILogger, } from "./components/logview/logview";
+import { Prompter } from "./components/prompt/prompt";
+import { Server } from "stellar-sdk";
+import { WalletAssetDetails } from "./components/wallet/wallet";
+import { ILogger } from "./components/logview/logview";
 export namespace Components {
     interface CollapsibleContainer {
         "hideText": string;
