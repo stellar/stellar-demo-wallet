@@ -8,6 +8,8 @@ import {
   Memo,
   MemoHash,
   Keypair,
+  MemoID,
+  MemoText,
 } from 'stellar-sdk'
 import { StellarTomlResolver } from 'stellar-sdk'
 
@@ -145,6 +147,17 @@ export default async function withdrawAsset(
           !submittedTxn &&
           transaction.status === 'pending_user_transfer_start'
         ) {
+          let memo
+          if (transaction.withdraw_memo_type === 'hash') {
+            memo = new Memo(
+              MemoHash,
+              Buffer.from(transaction.withdraw_memo, 'base64').toString('hex')
+            )
+          } else if (transaction.withdraw_memo_type === 'id') {
+            memo = new Memo(MemoID, transaction.withdraw_memo)
+          } else if (transaction.withdaw_memo_type === 'text') {
+            memo = new Memo(MemoText, transaction.withdraw_memo)
+          }
           this.server
             .accounts()
             .accountId(keypair.publicKey())
@@ -162,18 +175,7 @@ export default async function withdrawAsset(
                     amount: transaction.amount_in,
                   })
                 )
-                .addMemo(
-                  new Memo(
-                    MemoHash,
-                    atob(transaction.withdraw_memo)
-                      .split('')
-                      .map((aChar) =>
-                        `0${aChar.charCodeAt(0).toString(16)}`.slice(-2)
-                      )
-                      .join('')
-                      .toUpperCase()
-                  )
-                )
+                .addMemo(memo)
                 .setTimeout(0)
                 .build()
 
