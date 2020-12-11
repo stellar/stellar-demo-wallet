@@ -8,6 +8,8 @@ import {
   Memo,
   MemoHash,
   Keypair,
+  MemoID,
+  MemoText,
 } from 'stellar-sdk'
 import { StellarTomlResolver } from 'stellar-sdk'
 
@@ -131,77 +133,75 @@ export default async function withdrawAsset(
       throw "Popups are blocked. You'll need to enable popups for this demo to work"
     }
 
-    await new Promise((resolve, reject) => {
-      let submittedTxn
-
-      window.onmessage = ({ data: { transaction } }) => {
-        console.log(transaction.status, transaction)
-
-        if (transaction.status === 'completed') {
-          this.updateAccount()
-          finish()
-          resolve()
-        } else if (
-          !submittedTxn &&
-          transaction.status === 'pending_user_transfer_start'
-        ) {
-          this.server
-            .accounts()
-            .accountId(keypair.publicKey())
-            .call()
-            .then(({ sequence }) => {
-              const account = new Account(keypair.publicKey(), sequence)
-              const txn = new TransactionBuilder(account, {
-                fee: BASE_FEE,
-                networkPassphrase: this.network_passphrase,
-              })
-                .addOperation(
-                  Operation.payment({
-                    destination: transaction.withdraw_anchor_account,
-                    asset: new Asset(assetCode, assetIssuer),
-                    amount: transaction.amount_in,
-                  })
-                )
-                .addMemo(
-                  new Memo(
-                    MemoHash,
-                    atob(transaction.withdraw_memo)
-                      .split('')
-                      .map((aChar) =>
-                        `0${aChar.charCodeAt(0).toString(16)}`.slice(-2)
-                      )
-                      .join('')
-                      .toUpperCase()
-                  )
-                )
-                .setTimeout(0)
-                .build()
-
-              txn.sign(keypair)
-              return this.server.submitTransaction(txn)
+    let transactionSubmitted = false
+    window.onmessage = async ({ data: { transaction } }) => {
+      console.log(transaction.status, transaction)
+      if (transaction.status === 'completed') {
+        await this.updateAccount()
+        finish()
+      } else if (
+        transaction.status === 'pending_user_transfer_start' &&
+        !transactionSubmitted
+      ) {
+        let memo = getMemo(
+          transaction.withdraw_memo,
+          transaction.withdraw_memo_type
+        )
+        const { sequence } = await this.server
+          .accounts()
+          .accountId(keypair.publicKey())
+          .call()
+        const account = new Account(keypair.publicKey(), sequence)
+        const txn = new TransactionBuilder(account, {
+          fee: BASE_FEE,
+          networkPassphrase: this.network_passphrase,
+        })
+          .addOperation(
+            Operation.payment({
+              destination: transaction.withdraw_anchor_account,
+              asset: new Asset(assetCode, assetIssuer),
+              amount: String(
+                parseFloat(transaction.amount_in) +
+                  parseFloat(transaction.amount_fee)
+              ),
             })
-            .then((res) => {
-              console.log(res)
-              submittedTxn = res
+          )
+          .addMemo(memo)
+          .setTimeout(0)
+          .build()
 
-              const urlBuilder = new URL(transaction.more_info_url)
-              urlBuilder.searchParams.set('callback', 'postMessage')
+        txn.sign(keypair)
+        await this.server.submitTransaction(txn)
+        transactionSubmitted = true
+        console.log('just submitted transaction')
 
-              popup.location.href = urlBuilder.toString()
-            })
-            .catch((err) => reject(err))
-        } else {
-          setTimeout(() => {
-            const urlBuilder = new URL(transaction.more_info_url)
-            urlBuilder.searchParams.set('callback', 'postMessage')
-
-            popup.location.href = urlBuilder.toString()
-          }, 1000)
-        }
+        const urlBuilder = new URL(transaction.more_info_url)
+        urlBuilder.searchParams.set('callback', 'postMessage')
+        popup.location.href = urlBuilder.toString()
+      } else {
+        setTimeout(() => {
+          const urlBuilder = new URL(transaction.more_info_url)
+          urlBuilder.searchParams.set('callback', 'postMessage')
+          popup.location.href = urlBuilder.toString()
+        }, 1000)
       }
-    })
+    }
   } catch (err) {
     finish()
     this.error = handleError(err)
   }
+}
+
+function getMemo(memoString: string, memoType: string): Memo {
+  let memo
+  if (memoType === 'hash') {
+    memo = new Memo(MemoHash, Buffer.from(memoString, 'base64').toString('hex'))
+  } else if (memoType === 'id') {
+    memo = new Memo(MemoID, memoString)
+  } else if (memoType === 'text') {
+    memo = new Memo(MemoText, memoString)
+  } else {
+    throw `Invalid memo_type: ${memoString} (${memoType})`
+  }
+  return memo
 }
