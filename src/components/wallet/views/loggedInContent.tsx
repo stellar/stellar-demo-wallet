@@ -29,14 +29,13 @@ export default function loggedInContent(this: Wallet) {
           : 'Use Testnet'}
       </button>
     </div>,
-
     balanceDisplay.call(this),
     claimableDisplay.call(this),
 
     <button
       class={this.loading.trust ? 'loading' : null}
       type="button"
-      onClick={() => this.trustAsset()}
+      onClick={() => this.addAsset()}
     >
       + Add Asset {this.loading.trust ? <stellar-loader /> : null}
     </button>,

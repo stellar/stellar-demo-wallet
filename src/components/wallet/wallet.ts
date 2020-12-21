@@ -11,6 +11,7 @@ import depositAsset from './methods/depositAsset'
 import claimAsset from './methods/claimAsset'
 import withdrawAsset from './methods/withdrawAsset'
 import trustAsset from './methods/trustAsset'
+import addAsset from './methods/addAsset'
 import makePayment from './methods/makePayment'
 import makeRegulatedPayment from './methods/makeRegulatedPayment'
 import copyAddress from './methods/copyAddress'
@@ -36,6 +37,14 @@ const MockLogger = {
   error: (url, body) => {
     console.error('Error', url, body)
   },
+}
+
+export interface Balance {
+  balance: string
+  is_authorized: boolean
+  asset_type: string
+  asset_code: string
+  asset_issuer: string
 }
 
 interface StellarAccount {
@@ -76,6 +85,7 @@ export class Wallet {
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() network_passphrase: string = Networks.TESTNET
   @Prop() assets: Map<string, WalletAssetDetails> = new Map()
+  @Prop() balance: Map<string, Balance> = new Map()
 
   // Component events
   componentWillLoad() {}
@@ -92,6 +102,7 @@ export class Wallet {
   withdrawAsset = withdrawAsset
   claimAsset = claimAsset
   trustAsset = trustAsset
+  addAsset = addAsset
   makePayment = makePayment
   makeRegulatedPayment = makeRegulatedPayment
   copyAddress = copyAddress

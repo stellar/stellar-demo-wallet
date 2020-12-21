@@ -51,11 +51,19 @@ async function loadAccountFromSecretKey(wallet: Wallet, secretKey: string) {
 }
 
 async function loadAccountFromKeyStore(wallet) {
-  const keystore = await get('WALLET[keystore]')
-  if (keystore) {
+  const walletKeystore = await get('WALLET[keystore]')
+  if (walletKeystore) {
     wallet.account = {
       ...wallet.account,
-      ...JSON.parse(atob(keystore)),
+      ...JSON.parse(atob(walletKeystore)),
+    }
+    wallet.updateAccount()
+  }
+  const balKeystore = await get('BALANCE[keystore]')
+  if (balKeystore) {
+    wallet.balance = {
+      ...wallet.balance,
+      ...JSON.parse(atob(balKeystore)),
     }
     wallet.updateAccount()
   }
