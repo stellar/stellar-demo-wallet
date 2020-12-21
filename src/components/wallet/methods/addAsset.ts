@@ -4,7 +4,7 @@ import { StellarTomlResolver } from 'stellar-sdk'
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
 import { PromptInput } from '@prompt/promptInput'
-import { get, set } from '@services/storage'
+import { set } from '@services/storage'
 
 async function getAssetAndIssuer(wallet: Wallet) {
   // collect user input
