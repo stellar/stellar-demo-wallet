@@ -20,6 +20,11 @@ export default async function claimAsset(
   this.loading = { ...this.loading, [loadingKey]: true }
   const finish = () => (this.loading = { ...this.loading, [loadingKey]: false })
   try {
+    if (!this.balance.get(balance.asset).trusted) {
+      let asset = this.balance.get(balance.asset).asset_code
+      let issuer = this.balance.get(balance.asset).asset_issuer
+      await this.trustAsset(asset, issuer)
+    }
     this.logger.instruction(
       `Claiming ${balance.amount} of ${assetCode}`,
       `BalanceId: ${balance.id} Sponsor:${balance.sponsor}`
