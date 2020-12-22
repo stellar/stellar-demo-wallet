@@ -48,6 +48,7 @@ export default async function updateAccount(this: Wallet) {
           balance: b.balance,
           is_authorized: null,
           asset_issuer: null,
+          trusted: true,
         })
         return
       }
@@ -59,6 +60,7 @@ export default async function updateAccount(this: Wallet) {
         balance: b.balance,
         asset_type: b.asset_type,
         is_authorized: b.is_authorized,
+        trusted: true,
       })
     })
     this.loading = { ...this.loading, update: false }

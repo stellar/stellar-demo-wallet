@@ -45,6 +45,7 @@ export interface Balance {
   asset_type: string
   asset_code: string
   asset_issuer: string
+  trusted: boolean
 }
 
 interface StellarAccount {

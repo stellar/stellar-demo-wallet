@@ -12,6 +12,7 @@ export default async function addAsset(
   this.error = null
   const finish = () => (this.loading = { ...this.loading, trust: false })
   try {
+    await this.updateAccount()
     if (!asset || !issuer) {
       let nullOrData = await getAssetAndIssuer(this)
       if (!nullOrData) {
@@ -27,17 +28,20 @@ export default async function addAsset(
       .call()
     this.logger.instruction('Loading asset to be added')
     let addAsset = assetRes.records[0]
-    this.balance.set(asset, {
-      asset_code: addAsset.asset_code,
-      asset_issuer: addAsset.asset_issuer,
-      balance: '0.0000000',
-      asset_type: addAsset.asset_type,
-      is_authorized: true,
-    })
-    set(
-      'BALANCE[keystore]',
-      btoa(JSON.stringify(Array.from(this.balance.entries())))
-    )
+    if (!this.balance.has(`${asset}:${issuer}`)) {
+      this.balance.set(`${addAsset.asset_code}:${addAsset.asset_issuer}`, {
+        asset_code: addAsset.asset_code,
+        asset_issuer: addAsset.asset_issuer,
+        balance: '0.0000000',
+        asset_type: addAsset.asset_type,
+        is_authorized: true,
+        trusted: false,
+      })
+      set(
+        'BALANCE[keystore]',
+        btoa(JSON.stringify(Array.from(this.balance.entries())))
+      )
+    }
     await this.updateAccount()
     finish()
   } catch (err) {

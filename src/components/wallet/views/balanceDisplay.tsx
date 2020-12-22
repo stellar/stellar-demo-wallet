@@ -9,6 +9,7 @@ interface Balance {
   asset_type: string
   asset_code: string
   asset_issuer: string
+  trusted: boolean
 }
 
 export default function balanceDisplay(this: Wallet) {
@@ -18,12 +19,15 @@ export default function balanceDisplay(this: Wallet) {
     }
     const isRegulated =
       !balance.is_authorized && balance.asset_type !== 'native'
+    const isNotTrusted = !balance.trusted && balance.asset_type !== 'native'
     const assetCode =
       balance.asset_type === 'native' ? 'XLM' : balance.asset_code
 
-    const sendButton = WalletButton.call(this, 'Send', loadingKey('send'), () =>
-      this.makePayment(null, assetCode, balance.asset_issuer)
-    )
+    const sendButton = isNotTrusted
+      ? null
+      : WalletButton.call(this, 'Send', loadingKey('send'), () =>
+          this.makePayment(null, assetCode, balance.asset_issuer)
+        )
 
     const regulatedSendButton = !isRegulated
       ? null
@@ -34,17 +38,25 @@ export default function balanceDisplay(this: Wallet) {
           () => this.makeRegulatedPayment(null, assetCode, balance.asset_issuer)
         )
 
-    const depositWithdrawButtons =
+    const trustButton = !isNotTrusted
+      ? null
+      : WalletButton.call(this, 'Trust Asset', loadingKey('trust'), () =>
+          this.trustAsset(balance.asset_code, balance.asset_issuer)
+        )
+
+    const depositButton =
       balance.asset_type === 'native'
         ? null
-        : [
-            WalletButton.call(this, 'Deposit', loadingKey('deposit'), () => {
-              this.depositAsset(balance.asset_code, balance.asset_issuer)
-            }),
-            WalletButton.call(this, 'Withdraw', loadingKey('withdraw'), () => {
-              this.withdrawAsset(balance.asset_code, balance.asset_issuer)
-            }),
-          ]
+        : WalletButton.call(this, 'Deposit', loadingKey('deposit'), () => {
+            this.depositAsset(balance.asset_code, balance.asset_issuer)
+          })
+
+    const withdrawButton =
+      balance.asset_type === 'native' || isNotTrusted
+        ? null
+        : WalletButton.call(this, 'Withdraw', loadingKey('withdraw'), () => {
+            this.withdrawAsset(balance.asset_code, balance.asset_issuer)
+          })
     return (
       <div class="asset-row">
         <div class="balance-row">
@@ -54,7 +66,9 @@ export default function balanceDisplay(this: Wallet) {
         <div class="actions">
           {sendButton}
           {regulatedSendButton}
-          {depositWithdrawButtons}
+          {trustButton}
+          {depositButton}
+          {withdrawButton}
         </div>
       </div>
     )
