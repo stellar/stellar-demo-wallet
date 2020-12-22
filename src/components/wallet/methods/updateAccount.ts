@@ -34,6 +34,7 @@ export default async function updateAccount(this: Wallet) {
     const balKeystore = await get('BALANCE[keystore]')
     // this restores the balance prop from storage
     if (balKeystore && !this.balance.size) {
+      this.balance = new Map()
       JSON.parse(atob(balKeystore)).forEach((b) => {
         this.balance.set(b[0], b[1])
       })
