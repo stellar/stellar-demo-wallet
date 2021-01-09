@@ -41,7 +41,6 @@ export default async function addAsset(
         btoa(JSON.stringify(Array.from(this.balance.entries())))
       )
     }
-    await this.updateAccount()
     finish()
   } catch (err) {
     this.error = handleError(err)
