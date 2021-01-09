@@ -12,7 +12,6 @@ export default async function addAsset(
   this.error = null
   const finish = () => (this.loading = { ...this.loading, trust: false })
   try {
-    await this.updateAccount()
     if (!asset || !issuer) {
       let nullOrData = await getAssetAndIssuer(this)
       if (!nullOrData) {
