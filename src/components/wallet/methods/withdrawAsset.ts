@@ -12,13 +12,9 @@ import {
   MemoText,
 } from 'stellar-sdk'
 import { StellarTomlResolver } from 'stellar-sdk'
+import { each as loEach } from 'lodash-es'
 
-import axios from 'axios'
-import {
-  get as loGet,
-  each as loEach,
-  findIndex as loFindIndex,
-} from 'lodash-es'
+import { Buffer } from 'buffer'
 
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
@@ -35,19 +31,6 @@ export default async function withdrawAsset(
 
   try {
     const keypair = Keypair.fromSecret(this.account.secretKey)
-
-    // I don't understand this. Why are we making requests for /account JSON elsewhere
-    // when it seems to be stored in 'state'? Where is this populated?
-    const balances = loGet(this.account, 'state.balances')
-    const hasCurrency = loFindIndex(balances, {
-      asset_code: assetCode,
-      asset_issuer: assetIssuer,
-    })
-
-    if (hasCurrency === -1)
-      //@ts-ignore
-      await this.trustAsset(assetCode, assetIssuer)
-
     let homeDomain = this.assets.get(`${assetCode}:${assetIssuer}`).homeDomain
     if (!homeDomain) {
       const issuerAccount = await this.server.loadAccount(assetIssuer)
@@ -77,31 +60,23 @@ export default async function withdrawAsset(
 
     this.assets.set(`${assetCode}:${assetIssuer}`, { homeDomain, toml })
 
-    const auth = await axios
-      .get(`${toml.WEB_AUTH_ENDPOINT}`, {
-        params: {
-          account: this.account.publicKey,
-        },
-      })
-      .then(async ({ data: { transaction, network_passphrase } }) => {
-        const txn: any = new Transaction(transaction, network_passphrase)
-
-        this.error = null
-
-        txn.sign(keypair)
-        return txn.toXDR()
-      })
-      .then((transaction) =>
-        axios.post(
-          `${toml.WEB_AUTH_ENDPOINT}`,
-          { transaction },
-          { headers: { 'Content-Type': 'application/json' } }
-        )
-      )
-      .then(({ data: { token } }) => token) // Store the JWT in localStorage
+    const challengeJson = await fetch(
+      `${toml.WEB_AUTH_ENDPOINT}?account=${this.account.publicKey}`
+    ).then((r) => r.json())
+    const txn = new Transaction(
+      challengeJson.transaction,
+      challengeJson.network_passphrase
+    )
+    txn.sign(keypair)
+    const signedChallenge = txn.toXDR()
+    const tokenJson = await fetch(`${toml.WEB_AUTH_ENDPOINT}`, {
+      method: 'POST',
+      body: JSON.stringify({ transaction: signedChallenge }),
+      headers: { 'Content-Type': 'application/json' },
+    }).then((r) => r.json())
+    const auth = tokenJson.token
 
     const formData = new FormData()
-
     loEach(
       {
         asset_code: assetCode,
@@ -110,82 +85,123 @@ export default async function withdrawAsset(
       },
       (value, key) => formData.append(key, value)
     )
-
-    const interactive = await axios
-      .post(
-        `${toml.TRANSFER_SERVER_SEP0024}/transactions/withdraw/interactive`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${auth}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      )
-      .then(({ data }) => data)
+    const interactive = await fetch(
+      `${toml.TRANSFER_SERVER_SEP0024}/transactions/withdraw/interactive`,
+      {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${auth}`,
+        },
+      }
+    ).then((r) => r.json())
 
     const urlBuilder = new URL(interactive.url)
-    urlBuilder.searchParams.set('callback', 'postMessage')
     const popup = open(urlBuilder.toString(), 'popup', 'width=500,height=800')
-
     if (!popup) {
       finish()
       throw "Popups are blocked. You'll need to enable popups for this demo to work"
     }
 
-    let transactionSubmitted = false
-    window.onmessage = async ({ data: { transaction } }) => {
-      console.log(transaction.status, transaction)
-      if (transaction.status === 'completed') {
-        await this.updateAccount()
-        finish()
-      } else if (
-        transaction.status === 'pending_user_transfer_start' &&
-        !transactionSubmitted
-      ) {
-        let memo = getMemo(
-          transaction.withdraw_memo,
-          transaction.withdraw_memo_type
+    let currentStatus = 'incomplete'
+    const transactionUrl = new URL(
+      `${toml.TRANSFER_SERVER_SEP0024}/transaction?id=${interactive.id}`
+    )
+    this.logger.instruction(`Polling for updates: ${transactionUrl.toString()}`)
+    while (!popup.closed && !['completed', 'error'].includes(currentStatus)) {
+      let response = await fetch(transactionUrl.toString(), {
+        headers: { Authorization: `Bearer ${auth}` },
+      })
+      let transactionJson = await response.json()
+      if (transactionJson.transaction.status !== currentStatus) {
+        currentStatus = transactionJson.transaction.status
+        popup.location.href = transactionJson.transaction.more_info_url
+        this.logger.instruction(
+          `Transaction ${interactive.id} is in ${transactionJson.transaction.status} status`
         )
-        const { sequence } = await this.server
-          .accounts()
-          .accountId(keypair.publicKey())
-          .call()
-        const account = new Account(keypair.publicKey(), sequence)
-        const txn = new TransactionBuilder(account, {
-          fee: BASE_FEE,
-          networkPassphrase: this.network_passphrase,
-        })
-          .addOperation(
-            Operation.payment({
-              destination: transaction.withdraw_anchor_account,
-              asset: new Asset(assetCode, assetIssuer),
-              amount: String(
-                parseFloat(transaction.amount_in) +
-                  parseFloat(transaction.amount_fee)
-              ),
+        switch (currentStatus) {
+          case 'pending_user_transfer_start': {
+            this.logger.instruction(
+              'The anchor is waiting for you to send the funds for withdrawal'
+            )
+            let memo = getMemo(
+              transactionJson.transaction.withdraw_memo,
+              transactionJson.transaction.withdraw_memo_type
+            )
+            this.logger.request(
+              'Fetching account sequence number',
+              keypair.publicKey()
+            )
+            const { sequence } = await this.server
+              .accounts()
+              .accountId(keypair.publicKey())
+              .call()
+            this.logger.response('Fetching account sequence number', sequence)
+            const account = new Account(keypair.publicKey(), sequence)
+            const txn = new TransactionBuilder(account, {
+              fee: BASE_FEE,
+              networkPassphrase: this.network_passphrase,
             })
-          )
-          .addMemo(memo)
-          .setTimeout(0)
-          .build()
+              .addOperation(
+                Operation.payment({
+                  destination:
+                    transactionJson.transaction.withdraw_anchor_account,
+                  asset: new Asset(assetCode, assetIssuer),
+                  amount: transactionJson.transaction.amount_in,
+                })
+              )
+              .addMemo(memo)
+              .setTimeout(0)
+              .build()
 
-        txn.sign(keypair)
-        await this.server.submitTransaction(txn)
-        transactionSubmitted = true
-        console.log('just submitted transaction')
-
-        const urlBuilder = new URL(transaction.more_info_url)
-        urlBuilder.searchParams.set('callback', 'postMessage')
-        popup.location.href = urlBuilder.toString()
-      } else {
-        setTimeout(() => {
-          const urlBuilder = new URL(transaction.more_info_url)
-          urlBuilder.searchParams.set('callback', 'postMessage')
-          popup.location.href = urlBuilder.toString()
-        }, 1000)
+            txn.sign(keypair)
+            this.logger.request(
+              'Submitting withdrawal transaction to Stellar',
+              txn
+            )
+            const horizonResponse = await this.server.submitTransaction(txn)
+            this.logger.response(
+              'Submitting withdrawal transaction to Stellar',
+              horizonResponse
+            )
+            break
+          }
+          case 'pending_anchor': {
+            this.logger.instruction('The anchor is processing the transaction')
+            break
+          }
+          case 'pending_stellar': {
+            this.logger.instruction(
+              'The Stellar network is processing the transaction'
+            )
+            break
+          }
+          case 'pending_external': {
+            this.logger.instruction(
+              'The transaction is being processed by an external system'
+            )
+            break
+          }
+          case 'pending_user': {
+            this.logger.instruction(
+              'The anchor is waiting for you to take the action described in the popup'
+            )
+            break
+          }
+          case 'error': {
+            this.logger.instruction(
+              'There was a problem processing your transaction'
+            )
+            break
+          }
+        }
       }
+      // run loop every 2 seconds
+      await new Promise((resolve) => setTimeout(resolve, 2000))
     }
+
+    await this.updateAccount()
+    finish()
   } catch (err) {
     finish()
     this.error = handleError(err)

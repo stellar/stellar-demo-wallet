@@ -10,6 +10,8 @@ import { Server } from "stellar-sdk";
 import { WalletAssetDetails } from "./components/wallet/wallet";
 import { ILogger } from "./components/logview/logview";
 export namespace Components {
+    interface BalanceDisplay {
+    }
     interface CollapsibleContainer {
         "hideText": string;
         "showText": string;
@@ -37,6 +39,12 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLBalanceDisplayElement extends Components.BalanceDisplay, HTMLStencilElement {
+    }
+    var HTMLBalanceDisplayElement: {
+        prototype: HTMLBalanceDisplayElement;
+        new (): HTMLBalanceDisplayElement;
+    };
     interface HTMLCollapsibleContainerElement extends Components.CollapsibleContainer, HTMLStencilElement {
     }
     var HTMLCollapsibleContainerElement: {
@@ -74,6 +82,7 @@ declare global {
         new (): HTMLStellarWalletElement;
     };
     interface HTMLElementTagNameMap {
+        "balance-display": HTMLBalanceDisplayElement;
         "collapsible-container": HTMLCollapsibleContainerElement;
         "json-viewer": HTMLJsonViewerElement;
         "log-view": HTMLLogViewElement;
@@ -83,6 +92,8 @@ declare global {
     }
 }
 declare namespace LocalJSX {
+    interface BalanceDisplay {
+    }
     interface CollapsibleContainer {
         "hideText"?: string;
         "showText"?: string;
@@ -105,6 +116,7 @@ declare namespace LocalJSX {
         "server"?: Server;
     }
     interface IntrinsicElements {
+        "balance-display": BalanceDisplay;
         "collapsible-container": CollapsibleContainer;
         "json-viewer": JsonViewer;
         "log-view": LogView;
@@ -117,6 +129,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "balance-display": LocalJSX.BalanceDisplay & JSXBase.HTMLAttributes<HTMLBalanceDisplayElement>;
             "collapsible-container": LocalJSX.CollapsibleContainer & JSXBase.HTMLAttributes<HTMLCollapsibleContainerElement>;
             "json-viewer": LocalJSX.JsonViewer & JSXBase.HTMLAttributes<HTMLJsonViewerElement>;
             "log-view": LocalJSX.LogView & JSXBase.HTMLAttributes<HTMLLogViewElement>;
