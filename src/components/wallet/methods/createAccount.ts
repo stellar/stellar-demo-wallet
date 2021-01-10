@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { Keypair } from 'stellar-sdk'
 
 import { set } from '@services/storage'
@@ -12,9 +11,8 @@ export default async function createAccount(this: Wallet) {
 
     const keypair = Keypair.random()
 
-    await axios(
-      `https://friendbot.stellar.org?addr=${keypair.publicKey()}`
-    ).finally(() => (this.loading = { ...this.loading, create: false }))
+    await fetch(`https://friendbot.stellar.org?addr=${keypair.publicKey()}`)
+    this.loading = { ...this.loading, create: false }
 
     this.account = {
       publicKey: keypair.publicKey(),
@@ -24,11 +22,10 @@ export default async function createAccount(this: Wallet) {
 
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
 
-    await this.updateAccount()
-    // No need to check for this.network_passphrase === Networks.PUBLIC
-    // since this button is not displayed when that condition is true
     history.replaceState(null, '', `?secretKey=${this.account.secretKey}`)
+    await this.updateAccount()
   } catch (err) {
+    this.loading = { ...this.loading, create: false }
     this.error = handleError(err)
   }
 }

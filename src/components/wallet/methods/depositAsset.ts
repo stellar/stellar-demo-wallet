@@ -140,10 +140,6 @@ export default async function depositAsset(
       formData.append(key, postDepositParams[key])
     })
 
-    this.logger.instruction(
-      'To get the url for the interactive flow check the /transactions/deposit/interactive endpoint'
-    )
-
     this.logger.request(
       `POST ${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
       postDepositParams
@@ -167,12 +163,7 @@ export default async function depositAsset(
       throw 'No URL Returned from POST /transactions/deposit/interactive'
     }
     const popupUrl = new URL(interactiveJson.url)
-    popupUrl.searchParams.set('callback', 'postMessage')
-    this.logger.instruction(
-      'To collect the interactive information we launch the interactive URL in a frame or webview, and await payment details from a postMessage callback'
-    )
     const popup = open(popupUrl.toString(), 'popup', 'width=500,height=800')
-
     if (!popup) {
       throw 'Popups are blocked. You’ll need to enable popups for this demo to work'
     }
