@@ -15,13 +15,8 @@ export default async function depositAsset(
   const finish = () => (this.loading = { ...this.loading, [loadingKey]: false })
 
   try {
-    // If the asset exists in the wallet UI, there exists a record in this.assets
-    // however, the homeDomain may not be defined if a trustline for that asset
-    // wasn't added in the same session
-    // If there is no trustline established then we'll ask for the
-    // Assetcode and homedomain in order to make a Claimable Balance Deposit
     let homeDomain = null
-    if (this.assets.get(`${asset_code}:${asset_issuer}`)){
+    if (this.assets.get(`${asset_code}:${asset_issuer}`)) {
       homeDomain = this.assets.get(`${asset_code}:${asset_issuer}`).homeDomain
     }
     if (!homeDomain) {
