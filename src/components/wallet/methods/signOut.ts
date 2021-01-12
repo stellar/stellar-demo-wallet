@@ -12,7 +12,7 @@ export default async function signOut(this: Wallet) {
 
     // flush browser storage
     await remove('WALLET[keystore]')
-    await remove('BALANCE[keystore]')
+    await remove('UNTRUSTEDASSETS[keystore]')
     // remove secretKey param if present and reload
     location.assign(location.protocol + '//' + location.host)
   } catch (err) {

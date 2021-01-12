@@ -59,11 +59,11 @@ async function loadAccountFromKeyStore(wallet) {
     }
     wallet.updateAccount()
   }
-  const balKeystore = await get('BALANCE[keystore]')
-  if (balKeystore) {
-    wallet.balance = {
-      ...wallet.balance,
-      ...JSON.parse(atob(balKeystore)),
+  const UNTRUSTEDASSETS = await get('UNTRUSTEDASSETS[keystore]')
+  if (UNTRUSTEDASSETS) {
+    wallet.UntrustedAssets = {
+      ...wallet.UntrustedAssets,
+      ...JSON.parse(atob(UNTRUSTEDASSETS)),
     }
     wallet.updateAccount()
   }
