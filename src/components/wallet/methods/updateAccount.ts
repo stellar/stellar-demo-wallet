@@ -31,34 +31,18 @@ export default async function updateAccount(this: Wallet) {
       state: loOmit(account, ['id', '_links', 'account_id', 'paging_token']),
       claimableBalances: claimableBalanceResp.records,
     }
-    // Restores the balance prop from storage
-    const balKeystore = await get('BALANCE[keystore]')
-    JSON.parse(atob(balKeystore)).forEach((b) => {
-      this.balance.set(b[0], b[1])
+    // Restores the UntrustedAssets prop from storage
+    const UNTRUSTEDASSETS = await get('UNTRUSTEDASSETS[keystore]')
+    JSON.parse(atob(UNTRUSTEDASSETS)).forEach((b) => {
+      this.UntrustedAssets.set(b[0], b[1])
     })
     account.balances.forEach((b) => {
       if (b.asset_type === 'native') {
         this.assets.set('XLM', {})
-        this.balance.set('XLM', {
-          asset_code: 'XLM',
-          asset_type: b.asset_type,
-          balance: b.balance,
-          is_authorized: null,
-          asset_issuer: null,
-          trusted: true,
-        })
         return
       }
       if (!this.assets.get(`${b.asset_code}:${b.asset_issuer}`))
         this.assets.set(`${b.asset_code}:${b.asset_issuer}`, {})
-      this.balance.set(`${b.asset_code}:${b.asset_issuer}`, {
-        asset_code: b.asset_code,
-        asset_issuer: b.asset_issuer,
-        balance: b.balance,
-        asset_type: b.asset_type,
-        is_authorized: b.is_authorized,
-        trusted: true,
-      })
     })
     this.loading = { ...this.loading, update: false }
   } catch (err) {

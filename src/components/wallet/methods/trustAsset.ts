@@ -46,13 +46,13 @@ export default async function trustAsset(
     this.logger.request('Submitting changeTrust transaction', transaction)
     const result = await this.server.submitTransaction(transaction)
     this.logger.response('Submitted changeTrust transaction', result)
-    // update the balance prop with the new asset we added
-    if (this.balance.has(`${asset}:${issuer}`)) {
-      this.balance.delete(`${asset}:${issuer}`)
+    // update the UntrustedAssets prop with the new asset we added
+    if (this.UntrustedAssets.has(`${asset}:${issuer}`)) {
+      this.UntrustedAssets.delete(`${asset}:${issuer}`)
     }
     set(
-      'BALANCE[keystore]',
-      btoa(JSON.stringify(Array.from(this.balance.entries())))
+      'UNTRUSTEDASSETS[keystore]',
+      btoa(JSON.stringify(Array.from(this.UntrustedAssets.entries())))
     )
     await this.updateAccount()
     finish()

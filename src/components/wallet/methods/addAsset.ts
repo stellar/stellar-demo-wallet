@@ -27,18 +27,21 @@ export default async function addAsset(
       .call()
     this.logger.instruction('Loading asset to be added')
     let addAsset = assetRes.records[0]
-    if (!this.balance.has(`${asset}:${issuer}`)) {
-      this.balance.set(`${addAsset.asset_code}:${addAsset.asset_issuer}`, {
-        asset_code: addAsset.asset_code,
-        asset_issuer: addAsset.asset_issuer,
-        balance: '0.0000000',
-        asset_type: addAsset.asset_type,
-        is_authorized: true,
-        trusted: false,
-      })
+    if (!this.UntrustedAssets.has(`${asset}:${issuer}`)) {
+      this.UntrustedAssets.set(
+        `${addAsset.asset_code}:${addAsset.asset_issuer}`,
+        {
+          asset_code: addAsset.asset_code,
+          asset_issuer: addAsset.asset_issuer,
+          balance: '0.0000000',
+          asset_type: addAsset.asset_type,
+          is_authorized: true,
+          untrusted: true,
+        }
+      )
       set(
-        'BALANCE[keystore]',
-        btoa(JSON.stringify(Array.from(this.balance.entries())))
+        'UNTRUSTEDASSETS[keystore]',
+        btoa(JSON.stringify(Array.from(this.UntrustedAssets.entries())))
       )
     }
     finish()

@@ -45,7 +45,7 @@ export interface Balance {
   asset_type: string
   asset_code: string
   asset_issuer: string
-  trusted: boolean
+  untrusted: boolean
 }
 
 interface StellarAccount {
@@ -86,7 +86,7 @@ export class Wallet {
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() network_passphrase: string = Networks.TESTNET
   @Prop() assets: Map<string, WalletAssetDetails> = new Map()
-  @Prop() balance: Map<string, Balance> = new Map()
+  @Prop() UntrustedAssets: Map<string, Balance> = new Map()
 
   // Component events
   componentWillLoad() {}

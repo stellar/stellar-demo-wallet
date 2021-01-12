@@ -24,8 +24,8 @@ export default async function createAccount(this: Wallet) {
 
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
     set(
-      'BALANCE[keystore]',
-      btoa(JSON.stringify(Array.from(this.balance.entries())))
+      'UNTRUSTEDASSETS[keystore]',
+      btoa(JSON.stringify(Array.from(this.UntrustedAssets.entries())))
     )
     await this.updateAccount()
     // No need to check for this.network_passphrase === Networks.PUBLIC

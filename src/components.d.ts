@@ -30,8 +30,8 @@ export namespace Components {
         "prompter": Prompter;
     }
     interface StellarWallet {
+        "UntrustedAssets": Map<string, Balance>;
         "assets": Map<string, WalletAssetDetails>;
-        "balance": Map<string, Balance>;
         "logger": ILogger;
         "network_passphrase": string;
         "server": Server;
@@ -100,8 +100,8 @@ declare namespace LocalJSX {
         "prompter"?: Prompter;
     }
     interface StellarWallet {
+        "UntrustedAssets"?: Map<string, Balance>;
         "assets"?: Map<string, WalletAssetDetails>;
-        "balance"?: Map<string, Balance>;
         "logger"?: ILogger;
         "network_passphrase"?: string;
         "server"?: Server;
