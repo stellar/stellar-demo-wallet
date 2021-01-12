@@ -23,7 +23,10 @@ export default async function createAccount(this: Wallet) {
     this.assets.set('XLM', {})
 
     set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
-
+    set(
+      'BALANCE[keystore]',
+      btoa(JSON.stringify(Array.from(this.balance.entries())))
+    )
     await this.updateAccount()
     // No need to check for this.network_passphrase === Networks.PUBLIC
     // since this button is not displayed when that condition is true
