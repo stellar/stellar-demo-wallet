@@ -10,16 +10,14 @@ export default function balanceDisplay(this: Wallet) {
     }
     const isRegulated =
       !balance.is_authorized && balance.asset_type !== 'native'
-    const isNotTrusted = !balance.trusted && balance.asset_type !== 'native'
     const assetCode =
       balance.asset_type === 'native' ? 'XLM' : balance.asset_code
 
-    const sendButton = isNotTrusted
+    const sendButton = !balance.trusted
       ? null
       : WalletButton.call(this, 'Send', loadingKey('send'), () =>
           this.makePayment(null, assetCode, balance.asset_issuer)
         )
-
     const regulatedSendButton = !isRegulated
       ? null
       : WalletButton.call(
@@ -28,22 +26,19 @@ export default function balanceDisplay(this: Wallet) {
           loadingKey('sendRegulated'),
           () => this.makeRegulatedPayment(null, assetCode, balance.asset_issuer)
         )
-
-    const trustButton = !isNotTrusted
+    const trustButton = !!balance.trusted
       ? null
       : WalletButton.call(this, 'Trust Asset', loadingKey('trust'), () =>
           this.trustAsset(balance.asset_code, balance.asset_issuer)
         )
-
     const depositButton =
       balance.asset_type === 'native'
         ? null
         : WalletButton.call(this, 'Deposit', loadingKey('deposit'), () => {
             this.depositAsset(balance.asset_code, balance.asset_issuer)
           })
-
     const withdrawButton =
-      balance.asset_type === 'native' || isNotTrusted
+      balance.asset_type === 'native' || !balance.trusted
         ? null
         : WalletButton.call(this, 'Withdraw', loadingKey('withdraw'), () => {
             this.withdrawAsset(balance.asset_code, balance.asset_issuer)
