@@ -1,10 +1,20 @@
 import { h } from '@stencil/core'
 import { has as loHas } from 'lodash-es'
 import WalletButton from './walletButton'
-import { Wallet, Balance } from '../wallet'
+import { Wallet } from '../wallet'
 
 export default function balanceDisplay(this: Wallet) {
-  const balanceRow = (balance: Balance) => {
+  // Combines the two arrays of different types
+  // to allow balanceRow to iterate and map
+  // their values in the view
+  let bal = []
+  Array.from(this.account.state.balances).forEach((element) => {
+    bal.push(element)
+  })
+  Array.from(this.UntrustedAssets.values()).forEach((element) => {
+    bal.push(element)
+  })
+  const balanceRow = (balance: any) => {
     const loadingKey = (type: string) => {
       return `${type}:${balance.asset_code}:${balance.asset_issuer}`
     }
@@ -13,7 +23,7 @@ export default function balanceDisplay(this: Wallet) {
     const assetCode =
       balance.asset_type === 'native' ? 'XLM' : balance.asset_code
 
-    const sendButton = !balance.trusted
+    const sendButton = balance.untrusted
       ? null
       : WalletButton.call(this, 'Send', loadingKey('send'), () =>
           this.makePayment(null, assetCode, balance.asset_issuer)
@@ -26,11 +36,11 @@ export default function balanceDisplay(this: Wallet) {
           loadingKey('sendRegulated'),
           () => this.makeRegulatedPayment(null, assetCode, balance.asset_issuer)
         )
-    const trustButton = !!balance.trusted
-      ? null
-      : WalletButton.call(this, 'Trust Asset', loadingKey('trust'), () =>
+    const trustButton = balance.untrusted
+      ? WalletButton.call(this, 'Trust Asset', loadingKey('trust'), () =>
           this.trustAsset(balance.asset_code, balance.asset_issuer)
         )
+      : null
     const depositButton =
       balance.asset_type === 'native'
         ? null
@@ -38,7 +48,7 @@ export default function balanceDisplay(this: Wallet) {
             this.depositAsset(balance.asset_code, balance.asset_issuer)
           })
     const withdrawButton =
-      balance.asset_type === 'native' || !balance.trusted
+      balance.asset_type === 'native' || balance.untrusted
         ? null
         : WalletButton.call(this, 'Withdraw', loadingKey('withdraw'), () => {
             this.withdrawAsset(balance.asset_code, balance.asset_issuer)
@@ -65,7 +75,7 @@ export default function balanceDisplay(this: Wallet) {
       {loHas(this.account, 'state') ? (
         <pre class="account-state">
           <h2 class="balance-headers">Balances</h2>
-          {(Array.from(this.balance.values()) as Balance[]).map(balanceRow)}
+          {bal.map(balanceRow)}
         </pre>
       ) : null}
     </div>
