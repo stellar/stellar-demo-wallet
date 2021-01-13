@@ -57,10 +57,11 @@ export default async function addAsset(
           untrusted: true,
         }
       )
-      set(
-        'UNTRUSTEDASSETS[keystore]',
-        btoa(JSON.stringify(Array.from(this.UntrustedAssets.entries())))
-      )
+      let UNTRUSTEDASSETS = {}
+      this.UntrustedAssets.forEach((value, key) => {
+        UNTRUSTEDASSETS[key] = value
+      })
+      set('UNTRUSTEDASSETS[keystore]', btoa(JSON.stringify(UNTRUSTEDASSETS)))
     }
     finish()
   } catch (err) {

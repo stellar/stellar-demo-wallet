@@ -18,7 +18,6 @@ import copyAddress from './methods/copyAddress'
 import copySecret from './methods/copySecret'
 import signOut from './methods/signOut'
 import setPrompt from './methods/setPrompt'
-import loadAccount from './methods/loadAccount'
 import popup from './methods/popup'
 import switchNetworks from './methods/switchNetworks'
 
@@ -97,7 +96,6 @@ export class Wallet {
 
   // Stellar methods
   createAccount = createAccount
-  loadAccount = loadAccount
   updateAccount = updateAccount
   depositAsset = depositAsset
   withdrawAsset = withdrawAsset

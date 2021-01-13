@@ -4,16 +4,20 @@ import WalletButton from './walletButton'
 import { Wallet } from '../wallet'
 
 export default function balanceDisplay(this: Wallet) {
+  let totalBalances = []
   // Combines the two arrays of different types
   // to allow balanceRow to iterate and map
   // their values in the view
-  let bal = []
-  Array.from(this.account.state.balances).forEach((element) => {
-    bal.push(element)
-  })
-  Array.from(this.UntrustedAssets.values()).forEach((element) => {
-    bal.push(element)
-  })
+  if (this.account.state) {
+    Array.from(this.account.state.balances).forEach((bal) => {
+      totalBalances.push(bal)
+    })
+  }
+  if (this.UntrustedAssets.values) {
+    Array.from(this.UntrustedAssets.values()).forEach((bal) => {
+      totalBalances.push(bal)
+    })
+  }
   const balanceRow = (balance: any) => {
     const loadingKey = (type: string) => {
       return `${type}:${balance.asset_code}:${balance.asset_issuer}`
@@ -75,7 +79,7 @@ export default function balanceDisplay(this: Wallet) {
       {loHas(this.account, 'state') ? (
         <pre class="account-state">
           <h2 class="balance-headers">Balances</h2>
-          {bal.map(balanceRow)}
+          {totalBalances.map(balanceRow)}
         </pre>
       ) : null}
     </div>

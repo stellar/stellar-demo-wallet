@@ -4,14 +4,47 @@ import {
   // map as loMap
 } from 'lodash-es'
 
+import { Keypair, Networks } from 'stellar-sdk'
 import { handleError } from '@services/error'
-import { get } from '@services/storage'
+import { set, get } from '@services/storage'
 import { Wallet } from '../wallet'
 
-export default async function updateAccount(this: Wallet) {
+export default async function updateAccount(
+  this: Wallet,
+  { displayPrompt }: { displayPrompt?: boolean } = {}
+) {
   try {
     this.error = null
     this.loading = { ...this.loading, update: true }
+    let keypair
+
+    if (displayPrompt || !this.account.secretKey) {
+      let inputs = await this.setPrompt({
+        message: 'Enter your Stellar secret key',
+      })
+      let secret = inputs[0].value
+      try {
+        keypair = Keypair.fromSecret(secret)
+      } catch (e) {
+        throw 'Invalid secret key'
+      }
+      this.account = {
+        ...this.account,
+        publicKey: keypair.publicKey(),
+        secretKey: keypair.secret(),
+      }
+      let query = `?secretKey=${this.account.secretKey}`
+      if (this.network_passphrase === Networks.PUBLIC) {
+        query += `&pubnet=true`
+      }
+      history.replaceState(null, '', query)
+      set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
+      set(
+        'UNTRUSTEDASSETS[keystore]',
+        btoa(JSON.stringify(this.UntrustedAssets))
+      )
+    }
+
     let account = await this.server
       .accounts()
       .accountId(this.account.publicKey)
@@ -33,9 +66,9 @@ export default async function updateAccount(this: Wallet) {
     }
     // Restores the UntrustedAssets prop from storage
     const UNTRUSTEDASSETS = await get('UNTRUSTEDASSETS[keystore]')
-    JSON.parse(atob(UNTRUSTEDASSETS)).forEach((b) => {
-      this.UntrustedAssets.set(b[0], b[1])
-    })
+    this.UntrustedAssets = new Map(
+      Object.entries(JSON.parse(atob(UNTRUSTEDASSETS)))
+    )
     account.balances.forEach((b) => {
       if (b.asset_type === 'native') {
         this.assets.set('XLM', {})
