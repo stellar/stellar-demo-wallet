@@ -29,6 +29,7 @@ export default function loggedInContent(this: Wallet) {
           : 'Use Testnet'}
       </button>
     </div>,
+
     balanceDisplay.call(this),
     claimableDisplay.call(this),
 
