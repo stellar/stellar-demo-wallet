@@ -2,6 +2,7 @@ import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
 import { set } from '@services/storage'
 import getAssetAndIssuer from './getAssetIssuer'
+import { get as loGet, findIndex as loFindIndex } from 'lodash-es'
 
 export default async function addAsset(
   this: Wallet,
@@ -29,23 +30,12 @@ export default async function addAsset(
     let addAsset = assetRes.records[0]
     // Check if asset attempted to be added
     // is already a trusted asset
-    let account = await this.server
-      .accounts()
-      .accountId(this.account.publicKey)
-      .call()
-    let assetTrusted = false
-    account.balances.forEach((b) => {
-      if (b.asset_type === 'native') {
-        return
-      } else {
-        assetTrusted =
-          `${b.asset_code}:${b.asset_issuer}` ==
-          `${addAsset.asset_code}:${addAsset.asset_issuer}`
-            ? true
-            : false
-      }
+    const balances = loGet(this.account, 'state.balances')
+    const hasAsset = loFindIndex(balances, {
+      asset_code: asset,
+      asset_issuer: issuer,
     })
-    if (!this.UntrustedAssets.has(`${asset}:${issuer}`) && !assetTrusted) {
+    if (!this.UntrustedAssets.has(`${asset}:${issuer}`) && hasAsset === -1) {
       this.UntrustedAssets.set(
         `${addAsset.asset_code}:${addAsset.asset_issuer}`,
         {
