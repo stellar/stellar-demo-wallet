@@ -36,7 +36,7 @@ export default function loggedInContent(this: Wallet) {
     <button
       class={this.loading.trust ? 'loading' : null}
       type="button"
-      onClick={() => this.trustAsset()}
+      onClick={() => this.addAsset()}
     >
       + Add Asset {this.loading.trust ? <stellar-loader /> : null}
     </button>,

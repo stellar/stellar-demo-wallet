@@ -46,17 +46,24 @@ async function loadAccountFromSecretKey(wallet: Wallet, secretKey: string) {
       publicKey: keypair.publicKey(),
       secretKey: keypair.secret(),
     }
-    await wallet.loadAccount()
+    await wallet.updateAccount()
   }
 }
 
 async function loadAccountFromKeyStore(wallet) {
-  const keystore = await get('WALLET[keystore]')
-  if (keystore) {
+  const walletKeystore = await get('WALLET[keystore]')
+  if (walletKeystore) {
     wallet.account = {
       ...wallet.account,
-      ...JSON.parse(atob(keystore)),
+      ...JSON.parse(atob(walletKeystore)),
     }
+    wallet.updateAccount()
+  }
+  const UNTRUSTEDASSETS = await get('UNTRUSTEDASSETS[keystore]')
+  if (UNTRUSTEDASSETS) {
+    wallet.UntrustedAssets = new Map(
+      Object.entries(JSON.parse(atob(UNTRUSTEDASSETS)))
+    )
     wallet.updateAccount()
   }
 }
