@@ -9,14 +9,12 @@ export default function balanceDisplay(this: Wallet) {
   // to allow balanceRow to iterate and map
   // their values in the view
   if (this.account.state) {
-    Array.from(this.account.state.balances).forEach((bal) => {
-      totalBalances.push(bal)
-    })
+    totalBalances = Array.from(this.account.state.balances)
   }
   if (this.UntrustedAssets.values) {
-    Array.from(this.UntrustedAssets.values()).forEach((bal) => {
-      totalBalances.push(bal)
-    })
+    totalBalances = totalBalances.concat(
+      Array.from(this.UntrustedAssets.values())
+    )
   }
   const balanceRow = (balance: any) => {
     const loadingKey = (type: string) => {
