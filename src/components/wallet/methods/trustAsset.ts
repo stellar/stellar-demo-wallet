@@ -50,11 +50,10 @@ export default async function trustAsset(
     if (this.UntrustedAssets.has(`${asset}:${issuer}`)) {
       this.UntrustedAssets.delete(`${asset}:${issuer}`)
     }
-    let UNTRUSTEDASSETS = {}
-    this.UntrustedAssets.forEach((value, key) => {
-      UNTRUSTEDASSETS[key] = value
-    })
-    set('UNTRUSTEDASSETS[keystore]', btoa(JSON.stringify(UNTRUSTEDASSETS)))
+    set(
+      'UNTRUSTEDASSETS[keystore]',
+      btoa(JSON.stringify(Object.fromEntries(this.UntrustedAssets.entries())))
+    )
     await this.updateAccount()
     finish()
   } catch (err) {

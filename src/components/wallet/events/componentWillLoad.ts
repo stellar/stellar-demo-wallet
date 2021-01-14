@@ -61,10 +61,9 @@ async function loadAccountFromKeyStore(wallet) {
   }
   const UNTRUSTEDASSETS = await get('UNTRUSTEDASSETS[keystore]')
   if (UNTRUSTEDASSETS) {
-    wallet.UntrustedAssets = {
-      ...wallet.UntrustedAssets,
-      ...new Map(Object.entries(JSON.parse(atob(UNTRUSTEDASSETS)))),
-    }
+    wallet.UntrustedAssets = new Map(
+      Object.entries(JSON.parse(atob(UNTRUSTEDASSETS)))
+    )
     wallet.updateAccount()
   }
 }
