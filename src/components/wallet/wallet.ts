@@ -80,7 +80,7 @@ export class Wallet {
   @State() error: any
   @State() promptContents: string = null
   @State() assets: Map<string, WalletAssetDetails> = new Map()
-  @State() UntrustedAssets: Map<string, Balance> = new Map()
+  @State() untrustedAssets: Map<string, Balance> = new Map()
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() network_passphrase: string = Networks.TESTNET

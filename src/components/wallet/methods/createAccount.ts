@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { Keypair } from 'stellar-sdk'
 
-import { set } from '@services/storage'
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
 
@@ -22,15 +21,8 @@ export default async function createAccount(this: Wallet) {
     }
     this.assets.set('XLM', {})
 
-    set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
-    set(
-      'UNTRUSTEDASSETS[keystore]',
-      btoa(JSON.stringify(Object.fromEntries(this.UntrustedAssets.entries())))
-    )
-    await this.updateAccount()
-    // No need to check for this.network_passphrase === Networks.PUBLIC
-    // since this button is not displayed when that condition is true
     history.replaceState(null, '', `?secretKey=${this.account.secretKey}`)
+    await this.updateAccount()
   } catch (err) {
     this.error = handleError(err)
   }

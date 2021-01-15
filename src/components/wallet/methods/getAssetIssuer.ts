@@ -21,6 +21,8 @@ export default async function getAssetAndIssuer(wallet: Wallet) {
   let asset = inputs[0].value
   let homeDomain = inputs[1].value
   let issuer = inputs[2].value
+  if (!asset || !(issuer || homeDomain))
+    throw 'REQUIRED: asset code AND (home domain OR issuer)'
 
   // if a valid issuer is provied, return
   if (issuer) {
@@ -43,27 +45,23 @@ export default async function getAssetAndIssuer(wallet: Wallet) {
     throw 'anchor home domain is not a valid URL using HTTPS'
   }
 
-  // if the issuer was not provided, extract if from the home domain's TOML
-  if (!issuer && homeDomain) {
-    const toml =
-      homeDomainURL.protocol == 'http:'
-        ? await StellarTomlResolver.resolve(homeDomainURL.host, {
-            allowHttp: true,
-          })
-        : await StellarTomlResolver.resolve(homeDomainURL.host)
-    if (!toml.CURRENCIES) {
-      throw "the home domain specified does not have a CURRENCIES section on it's TOML file"
-    }
-    for (let c of toml.CURRENCIES) {
-      if (c.code === asset) {
-        issuer = c.issuer
-        break
-      }
-    }
-    if (!issuer)
-      throw `unable to find the ${asset} issuer on the home domain's TOML file`
-    // update here because homeDomain and toml are not fetched during updateAccount()
-    wallet.assets.set(`${asset}:${issuer}`, { homeDomain, toml })
+  const toml =
+    homeDomainURL.protocol == 'http:'
+      ? await StellarTomlResolver.resolve(homeDomainURL.host, {
+          allowHttp: true,
+        })
+      : await StellarTomlResolver.resolve(homeDomainURL.host)
+  if (!toml.CURRENCIES) {
+    throw "the home domain specified does not have a CURRENCIES section on it's TOML file"
   }
+  for (let c of toml.CURRENCIES) {
+    if (c.code === asset) {
+      issuer = c.issuer
+      break
+    }
+  }
+  if (!issuer)
+    throw `unable to find the ${asset} issuer on the home domain's TOML file`
+
   return [asset, issuer]
 }

@@ -1,4 +1,3 @@
-import { remove } from '@services/storage'
 import { Wallet } from '../wallet'
 import { Networks } from 'stellar-sdk'
 import { handleError } from '@services/error'
@@ -13,8 +12,6 @@ export default async function switchNetworks(
         message: 'You will be signed out, but you can always press back.',
         inputs: [], // No inputs, by default it displays an empty text field
       })
-      // flush browser storage
-      await remove('WALLET[keystore]')
     }
 
     // remove secretKey param if present and reload

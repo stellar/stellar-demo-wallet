@@ -11,9 +11,9 @@ export default function balanceDisplay(this: Wallet) {
   if (this.account.state) {
     totalBalances = Array.from(this.account.state.balances)
   }
-  if (this.UntrustedAssets.values) {
+  if (this.untrustedAssets.values) {
     totalBalances = totalBalances.concat(
-      Array.from(this.UntrustedAssets.values())
+      Array.from(this.untrustedAssets.values())
     )
   }
   const balanceRow = (balance: any) => {

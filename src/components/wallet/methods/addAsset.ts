@@ -1,8 +1,6 @@
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
-import { set } from '@services/storage'
 import getAssetAndIssuer from './getAssetIssuer'
-import { get as loGet, findIndex as loFindIndex } from 'lodash-es'
 
 export default async function addAsset(
   this: Wallet,
@@ -21,36 +19,39 @@ export default async function addAsset(
       }
       ;[asset, issuer] = nullOrData
     }
+    if (this.untrustedAssets.has(`${asset}:${issuer}`)) {
+      this.logger.instruction('Asset already added.')
+      finish()
+      return
+    }
     let assetRes = await this.server
       .assets()
       .forCode(asset.split(':')[0])
       .forIssuer(issuer)
       .call()
-    this.logger.instruction('Loading asset to be added')
-    let addAsset = assetRes.records[0]
-    // Check if asset attempted to be added
-    // is already a trusted asset
-    const balances = loGet(this.account, 'state.balances')
-    const hasAsset = loFindIndex(balances, {
+    this.logger.instruction(`Loading asset ${asset}:${issuer}...`)
+    if (!assetRes.records) {
+      throw `Asset ${asset}:${issuer} does not exist.`
+    }
+    this.untrustedAssets.set(`${asset}:${issuer}`, {
       asset_code: asset,
       asset_issuer: issuer,
+      balance: '0.0000000',
+      asset_type: assetRes.records[0].asset_type,
+      untrusted: true,
     })
-    if (!this.UntrustedAssets.has(`${asset}:${issuer}`) && hasAsset === -1) {
-      this.UntrustedAssets.set(
-        `${addAsset.asset_code}:${addAsset.asset_issuer}`,
-        {
-          asset_code: addAsset.asset_code,
-          asset_issuer: addAsset.asset_issuer,
-          balance: '0.0000000',
-          asset_type: addAsset.asset_type,
-          untrusted: true,
-        }
-      )
-      set(
-        'UNTRUSTEDASSETS[keystore]',
-        btoa(JSON.stringify(Object.fromEntries(this.UntrustedAssets.entries())))
-      )
+    let query
+    try {
+      query = Object.fromEntries(new URLSearchParams(location.search).entries())
+    } catch {
+      throw 'Unable to parse query string'
     }
+    if (!query.untrustedAssets) {
+      query.untrustedAssets = `${asset}:${issuer}`
+    } else {
+      query.untrustedAssets += `,${asset}:${issuer}`
+    }
+    history.replaceState(null, '', '?' + new URLSearchParams(query).toString())
     finish()
   } catch (err) {
     this.error = handleError(err)

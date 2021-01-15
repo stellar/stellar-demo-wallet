@@ -7,7 +7,6 @@ import {
 } from 'stellar-sdk'
 import getAssetAndIssuer from './getAssetIssuer'
 import { handleError } from '@services/error'
-import { set } from '@services/storage'
 import { Wallet } from '../wallet'
 export default async function trustAsset(
   this: Wallet,
@@ -46,14 +45,10 @@ export default async function trustAsset(
     this.logger.request('Submitting changeTrust transaction', transaction)
     const result = await this.server.submitTransaction(transaction)
     this.logger.response('Submitted changeTrust transaction', result)
-    // update the UntrustedAssets prop with the new asset we added
-    if (this.UntrustedAssets.has(`${asset}:${issuer}`)) {
-      this.UntrustedAssets.delete(`${asset}:${issuer}`)
+    // update the untrustedAssets prop with the new asset we added
+    if (this.untrustedAssets.has(`${asset}:${issuer}`)) {
+      this.untrustedAssets.delete(`${asset}:${issuer}`)
     }
-    set(
-      'UNTRUSTEDASSETS[keystore]',
-      btoa(JSON.stringify(Object.fromEntries(this.UntrustedAssets.entries())))
-    )
     await this.updateAccount()
     finish()
   } catch (err) {
