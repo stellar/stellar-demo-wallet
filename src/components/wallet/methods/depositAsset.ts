@@ -233,8 +233,14 @@ export default async function depositAsset(
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }
 
+    this.logger.instruction(`Transaction status: ${currentStatus}`)
+    if (!['completed', 'error'].includes(currentStatus) && popup.closed) {
+      this.logger.instruction(
+        'The popup was closed before the transaction reached a terminal status, ' +
+          'if your balance is not updated soon, the transaction may have failed.'
+      )
+    }
     this.updateAccount()
-    this.logger.instruction('Transaction status complete')
     finish()
   } catch (err) {
     finish()
