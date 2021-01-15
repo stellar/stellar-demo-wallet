@@ -5,6 +5,7 @@ import {
   Operation,
   Keypair,
 } from 'stellar-sdk'
+import { get as loGet, findIndex as loFindIndex } from 'lodash-es'
 import { handleError } from '@services/error'
 import { ClaimableBalance } from '../views/claimableDisplay'
 import { Wallet } from '../wallet'
@@ -20,6 +21,15 @@ export default async function claimAsset(
   this.loading = { ...this.loading, [loadingKey]: true }
   const finish = () => (this.loading = { ...this.loading, [loadingKey]: false })
   try {
+    let [asset, issuer] = balance.asset.split(':')
+    const balances = loGet(this.account, 'state.balances')
+    const hasAsset = loFindIndex(balances, {
+      asset_code: asset,
+      asset_issuer: issuer,
+    })
+    if (hasAsset === -1) {
+      await this.trustAsset(asset, issuer)
+    }
     this.logger.instruction(
       `Claiming ${balance.amount} of ${assetCode}`,
       `BalanceId: ${balance.id} Sponsor:${balance.sponsor}`

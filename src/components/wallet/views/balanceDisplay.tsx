@@ -3,48 +3,48 @@ import { has as loHas } from 'lodash-es'
 import WalletButton from './walletButton'
 import { Wallet } from '../wallet'
 
-interface Balance {
-  balance: string
-  is_authorized: boolean
-  asset_type: string
-  asset_code: string
-  asset_issuer: string
-}
-
 export default function balanceDisplay(this: Wallet) {
-  const balanceRow = (balance: Balance) => {
+  let totalBalances = []
+  // Combines the two arrays of different types
+  // to allow balanceRow to iterate and map
+  // their values in the view
+  if (this.account.state) {
+    totalBalances = Array.from(this.account.state.balances)
+  }
+  if (this.untrustedAssets.values) {
+    totalBalances = totalBalances.concat(
+      Array.from(this.untrustedAssets.values())
+    )
+  }
+  const balanceRow = (balance: any) => {
     const loadingKey = (type: string) => {
       return `${type}:${balance.asset_code}:${balance.asset_issuer}`
     }
-    const isRegulated =
-      !balance.is_authorized && balance.asset_type !== 'native'
     const assetCode =
       balance.asset_type === 'native' ? 'XLM' : balance.asset_code
 
-    const sendButton = WalletButton.call(this, 'Send', loadingKey('send'), () =>
-      this.makePayment(null, assetCode, balance.asset_issuer)
-    )
-
-    const regulatedSendButton = !isRegulated
+    const sendButton = balance.untrusted
       ? null
-      : WalletButton.call(
-          this,
-          'Send Regulated',
-          loadingKey('sendRegulated'),
-          () => this.makeRegulatedPayment(null, assetCode, balance.asset_issuer)
+      : WalletButton.call(this, 'Send', loadingKey('send'), () =>
+          this.makePayment(null, assetCode, balance.asset_issuer)
         )
-
-    const depositWithdrawButtons =
+    const trustButton = balance.untrusted
+      ? WalletButton.call(this, 'Trust Asset', loadingKey('trust'), () =>
+          this.trustAsset(balance.asset_code, balance.asset_issuer)
+        )
+      : null
+    const depositButton =
       balance.asset_type === 'native'
         ? null
-        : [
-            WalletButton.call(this, 'Deposit', loadingKey('deposit'), () => {
-              this.depositAsset(balance.asset_code, balance.asset_issuer)
-            }),
-            WalletButton.call(this, 'Withdraw', loadingKey('withdraw'), () => {
-              this.withdrawAsset(balance.asset_code, balance.asset_issuer)
-            }),
-          ]
+        : WalletButton.call(this, 'Deposit', loadingKey('deposit'), () => {
+            this.depositAsset(balance.asset_code, balance.asset_issuer)
+          })
+    const withdrawButton =
+      balance.asset_type === 'native' || balance.untrusted
+        ? null
+        : WalletButton.call(this, 'Withdraw', loadingKey('withdraw'), () => {
+            this.withdrawAsset(balance.asset_code, balance.asset_issuer)
+          })
     return (
       <div class="asset-row">
         <div class="balance-row">
@@ -53,8 +53,9 @@ export default function balanceDisplay(this: Wallet) {
         </div>
         <div class="actions">
           {sendButton}
-          {regulatedSendButton}
-          {depositWithdrawButtons}
+          {trustButton}
+          {depositButton}
+          {withdrawButton}
         </div>
       </div>
     )
@@ -65,7 +66,7 @@ export default function balanceDisplay(this: Wallet) {
       {loHas(this.account, 'state') ? (
         <pre class="account-state">
           <h2 class="balance-headers">Balances</h2>
-          {(this.account.state.balances as Balance[]).map(balanceRow)}
+          {totalBalances.map(balanceRow)}
         </pre>
       ) : null}
     </div>

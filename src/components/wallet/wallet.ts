@@ -11,13 +11,12 @@ import depositAsset from './methods/depositAsset'
 import claimAsset from './methods/claimAsset'
 import withdrawAsset from './methods/withdrawAsset'
 import trustAsset from './methods/trustAsset'
+import addAsset from './methods/addAsset'
 import makePayment from './methods/makePayment'
-import makeRegulatedPayment from './methods/makeRegulatedPayment'
 import copyAddress from './methods/copyAddress'
 import copySecret from './methods/copySecret'
 import signOut from './methods/signOut'
 import setPrompt from './methods/setPrompt'
-import loadAccount from './methods/loadAccount'
 import popup from './methods/popup'
 import switchNetworks from './methods/switchNetworks'
 
@@ -36,6 +35,14 @@ const MockLogger = {
   error: (url, body) => {
     console.error('Error', url, body)
   },
+}
+
+export interface Balance {
+  balance: string
+  asset_type: string
+  asset_code: string
+  asset_issuer: string
+  untrusted: boolean
 }
 
 interface StellarAccount {
@@ -72,10 +79,11 @@ export class Wallet {
   @State() loading: Loading = {}
   @State() error: any
   @State() promptContents: string = null
+  @State() assets: Map<string, WalletAssetDetails> = new Map()
+  @State() untrustedAssets: Map<string, Balance> = new Map()
 
   @Prop() server: Server = new Server('https://horizon-testnet.stellar.org')
   @Prop() network_passphrase: string = Networks.TESTNET
-  @Prop() assets: Map<string, WalletAssetDetails> = new Map()
 
   // Component events
   componentWillLoad() {}
@@ -86,14 +94,13 @@ export class Wallet {
 
   // Stellar methods
   createAccount = createAccount
-  loadAccount = loadAccount
   updateAccount = updateAccount
   depositAsset = depositAsset
   withdrawAsset = withdrawAsset
   claimAsset = claimAsset
   trustAsset = trustAsset
+  addAsset = addAsset
   makePayment = makePayment
-  makeRegulatedPayment = makeRegulatedPayment
   copyAddress = copyAddress
   copySecret = copySecret
   signOut = signOut

@@ -1,6 +1,5 @@
 import { Keypair } from 'stellar-sdk'
 
-import { set } from '@services/storage'
 import { handleError } from '@services/error'
 import { Wallet } from '../wallet'
 
@@ -19,8 +18,6 @@ export default async function createAccount(this: Wallet) {
       secretKey: keypair.secret(),
     }
     this.assets.set('XLM', {})
-
-    set('WALLET[keystore]', btoa(JSON.stringify(this.account)))
 
     history.replaceState(null, '', `?secretKey=${this.account.secretKey}`)
     await this.updateAccount()
