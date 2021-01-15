@@ -13,7 +13,6 @@ import withdrawAsset from './methods/withdrawAsset'
 import trustAsset from './methods/trustAsset'
 import addAsset from './methods/addAsset'
 import makePayment from './methods/makePayment'
-import makeRegulatedPayment from './methods/makeRegulatedPayment'
 import copyAddress from './methods/copyAddress'
 import copySecret from './methods/copySecret'
 import signOut from './methods/signOut'
@@ -40,7 +39,6 @@ const MockLogger = {
 
 export interface Balance {
   balance: string
-  is_authorized: boolean
   asset_type: string
   asset_code: string
   asset_issuer: string
@@ -103,7 +101,6 @@ export class Wallet {
   trustAsset = trustAsset
   addAsset = addAsset
   makePayment = makePayment
-  makeRegulatedPayment = makeRegulatedPayment
   copyAddress = copyAddress
   copySecret = copySecret
   signOut = signOut

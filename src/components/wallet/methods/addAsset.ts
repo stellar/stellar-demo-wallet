@@ -43,7 +43,6 @@ export default async function addAsset(
           asset_issuer: addAsset.asset_issuer,
           balance: '0.0000000',
           asset_type: addAsset.asset_type,
-          is_authorized: true,
           untrusted: true,
         }
       )

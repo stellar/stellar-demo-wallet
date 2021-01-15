@@ -20,8 +20,6 @@ export default function balanceDisplay(this: Wallet) {
     const loadingKey = (type: string) => {
       return `${type}:${balance.asset_code}:${balance.asset_issuer}`
     }
-    const isRegulated =
-      !balance.is_authorized && balance.asset_type !== 'native'
     const assetCode =
       balance.asset_type === 'native' ? 'XLM' : balance.asset_code
 
@@ -29,14 +27,6 @@ export default function balanceDisplay(this: Wallet) {
       ? null
       : WalletButton.call(this, 'Send', loadingKey('send'), () =>
           this.makePayment(null, assetCode, balance.asset_issuer)
-        )
-    const regulatedSendButton = !isRegulated
-      ? null
-      : WalletButton.call(
-          this,
-          'Send Regulated',
-          loadingKey('sendRegulated'),
-          () => this.makeRegulatedPayment(null, assetCode, balance.asset_issuer)
         )
     const trustButton = balance.untrusted
       ? WalletButton.call(this, 'Trust Asset', loadingKey('trust'), () =>
@@ -63,7 +53,6 @@ export default function balanceDisplay(this: Wallet) {
         </div>
         <div class="actions">
           {sendButton}
-          {regulatedSendButton}
           {trustButton}
           {depositButton}
           {withdrawButton}
