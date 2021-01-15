@@ -140,15 +140,11 @@ export default async function depositAsset(
       formData.append(key, postDepositParams[key])
     })
 
-    this.logger.instruction(
-      'To get the url for the interactive flow check the /transactions/deposit/interactive endpoint'
-    )
-
     this.logger.request(
       `POST ${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
       postDepositParams
     )
-    const interactiveResponse = await fetch(
+    let response = await fetch(
       `${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
       {
         method: 'POST',
@@ -157,40 +153,95 @@ export default async function depositAsset(
           Authorization: `Bearer ${auth}`,
         },
       }
-    ).then((r) => r.json())
+    )
+    const interactiveJson = await response.json()
     this.logger.response(
       toml.TRANSFER_SERVER_SEP0024 + '/transactions/deposit/interactive',
-      interactiveResponse
+      interactiveJson
     )
-    if (!interactiveResponse.url) {
+    if (!interactiveJson.url) {
       throw 'No URL Returned from POST /transactions/deposit/interactive'
     }
-    const urlBuilder = new URL(interactiveResponse.url)
-    urlBuilder.searchParams.set('callback', 'postMessage')
-    this.logger.instruction(
-      'To collect the interactive information we launch the interactive URL in a frame or webview, and await payment details from a postMessage callback'
-    )
-    const popup = open(urlBuilder.toString(), 'popup', 'width=500,height=800')
-
+    const popupUrl = new URL(interactiveJson.url)
+    const popup = open(popupUrl.toString(), 'popup', 'width=500,height=800')
     if (!popup) {
       throw 'Popups are blocked. You’ll need to enable popups for this demo to work'
     }
 
-    window.onmessage = ({ data: { transaction } }) => {
-      if (transaction.status === 'completed') {
-        this.updateAccount()
-        this.logger.instruction('Transaction status complete')
-        finish()
-      } else {
-        this.logger.instruction('Transaction status pending...')
-        setTimeout(() => {
-          const urlBuilder = new URL(transaction.more_info_url)
-          urlBuilder.searchParams.set('callback', 'postMessage')
-
-          popup.location.href = urlBuilder.toString()
-        }, 1000)
+    let currentStatus = 'incomplete'
+    const transactionUrl = new URL(
+      `${toml.TRANSFER_SERVER_SEP0024}/transaction?id=${interactiveJson.id}`
+    )
+    this.logger.instruction(`Polling for updates: ${transactionUrl.toString()}`)
+    while (!popup.closed && !['completed', 'error'].includes(currentStatus)) {
+      response = await fetch(transactionUrl.toString(), {
+        headers: { Authorization: `Bearer ${auth}` },
+      })
+      let transactionJson = await response.json()
+      if (transactionJson.transaction.status !== currentStatus) {
+        currentStatus = transactionJson.transaction.status
+        popup.location.href = transactionJson.transaction.more_info_url
+        this.logger.instruction(
+          `Transaction ${interactiveJson.id} is in ${transactionJson.transaction.status} status`
+        )
+        switch (currentStatus) {
+          case 'pending_user_transfer_start': {
+            this.logger.instruction(
+              'The anchor is waiting on you to take the action described in the popup'
+            )
+            break
+          }
+          case 'pending_anchor': {
+            this.logger.instruction('The anchor is processing the transaction')
+            break
+          }
+          case 'pending_stellar': {
+            this.logger.instruction(
+              'The Stellar network is processing the transaction'
+            )
+            break
+          }
+          case 'pending_external': {
+            this.logger.instruction(
+              'The transaction is being processed by an external system'
+            )
+            break
+          }
+          case 'pending_trust': {
+            this.logger.instruction(
+              'You must add a trustline to the asset in order to receive your deposit'
+            )
+            this.logger.instruction('Adding trustline...')
+            await this.trustAsset(asset_code, asset_issuer)
+            break
+          }
+          case 'pending_user': {
+            this.logger.instruction(
+              'The anchor is waiting for you to take the action described in the popup'
+            )
+            break
+          }
+          case 'error': {
+            this.logger.instruction(
+              'There was a problem processing your transaction'
+            )
+            break
+          }
+        }
       }
+      // run loop every 2 seconds
+      await new Promise((resolve) => setTimeout(resolve, 2000))
     }
+
+    this.logger.instruction(`Transaction status: ${currentStatus}`)
+    if (!['completed', 'error'].includes(currentStatus) && popup.closed) {
+      this.logger.instruction(
+        'The popup was closed before the transaction reached a terminal status, ' +
+          'if your balance is not updated soon, the transaction may have failed.'
+      )
+    }
+    this.updateAccount()
+    finish()
   } catch (err) {
     finish()
     this.error = handleError(err)
