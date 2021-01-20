@@ -1,0 +1,58 @@
+@mixin header-footer-inset {
+  height: 3rem;
+  display: flex;
+  align-items: center;
+}
+
+@mixin header-footer-vertical-padding {
+  @media (min-width: 700px) {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+.Inset {
+  position: relative;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  width: 100%;
+  max-width: 1296px;
+
+  @media (min-width: 420px) {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+.Header {
+  @include header-footer-vertical-padding;
+
+  .Inset {
+    @include header-footer-inset;
+    justify-content: space-between;
+  }
+}
+
+.Footer {
+  @include header-footer-vertical-padding;
+
+  .Inset {
+    @include header-footer-inset;
+
+    a:not(:last-child) {
+      margin-right: 1.5rem;
+    }
+  }
+}
+
+.Content {
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+.Block {
+  & > * {
+    margin-bottom: 1rem;
+  }
+}

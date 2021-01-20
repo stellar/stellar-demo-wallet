@@ -1,0 +1,39 @@
+.CopyWithTooltip {
+  cursor: pointer;
+  position: relative;
+
+  .Tooltip {
+    // Default Tooltip styles (move to global styles)
+    position: absolute;
+    top: 2.7rem;
+    right: -1rem;
+    max-width: 270px;
+    border-radius: 0.25rem;
+    background-color: var(--color-accent);
+    padding: 1rem 1.5rem;
+    color: var(--color-background-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    z-index: var(--z-index-tooltip);
+    cursor: default;
+
+    // Copy Tooltip styles
+    visibility: hidden;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-background-contrast);
+
+    &[data-position="bottom"] {
+      right: 50%;
+      transform: translateX(50%);
+    }
+
+    &[data-position="right"] {
+      top: 50%;
+      transform: translate(100%, -50%);
+    }
+
+    &[data-visible="true"] {
+      visibility: visible;
+    }
+  }
+}

@@ -1,24 +1,14 @@
 {
+  "extends": "@stellar/tsconfig",
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "allowUnreachableCode": false,
-    "declaration": false,
-    "experimentalDecorators": true,
-    "lib": ["dom", "dom.iterable", "es2019"],
-    "moduleResolution": "node",
+    "baseUrl": "src/",
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
-    "target": "es2017",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "jsx": "react",
-    "jsxFactory": "h",
-    "baseUrl": "./src",
-    "paths": {
-      "@prompt/*": ["components/prompt/*"],
-      "@services/*": ["services/*"]
-    }
+    "moduleResolution": "node",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src", "types/jsx.d.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src"]
 }
