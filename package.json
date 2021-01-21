@@ -4,6 +4,9 @@
   "description": "Stellar Demo Wallet",
   "repository": "https://github.com/stellar/stellar-demo-wallet",
   "license": "Apache-2.0",
+  "engines": {
+    "node": "14.x"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "concurrently 'pretty-quick --staged' 'lint-staged' 'tsc --noEmit'",
