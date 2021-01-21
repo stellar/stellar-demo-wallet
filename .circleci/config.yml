@@ -11,9 +11,9 @@ jobs:
       - checkout
       - node/install-packages:
           pkg-manager: yarn
-      - run:
-          command: yarn run test
-          name: Run YARN tests
+      # - run:
+      #     command: yarn run test
+      #     name: Run YARN tests
 
 workflows:
   test_demo_wallet:
