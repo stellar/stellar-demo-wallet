@@ -1,7 +1,12 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.1.0
+
 jobs:
   test:
-    executor:
-      name: node/default
+    docker:
+      - image: 'circleci/node:14'
     steps:
       - checkout
       - node/install-packages:
@@ -9,9 +14,7 @@ jobs:
       - run:
           command: yarn run test
           name: Run YARN tests
-orbs:
-  node: circleci/node@4.1.0
-version: 2.1
+
 workflows:
   test_demo_wallet:
     jobs:
