@@ -1,4 +1,4 @@
-// TODO: move to SDS
+// TODO: move to Stellar Design System
 import React, { useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 
