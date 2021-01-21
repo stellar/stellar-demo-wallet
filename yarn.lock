@@ -1405,27 +1405,27 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@ledgerhq/devices@^5.39.1":
-  version "5.39.1"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-5.39.1.tgz#9f9a2d374cdf2814ecbd9cb8317a9fa0d402d477"
-  integrity sha512-nkIgbZ3VtRPboL+BzJZi7MgSwrwhatJhSMzv63wGiJjgwgFRniMn7P0NvT0EqfMicnQMGdIKGmcB6Wdr3GLSdg==
+"@ledgerhq/devices@^5.40.0":
+  version "5.40.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-5.40.0.tgz#5f74d1931e23110287ec5954f7ab5f3b754d8d4d"
+  integrity sha512-72P1fuiBN/lR+3PCB2lxsgfp+l4v3Uwvho7UnfOocCfWx//8HiojByRW3zutdW7RMeVzOA+qLXRC6OHooa0kkA==
   dependencies:
-    "@ledgerhq/errors" "^5.39.0"
-    "@ledgerhq/logs" "^5.39.0"
+    "@ledgerhq/errors" "^5.40.0"
+    "@ledgerhq/logs" "^5.40.0"
     rxjs "^6.6.3"
     semver "^7.3.4"
 
-"@ledgerhq/errors@^5.34.0", "@ledgerhq/errors@^5.39.0":
-  version "5.39.0"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-5.39.0.tgz#1fc392af94c1c1dc12d5e865b44f34bdfbc37503"
-  integrity sha512-N4/0NO2qgRlF+6QG9a4kGurmi2p6rcYyWeJb4QxU8ypGqBgzMBYjx0LM68JfGFAN5niAuqHZtDZ87EPSrXyu6Q==
+"@ledgerhq/errors@^5.34.0", "@ledgerhq/errors@^5.40.0":
+  version "5.40.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-5.40.0.tgz#1c8a4fa5977e645e354e497519b403e156c4f043"
+  integrity sha512-Sj7T7IjiQdEEdA1/o66paldyAV+/1GVfDSML9Q1kCkv9ASfhV3bogM9knSEATLiuVj2+QUyJBni6EettMiUfGA==
 
 "@ledgerhq/hw-app-str@^5.28.0":
-  version "5.39.1"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-app-str/-/hw-app-str-5.39.1.tgz#905352baf7163a09d8f335da23fbddddedee1082"
-  integrity sha512-aGWsHlH5aGIdbioqIxVxaoMFhYNhkE/zmCAqvpZqoQ0LdEl1VHkwJTqcKCrepUvMq6NDPFejEPVC4m87dIu41Q==
+  version "5.40.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-app-str/-/hw-app-str-5.40.0.tgz#a2b5c8d5ce2c9bc7080fea35dc7947745c64fd5d"
+  integrity sha512-eW5TVvG4XXzx2sOHuqdbHCdrMbrNOii/d5eWcJIJW87Q2aNGJJgM2jGPViGtqfFFtOGEgAHW7VEJ8vAtwTD7GA==
   dependencies:
-    "@ledgerhq/hw-transport" "^5.39.1"
+    "@ledgerhq/hw-transport" "^5.40.0"
     base32.js "^0.1.0"
     sha.js "^2.3.6"
     tweetnacl "^1.0.3"
@@ -1440,19 +1440,19 @@
     "@ledgerhq/logs" "^5.30.0"
     u2f-api "0.2.7"
 
-"@ledgerhq/hw-transport@^5.34.0", "@ledgerhq/hw-transport@^5.39.1":
-  version "5.39.1"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-5.39.1.tgz#03d30ede8b80357b05f17043781e4a93688374e2"
-  integrity sha512-+V+0KU4hJ/yVpF0zqsCGyFruD3Mfkz0JkkrjZIxPSaB6NWRKoeFcJNItEnER4x/wSpwROc+Jw3DYB0PXT0M6PQ==
+"@ledgerhq/hw-transport@^5.34.0", "@ledgerhq/hw-transport@^5.40.0":
+  version "5.40.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-5.40.0.tgz#cb98113d7ff47a410bc3591995173a504ba736c8"
+  integrity sha512-0BPCEBZxr9iHLBCGftnLaVQW8DxM5lf56r00CsMOxfZerax70fzwXnGSxim0QUZXtnFbwhecGeeTSnyB85wH5A==
   dependencies:
-    "@ledgerhq/devices" "^5.39.1"
-    "@ledgerhq/errors" "^5.39.0"
+    "@ledgerhq/devices" "^5.40.0"
+    "@ledgerhq/errors" "^5.40.0"
     events "^3.2.0"
 
-"@ledgerhq/logs@^5.30.0", "@ledgerhq/logs@^5.39.0":
-  version "5.39.0"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-5.39.0.tgz#a02678ebd43a52eb075e0344b046da9a22f95069"
-  integrity sha512-kkVtWPCss5DiizQeVMMWHhlDnF9Lft8nbIUpJsRXgiCYh4Avjsx6wYS0fiZRpRla6ki67aXRJWSnKCohH0F3BA==
+"@ledgerhq/logs@^5.30.0", "@ledgerhq/logs@^5.40.0":
+  version "5.40.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-5.40.0.tgz#751c7d033de23c736af0ad294145f57825394256"
+  integrity sha512-GkGWnpbNt1rd7JyrLNOiWiA1IiqWU4tD/xBo0FlKZEF5DfLw8PXYU6NSH5WVc4tiNLjTa8e26erZ1g3r9cymww==
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
@@ -1743,9 +1743,9 @@
     "@testing-library/dom" "^7.28.1"
 
 "@testing-library/user-event@^12.6.0":
-  version "12.6.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-12.6.0.tgz#2d0229e399eb5a0c6c112e848611432356cac886"
-  integrity sha512-FNEH/HLmOk5GO70I52tKjs7WvGYckeE/SrnLX/ip7z2IGbffyd5zOUM1tZ10vsTphqm+VbDFI0oaXu0wcfQsAQ==
+  version "12.6.2"
+  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-12.6.2.tgz#accce6be0353be38e07bce55b31232d89ae10bc2"
+  integrity sha512-4OsiTSo2vbQm+eOnm1un8b9i2Re4mn+D7d7ET6HXtzYKY7vPe3O01iYKRmSW9vS5mNrQcCLwvRhVq1gWs5YGKA==
   dependencies:
     "@babel/runtime" "^7.12.5"
 
@@ -3436,9 +3436,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001173:
-  version "1.0.30001178"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001178.tgz#3ad813b2b2c7d585b0be0a2440e1e233c6eabdbc"
-  integrity sha512-VtdZLC0vsXykKni8Uztx45xynytOi71Ufx9T8kHptSw9AL4dpqailUJJHavttuzUe1KYuBYtChiWv+BAb7mPmQ==
+  version "1.0.30001179"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001179.tgz#b0803883b4471a6c62066fb1752756f8afc699c8"
+  integrity sha512-blMmO0QQujuUWZKyVrD1msR4WNDAqb/UPO1Sw2WWsQ7deoM5bJiicKnWJ1Y0NS/aGINSnKPIWBMw5luX+NDUCA==
 
 capture-exit@^2.0.0:
   version "2.0.0"
