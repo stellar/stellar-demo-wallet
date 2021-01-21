@@ -50,4 +50,5 @@ export const config: Config = {
       '^@prompt/(.*)$': '<rootDir>/src/components/prompt/$1',
     },
   },
+  hashFileNames: process.env.NODE_ENV !== 'development',
 }
