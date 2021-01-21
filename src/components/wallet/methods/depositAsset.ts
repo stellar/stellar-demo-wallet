@@ -72,8 +72,11 @@ export default async function depositAsset(
       throw 'TOML must contain a SIGNING_KEY, TRANSFER_SERVER_SEP0024 and WEB_AUTH_ENDPOINT'
     }
 
-    // Set asset here because we have the homeDomain and toml contents
-    this.assets.set(`${asset_code}:${asset_issuer}`, { homeDomain, toml })
+    // Set asset here because we have the homeDomain and toml contents,
+    // but only if its trusted. (this.assets are considered trusted)
+    if (!this.untrustedAssets.has(`${asset_code}:${asset_issuer}`)) {
+      this.assets.set(`${asset_code}:${asset_issuer}`, { homeDomain, toml })
+    }
 
     this.logger.instruction(
       'Check /info endpoint to ensure this currency is enabled for deposit'
