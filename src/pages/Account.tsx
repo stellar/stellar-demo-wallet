@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Heading2, TextButton } from "@stellar/design-system";
 import { CopyWithTooltip } from "components/CopyWithTooltip";
+import { SendPayment } from "components/SendPayment";
 import { fetchAccountAction } from "ducks/account";
 import { useRedux } from "hooks/useRedux";
 
 export const Account = () => {
   const { account } = useRedux("account");
+  const [isSendPaymentVisible, setIsSendPaymentVisible] = useState(false);
   const [isAccountDetailsVisible, setIsAccountDetailsVisible] = useState(false);
 
   const dispatch = useDispatch();
@@ -33,7 +35,16 @@ export const Account = () => {
       <Heading2>Balances</Heading2>
       <p>{`XLM: ${nativeBalance}`}</p>
 
-      <div style={{ display: "flex", marginBottom: "1rem" }}>
+      <div>
+        <TextButton
+          onClick={() => setIsSendPaymentVisible(!isSendPaymentVisible)}
+        >
+          {`${isSendPaymentVisible ? "Hide" : "Show"} Send`}
+        </TextButton>
+        {isSendPaymentVisible && <SendPayment />}
+      </div>
+
+      <div style={{ display: "flex" }}>
         <CopyWithTooltip copyText={account.data.id}>
           <TextButton>Copy Address</TextButton>
         </CopyWithTooltip>
