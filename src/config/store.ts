@@ -9,6 +9,7 @@ import { combineReducers, Action } from "redux";
 import BigNumber from "bignumber.js";
 
 import { reducer as account } from "ducks/account";
+import { reducer as sendPayment } from "ducks/sendPayment";
 import { reducer as settings } from "ducks/settings";
 
 const RESET_STORE_ACTION_TYPE = "REST";
@@ -29,6 +30,7 @@ const isSerializable = (value: any) =>
 
 const reducers = combineReducers({
   account,
+  sendPayment,
   settings,
 });
 
