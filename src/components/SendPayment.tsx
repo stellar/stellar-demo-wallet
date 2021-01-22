@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, InfoBlock, Input, TextLink } from "@stellar/design-system";
+import {
+  Button,
+  InfoBlock,
+  Input,
+  Loader,
+  TextLink,
+} from "@stellar/design-system";
 import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
@@ -74,6 +80,7 @@ export const SendPayment = () => {
     dispatch(sendPaymentAction(params));
   };
 
+  // TODO: handle error
   return (
     <div className="SendForm Block">
       <Input
@@ -119,7 +126,15 @@ export const SendPayment = () => {
         </InfoBlock>
       )}
 
-      <Button onClick={handleSubmit}>Submit</Button>
+      <div className="SendFormButtons">
+        <Button
+          onClick={handleSubmit}
+          disabled={sendPayment.status === ActionStatus.PENDING}
+        >
+          Submit
+        </Button>
+        {sendPayment.status === ActionStatus.PENDING && <Loader />}
+      </div>
     </div>
   );
 };

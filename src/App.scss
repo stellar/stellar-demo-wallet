@@ -61,3 +61,12 @@
   max-width: 600px;
   margin-bottom: 1rem;
 }
+
+.SendFormButtons {
+  display: flex;
+  align-items: center;
+
+  div {
+    margin-left: 1rem;
+  }
+}
