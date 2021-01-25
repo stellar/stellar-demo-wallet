@@ -1,8 +1,8 @@
 # Stellar Demo Wallet
 
-This Stellar Demo Wallet app will soon be the defacto application to use when testing anchor services interactively. If you would live to automate testing of your anchor service, check out the SDF's [anchor validation suite](https://github.com/stellar/transfer-server-validator) viewable at [anchor-validator.stellar.org](anchor-validator.stellar.org).
+This Stellar Demo Wallet app will soon be the defacto application to use when testing anchor services interactively. If you would like to automate testing of your anchor service, check out the SDF's [anchor validation suite](https://github.com/stellar/transfer-server-validator) viewable at [anchor-validator.stellar.org](https://anchor-validator.stellar.org/).
 
-This project was originally created for the [Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/) tutorial series. ([That repo has since moved over here](https://github.com/stellar/docs-wallet)). If you want to use parts or all of the project to kickstart your own wallet, feel free to clone or copy any pieces which may be helpful.
+This project was originally created for the [Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/) tutorial series. ([That repo has since moved over here](https://github.com/stellar/docs-wallet)). If you want to use part or all of the project to kickstart your own wallet, feel free to clone or copy any pieces which may be helpful.
 
 ## Getting Started
 
