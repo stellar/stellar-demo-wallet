@@ -1,4 +1,5 @@
-import { Horizon, Types } from "stellar-sdk";
+import { Types } from "@stellar/wallet-sdk";
+import { Horizon } from "stellar-sdk";
 
 export interface AccountInitialState {
   data: Types.AccountDetails | null;
@@ -15,18 +16,36 @@ export interface SendPaymentInitialState {
 }
 
 export interface SettingsInitialState {
-  secretKey: string;
   pubnet?: boolean;
+  secretKey: string;
+  untrustedAssets: string;
+}
+
+export interface UntrustedAssetsInitialState {
+  data: UntrustedAsset[];
+  errorString?: string;
+  status: ActionStatus | undefined;
 }
 
 export interface Setting {
   [key: string]: any;
 }
 
+export interface UntrustedAsset {
+  assetCode: string;
+  assetIssuer: string;
+  assetString?: string;
+  // TODO: update type
+  assetType: string;
+  balance: string;
+  untrusted: boolean;
+}
+
 export interface Store {
   account: AccountInitialState;
   sendPayment: SendPaymentInitialState;
   settings: SettingsInitialState;
+  untrustedAssets: UntrustedAssetsInitialState;
 }
 
 export type StoreKey = keyof Store;

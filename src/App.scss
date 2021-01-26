@@ -70,3 +70,15 @@
     margin-left: 1rem;
   }
 }
+
+.Inline {
+  display: flex;
+
+  & > * {
+    margin-right: 1rem;
+  }
+}
+
+.Error {
+  color: var(--color-error);
+}

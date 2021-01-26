@@ -21,6 +21,7 @@ export const SettingsHandler = ({
   const queryParams = new URLSearchParams(location.search);
   const pubnetParam = queryParams.get("pubnet");
   const secretKeyParam = queryParams.get("secretKey");
+  const untrustedAssetsParam = queryParams.get("untrustedAssets");
 
   // Set network param (pubnet=true)
   useEffect(() => {
@@ -48,6 +49,16 @@ export const SettingsHandler = ({
       }
     }
   }, [secretKeyParam, dispatch]);
+
+  // TODO: better comment
+  // untrusted assets
+  useEffect(() => {
+    dispatch(
+      updateSettingsAction({ untrustedAssets: untrustedAssetsParam || "" }),
+    );
+
+    // TODO: save to redux store
+  }, [untrustedAssetsParam, dispatch]);
 
   // Go to /account page if fetching account was success
   useEffect(() => {
