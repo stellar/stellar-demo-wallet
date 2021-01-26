@@ -5,6 +5,7 @@ import { SettingsInitialState, Setting } from "types/types.d";
 const initialState: SettingsInitialState = {
   pubnet: false,
   secretKey: "",
+  untrustedAssets: "",
 };
 
 const settingsSlice = createSlice({

@@ -11,6 +11,7 @@ import BigNumber from "bignumber.js";
 import { reducer as account } from "ducks/account";
 import { reducer as sendPayment } from "ducks/sendPayment";
 import { reducer as settings } from "ducks/settings";
+import { reducer as untrustedAssets } from "ducks/untrustedAssets";
 
 const RESET_STORE_ACTION_TYPE = "REST";
 
@@ -32,6 +33,7 @@ const reducers = combineReducers({
   account,
   sendPayment,
   settings,
+  untrustedAssets,
 });
 
 export const resetStoreAction = createAction(RESET_STORE_ACTION_TYPE);

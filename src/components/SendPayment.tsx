@@ -41,7 +41,7 @@ export const SendPayment = () => {
   };
 
   useEffect(() => {
-    if (sendPayment.status === ActionStatus.SUCCESS) {
+    if (sendPayment.status === ActionStatus.SUCCESS && data?.id) {
       dispatch(
         fetchAccountAction({
           publicKey: data.id,
@@ -68,16 +68,18 @@ export const SendPayment = () => {
   };
 
   const handleSubmit = () => {
-    const params = {
-      destination,
-      isDestinationFunded,
-      amount,
-      assetCode,
-      assetIssuer,
-      publicKey: account.data?.id,
-    };
+    if (data?.id) {
+      const params = {
+        destination,
+        isDestinationFunded,
+        amount,
+        assetCode,
+        assetIssuer,
+        publicKey: data.id,
+      };
 
-    dispatch(sendPaymentAction(params));
+      dispatch(sendPaymentAction(params));
+    }
   };
 
   // TODO: handle error
