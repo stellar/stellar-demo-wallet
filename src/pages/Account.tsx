@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Heading2, TextButton } from "@stellar/design-system";
+import { TextButton } from "@stellar/design-system";
 import { AddAsset } from "components/AddAsset";
+import { Balance } from "components/Balance";
 import { CopyWithTooltip } from "components/CopyWithTooltip";
 import { SendPayment } from "components/SendPayment";
 import { UntrustedBalance } from "components/UntrustedBalance";
@@ -15,14 +16,6 @@ export const Account = () => {
   const [isAddAssetVisible, setIsAddAssetVisible] = useState(false);
 
   const dispatch = useDispatch();
-  let nativeBalance = "0";
-
-  // TODO: handle all balances
-  if (account.data) {
-    nativeBalance = account.data.balances
-      ? account.data.balances.native.total.toString()
-      : "0";
-  }
 
   const handleRefreshAccount = () => {
     if (account.data?.id) {
@@ -35,6 +28,14 @@ export const Account = () => {
     }
   };
 
+  const handleSendPayment = () => {
+    setIsSendPaymentVisible(true);
+  };
+
+  const handleSendPaymentCancel = () => {
+    setIsSendPaymentVisible(false);
+  };
+
   if (!account.data?.id) {
     return null;
   }
@@ -42,20 +43,14 @@ export const Account = () => {
   return (
     <div className="Inset">
       {/* Balances */}
-      <Heading2>Balances</Heading2>
-      <p>{`XLM: ${nativeBalance}`}</p>
-
+      <Balance onSend={handleSendPayment} />
       <UntrustedBalance />
 
       {/* Send payment */}
-      <div>
-        <TextButton
-          onClick={() => setIsSendPaymentVisible(!isSendPaymentVisible)}
-        >
-          {`${isSendPaymentVisible ? "Hide" : "Show"} Send`}
-        </TextButton>
-        {isSendPaymentVisible && <SendPayment />}
-      </div>
+      {/* TODO: pre-fill fields from selected asset */}
+      {isSendPaymentVisible && (
+        <SendPayment onCancel={handleSendPaymentCancel} />
+      )}
 
       {/* Copy keys */}
       <div style={{ display: "flex" }}>
