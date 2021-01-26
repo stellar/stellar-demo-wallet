@@ -31,10 +31,17 @@ export interface Setting {
   [key: string]: any;
 }
 
+export interface TrustAssetInitialState {
+  assetString: string;
+  data: any;
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
+
 export interface UntrustedAsset {
   assetCode: string;
   assetIssuer: string;
-  assetString?: string;
+  assetString: string;
   // TODO: update type
   assetType: string;
   balance: string;
@@ -45,6 +52,7 @@ export interface Store {
   account: AccountInitialState;
   sendPayment: SendPaymentInitialState;
   settings: SettingsInitialState;
+  trustAsset: TrustAssetInitialState;
   untrustedAssets: UntrustedAssetsInitialState;
 }
 

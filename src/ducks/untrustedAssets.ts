@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import StellarSdk from "stellar-sdk";
 
 import { RootState } from "config/store";
@@ -111,6 +111,9 @@ const untrustedAssetsSlice = createSlice({
   name: "untrustedAssets",
   initialState,
   reducers: {
+    removeUntrustedAssetAction: (state, action: PayloadAction<string>) => {
+      state.data = state.data.filter((ua) => ua.assetString !== action.payload);
+    },
     resetUntrustedAssetsAction: () => initialState,
   },
   extraReducers: (builder) => {
@@ -132,4 +135,7 @@ export const untrustedAssetsSelector = (state: RootState) =>
   state.untrustedAssets;
 
 export const { reducer } = untrustedAssetsSlice;
-export const { resetUntrustedAssetsAction } = untrustedAssetsSlice.actions;
+export const {
+  removeUntrustedAssetAction,
+  resetUntrustedAssetsAction,
+} = untrustedAssetsSlice.actions;

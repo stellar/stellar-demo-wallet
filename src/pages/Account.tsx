@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom";
 import { TextButton } from "@stellar/design-system";
 import { AddAsset } from "components/AddAsset";
 import { Balance } from "components/Balance";
@@ -7,17 +8,23 @@ import { CopyWithTooltip } from "components/CopyWithTooltip";
 import { SendPayment } from "components/SendPayment";
 import { UntrustedBalance } from "components/UntrustedBalance";
 import { fetchAccountAction } from "ducks/account";
+import { resetTrustAssetAction } from "ducks/trustAsset";
+import { removeUntrustedAssetAction } from "ducks/untrustedAssets";
+import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
 import { useRedux } from "hooks/useRedux";
+import { ActionStatus } from "types/types.d";
 
 export const Account = () => {
-  const { account } = useRedux("account");
+  const { account, trustAsset } = useRedux("account", "trustAsset");
   const [isSendPaymentVisible, setIsSendPaymentVisible] = useState(false);
   const [isAccountDetailsVisible, setIsAccountDetailsVisible] = useState(false);
   const [isAddAssetVisible, setIsAddAssetVisible] = useState(false);
 
   const dispatch = useDispatch();
+  const history = useHistory();
+  const location = useLocation();
 
-  const handleRefreshAccount = () => {
+  const handleRefreshAccount = useCallback(() => {
     if (account.data?.id) {
       dispatch(
         fetchAccountAction({
@@ -26,7 +33,28 @@ export const Account = () => {
         }),
       );
     }
-  };
+  }, [account.data?.id, account.secretKey, dispatch]);
+
+  useEffect(() => {
+    if (trustAsset.status === ActionStatus.SUCCESS) {
+      history.push(
+        removeUntrustedAssetSearchParam({
+          location,
+          removeAsset: trustAsset.assetString,
+        }),
+      );
+      dispatch(resetTrustAssetAction());
+      dispatch(removeUntrustedAssetAction(trustAsset.assetString));
+      handleRefreshAccount();
+    }
+  }, [
+    trustAsset.status,
+    trustAsset.assetString,
+    handleRefreshAccount,
+    location,
+    dispatch,
+    history,
+  ]);
 
   const handleSendPayment = () => {
     setIsSendPaymentVisible(true);
@@ -67,10 +95,12 @@ export const Account = () => {
 
       {/* Add asset */}
       <div>
-        <TextButton onClick={() => setIsAddAssetVisible(!isAddAssetVisible)}>
+        <TextButton onClick={() => setIsAddAssetVisible(true)}>
           Add asset
         </TextButton>
-        {isAddAssetVisible && <AddAsset />}
+        {isAddAssetVisible && (
+          <AddAsset onCancel={() => setIsAddAssetVisible(false)} />
+        )}
       </div>
 
       {/* Account details */}
