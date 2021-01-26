@@ -10,6 +10,7 @@ export const UntrustedBalance = () => {
 
   const dispatch = useDispatch();
 
+  // TODO: we can move this someplace else (SettingsHandler, for example)
   useEffect(() => {
     if (!settings.untrustedAssets) {
       return;

@@ -50,14 +50,11 @@ export const SettingsHandler = ({
     }
   }, [secretKeyParam, dispatch]);
 
-  // TODO: better comment
-  // untrusted assets
+  // Untrusted assets
   useEffect(() => {
     dispatch(
       updateSettingsAction({ untrustedAssets: untrustedAssetsParam || "" }),
     );
-
-    // TODO: save to redux store
   }, [untrustedAssetsParam, dispatch]);
 
   // Go to /account page if fetching account was success
