@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Types } from "@stellar/wallet-sdk";
 import StellarSdk, {
   Transaction,
   Keypair,
@@ -10,6 +9,7 @@ import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { trustAsset } from "methods/trustAsset";
 import {
   ActionStatus,
   DepositAssetInitialState,
@@ -17,20 +17,19 @@ import {
 } from "types/types.d";
 
 export const depositAssetAction = createAsyncThunk<
-  string,
-  Types.AssetBalance,
+  { currentStatus: string; trustedAssetAdded?: string },
+  { assetCode: string; assetIssuer: string },
   { rejectValue: RejectMessage; state: RootState }
 >(
   "depositAsset/depositAssetAction",
-  async (asset, { rejectWithValue, getState }) => {
+  async ({ assetCode, assetIssuer }, { rejectWithValue, getState }) => {
     const { data, secretKey } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
     const networkConfig = getNetworkConfig(Boolean(pubnet));
     const server = new StellarSdk.Server(networkConfig.url);
 
+    let trustedAssetAdded;
     const publicKey = data?.id;
-    const assetCode = asset.token.code;
-    const assetIssuer = asset.token.issuer.key;
 
     if (!publicKey) {
       return rejectWithValue({
@@ -41,7 +40,7 @@ export const depositAssetAction = createAsyncThunk<
     try {
       let homeDomain = null;
 
-      // TODO: check if this is needed
+      // TODO: save domain name with untrusted asset, if it was provided
       // if (this.assets.get(`${asset_code}:${asset_issuer}`)) {
       //   homeDomain = this.assets.get(`${asset_code}:${asset_issuer}`).homeDomain
       // }
@@ -65,7 +64,7 @@ export const depositAssetAction = createAsyncThunk<
 
       if (!homeDomain) {
         // TODO: handle no domain case
-        console.log("NO HOME DOMAIN AFTER FETCH");
+        console.log("Need to provide home domain");
         // let inputs
         // try {
         //   inputs = await this.setPrompt({
@@ -341,8 +340,24 @@ export const depositAssetAction = createAsyncThunk<
               );
               // TODO: log this
               console.log("instruction: ", "Adding trustline...");
-              // TODO: trust asset
-              // await dispatch(trustAssetAction(assetCode, assetIssuer));
+              try {
+                const assetString = `${assetCode}:${assetIssuer}`;
+                // eslint-disable-next-line no-await-in-loop
+                await trustAsset({
+                  server,
+                  secretKey,
+                  networkPassphrase: networkConfig.network,
+                  untrustedAsset: {
+                    assetString,
+                    assetCode,
+                    assetIssuer,
+                  },
+                });
+
+                trustedAssetAdded = assetString;
+              } catch (error) {
+                throw new Error(error);
+              }
               break;
             }
             case "pending_user": {
@@ -383,7 +398,10 @@ export const depositAssetAction = createAsyncThunk<
         );
       }
 
-      return currentStatus;
+      return {
+        currentStatus,
+        trustedAssetAdded,
+      };
     } catch (error) {
       return rejectWithValue({
         errorString: error.toString(),
@@ -393,7 +411,10 @@ export const depositAssetAction = createAsyncThunk<
 );
 
 const initialState: DepositAssetInitialState = {
-  data: "",
+  data: {
+    currentStatus: "",
+    trustedAssetAdded: undefined,
+  },
   status: undefined,
   errorString: undefined,
 };

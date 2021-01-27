@@ -10,7 +10,10 @@ export interface AccountInitialState {
 }
 
 export interface DepositAssetInitialState {
-  data: string;
+  data: {
+    currentStatus: string;
+    trustedAssetAdded?: string;
+  };
   errorString?: string;
   status: ActionStatus | undefined;
 }
@@ -52,6 +55,12 @@ export interface UntrustedAsset {
   assetType: string;
   balance: string;
   untrusted: boolean;
+}
+
+export interface TrustAssetParam {
+  assetString: string;
+  assetCode: string;
+  assetIssuer: string;
 }
 
 export interface Store {

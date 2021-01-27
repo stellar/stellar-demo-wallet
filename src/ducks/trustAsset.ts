@@ -1,20 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import StellarSdk, {
-  TransactionBuilder,
-  BASE_FEE,
-  Operation,
-  Asset,
-  Keypair,
-} from "stellar-sdk";
+import StellarSdk from "stellar-sdk";
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { trustAsset } from "methods/trustAsset";
 import {
   ActionStatus,
   RejectMessage,
   TrustAssetInitialState,
-  UntrustedAsset,
+  TrustAssetParam,
 } from "types/types.d";
 
 interface TrustAssetActionResponse {
@@ -24,7 +19,7 @@ interface TrustAssetActionResponse {
 
 export const trustAssetAction = createAsyncThunk<
   TrustAssetActionResponse,
-  UntrustedAsset,
+  TrustAssetParam,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "trustAsset/trustAssetAction",
@@ -34,28 +29,16 @@ export const trustAssetAction = createAsyncThunk<
     const server = new StellarSdk.Server(networkConfig.url);
 
     try {
-      const keypair = Keypair.fromSecret(secretKey);
-      const account = await server.loadAccount(keypair.publicKey());
-      const transaction = new TransactionBuilder(account, {
-        fee: BASE_FEE,
-        networkPassphrase: networkConfig.network,
-      })
-        .addOperation(
-          Operation.changeTrust({
-            asset: new Asset(
-              untrustedAsset.assetCode,
-              untrustedAsset.assetIssuer,
-            ),
-          }),
-        )
-        .setTimeout(0)
-        .build();
-
-      transaction.sign(keypair);
-
       return {
         assetString: untrustedAsset.assetString,
-        response: JSON.stringify(await server.submitTransaction(transaction)),
+        response: JSON.stringify(
+          await trustAsset({
+            secretKey,
+            server,
+            untrustedAsset,
+            networkPassphrase: networkConfig.network,
+          }),
+        ),
       };
     } catch (error) {
       return rejectWithValue({

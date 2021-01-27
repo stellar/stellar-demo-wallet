@@ -48,8 +48,8 @@ export const Account = () => {
           removeAsset: trustAsset.assetString,
         }),
       );
-      dispatch(resetTrustAssetAction());
       dispatch(removeUntrustedAssetAction(trustAsset.assetString));
+      dispatch(resetTrustAssetAction());
       handleRefreshAccount();
     }
   }, [
@@ -64,12 +64,32 @@ export const Account = () => {
   useEffect(() => {
     if (
       depositAsset.status === ActionStatus.SUCCESS &&
-      depositAsset.data === "completed"
+      depositAsset.data.currentStatus === "completed"
     ) {
+      const removeAsset = depositAsset.data.trustedAssetAdded;
+
+      if (removeAsset) {
+        history.push(
+          removeUntrustedAssetSearchParam({
+            location,
+            removeAsset,
+          }),
+        );
+        dispatch(removeUntrustedAssetAction(removeAsset));
+      }
+
       dispatch(resetDepositAssetAction());
       handleRefreshAccount();
     }
-  }, [depositAsset.status, depositAsset.data, handleRefreshAccount, dispatch]);
+  }, [
+    depositAsset.status,
+    depositAsset.data.currentStatus,
+    depositAsset.data.trustedAssetAdded,
+    handleRefreshAccount,
+    location,
+    dispatch,
+    history,
+  ]);
 
   const handleSendPayment = () => {
     setIsSendPaymentVisible(true);

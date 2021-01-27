@@ -45,7 +45,12 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
   // TODO: update type
   const handleDeposit = (asset: Types.AssetBalance) => {
     // TODO: handle global errors on UI
-    dispatch(depositAssetAction(asset));
+    dispatch(
+      depositAssetAction({
+        assetCode: asset.token.code,
+        assetIssuer: asset.token.issuer.key,
+      }),
+    );
   };
 
   // TODO: update type
