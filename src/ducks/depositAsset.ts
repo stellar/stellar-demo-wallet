@@ -65,6 +65,7 @@ export const depositAssetAction = createAsyncThunk<
       if (!homeDomain) {
         // TODO: handle no domain case
         console.log("Need to provide home domain");
+        throw new Error("Need to provide home domain");
         // let inputs
         // try {
         //   inputs = await this.setPrompt({
