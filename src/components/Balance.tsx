@@ -1,5 +1,7 @@
 import { Heading2, TextButton } from "@stellar/design-system";
 import { Types } from "@stellar/wallet-sdk";
+import { useDispatch } from "react-redux";
+import { depositAssetAction } from "ducks/depositAsset";
 import { useRedux } from "hooks/useRedux";
 
 interface SortedBalancesResult {
@@ -10,6 +12,8 @@ interface SortedBalancesResult {
 export const Balance = ({ onSend }: { onSend: () => void }) => {
   const { account } = useRedux("account");
   const allBalances = account?.data?.balances;
+
+  const dispatch = useDispatch();
 
   const groupBalances = () => {
     if (!allBalances) {
@@ -40,8 +44,8 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
 
   // TODO: update type
   const handleDeposit = (asset: Types.AssetBalance) => {
-    // TODO: handleDeposit
-    console.log("asset: ", asset);
+    // TODO: handle global errors on UI
+    dispatch(depositAssetAction(asset));
   };
 
   // TODO: update type

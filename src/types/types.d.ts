@@ -9,6 +9,12 @@ export interface AccountInitialState {
   status: ActionStatus | undefined;
 }
 
+export interface DepositAssetInitialState {
+  data: string;
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
+
 export interface SendPaymentInitialState {
   data: Horizon.TransactionResponse | null;
   errorString?: string;
@@ -50,6 +56,7 @@ export interface UntrustedAsset {
 
 export interface Store {
   account: AccountInitialState;
+  depositAsset: DepositAssetInitialState;
   sendPayment: SendPaymentInitialState;
   settings: SettingsInitialState;
   trustAsset: TrustAssetInitialState;
