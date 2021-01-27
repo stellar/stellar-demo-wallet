@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, Input, Loader } from "@stellar/design-system";
+import { Button, ButtonVariant, Input, Loader } from "@stellar/design-system";
 import { getIssuerFromDomain } from "helpers/getIssuerFromDomain";
 import { getUntrustedAssetsSearchParam } from "helpers/getUntrustedAssetsSearchParam";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
-export const AddAsset = () => {
-  const { untrustedAssets } = useRedux("untrustedAssets");
+export const AddAsset = ({ onCancel }: { onCancel: () => void }) => {
+  const { account, untrustedAssets } = useRedux("account", "untrustedAssets");
 
   // Form data
   const [assetCode, setAssetCode] = useState("");
@@ -56,6 +56,13 @@ export const AddAsset = () => {
       }
     }
 
+    // Is asset already trusted
+    if (account.data?.balances[asset]) {
+      console.log(`Asset ${asset} is already trusted.`);
+      setErrorMessage(`Asset ${asset} is already trusted.`);
+      return;
+    }
+
     try {
       history.push(
         getUntrustedAssetsSearchParam({
@@ -94,6 +101,9 @@ export const AddAsset = () => {
 
       <div className="SendFormButtons">
         <Button onClick={handleSetUntrustedAsset}>Submit</Button>
+        <Button onClick={onCancel} variant={ButtonVariant.secondary}>
+          Cancel
+        </Button>
         {untrustedAssets.status === ActionStatus.PENDING && <Loader />}
       </div>
 

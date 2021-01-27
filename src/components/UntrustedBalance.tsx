@@ -1,12 +1,17 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { TextButton } from "@stellar/design-system";
+import { trustAssetAction } from "ducks/trustAsset";
 import { addUntrustedAssetAction } from "ducks/untrustedAssets";
 import { useRedux } from "hooks/useRedux";
-import { UntrustedAsset } from "types/types.d";
+import { ActionStatus, UntrustedAsset } from "types/types.d";
 
 export const UntrustedBalance = () => {
-  const { settings, untrustedAssets } = useRedux("settings", "untrustedAssets");
+  const { settings, trustAsset, untrustedAssets } = useRedux(
+    "settings",
+    "trustAsset",
+    "untrustedAssets",
+  );
 
   const dispatch = useDispatch();
 
@@ -20,8 +25,7 @@ export const UntrustedBalance = () => {
   }, [settings.untrustedAssets, dispatch]);
 
   const handleTrustAsset = (asset: UntrustedAsset) => {
-    // TODO: handleTrustAsset
-    console.log("handleTrustAsset: ", asset);
+    dispatch(trustAssetAction(asset));
   };
 
   const handleDepositAsset = (asset: UntrustedAsset) => {
@@ -35,7 +39,10 @@ export const UntrustedBalance = () => {
         <div key={`${asset.assetCode}:${asset.assetIssuer}`}>
           <div>{`${asset.assetCode}: ${asset.balance}`}</div>
           <div className="Inline">
-            <TextButton onClick={() => handleTrustAsset(asset)}>
+            <TextButton
+              onClick={() => handleTrustAsset(asset)}
+              disabled={trustAsset.status === ActionStatus.PENDING}
+            >
               Trust asset
             </TextButton>
             <TextButton onClick={() => handleDepositAsset(asset)}>

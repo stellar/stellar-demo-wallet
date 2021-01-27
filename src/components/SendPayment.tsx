@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   Button,
+  ButtonVariant,
   InfoBlock,
   Input,
   Loader,
@@ -16,7 +17,7 @@ import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
-export const SendPayment = () => {
+export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
   const { account, sendPayment, settings } = useRedux(
     "account",
     "sendPayment",
@@ -134,6 +135,13 @@ export const SendPayment = () => {
           disabled={sendPayment.status === ActionStatus.PENDING}
         >
           Submit
+        </Button>
+        <Button
+          onClick={onCancel}
+          disabled={sendPayment.status === ActionStatus.PENDING}
+          variant={ButtonVariant.secondary}
+        >
+          Cancel
         </Button>
         {sendPayment.status === ActionStatus.PENDING && <Loader />}
       </div>
