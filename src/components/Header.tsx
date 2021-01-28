@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { ProjectLogo, TextButton } from "@stellar/design-system";
-import { resetAccountAction } from "ducks/account";
+import { resetStoreAction } from "config/store";
 import { useRedux } from "hooks/useRedux";
 
 export const Header = () => {
@@ -9,7 +9,7 @@ export const Header = () => {
   const dispatch = useDispatch();
 
   const handleSignOut = () => {
-    dispatch(resetAccountAction());
+    dispatch(resetStoreAction());
   };
 
   return (

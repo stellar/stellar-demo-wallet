@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { TextButton } from "@stellar/design-system";
+import { depositAssetAction } from "ducks/depositAsset";
 import { trustAssetAction } from "ducks/trustAsset";
 import { addUntrustedAssetAction } from "ducks/untrustedAssets";
 import { useRedux } from "hooks/useRedux";
@@ -25,12 +26,19 @@ export const UntrustedBalance = () => {
   }, [settings.untrustedAssets, dispatch]);
 
   const handleTrustAsset = (asset: UntrustedAsset) => {
-    dispatch(trustAssetAction(asset));
+    const { assetString, assetCode, assetIssuer } = asset;
+    dispatch(trustAssetAction({ assetString, assetCode, assetIssuer }));
   };
 
   const handleDepositAsset = (asset: UntrustedAsset) => {
-    // TODO: handleDepositAsset
-    console.log("handleDepositAsset: ", asset);
+    // TODO: handle global errors on UI
+    const { assetCode, assetIssuer } = asset;
+    dispatch(
+      depositAssetAction({
+        assetCode,
+        assetIssuer,
+      }),
+    );
   };
 
   return (

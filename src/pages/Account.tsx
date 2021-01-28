@@ -8,6 +8,7 @@ import { CopyWithTooltip } from "components/CopyWithTooltip";
 import { SendPayment } from "components/SendPayment";
 import { UntrustedBalance } from "components/UntrustedBalance";
 import { fetchAccountAction } from "ducks/account";
+import { resetDepositAssetAction } from "ducks/depositAsset";
 import { resetTrustAssetAction } from "ducks/trustAsset";
 import { removeUntrustedAssetAction } from "ducks/untrustedAssets";
 import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
@@ -15,7 +16,11 @@ import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
 export const Account = () => {
-  const { account, trustAsset } = useRedux("account", "trustAsset");
+  const { account, depositAsset, trustAsset } = useRedux(
+    "account",
+    "depositAsset",
+    "trustAsset",
+  );
   const [isSendPaymentVisible, setIsSendPaymentVisible] = useState(false);
   const [isAccountDetailsVisible, setIsAccountDetailsVisible] = useState(false);
   const [isAddAssetVisible, setIsAddAssetVisible] = useState(false);
@@ -43,13 +48,43 @@ export const Account = () => {
           removeAsset: trustAsset.assetString,
         }),
       );
-      dispatch(resetTrustAssetAction());
       dispatch(removeUntrustedAssetAction(trustAsset.assetString));
+      dispatch(resetTrustAssetAction());
       handleRefreshAccount();
     }
   }, [
     trustAsset.status,
     trustAsset.assetString,
+    handleRefreshAccount,
+    location,
+    dispatch,
+    history,
+  ]);
+
+  useEffect(() => {
+    if (
+      depositAsset.status === ActionStatus.SUCCESS &&
+      depositAsset.data.currentStatus === "completed"
+    ) {
+      const removeAsset = depositAsset.data.trustedAssetAdded;
+
+      if (removeAsset) {
+        history.push(
+          removeUntrustedAssetSearchParam({
+            location,
+            removeAsset,
+          }),
+        );
+        dispatch(removeUntrustedAssetAction(removeAsset));
+      }
+
+      dispatch(resetDepositAssetAction());
+      handleRefreshAccount();
+    }
+  }, [
+    depositAsset.status,
+    depositAsset.data.currentStatus,
+    depositAsset.data.trustedAssetAdded,
     handleRefreshAccount,
     location,
     dispatch,
