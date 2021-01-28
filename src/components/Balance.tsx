@@ -2,6 +2,7 @@ import { Heading2, TextButton } from "@stellar/design-system";
 import { Types } from "@stellar/wallet-sdk";
 import { useDispatch } from "react-redux";
 import { depositAssetAction } from "ducks/depositAsset";
+import { withdrawAssetAction } from "ducks/withdrawAsset";
 import { useRedux } from "hooks/useRedux";
 
 interface SortedBalancesResult {
@@ -42,7 +43,6 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
     onSend();
   };
 
-  // TODO: update type
   const handleDeposit = (asset: Types.AssetBalance) => {
     // TODO: handle global errors on UI
     dispatch(
@@ -53,10 +53,14 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
     );
   };
 
-  // TODO: update type
   const handleWithdraw = (asset: Types.AssetBalance) => {
-    // TODO: handleWithdraw
-    console.log("asset: ", asset);
+    // TODO: handle global errors on UI
+    dispatch(
+      withdrawAssetAction({
+        assetCode: asset.token.code,
+        assetIssuer: asset.token.issuer.key,
+      }),
+    );
   };
 
   const renderBalances = () => {

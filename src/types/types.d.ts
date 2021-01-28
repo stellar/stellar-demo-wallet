@@ -47,11 +47,18 @@ export interface TrustAssetInitialState {
   status: ActionStatus | undefined;
 }
 
+export interface WithdrawAssetInitialState {
+  data: {
+    currentStatus: string;
+  };
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
+
 export interface UntrustedAsset {
   assetCode: string;
   assetIssuer: string;
   assetString: string;
-  // TODO: update type
   assetType: string;
   balance: string;
   untrusted: boolean;
@@ -70,6 +77,7 @@ export interface Store {
   settings: SettingsInitialState;
   trustAsset: TrustAssetInitialState;
   untrustedAssets: UntrustedAssetsInitialState;
+  withdrawAsset: WithdrawAssetInitialState;
 }
 
 export type StoreKey = keyof Store;

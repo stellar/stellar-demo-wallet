@@ -4,7 +4,7 @@ import StellarSdk, {
   Keypair,
   StellarTomlResolver,
 } from "stellar-sdk";
-import { get } from "lodash";
+import { each, get } from "lodash";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
@@ -46,7 +46,11 @@ export const depositAssetAction = createAsyncThunk<
       // }
 
       if (!homeDomain) {
-        console.log("Fetching issuer account from Horizon", assetIssuer);
+        console.log(
+          "request: ",
+          "Fetching issuer account from Horizon",
+          assetIssuer,
+        );
         const accountRecord = await server
           .accounts()
           .accountId(assetIssuer)
@@ -222,14 +226,9 @@ export const depositAssetAction = createAsyncThunk<
         asset_code: assetCode,
         account: publicKey,
         lang: "en",
-        claimable_balance_supported: true,
+        claimable_balance_supported: "true",
       };
-
-      Object.keys(postDepositParams).forEach((key) => {
-        // TODO: fix TS
-        // @ts-ignore
-        formData.append(key, postDepositParams[key]);
-      });
+      each(postDepositParams, (value, key) => formData.append(key, value));
 
       // TODO: log this
       console.log(
