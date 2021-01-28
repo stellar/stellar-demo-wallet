@@ -9,6 +9,14 @@ export interface AccountInitialState {
   status: ActionStatus | undefined;
 }
 
+export interface ClaimAssetInitialState {
+  data: {
+    result: any;
+  };
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
+
 export interface ClaimableBalancesInitialState {
   data: {
     records: CleanedClaimableBalanceRecord[] | null;
@@ -80,6 +88,7 @@ export interface TrustAssetParam {
 
 export interface Store {
   account: AccountInitialState;
+  claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
   depositAsset: DepositAssetInitialState;
   sendPayment: SendPaymentInitialState;

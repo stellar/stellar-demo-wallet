@@ -1,5 +1,6 @@
 import { Heading2, TextButton } from "@stellar/design-system";
-// import { useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
+import { claimAssetAction } from "ducks/claimAsset";
 import { useRedux } from "hooks/useRedux";
 import { CleanedClaimableBalanceRecord } from "types/types.d";
 
@@ -7,16 +8,10 @@ export const ClaimableBalance = () => {
   const { claimableBalances } = useRedux("claimableBalances");
   const balances = claimableBalances.data.records;
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const handleClaim = (balance: CleanedClaimableBalanceRecord) => {
-    console.log("claim balance: ", balance);
-    // dispatch(
-    //   depositAssetAction({
-    //     assetCode: asset.token.code,
-    //     assetIssuer: asset.token.issuer.key,
-    //   }),
-    // );
+    dispatch(claimAssetAction(balance));
   };
 
   if (!balances || !balances.length) {
