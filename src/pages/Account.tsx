@@ -4,6 +4,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { TextButton } from "@stellar/design-system";
 import { AddAsset } from "components/AddAsset";
 import { Balance } from "components/Balance";
+import { ClaimableBalance } from "components/ClaimableBalance";
 import { CopyWithTooltip } from "components/CopyWithTooltip";
 import { SendPayment } from "components/SendPayment";
 import { UntrustedBalance } from "components/UntrustedBalance";
@@ -130,6 +131,7 @@ export const Account = () => {
       {/* Balances */}
       <Balance onSend={handleSendPayment} />
       <UntrustedBalance />
+      <ClaimableBalance />
 
       {/* Send payment */}
       {/* TODO: pre-fill fields from selected asset */}

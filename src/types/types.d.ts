@@ -1,11 +1,19 @@
 import { Types } from "@stellar/wallet-sdk";
-import { Horizon } from "stellar-sdk";
+import { Horizon, ServerApi } from "stellar-sdk";
 
 export interface AccountInitialState {
   data: Types.AccountDetails | null;
   errorString?: string;
   isAuthenticated: boolean;
   secretKey: string;
+  status: ActionStatus | undefined;
+}
+
+export interface ClaimableBalancesInitialState {
+  data: {
+    records: CleanedClaimableBalanceRecord[] | null;
+  };
+  errorString?: string;
   status: ActionStatus | undefined;
 }
 
@@ -72,6 +80,7 @@ export interface TrustAssetParam {
 
 export interface Store {
   account: AccountInitialState;
+  claimableBalances: ClaimableBalancesInitialState;
   depositAsset: DepositAssetInitialState;
   sendPayment: SendPaymentInitialState;
   settings: SettingsInitialState;
@@ -104,4 +113,11 @@ export interface PaymentTransactionParams {
   destination: string;
   isDestinationFunded: boolean;
   publicKey: string;
+}
+
+export interface CleanedClaimableBalanceRecord
+  extends ServerApi.ClaimableBalanceRecord {
+  links: undefined;
+  pagingToken: undefined;
+  self: undefined;
 }
