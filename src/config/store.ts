@@ -14,6 +14,7 @@ import { reducer as sendPayment } from "ducks/sendPayment";
 import { reducer as settings } from "ducks/settings";
 import { reducer as trustAsset } from "ducks/trustAsset";
 import { reducer as untrustedAssets } from "ducks/untrustedAssets";
+import { reducer as withdrawAsset } from "ducks/withdrawAsset";
 
 const RESET_STORE_ACTION_TYPE = "RESET";
 
@@ -38,6 +39,7 @@ const reducers = combineReducers({
   settings,
   trustAsset,
   untrustedAssets,
+  withdrawAsset,
 });
 
 export const resetStoreAction = createAction(RESET_STORE_ACTION_TYPE);

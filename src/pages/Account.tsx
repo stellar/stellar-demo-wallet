@@ -9,6 +9,7 @@ import { SendPayment } from "components/SendPayment";
 import { UntrustedBalance } from "components/UntrustedBalance";
 import { fetchAccountAction } from "ducks/account";
 import { resetDepositAssetAction } from "ducks/depositAsset";
+import { resetWithdrawAssetAction } from "ducks/withdrawAsset";
 import { resetTrustAssetAction } from "ducks/trustAsset";
 import { removeUntrustedAssetAction } from "ducks/untrustedAssets";
 import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
@@ -16,10 +17,11 @@ import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
 export const Account = () => {
-  const { account, depositAsset, trustAsset } = useRedux(
+  const { account, depositAsset, trustAsset, withdrawAsset } = useRedux(
     "account",
     "depositAsset",
     "trustAsset",
+    "withdrawAsset",
   );
   const [isSendPaymentVisible, setIsSendPaymentVisible] = useState(false);
   const [isAccountDetailsVisible, setIsAccountDetailsVisible] = useState(false);
@@ -40,6 +42,7 @@ export const Account = () => {
     }
   }, [account.data?.id, account.secretKey, dispatch]);
 
+  // Trust asset
   useEffect(() => {
     if (trustAsset.status === ActionStatus.SUCCESS) {
       history.push(
@@ -61,6 +64,7 @@ export const Account = () => {
     history,
   ]);
 
+  // Deposit asset
   useEffect(() => {
     if (
       depositAsset.status === ActionStatus.SUCCESS &&
@@ -85,6 +89,24 @@ export const Account = () => {
     depositAsset.status,
     depositAsset.data.currentStatus,
     depositAsset.data.trustedAssetAdded,
+    handleRefreshAccount,
+    location,
+    dispatch,
+    history,
+  ]);
+
+  // Withdraw asset
+  useEffect(() => {
+    if (
+      withdrawAsset.status === ActionStatus.SUCCESS &&
+      withdrawAsset.data.currentStatus === "completed"
+    ) {
+      dispatch(resetWithdrawAssetAction());
+      handleRefreshAccount();
+    }
+  }, [
+    withdrawAsset.status,
+    withdrawAsset.data.currentStatus,
     handleRefreshAccount,
     location,
     dispatch,
