@@ -3,3 +3,4 @@
 # PR previews
 
 - Withdraw asset
+- Claim asset + claimable balance
