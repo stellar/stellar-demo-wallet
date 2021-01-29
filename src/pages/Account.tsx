@@ -4,10 +4,13 @@ import { useHistory, useLocation } from "react-router-dom";
 import { TextButton } from "@stellar/design-system";
 import { AddAsset } from "components/AddAsset";
 import { Balance } from "components/Balance";
+import { ClaimableBalance } from "components/ClaimableBalance";
 import { CopyWithTooltip } from "components/CopyWithTooltip";
 import { SendPayment } from "components/SendPayment";
 import { UntrustedBalance } from "components/UntrustedBalance";
 import { fetchAccountAction } from "ducks/account";
+import { resetClaimAssetAction } from "ducks/claimAsset";
+import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetDepositAssetAction } from "ducks/depositAsset";
 import { resetWithdrawAssetAction } from "ducks/withdrawAsset";
 import { resetTrustAssetAction } from "ducks/trustAsset";
@@ -17,8 +20,15 @@ import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
 export const Account = () => {
-  const { account, depositAsset, trustAsset, withdrawAsset } = useRedux(
+  const {
+    account,
+    claimAsset,
+    depositAsset,
+    trustAsset,
+    withdrawAsset,
+  } = useRedux(
     "account",
+    "claimAsset",
     "depositAsset",
     "trustAsset",
     "withdrawAsset",
@@ -41,6 +51,12 @@ export const Account = () => {
       );
     }
   }, [account.data?.id, account.secretKey, dispatch]);
+
+  const handleFetchClaimableBalances = useCallback(() => {
+    if (account.data?.id) {
+      dispatch(fetchClaimableBalancesAction({ publicKey: account.data.id }));
+    }
+  }, [account.data?.id, dispatch]);
 
   // Trust asset
   useEffect(() => {
@@ -84,12 +100,14 @@ export const Account = () => {
 
       dispatch(resetDepositAssetAction());
       handleRefreshAccount();
+      handleFetchClaimableBalances();
     }
   }, [
     depositAsset.status,
     depositAsset.data.currentStatus,
     depositAsset.data.trustedAssetAdded,
     handleRefreshAccount,
+    handleFetchClaimableBalances,
     location,
     dispatch,
     history,
@@ -113,6 +131,21 @@ export const Account = () => {
     history,
   ]);
 
+  // Claim asset
+  useEffect(() => {
+    if (claimAsset.status === ActionStatus.SUCCESS) {
+      dispatch(resetClaimAssetAction());
+      handleRefreshAccount();
+      handleFetchClaimableBalances();
+    }
+  }, [
+    claimAsset.status,
+    account.data?.id,
+    handleRefreshAccount,
+    handleFetchClaimableBalances,
+    dispatch,
+  ]);
+
   const handleSendPayment = () => {
     setIsSendPaymentVisible(true);
   };
@@ -130,6 +163,7 @@ export const Account = () => {
       {/* Balances */}
       <Balance onSend={handleSendPayment} />
       <UntrustedBalance />
+      <ClaimableBalance />
 
       {/* Send payment */}
       {/* TODO: pre-fill fields from selected asset */}

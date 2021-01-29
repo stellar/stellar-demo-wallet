@@ -3,6 +3,7 @@ import { useLocation, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Keypair } from "stellar-sdk";
 import { fetchAccountAction } from "ducks/account";
+import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { updateSettingsAction } from "ducks/settings";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
@@ -44,8 +45,13 @@ export const SettingsHandler = ({
             secretKey: keypair.secret(),
           }),
         );
-      } catch (e) {
+
+        dispatch(
+          fetchClaimableBalancesAction({ publicKey: keypair.publicKey() }),
+        );
+      } catch (error) {
         // TODO: handle error
+        console.log("Fetch account error: ", error.toString());
       }
     }
   }, [secretKeyParam, dispatch]);
