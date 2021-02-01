@@ -4,3 +4,4 @@
 
 - Withdraw asset
 - Claim asset + claimable balance
+- Basic logs
