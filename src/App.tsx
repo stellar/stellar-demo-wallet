@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { store } from "config/store";
 
 import { Header } from "components/Header";
+import { Logs } from "components/Logs";
 import { PageContent } from "components/PageContent";
 import { PrivateRoute } from "components/PrivateRoute";
 import { SettingsHandler } from "components/SettingsHandler";
@@ -19,21 +20,27 @@ export const App = () => (
   <Provider store={store}>
     <Router>
       <SettingsHandler>
-        <Header />
+        <div className="Wrapper">
+          <div className="Main">
+            <Header />
 
-        <PageContent>
-          <Switch>
-            <Route exact path="/">
-              <Landing />
-            </Route>
+            <PageContent>
+              <Switch>
+                <Route exact path="/">
+                  <Landing />
+                </Route>
 
-            <PrivateRoute exact path="/account">
-              <Account />
-            </PrivateRoute>
+                <PrivateRoute exact path="/account">
+                  <Account />
+                </PrivateRoute>
 
-            <Route component={NotFound} />
-          </Switch>
-        </PageContent>
+                <Route component={NotFound} />
+              </Switch>
+            </PageContent>
+          </div>
+
+          <Logs />
+        </div>
       </SettingsHandler>
     </Router>
   </Provider>

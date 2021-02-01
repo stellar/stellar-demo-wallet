@@ -11,6 +11,14 @@
   }
 }
 
+.Wrapper {
+  min-height: 100vh;
+}
+
+.Main {
+  min-height: 50vh;
+}
+
 .Inset {
   position: relative;
   margin: 0 auto;
@@ -81,4 +89,21 @@
 
 .Error {
   color: var(--color-error);
+}
+
+// Logs
+.Logs {
+  border-top: 1px solid #000;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  height: 50vh;
+  overflow: auto;
+
+  .LogsContent {
+    margin-top: 2rem;
+  }
+
+  .LogItem {
+    margin-bottom: 0.5rem;
+  }
 }

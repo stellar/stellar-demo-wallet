@@ -12,6 +12,7 @@ import { reducer as account } from "ducks/account";
 import { reducer as claimAsset } from "ducks/claimAsset";
 import { reducer as claimableBalances } from "ducks/claimableBalances";
 import { reducer as depositAsset } from "ducks/depositAsset";
+import { reducer as logs } from "ducks/logs";
 import { reducer as sendPayment } from "ducks/sendPayment";
 import { reducer as settings } from "ducks/settings";
 import { reducer as trustAsset } from "ducks/trustAsset";
@@ -39,6 +40,7 @@ const reducers = combineReducers({
   claimAsset,
   claimableBalances,
   depositAsset,
+  logs,
   sendPayment,
   settings,
   trustAsset,
