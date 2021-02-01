@@ -34,6 +34,10 @@ export interface DepositAssetInitialState {
   status: ActionStatus | undefined;
 }
 
+export interface LogsInitialState {
+  items: LogItem[];
+}
+
 export interface SendPaymentInitialState {
   data: Horizon.TransactionResponse | null;
   errorString?: string;
@@ -86,11 +90,25 @@ export interface TrustAssetParam {
   assetIssuer: string;
 }
 
+export enum LogType {
+  REQUEST = "request",
+  RESPONSE = "response",
+  INSTRUCTION = "instruction",
+  ERROR = "error",
+}
+
+export interface LogItem {
+  type: LogType;
+  title: string;
+  body?: string | object;
+}
+
 export interface Store {
   account: AccountInitialState;
   claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
   depositAsset: DepositAssetInitialState;
+  logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
   settings: SettingsInitialState;
   trustAsset: TrustAssetInitialState;

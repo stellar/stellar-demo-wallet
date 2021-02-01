@@ -6,6 +6,7 @@ import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { log } from "helpers/log";
 import {
   ActionStatus,
   RejectMessage,
@@ -35,6 +36,8 @@ export const fetchAccountAction = createAsyncThunk<
   async ({ publicKey, secretKey }, { rejectWithValue, getState }) => {
     const { pubnet } = settingsSelector(getState());
 
+    log.instruction({ title: `Starting to fetch account ${publicKey}` });
+
     const dataProvider = new DataProvider({
       serverUrl: getNetworkConfig(Boolean(pubnet)).url,
       accountOrKey: publicKey,
@@ -44,21 +47,36 @@ export const fetchAccountAction = createAsyncThunk<
     let stellarAccount: Types.AccountDetails | null = null;
 
     try {
+      log.instruction({ title: `Checking if the account is funded` });
       const accountIsFunded = await dataProvider.isAccountFunded();
 
       if (accountIsFunded) {
+        log.instruction({
+          title: `Account is funded, fetching account details`,
+        });
         stellarAccount = await dataProvider.fetchAccountDetails();
       } else {
+        log.instruction({ title: `Account is not funded` });
         stellarAccount = {
           id: publicKey,
           isUnfunded: true,
         } as UnfundedAccount;
       }
     } catch (error) {
+      log.error({
+        title: `Fetching account ${publicKey} failure`,
+        body: error,
+      });
+
       return rejectWithValue({
         errorString: getErrorString(error),
       });
     }
+
+    log.instruction({
+      title: `Fetching account ${publicKey} success`,
+      body: JSON.stringify(stellarAccount),
+    });
 
     return { data: stellarAccount, secretKey };
   },
