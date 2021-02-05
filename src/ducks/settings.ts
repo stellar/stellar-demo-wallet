@@ -6,6 +6,8 @@ const initialState: SettingsInitialState = {
   pubnet: false,
   secretKey: "",
   untrustedAssets: "",
+  homeDomain: "",
+  horizonURL: "",
 };
 
 const settingsSlice = createSlice({

@@ -52,7 +52,7 @@ export const withdrawAssetAction = createAsyncThunk<
   async ({ assetCode, assetIssuer }, { rejectWithValue, getState }) => {
     const { data, secretKey } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(Boolean(pubnet));
+    const networkConfig = getNetworkConfig(pubnet);
     const server = new StellarSdk.Server(networkConfig.url);
 
     const publicKey = data?.id;

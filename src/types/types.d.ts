@@ -45,9 +45,11 @@ export interface SendPaymentInitialState {
 }
 
 export interface SettingsInitialState {
-  pubnet?: boolean;
+  pubnet: boolean;
   secretKey: string;
   untrustedAssets: string;
+  homeDomain: string;
+  horizonURL: string;
 }
 
 export interface UntrustedAssetsInitialState {
@@ -110,6 +112,8 @@ export interface Store {
   depositAsset: DepositAssetInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
+  // TODO: any type
+  sendSep31: any;
   settings: SettingsInitialState;
   trustAsset: TrustAssetInitialState;
   untrustedAssets: UntrustedAssetsInitialState;

@@ -25,7 +25,7 @@ export const depositAssetAction = createAsyncThunk<
   async ({ assetCode, assetIssuer }, { rejectWithValue, getState }) => {
     const { data, secretKey } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(Boolean(pubnet));
+    const networkConfig = getNetworkConfig(pubnet);
     const server = new StellarSdk.Server(networkConfig.url);
 
     let trustedAssetAdded;

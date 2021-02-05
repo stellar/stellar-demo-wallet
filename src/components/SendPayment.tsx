@@ -60,9 +60,9 @@ export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
     }
 
     const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig(Boolean(settings.pubnet)).url,
+      serverUrl: getNetworkConfig(settings.pubnet).url,
       accountOrKey: destination,
-      networkPassphrase: getNetworkConfig(Boolean(settings.pubnet)).network,
+      networkPassphrase: getNetworkConfig(settings.pubnet).network,
     });
 
     setIsDestinationFunded(await dataProvider.isAccountFunded());

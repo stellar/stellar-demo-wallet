@@ -39,9 +39,9 @@ export const fetchAccountAction = createAsyncThunk<
     log.instruction({ title: `Starting to fetch account ${publicKey}` });
 
     const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig(Boolean(pubnet)).url,
+      serverUrl: getNetworkConfig(pubnet).url,
       accountOrKey: publicKey,
-      networkPassphrase: getNetworkConfig(Boolean(pubnet)).network,
+      networkPassphrase: getNetworkConfig(pubnet).network,
     });
 
     let stellarAccount: Types.AccountDetails | null = null;
