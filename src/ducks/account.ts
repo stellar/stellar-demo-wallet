@@ -75,7 +75,7 @@ export const fetchAccountAction = createAsyncThunk<
 
     log.instruction({
       title: `Fetching account ${publicKey} success`,
-      body: JSON.stringify(stellarAccount),
+      body: stellarAccount,
     });
 
     return { data: stellarAccount, secretKey };

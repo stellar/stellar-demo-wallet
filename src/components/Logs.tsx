@@ -18,7 +18,7 @@ export const Logs = () => {
         logAction({
           type,
           title,
-          body,
+          body: JSON.stringify(body),
         }),
       );
     };

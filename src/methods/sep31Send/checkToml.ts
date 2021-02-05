@@ -37,7 +37,7 @@ export const checkToml = async ({
 
   try {
     const information = toml.parse(text);
-    log.response({ url: tomlURL, body: JSON.stringify(information) });
+    log.response({ url: tomlURL, body: information });
 
     if (!information.WEB_AUTH_ENDPOINT) {
       throw new Error("Toml file doesn't contain a WEB_AUTH_ENDPOINT");

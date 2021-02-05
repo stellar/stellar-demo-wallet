@@ -65,9 +65,12 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
   };
 
   const handleSendSep31 = (asset: Types.AssetBalance) => {
-    console.log("handleSendSep31 asset: ", asset);
-    // TODO: pass asset
-    dispatch(fetchSendFieldsAction());
+    dispatch(
+      fetchSendFieldsAction({
+        assetCode: asset.token.code,
+        assetIssuer: asset.token.issuer.key,
+      }),
+    );
   };
 
   const renderBalances = () => {
