@@ -41,7 +41,7 @@ export const postTransaction = async ({
     body: JSON.stringify(body),
   });
 
-  if (result.status !== 200) {
+  if (![200, 201].includes(result.status)) {
     throw new Error(
       `POST /transactions responded with status ${result.status}`,
     );
