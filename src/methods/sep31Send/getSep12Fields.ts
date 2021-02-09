@@ -18,26 +18,38 @@ export const getSep12Fields = async ({
   const result = {
     senderSep12Fields: null,
     receiverSep12Fields: null,
+    info: {
+      senderSep12Memo: "",
+      receiverSep12Memo: "",
+    },
   };
 
   if (senderSep12Type) {
+    const memo = crypto.randomBytes(32).toString("base64");
+
     result.senderSep12Fields = await collectSep12Fields({
       type: senderSep12Type,
-      memo: crypto.randomBytes(32).toString("base64"),
+      memo,
       secretKey,
       token,
       kycServer,
     });
+
+    result.info.senderSep12Memo = memo;
   }
 
   if (receiverSep12Type) {
+    const memo = crypto.randomBytes(32).toString("base64");
+
     result.receiverSep12Fields = await collectSep12Fields({
       type: receiverSep12Type,
-      memo: crypto.randomBytes(32).toString("base64"),
+      memo,
       secretKey,
       token,
       kycServer,
     });
+
+    result.info.receiverSep12Memo = memo;
   }
 
   return result;

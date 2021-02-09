@@ -8,6 +8,7 @@ import { Balance } from "components/Balance";
 import { ClaimableBalance } from "components/ClaimableBalance";
 import { CopyWithTooltip } from "components/CopyWithTooltip";
 import { SendPayment } from "components/SendPayment";
+import { Sep31Send } from "components/Sep31Send";
 import { UntrustedBalance } from "components/UntrustedBalance";
 
 import { fetchAccountAction } from "ducks/account";
@@ -173,6 +174,9 @@ export const Account = () => {
       {isSendPaymentVisible && (
         <SendPayment onCancel={handleSendPaymentCancel} />
       )}
+
+      {/* SEP-31 Send */}
+      <Sep31Send />
 
       {/* Copy keys */}
       <div style={{ display: "flex" }}>

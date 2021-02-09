@@ -1,11 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-// import { DataProvider, Types } from "@stellar/wallet-sdk";
-// import { Keypair } from "stellar-sdk";
-
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
-// import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 
@@ -15,6 +11,8 @@ import { start } from "methods/sep10Auth/start";
 import { sign } from "methods/sep10Auth/sign";
 import { send } from "methods/sep10Auth/send";
 import { getSep12Fields } from "methods/sep31Send/getSep12Fields";
+import { putSep12Fields } from "methods/sep31Send/putSep12Fields";
+import { postTransaction } from "methods/sep31Send/postTransaction";
 
 import { ActionStatus, RejectMessage } from "types/types.d";
 
@@ -101,8 +99,75 @@ export const fetchSendFieldsAction = createAsyncThunk<
 
       return {
         toml: tomlResponse,
-        info: infoResponse,
+        info: {
+          ...infoResponse,
+          token,
+          assetCode,
+          ...sep12Fields.info,
+        },
+        sep12Fields: {
+          senderSep12Fields: sep12Fields.senderSep12Fields,
+          receiverSep12Fields: sep12Fields.receiverSep12Fields,
+        },
+      };
+    } catch (error) {
+      log.error({
+        title: error.toString(),
+      });
+
+      return rejectWithValue({
+        errorString: error.toString(),
+      });
+    }
+  },
+);
+
+export const submitSendSep31TransactionAction = createAsyncThunk<
+  // TODO: any types
+  any,
+  any,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sendSep31/submitSendSep31TransactionAction",
+  async ({ formData }, { rejectWithValue, getState }) => {
+    try {
+      const { secretKey } = accountSelector(getState());
+      const { info, sep12Fields, toml } = sendSep31Selector(getState());
+
+      // Put SEP-12 fields
+      log.instruction({
+        title: "Make PUT /customer requests for sending and receiving user",
+      });
+
+      log.instruction({ title: "Form data", body: formData });
+
+      const putSep12FieldsResponse = await putSep12Fields({
+        secretKey,
+        formData,
+        senderSep12Memo: info.senderSep12Memo,
+        receiverSep12Memo: info.receiverSep12Memo,
+        kycServer: toml.kycServer,
         sep12Fields,
+        token: info.token,
+      });
+
+      console.log("putSep12FieldsResponse: ", putSep12FieldsResponse);
+
+      // Post transaction
+      const postResponse = await postTransaction({
+        token: info.token,
+        sendServer: toml.sendServer,
+        senderId: putSep12FieldsResponse.senderSep12Id,
+        receiverId: putSep12FieldsResponse.receiverSep12Id,
+        transactionFormData: formData.transaction,
+        assetCode: info.assetCode,
+        amount: formData.amount.amount,
+      });
+
+      console.log("postResponse: ", postResponse);
+
+      return {
+        postResponse,
       };
     } catch (error) {
       log.error({
@@ -132,6 +197,7 @@ const initialState: any = {
     senderSep12Fields: null,
     receiverSep12Fields: null,
   },
+  response: null,
   status: undefined,
 };
 
@@ -149,12 +215,33 @@ const sendSep31Slice = createSlice({
       state.toml = action.payload.toml;
       state.info = action.payload.info;
       state.sep12Fields = action.payload.sep12Fields;
-      state.status = ActionStatus.SUCCESS;
+      state.status = ActionStatus.NEEDS_INPUT;
     });
     builder.addCase(fetchSendFieldsAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
+    builder.addCase(
+      submitSendSep31TransactionAction.pending,
+      (state = initialState) => {
+        state.status = ActionStatus.PENDING;
+      },
+    );
+    builder.addCase(
+      submitSendSep31TransactionAction.fulfilled,
+      (state, action) => {
+        state.response = action.payload;
+        state.status = ActionStatus.SUCCESS;
+      },
+    );
+    builder.addCase(
+      submitSendSep31TransactionAction.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
   },
 });
 

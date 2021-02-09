@@ -131,6 +131,7 @@ export enum ActionStatus {
   ERROR = "ERROR",
   PENDING = "PENDING",
   SUCCESS = "SUCCESS",
+  NEEDS_INPUT = "NEEDS_INPUT",
 }
 
 export interface RejectMessage {
