@@ -58,6 +58,32 @@ export interface UntrustedAssetsInitialState {
   status: ActionStatus | undefined;
 }
 
+export interface AnyObject {
+  [key: string]: any;
+}
+
+export interface SendSep31InitialState {
+  data: {
+    assetCode: string;
+    assetIssuer: string;
+    token: string;
+    fields: {
+      transaction: AnyObject;
+      sender: AnyObject;
+      receiver: AnyObject;
+    };
+    senderSep12Type: string;
+    receiverSep12Type: string;
+    senderSep12Memo: string;
+    receiverSep12Memo: string;
+    authEndpoint: string;
+    sendServer: string;
+    kycServer: string;
+  };
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
+
 export interface Setting {
   [key: string]: any;
 }
@@ -112,8 +138,7 @@ export interface Store {
   depositAsset: DepositAssetInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
-  // TODO: any type
-  sendSep31: any;
+  sendSep31: SendSep31InitialState;
   settings: SettingsInitialState;
   trustAsset: TrustAssetInitialState;
   untrustedAssets: UntrustedAssetsInitialState;

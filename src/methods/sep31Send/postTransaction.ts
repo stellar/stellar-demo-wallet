@@ -32,7 +32,7 @@ export const postTransaction = async ({
   };
   log.request({ url: "POST /transactions", body });
 
-  const response = await fetch(`${sendServer}/transactions`, {
+  const result = await fetch(`${sendServer}/transactions`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -41,14 +41,14 @@ export const postTransaction = async ({
     body: JSON.stringify(body),
   });
 
-  if (response.status !== 200) {
+  if (result.status !== 200) {
     throw new Error(
-      `POST /transactions responded with status ${response.status}`,
+      `POST /transactions responded with status ${result.status}`,
     );
   }
 
-  const responseJson = await response.json();
-  log.response({ url: "POST /transactions", body: responseJson });
+  const resultJson = await result.json();
+  log.response({ url: "POST /transactions", body: resultJson });
 
   const requiredProps = [
     "id",
@@ -58,15 +58,15 @@ export const postTransaction = async ({
   ];
 
   requiredProps.forEach((prop) => {
-    if (!responseJson[prop]) {
+    if (!resultJson[prop]) {
       throw new Error(`POST /transactions response missing property ${prop}`);
     }
   });
 
   return {
-    sendMemoType: responseJson.stellar_memo_type,
-    sendMemo: responseJson.stellar_memo,
-    receiverAddress: responseJson.stellar_account_id,
-    transactionId: responseJson.id,
+    sendMemoType: resultJson.stellar_memo_type,
+    sendMemo: resultJson.stellar_memo,
+    receiverAddress: resultJson.stellar_account_id,
+    transactionId: resultJson.id,
   };
 };

@@ -21,17 +21,7 @@ import { reducer as untrustedAssets } from "ducks/untrustedAssets";
 import { reducer as withdrawAsset } from "ducks/withdrawAsset";
 
 const RESET_STORE_ACTION_TYPE = "RESET";
-
 export type RootState = ReturnType<typeof store.getState>;
-
-const loggerMiddleware = (store: any) => (next: any) => (
-  action: Action<any>,
-) => {
-  console.log("Dispatching: ", action.type);
-  const dispatchedAction = next(action);
-  console.log("NEW STATE: ", store.getState());
-  return dispatchedAction;
-};
 
 const isSerializable = (value: any) =>
   BigNumber.isBigNumber(value) || isPlain(value);
@@ -65,6 +55,5 @@ export const store = configureStore({
         isSerializable,
       },
     }),
-    loggerMiddleware,
   ],
 });

@@ -28,15 +28,15 @@ export const checkToml = async ({
 
   log.request({ url: tomlURL });
 
-  const resp = await fetch(tomlURL);
-  const text = await resp.text();
+  const result = await fetch(tomlURL);
+  const resultText = await result.text();
 
   let authEndpoint;
   let sendServer;
   let kycServer;
 
   try {
-    const information = toml.parse(text);
+    const information = toml.parse(resultText);
     log.response({ url: tomlURL, body: information });
 
     if (!information.WEB_AUTH_ENDPOINT) {
@@ -47,7 +47,7 @@ export const checkToml = async ({
     sendServer = information.DIRECT_PAYMENT_SERVER;
     kycServer = information.KYC_SERVER;
   } catch (error) {
-    log.response({ url: tomlURL, body: text });
+    log.response({ url: tomlURL, body: resultText });
     throw new Error("stellar.toml is not a valid SEP31 TOML file");
   }
 

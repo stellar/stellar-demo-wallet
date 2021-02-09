@@ -15,6 +15,10 @@ export const getSep12Fields = async ({
   senderSep12Type: string;
   token: string;
 }) => {
+  log.instruction({
+    title: "Make GET /customer requests for sending and receiving user",
+  });
+
   const result = {
     senderSep12Fields: null,
     receiverSep12Fields: null,

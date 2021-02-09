@@ -6,7 +6,7 @@ interface PutSep12FieldsProps {
   secretKey: string;
   senderSep12Memo: string;
   receiverSep12Memo: string;
-  sep12Fields: any;
+  fields: any;
   token: string;
   kycServer: string;
 }
@@ -16,7 +16,7 @@ export const putSep12Fields = async ({
   secretKey,
   senderSep12Memo,
   receiverSep12Memo,
-  sep12Fields,
+  fields,
   token,
   kycServer,
 }: PutSep12FieldsProps) => {
@@ -24,13 +24,13 @@ export const putSep12Fields = async ({
     title: "Make PUT /customer requests for sending and receiving user",
   });
 
-  const response = {
+  const result = {
     senderSep12Id: "",
     receiverSep12Id: "",
   };
 
-  if (sep12Fields.senderSep12Fields) {
-    const responseJSON = await putSEP12Fields({
+  if (fields.sender) {
+    const resultJson = await putSEP12Fields({
       secretKey,
       fields: formData.sender,
       memo: senderSep12Memo,
@@ -39,11 +39,11 @@ export const putSep12Fields = async ({
       isSender: true,
     });
 
-    response.senderSep12Id = responseJSON.id;
+    result.senderSep12Id = resultJson.id;
   }
 
-  if (sep12Fields.receiverSep12Fields) {
-    const responseJSON = await putSEP12Fields({
+  if (fields.receiver) {
+    const resultJson = await putSEP12Fields({
       secretKey,
       fields: formData.receiver,
       memo: receiverSep12Memo,
@@ -52,10 +52,10 @@ export const putSep12Fields = async ({
       isSender: false,
     });
 
-    response.receiverSep12Id = responseJSON.id;
+    result.receiverSep12Id = resultJson.id;
   }
 
-  return response;
+  return result;
 };
 
 interface PutSEP12FieldsProps {
@@ -90,7 +90,7 @@ const putSEP12Fields = async ({
     body.append(key, value.toString());
   });
 
-  const response = await fetch(`${kycServer}/customer`, {
+  const result = await fetch(`${kycServer}/customer`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -98,17 +98,17 @@ const putSEP12Fields = async ({
     body,
   });
 
-  const responseJson = await response.json();
+  const resultJson = await result.json();
   log.response({
     url: `PUT /customer (${isSender ? "sender" : "receiver"})`,
-    body: responseJson,
+    body: resultJson,
   });
 
-  if (response.status !== 202) {
+  if (result.status !== 202) {
     throw new Error(
-      `Unexpected status for PUT /customer request: ${response.status}`,
+      `Unexpected status for PUT /customer request: ${result.status}`,
     );
   }
 
-  return responseJson;
+  return resultJson;
 };

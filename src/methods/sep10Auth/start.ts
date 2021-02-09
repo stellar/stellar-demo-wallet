@@ -10,6 +10,12 @@ export const start = async ({
 }) => {
   const publicKey = Keypair.fromSecret(secretKey).publicKey();
   const params = { account: publicKey };
+
+  log.instruction({
+    title:
+      "Start the SEP-0010 flow to authenticate the sending anchor's Stellar account",
+  });
+
   log.request({ url: "GET /auth", body: params });
 
   const authURL = new URL(authEndpoint);

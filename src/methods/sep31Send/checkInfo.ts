@@ -8,6 +8,10 @@ export const checkInfo = async ({
   assetCode: string;
   sendServer: string;
 }) => {
+  log.instruction({
+    title: "Check /info endpoint to see if we need to authenticate",
+  });
+
   log.request({ url: "GET /info" });
 
   const result = await fetch(`${sendServer}/info`);

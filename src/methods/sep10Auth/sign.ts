@@ -10,6 +10,11 @@ export const sign = ({
   networkPassphrase: string;
   secretKey: string;
 }) => {
+  log.instruction({
+    title:
+      "We've received a challenge transaction from the server that we need the sending anchor to sign with their Stellar private key.",
+  });
+
   const envelope = xdr.TransactionEnvelope.fromXDR(
     challengeTransaction,
     "base64",

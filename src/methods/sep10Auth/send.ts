@@ -10,6 +10,12 @@ export const send = async ({
   const params = {
     transaction: signedChallengeTransaction.toEnvelope().toXDR("base64"),
   };
+
+  log.instruction({
+    title:
+      "We need to send the signed SEP10 challenge back to the server to get a JWT token to authenticate our stellar account with future actions",
+  });
+
   log.request({ url: "POST /auth", body: params });
 
   const urlParams = new URLSearchParams(params);

@@ -1,22 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Heading2, Heading3, Input } from "@stellar/design-system";
-import { submitSendSep31TransactionAction } from "ducks/sendSep31";
+import { fetchAccountAction } from "ducks/account";
+import {
+  resetSendSep31Action,
+  submitSendSep31TransactionAction,
+} from "ducks/sendSep31";
 import { capitalizeString } from "helpers/capitalizeString";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
-interface FormData {
-  [key: string]: {
-    [key: string]: string;
-  };
-}
-
 export const Sep31Send = () => {
-  const { sendSep31 } = useRedux("sendSep31");
-  const [formData, setFormData] = useState<FormData>({});
+  const { account, sendSep31 } = useRedux("account", "sendSep31");
+  const [formData, setFormData] = useState<any>({});
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (sendSep31.status === ActionStatus.SUCCESS) {
+      if (account.data?.id) {
+        dispatch(
+          fetchAccountAction({
+            publicKey: account.data.id,
+            secretKey: account.secretKey,
+          }),
+        );
+        dispatch(resetSendSep31Action());
+      }
+    }
+  }, [sendSep31.status, account.data?.id, account.secretKey, dispatch]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
@@ -37,14 +49,12 @@ export const Sep31Send = () => {
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     event.preventDefault();
-    dispatch(submitSendSep31TransactionAction({ formData }));
+    dispatch(submitSendSep31TransactionAction({ ...formData }));
   };
 
   const renderInfoInputs = () => {
-    const { info, sep12Fields } = sendSep31;
-
-    console.log("info?.fields?.transaction: ", info?.fields?.transaction);
-    console.log("sep12Fields: ", sep12Fields);
+    const { data } = sendSep31;
+    const { transaction, sender, receiver } = data.fields;
 
     const allFields = {
       amount: {
@@ -52,9 +62,9 @@ export const Sep31Send = () => {
           description: "amount to send",
         },
       },
-      sender: sep12Fields?.senderSep12Fields,
-      receiver: sep12Fields?.receiverSep12Fields,
-      transaction: info?.fields?.transaction,
+      sender,
+      receiver,
+      transaction,
     };
 
     return (
@@ -64,8 +74,7 @@ export const Sep31Send = () => {
           {Object.entries(allFields).map(([sectionTitle, sectionItems]) => (
             <div key={sectionTitle}>
               <Heading3>{capitalizeString(sectionTitle)}</Heading3>
-              {/* TODO: types */}
-              {Object.entries(sectionItems).map(([id, input]: any) => (
+              {Object.entries(sectionItems).map(([id, input]) => (
                 // TODO: if input.choices, render Select
                 <Input
                   key={`${sectionTitle}#${id}`}
