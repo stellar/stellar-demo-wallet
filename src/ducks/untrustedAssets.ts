@@ -88,7 +88,7 @@ export const addUntrustedAssetAction = createAsyncThunk<
       });
     }
 
-    const server = new StellarSdk.Server(getNetworkConfig(Boolean(pubnet)).url);
+    const server = new StellarSdk.Server(getNetworkConfig(pubnet).url);
     const response = await getAssetData(assetsListToAdd, server);
 
     if (!response.length) {

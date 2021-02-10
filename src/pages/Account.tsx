@@ -2,19 +2,23 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { TextButton } from "@stellar/design-system";
+
 import { AddAsset } from "components/AddAsset";
 import { Balance } from "components/Balance";
 import { ClaimableBalance } from "components/ClaimableBalance";
 import { CopyWithTooltip } from "components/CopyWithTooltip";
 import { SendPayment } from "components/SendPayment";
+import { Sep31Send } from "components/Sep31Send";
 import { UntrustedBalance } from "components/UntrustedBalance";
+
 import { fetchAccountAction } from "ducks/account";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetDepositAssetAction } from "ducks/depositAsset";
-import { resetWithdrawAssetAction } from "ducks/withdrawAsset";
 import { resetTrustAssetAction } from "ducks/trustAsset";
 import { removeUntrustedAssetAction } from "ducks/untrustedAssets";
+import { resetWithdrawAssetAction } from "ducks/withdrawAsset";
+
 import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
@@ -170,6 +174,9 @@ export const Account = () => {
       {isSendPaymentVisible && (
         <SendPayment onCancel={handleSendPaymentCancel} />
       )}
+
+      {/* SEP-31 Send */}
+      <Sep31Send />
 
       {/* Copy keys */}
       <div style={{ display: "flex" }}>

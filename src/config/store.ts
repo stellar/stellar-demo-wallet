@@ -14,23 +14,14 @@ import { reducer as claimableBalances } from "ducks/claimableBalances";
 import { reducer as depositAsset } from "ducks/depositAsset";
 import { reducer as logs } from "ducks/logs";
 import { reducer as sendPayment } from "ducks/sendPayment";
+import { reducer as sendSep31 } from "ducks/sendSep31";
 import { reducer as settings } from "ducks/settings";
 import { reducer as trustAsset } from "ducks/trustAsset";
 import { reducer as untrustedAssets } from "ducks/untrustedAssets";
 import { reducer as withdrawAsset } from "ducks/withdrawAsset";
 
 const RESET_STORE_ACTION_TYPE = "RESET";
-
 export type RootState = ReturnType<typeof store.getState>;
-
-const loggerMiddleware = (store: any) => (next: any) => (
-  action: Action<any>,
-) => {
-  console.log("Dispatching: ", action.type);
-  const dispatchedAction = next(action);
-  console.log("NEW STATE: ", store.getState());
-  return dispatchedAction;
-};
 
 const isSerializable = (value: any) =>
   BigNumber.isBigNumber(value) || isPlain(value);
@@ -42,6 +33,7 @@ const reducers = combineReducers({
   depositAsset,
   logs,
   sendPayment,
+  sendSep31,
   settings,
   trustAsset,
   untrustedAssets,
@@ -63,6 +55,5 @@ export const store = configureStore({
         isSerializable,
       },
     }),
-    loggerMiddleware,
   ],
 });

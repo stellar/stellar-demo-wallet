@@ -25,7 +25,7 @@ export const trustAssetAction = createAsyncThunk<
   "trustAsset/trustAssetAction",
   async (untrustedAsset, { rejectWithValue, getState }) => {
     const { pubnet, secretKey } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(Boolean(pubnet));
+    const networkConfig = getNetworkConfig(pubnet);
     const server = new StellarSdk.Server(networkConfig.url);
 
     try {

@@ -20,7 +20,7 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
   "claimableBalances/fetchClaimableBalancesAction",
   async ({ publicKey }, { rejectWithValue, getState }) => {
     const { pubnet } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(Boolean(pubnet));
+    const networkConfig = getNetworkConfig(pubnet);
     const server = new StellarSdk.Server(networkConfig.url);
 
     try {

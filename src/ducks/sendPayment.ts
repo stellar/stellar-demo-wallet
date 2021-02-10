@@ -25,7 +25,7 @@ export const sendPaymentAction = createAsyncThunk<
       result = await submitPaymentTransaction({
         params,
         secretKey,
-        isPubnet: Boolean(pubnet),
+        isPubnet: pubnet,
       });
     } catch (error) {
       return rejectWithValue({

@@ -28,7 +28,7 @@ export const claimAssetAction = createAsyncThunk<
     const { data, secretKey } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
 
-    const networkConfig = getNetworkConfig(Boolean(pubnet));
+    const networkConfig = getNetworkConfig(pubnet);
     const server = new StellarSdk.Server(networkConfig.url);
     const [assetCode, assetIssuer] = balance.asset.split(":");
 
