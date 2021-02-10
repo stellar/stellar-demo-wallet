@@ -1,18 +1,26 @@
 import { useState, useEffect } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { TextButton } from "@stellar/design-system";
+import {
+  Heading1,
+  TextButton,
+  TextButtonVariant,
+} from "@stellar/design-system";
 
 import { createRandomAccountAndFundIt } from "ducks/account";
 import { LoadAccount } from "components/LoadAccount";
+import { Modal } from "components/Modal";
 import { getNetworkSearchParam } from "helpers/getNetworkSearchParam";
 import { getSecretKeySearchParam } from "helpers/getSecretKeySearchParam";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
 export const Landing = () => {
-  const { settings, account } = useRedux("settings", "account");
-  const [isLoadAccountVisible, setIsLoadAccountVisible] = useState(false);
+  const { account } = useRedux("account");
+  const [
+    isConnectAccountModalVisible,
+    setIsConnectAccountModalVisible,
+  ] = useState(false);
 
   const dispatch = useDispatch();
   const location = useLocation();
@@ -36,35 +44,43 @@ export const Landing = () => {
   ]);
 
   const handleCreateAccount = () => {
-    // TODO: handle loading state
-    dispatch(createRandomAccountAndFundIt());
-  };
-
-  const handleLoadAccount = () => {
-    setIsLoadAccountVisible(!isLoadAccountVisible);
-  };
-
-  const handleSwitchNetwork = () => {
     history.push(
       getNetworkSearchParam({
         location,
-        pubnet: !settings.pubnet,
+        pubnet: false,
       }),
     );
+    // TODO: handle loading state
+    // TODO: don't pre-fund the account
+    dispatch(createRandomAccountAndFundIt());
   };
 
   return (
     <div className="Inset">
-      <div className="Block">
-        {!settings.pubnet && (
-          <TextButton onClick={handleCreateAccount}>Create Account</TextButton>
-        )}
-        <TextButton onClick={handleLoadAccount}>Load Account</TextButton>
-        {isLoadAccountVisible && <LoadAccount />}
-        <TextButton onClick={handleSwitchNetwork}>{`Use ${
-          settings.pubnet ? "Testnet" : "Pubnet"
-        }`}</TextButton>
+      <Heading1>Load or create an account</Heading1>
+
+      <div className="LandingButtons">
+        <TextButton
+          onClick={() => setIsConnectAccountModalVisible(true)}
+          variant={TextButtonVariant.secondary}
+        >
+          Connect a Stellar account (testnet or mainnet)
+        </TextButton>
+
+        <TextButton
+          onClick={handleCreateAccount}
+          variant={TextButtonVariant.secondary}
+        >
+          Generate keypair for new account (testnet only)
+        </TextButton>
       </div>
+
+      <Modal
+        visible={isConnectAccountModalVisible}
+        onClose={() => setIsConnectAccountModalVisible(false)}
+      >
+        <LoadAccount />
+      </Modal>
     </div>
   );
 };

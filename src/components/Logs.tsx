@@ -33,20 +33,22 @@ export const Logs = () => {
   }, [dispatch]);
 
   return (
-    <div className="Logs">
-      <div className="Inset">
-        <Heading2>Logs</Heading2>
-        <TextLink onClick={() => dispatch(clearLogsAction())}>
-          Clear logs
-        </TextLink>
+    <div className="SplitContainer Logs">
+      <div className="ContentWrapper">
+        <div className="Inset">
+          <Heading2>Logs</Heading2>
+          <TextLink onClick={() => dispatch(clearLogsAction())}>
+            Clear logs
+          </TextLink>
 
-        <div className="LogsContent">
-          {logs.items.map((log: LogItem, index: number) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <div key={`${index}-${log.type}`} className="LogItem">
-              <strong>{log.type}:</strong> {log.title} - {log.body}
-            </div>
-          ))}
+          <div className="LogsContent">
+            {logs.items.map((log: LogItem, index: number) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <div key={`${index}-${log.type}`} className="LogItem">
+                <strong>{log.type}:</strong> {log.title} - {log.body}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

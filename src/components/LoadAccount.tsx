@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { Input, Button } from "@stellar/design-system";
+import {
+  Button,
+  Input,
+  TextButton,
+  TextButtonVariant,
+} from "@stellar/design-system";
 import { useHistory } from "react-router-dom";
+import { getNetworkSearchParam } from "helpers/getNetworkSearchParam";
 import { getSecretKeySearchParam } from "helpers/getSecretKeySearchParam";
 
 export const LoadAccount = () => {
@@ -17,6 +23,15 @@ export const LoadAccount = () => {
     );
   };
 
+  const handleSwitchNetwork = () => {
+    history.push(
+      getNetworkSearchParam({
+        location,
+        pubnet: true,
+      }),
+    );
+  };
+
   return (
     <div>
       <Input
@@ -28,6 +43,14 @@ export const LoadAccount = () => {
       <Button onClick={handleSetSecretKey} disabled={!secretKey}>
         OK
       </Button>
+
+      {/* TODO: make this checkbox */}
+      <TextButton
+        onClick={handleSwitchNetwork}
+        variant={TextButtonVariant.secondary}
+      >
+        Use mainnet
+      </TextButton>
     </div>
   );
 };
