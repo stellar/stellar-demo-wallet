@@ -1,0 +1,10 @@
+// TODO: add to SDS
+.Banner {
+  min-width: var(--size-min-window);
+  background-color: var(--color-error);
+  color: var(--color-text-contrast);
+  text-align: center;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  z-index: calc(var(--z-index-modal) + 2);
+}

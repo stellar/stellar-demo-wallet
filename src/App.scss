@@ -1,3 +1,12 @@
+:root {
+  --size-min-window: 800px;
+  --size-max-window: 1296px;
+}
+
+body {
+  overflow-y: hidden;
+}
+
 @mixin header-footer-inset {
   height: 3rem;
   display: flex;
@@ -5,18 +14,34 @@
 }
 
 @mixin header-footer-vertical-padding {
-  @media (min-width: 700px) {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-  }
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
 .Wrapper {
-  min-height: 100vh;
+  min-width: var(--size-min-window);
+  display: flex;
+  flex-grow: 1;
+}
+
+.SplitContainer {
+  width: 50%;
+  position: relative;
+}
+
+.ContentWrapper {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
 }
 
 .Main {
-  min-height: 50vh;
+  background-color: var(--color-background-main);
 }
 
 .Inset {
@@ -25,12 +50,7 @@
   padding-left: 1rem;
   padding-right: 1rem;
   width: 100%;
-  max-width: 1296px;
-
-  @media (min-width: 420px) {
-    padding-left: 3rem;
-    padding-right: 3rem;
-  }
+  max-width: var(--size-max-window);
 }
 
 .Header {
@@ -51,6 +71,16 @@
     a:not(:last-child) {
       margin-right: 1.5rem;
     }
+  }
+}
+
+.IntroText {
+  margin-bottom: 3rem;
+}
+
+.LandingButtons {
+  button {
+    text-align: left;
   }
 }
 
@@ -93,10 +123,7 @@
 
 // Logs
 .Logs {
-  border-top: 1px solid #000;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  height: 50vh;
+  background-color: var(--color-background-off);
   overflow: auto;
 
   .LogsContent {
