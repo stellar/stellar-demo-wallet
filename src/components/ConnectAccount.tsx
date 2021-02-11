@@ -38,36 +38,43 @@ export const ConnectAccount = () => {
   };
 
   return (
-    <div>
-      <Heading2>Connect with a secret key</Heading2>
+    <>
+      {/* TODO: move to Modal component */}
+      <Heading2 className="ModalHeading">Connect with a secret key</Heading2>
 
-      {/* TODO: update warning copy */}
-      <InfoBlock variant={InfoBlockVariant.error}>
-        ATTENTION: Entering a secret key on any website is not recommended.
-      </InfoBlock>
+      <div className="ModalBody">
+        {/* TODO: update warning copy */}
+        <InfoBlock variant={InfoBlockVariant.error}>
+          ATTENTION: Entering a secret key on any website is not recommended.
+          [UPDATE COPY]
+        </InfoBlock>
 
-      <Input
-        id="secretKey"
-        label="Your secret key"
-        onChange={(e) => setSecretKey(e.target.value)}
-        value={secretKey}
-      />
+        <Input
+          id="secretKey"
+          label="Your secret key"
+          onChange={(e) => setSecretKey(e.target.value)}
+          value={secretKey}
+          placeholder="Starts with S, example: SCHK…ZLJK"
+        />
 
-      <Checkbox
-        id="use-pubnet"
-        label="Operate on pubnet (NOT RECOMMENDED)"
-        checked={settings.pubnet}
-        onChange={handleSwitchNetwork}
-      />
+        <Checkbox
+          id="use-pubnet"
+          label="Operate on pubnet (NOT RECOMMENDED)"
+          checked={settings.pubnet}
+          onChange={handleSwitchNetwork}
+        />
+      </div>
 
-      <Button
-        onClick={handleSetSecretKey}
-        disabled={!secretKey || account.status === ActionStatus.PENDING}
-      >
-        Connect
-      </Button>
+      <div className="ModalButtonsFooter">
+        {account.status === ActionStatus.PENDING && <Loader />}
 
-      {account.status === ActionStatus.PENDING && <Loader />}
-    </div>
+        <Button
+          onClick={handleSetSecretKey}
+          disabled={!secretKey || account.status === ActionStatus.PENDING}
+        >
+          Connect
+        </Button>
+      </div>
+    </>
   );
 };

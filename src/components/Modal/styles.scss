@@ -30,6 +30,34 @@
     .ModalContent {
       overflow-y: auto;
       max-height: 80vh;
+
+      .ModalHeading {
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .ModalButtonsFooter {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        width: 100%;
+        margin-top: 0.75rem;
+
+        & > *:not(:first-child) {
+          margin-left: 0.5rem;
+        }
+      }
+
+      .ModalBody {
+        & > *:not(:last-child) {
+          margin-bottom: 1rem;
+        }
+
+        .InfoBlock:not(:last-child) {
+          margin-bottom: 1.5rem;
+        }
+      }
     }
 
     .ModalCloseButton {
