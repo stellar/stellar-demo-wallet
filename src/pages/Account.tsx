@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
-import { TextButton } from "@stellar/design-system";
+import { Loader, TextButton } from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
 import { Balance } from "components/Balance";
@@ -11,7 +11,7 @@ import { SendPayment } from "components/SendPayment";
 import { Sep31Send } from "components/Sep31Send";
 import { UntrustedBalance } from "components/UntrustedBalance";
 
-import { fetchAccountAction } from "ducks/account";
+import { fetchAccountAction, fundTestnetAccount } from "ducks/account";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetDepositAssetAction } from "ducks/depositAsset";
@@ -158,12 +158,25 @@ export const Account = () => {
     setIsSendPaymentVisible(false);
   };
 
+  const handleCreateAccount = () => {
+    if (account.data?.id) {
+      dispatch(fundTestnetAccount(account.data.id));
+    }
+  };
+
   if (!account.data?.id) {
     return null;
   }
 
   return (
     <div className="Inset">
+      {account.status === ActionStatus.PENDING && (
+        <div className="Inline">
+          <span>Updating account</span>
+          <Loader />
+        </div>
+      )}
+
       {/* Balances */}
       <Balance onSend={handleSendPayment} />
       <UntrustedBalance />
@@ -188,8 +201,22 @@ export const Account = () => {
         </CopyWithTooltip>
       </div>
 
+      {account.isUnfunded && (
+        <TextButton
+          onClick={handleCreateAccount}
+          disabled={account.status === ActionStatus.PENDING}
+        >
+          Create account
+        </TextButton>
+      )}
+
       {/* Refresh account */}
-      <TextButton onClick={handleRefreshAccount}>Refresh account</TextButton>
+      <TextButton
+        onClick={handleRefreshAccount}
+        disabled={account.status === ActionStatus.PENDING}
+      >
+        Refresh account
+      </TextButton>
 
       {/* Add asset */}
       <div>

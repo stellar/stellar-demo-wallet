@@ -2,9 +2,10 @@ import { Banner } from "components/Banner";
 import { useRedux } from "hooks/useRedux";
 
 export const WarningBanner = () => {
-  const { settings } = useRedux("settings");
+  const { account, settings } = useRedux("account", "settings");
 
-  if (settings.pubnet) {
+  // Show the banner only if signed in
+  if (settings.pubnet && account.data?.id) {
     return (
       <Banner>
         WARNING: You’ve connected a real account to this demo. You are not on
