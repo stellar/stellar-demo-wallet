@@ -3,12 +3,13 @@ import { useLocation, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   Heading1,
+  Loader,
   TextButton,
   TextButtonVariant,
 } from "@stellar/design-system";
 
-import { createRandomAccountAndFundIt } from "ducks/account";
-import { LoadAccount } from "components/LoadAccount";
+import { createRandomAccount } from "ducks/account";
+import { ConnectAccount } from "components/ConnectAccount";
 import { Modal } from "components/Modal";
 import { getNetworkSearchParam } from "helpers/getNetworkSearchParam";
 import { getSecretKeySearchParam } from "helpers/getSecretKeySearchParam";
@@ -44,15 +45,14 @@ export const Landing = () => {
   ]);
 
   const handleCreateAccount = () => {
+    // Make sure we are on testnet
     history.push(
       getNetworkSearchParam({
         location,
         pubnet: false,
       }),
     );
-    // TODO: handle loading state
-    // TODO: don't pre-fund the account
-    dispatch(createRandomAccountAndFundIt());
+    dispatch(createRandomAccount());
   };
 
   return (
@@ -63,23 +63,30 @@ export const Landing = () => {
         <TextButton
           onClick={() => setIsConnectAccountModalVisible(true)}
           variant={TextButtonVariant.secondary}
+          disabled={account.status === ActionStatus.PENDING}
         >
           Connect a Stellar account (testnet or mainnet)
         </TextButton>
 
-        <TextButton
-          onClick={handleCreateAccount}
-          variant={TextButtonVariant.secondary}
-        >
-          Generate keypair for new account (testnet only)
-        </TextButton>
+        <div className="Inline">
+          <TextButton
+            onClick={handleCreateAccount}
+            variant={TextButtonVariant.secondary}
+            disabled={account.status === ActionStatus.PENDING}
+          >
+            Generate keypair for new account (testnet only)
+          </TextButton>
+
+          {!isConnectAccountModalVisible &&
+            account.status === ActionStatus.PENDING && <Loader />}
+        </div>
       </div>
 
       <Modal
         visible={isConnectAccountModalVisible}
         onClose={() => setIsConnectAccountModalVisible(false)}
       >
-        <LoadAccount />
+        <ConnectAccount />
       </Modal>
     </div>
   );

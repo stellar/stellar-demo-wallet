@@ -84,6 +84,17 @@ body {
   }
 }
 
+.Inline {
+  display: flex;
+  align-items: center;
+
+  & > * {
+    margin-right: 1rem;
+  }
+}
+
+// Old styles
+
 .Content {
   flex-grow: 1;
   flex-shrink: 0;
@@ -103,14 +114,6 @@ body {
 .SendFormButtons {
   display: flex;
   align-items: center;
-
-  & > * {
-    margin-right: 1rem;
-  }
-}
-
-.Inline {
-  display: flex;
 
   & > * {
     margin-right: 1rem;

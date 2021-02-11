@@ -5,6 +5,7 @@ export interface AccountInitialState {
   data: Types.AccountDetails | null;
   errorString?: string;
   isAuthenticated: boolean;
+  isUnfunded: boolean;
   secretKey: string;
   status: ActionStatus | undefined;
 }

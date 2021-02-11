@@ -14,7 +14,7 @@ import {
 } from "types/types.d";
 
 interface UnfundedAccount extends Types.AccountDetails {
-  isUnfunded: boolean;
+  id: string;
 }
 
 interface AccountKeyPair {
@@ -25,6 +25,7 @@ interface AccountKeyPair {
 interface FetchAccountActionResponse {
   data: Types.AccountDetails | UnfundedAccount;
   secretKey: string;
+  isUnfunded: boolean;
 }
 
 export const fetchAccountAction = createAsyncThunk<
@@ -45,6 +46,7 @@ export const fetchAccountAction = createAsyncThunk<
     });
 
     let stellarAccount: Types.AccountDetails | null = null;
+    let isUnfunded = false;
 
     try {
       log.instruction({ title: `Checking if the account is funded` });
@@ -59,8 +61,8 @@ export const fetchAccountAction = createAsyncThunk<
         log.instruction({ title: `Account is not funded` });
         stellarAccount = {
           id: publicKey,
-          isUnfunded: true,
         } as UnfundedAccount;
+        isUnfunded = true;
       }
     } catch (error) {
       log.error({
@@ -78,31 +80,60 @@ export const fetchAccountAction = createAsyncThunk<
       body: stellarAccount,
     });
 
-    return { data: stellarAccount, secretKey };
+    return { data: stellarAccount, isUnfunded, secretKey };
   },
 );
 
-export const createRandomAccountAndFundIt = createAsyncThunk<
+export const createRandomAccount = createAsyncThunk<
   string,
   undefined,
   { rejectValue: RejectMessage; state: RootState }
->("account/createRandomAccountAndFundIt", async (_, { rejectWithValue }) => {
+>("account/createRandomAccount", (_, { rejectWithValue }) => {
   try {
     const keypair = Keypair.random();
-    await fetch(`https://friendbot.stellar.org?addr=${keypair.publicKey()}`);
-
     return keypair.secret();
   } catch (error) {
     return rejectWithValue({
-      errorString: "Something went wrong, please try again.",
+      errorString:
+        "Something went wrong while creating random account, please try again.",
     });
   }
 });
+
+export const fundTestnetAccount = createAsyncThunk<
+  { data: Types.AccountDetails; isUnfunded: boolean },
+  string,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "account/fundTestnetAccount",
+  async (publicKey, { rejectWithValue, getState }) => {
+    const { pubnet } = settingsSelector(getState());
+
+    const dataProvider = new DataProvider({
+      serverUrl: getNetworkConfig(pubnet).url,
+      accountOrKey: publicKey,
+      networkPassphrase: getNetworkConfig(pubnet).network,
+    });
+
+    try {
+      await fetch(`https://friendbot.stellar.org?addr=${publicKey}`);
+      const stellarAccount = await dataProvider.fetchAccountDetails();
+
+      return { data: stellarAccount, isUnfunded: false };
+    } catch (error) {
+      return rejectWithValue({
+        errorString:
+          "Something went wrong funding the account, please try again.",
+      });
+    }
+  },
+);
 
 const initialState: AccountInitialState = {
   data: null,
   errorString: undefined,
   isAuthenticated: false,
+  isUnfunded: false,
   secretKey: "",
   status: undefined,
 };
@@ -120,6 +151,7 @@ const accountSlice = createSlice({
     builder.addCase(fetchAccountAction.fulfilled, (state, action) => {
       state.data = action.payload.data;
       state.isAuthenticated = Boolean(action.payload.data);
+      state.isUnfunded = action.payload.isUnfunded;
       state.secretKey = action.payload.secretKey;
       state.status = ActionStatus.SUCCESS;
     });
@@ -128,17 +160,27 @@ const accountSlice = createSlice({
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(
-      createRandomAccountAndFundIt.pending,
-      (state = initialState) => {
-        state.status = ActionStatus.PENDING;
-      },
-    );
-    builder.addCase(createRandomAccountAndFundIt.fulfilled, (state, action) => {
+    builder.addCase(createRandomAccount.pending, (state = initialState) => {
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(createRandomAccount.fulfilled, (state, action) => {
       state.secretKey = action.payload;
       state.status = ActionStatus.SUCCESS;
     });
-    builder.addCase(createRandomAccountAndFundIt.rejected, (state, action) => {
+    builder.addCase(createRandomAccount.rejected, (state, action) => {
+      state.errorString = action.payload?.errorString;
+      state.status = ActionStatus.ERROR;
+    });
+
+    builder.addCase(fundTestnetAccount.pending, (state) => {
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(fundTestnetAccount.fulfilled, (state, action) => {
+      state.data = action.payload.data;
+      state.isUnfunded = action.payload.isUnfunded;
+      state.status = ActionStatus.SUCCESS;
+    });
+    builder.addCase(fundTestnetAccount.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
