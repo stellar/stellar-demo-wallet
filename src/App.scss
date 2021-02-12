@@ -87,10 +87,75 @@ body {
 .Inline {
   display: flex;
   align-items: center;
+  position: relative;
 
   & > * {
     margin-right: 1rem;
   }
+}
+
+.LoadingBlock {
+  margin-bottom: 1rem;
+}
+
+// Account
+.Account {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+
+  .AccountInfo {
+    display: table;
+    max-width: 276px;
+
+    &:first-child {
+      margin-bottom: 1rem;
+      margin-right: 2rem;
+    }
+
+    .AccountInfoRow {
+      display: table-row;
+      height: 2rem;
+    }
+
+    .AccountInfoCell {
+      display: table-cell;
+
+      button {
+        padding: 0.1rem 0.5rem;
+        margin-left: -0.5rem;
+        text-align: left;
+      }
+
+      &.AccountLabel {
+        text-transform: uppercase;
+      }
+
+      &.CopyButton {
+        width: 3.75rem;
+      }
+
+      &:not(:last-child) {
+        padding-right: 1rem;
+      }
+    }
+  }
+
+  @media (min-width: 1020px) {
+    flex-direction: row;
+
+    .AccountInfo {
+      &:first-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.InfoButtonWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 // Old styles
