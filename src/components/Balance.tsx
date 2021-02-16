@@ -81,12 +81,14 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
     }
 
     return (
-      <>
+      <div className="Balances">
         {/* Native (XLM) balance */}
         {sortedBalances.native.map((balance) => (
-          <div key={`${balance.token.code}:native`}>
-            <div>{`${balance.token.code}: ${balance.total || "0"}`}</div>
-            <div className="Inline">
+          <div className="BalanceRow" key={`${balance.token.code}:native`}>
+            <div className="BalanceCell">{`${balance.total || "0"} ${
+              balance.token.code
+            }`}</div>
+            <div className="BalanceCell">
               <TextButton onClick={() => handleSend()}>Send</TextButton>
             </div>
           </div>
@@ -94,9 +96,14 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
 
         {/* Other balances */}
         {sortedBalances.other.map((balance) => (
-          <div key={`${balance.token.code}:${balance.token.issuer.key}`}>
-            <div>{`${balance.token.code}: ${balance.total || "0"}`}</div>
-            <div className="Inline">
+          <div
+            className="BalanceRow"
+            key={`${balance.token.code}:${balance.token.issuer.key}`}
+          >
+            <div className="BalanceCell">{`${balance.total || "0"} ${
+              balance.token.code
+            }`}</div>
+            <div className="BalannceCell Inline">
               <TextButton onClick={() => handleSend()}>Send</TextButton>
 
               <TextButton onClick={() => handleDeposit(balance)}>
@@ -112,12 +119,12 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
             </div>
           </div>
         ))}
-      </>
+      </div>
     );
   };
 
   return (
-    <div className="Block">
+    <div className="Section">
       <Heading2>Balances</Heading2>
       {renderBalances()}
     </div>

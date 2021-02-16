@@ -98,6 +98,16 @@ body {
   margin-bottom: 1rem;
 }
 
+.InfoButtonWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.Section {
+  margin-top: 3rem;
+}
+
 // Account
 .Account {
   display: flex;
@@ -152,10 +162,21 @@ body {
   }
 }
 
-.InfoButtonWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
+.Balances {
+  border-top: 1px solid var(--color-border-main);
+
+  .BalanceRow {
+    border-bottom: 1px solid var(--color-border-main);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .BalanceCell {
+    position: relative;
+  }
 }
 
 // Old styles

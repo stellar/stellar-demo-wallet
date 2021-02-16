@@ -48,7 +48,7 @@ export const InfoButtonWithTooltip = ({
       </div>
 
       <div
-        className="Tooltip InfoButtonTooltip"
+        className="InfoButtonTooltip"
         ref={infoEl}
         data-hidden={!isInfoVisible}
       >
