@@ -3,3 +3,4 @@
 # Changes
 
 - New UI account info
+- New UI add asset
