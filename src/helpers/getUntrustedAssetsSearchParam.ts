@@ -12,7 +12,7 @@ export const getUntrustedAssetsSearchParam = ({
   if (!untrustedAssetsParam) {
     queryParams.set("untrustedAssets", asset);
   } else if (untrustedAssetsParam.includes(asset)) {
-    throw new Error("Asset was already added");
+    throw new Error("Asset was already added.");
   } else {
     queryParams.set("untrustedAssets", `${untrustedAssetsParam},${asset}`);
   }

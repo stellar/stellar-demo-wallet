@@ -16,7 +16,6 @@ export const UntrustedBalance = () => {
 
   const dispatch = useDispatch();
 
-  // TODO: we can move this someplace else (SettingsHandler, for example)
   useEffect(() => {
     if (!settings.untrustedAssets) {
       return;
@@ -31,7 +30,6 @@ export const UntrustedBalance = () => {
   };
 
   const handleDepositAsset = (asset: UntrustedAsset) => {
-    // TODO: handle global errors on UI
     const { assetCode, assetIssuer } = asset;
     dispatch(
       depositAssetAction({
@@ -42,11 +40,14 @@ export const UntrustedBalance = () => {
   };
 
   return (
-    <div className="Block">
+    <>
       {untrustedAssets.data.map((asset: UntrustedAsset) => (
-        <div key={`${asset.assetCode}:${asset.assetIssuer}`}>
-          <div>{`${asset.assetCode}: ${asset.balance}`}</div>
-          <div className="Inline">
+        <div
+          className="BalanceRow"
+          key={`${asset.assetCode}:${asset.assetIssuer}`}
+        >
+          <div className="BalanceCell">{`0 ${asset.assetCode}`}</div>
+          <div className="BalannceCell Inline">
             <TextButton
               onClick={() => handleTrustAsset(asset)}
               disabled={trustAsset.status === ActionStatus.PENDING}
@@ -59,6 +60,6 @@ export const UntrustedBalance = () => {
           </div>
         </div>
       ))}
-    </div>
+    </>
   );
 };

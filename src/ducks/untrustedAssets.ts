@@ -3,48 +3,15 @@ import StellarSdk from "stellar-sdk";
 
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
+import { getAssetRecord } from "helpers/getAssetRecord";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { log } from "helpers/log";
 import {
   ActionStatus,
   RejectMessage,
   UntrustedAsset,
   UntrustedAssetsInitialState,
 } from "types/types.d";
-
-const getAssetData = async (assets: string[], server: any) => {
-  let response: UntrustedAsset[] = [];
-
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < assets.length; i++) {
-    const assetString = assets[i];
-    const [assetCode, assetIssuer] = assetString.split(":");
-
-    // eslint-disable-next-line no-await-in-loop
-    const assetResponse = await server
-      .assets()
-      .forCode(assetCode)
-      .forIssuer(assetIssuer)
-      .call();
-
-    if (!assetResponse.records) {
-      console.log(`Asset ${assetString} does not exist.`);
-    } else {
-      response = [
-        ...response,
-        {
-          assetString,
-          assetCode,
-          assetIssuer,
-          balance: "0.0000000",
-          assetType: assetResponse.records[0].asset_type,
-          untrusted: true,
-        },
-      ];
-    }
-  }
-
-  return response;
-};
 
 const removeExistingAssets = ({
   assetsString,
@@ -59,7 +26,6 @@ const removeExistingAssets = ({
     return assetsArray;
   }
 
-  // TODO: Log if already added
   const untrustedAssetsList = untrustedAssets.map((ua) => ua.assetString);
 
   return assetsArray.filter(
@@ -74,6 +40,8 @@ export const addUntrustedAssetAction = createAsyncThunk<
 >(
   "untrustedAssets/addUntrustedAssetAction",
   async (assetsString, { rejectWithValue, getState }) => {
+    log.instruction({ title: "Start adding untrusted asset" });
+
     const { pubnet } = settingsSelector(getState());
     const { data } = untrustedAssetsSelector(getState());
 
@@ -83,15 +51,17 @@ export const addUntrustedAssetAction = createAsyncThunk<
     });
 
     if (!assetsListToAdd.length) {
+      log.error({ title: "No new assets to add" });
       rejectWithValue({
         errorString: `No new assets to add.`,
       });
     }
 
     const server = new StellarSdk.Server(getNetworkConfig(pubnet).url);
-    const response = await getAssetData(assetsListToAdd, server);
+    const response = await getAssetRecord(assetsListToAdd, server);
 
     if (!response.length) {
+      log.error({ title: "No new assets to add" });
       rejectWithValue({
         errorString: `No new assets were added.`,
       });

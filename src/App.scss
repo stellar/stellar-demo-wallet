@@ -89,9 +89,17 @@ body {
   align-items: center;
   position: relative;
 
-  & > * {
+  & > *:not(:last-child) {
     margin-right: 1rem;
   }
+}
+
+.error {
+  color: var(--color-error);
+}
+
+.success {
+  color: var(--color-success);
 }
 
 .LoadingBlock {
@@ -177,6 +185,10 @@ body {
   .BalanceCell {
     position: relative;
   }
+}
+
+.BalancesButtons {
+  margin-top: 1.5rem;
 }
 
 // Old styles

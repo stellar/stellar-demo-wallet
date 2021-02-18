@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
-import { TextButton } from "@stellar/design-system";
+import { Button, Heading2 } from "@stellar/design-system";
 
 import { AccountInfo } from "components/AccountInfo";
 import { AddAsset } from "components/AddAsset";
 import { Balance } from "components/Balance";
 import { ClaimableBalance } from "components/ClaimableBalance";
+import { Modal } from "components/Modal";
 import { SendPayment } from "components/SendPayment";
 import { Sep31Send } from "components/Sep31Send";
 import { UntrustedBalance } from "components/UntrustedBalance";
@@ -38,7 +39,7 @@ export const Account = () => {
     "withdrawAsset",
   );
   const [isSendPaymentVisible, setIsSendPaymentVisible] = useState(false);
-  const [isAddAssetVisible, setIsAddAssetVisible] = useState(false);
+  const [isAddAssetModalVisible, setIsAddAssetModalVisible] = useState(false);
 
   const dispatch = useDispatch();
   const history = useHistory();
@@ -167,9 +168,21 @@ export const Account = () => {
       <AccountInfo />
 
       {/* Balances */}
-      <Balance onSend={handleSendPayment} />
-      <UntrustedBalance />
-      <ClaimableBalance />
+      <div className="Section">
+        <Heading2>Balances</Heading2>
+        <div className="Balances">
+          <Balance onSend={handleSendPayment} />
+          <UntrustedBalance />
+          <ClaimableBalance />
+        </div>
+
+        {/* Add asset */}
+        <div className="BalancesButtons">
+          <Button onClick={() => setIsAddAssetModalVisible(true)}>
+            Add asset
+          </Button>
+        </div>
+      </div>
 
       {/* Send payment */}
       {/* TODO: pre-fill fields from selected asset */}
@@ -180,15 +193,12 @@ export const Account = () => {
       {/* SEP-31 Send */}
       <Sep31Send />
 
-      {/* Add asset */}
-      <div>
-        <TextButton onClick={() => setIsAddAssetVisible(true)}>
-          Add asset
-        </TextButton>
-        {isAddAssetVisible && (
-          <AddAsset onCancel={() => setIsAddAssetVisible(false)} />
-        )}
-      </div>
+      <Modal
+        visible={isAddAssetModalVisible}
+        onClose={() => setIsAddAssetModalVisible(false)}
+      >
+        <AddAsset />
+      </Modal>
     </div>
   );
 };
