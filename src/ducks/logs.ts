@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
-import { LogItem, LogsInitialState } from "types/types.d";
+import { LogItemProps, LogsInitialState } from "types/types.d";
 
 const initialState: LogsInitialState = {
   items: [],
@@ -11,7 +11,7 @@ const logsSlice = createSlice({
   initialState,
   reducers: {
     clearLogsAction: () => initialState,
-    logAction: (state, action: PayloadAction<LogItem>) => {
+    logAction: (state, action: PayloadAction<LogItemProps>) => {
       state.items = [...state.items, action.payload];
     },
   },

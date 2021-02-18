@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Heading2, TextLink } from "@stellar/design-system";
+
+import { LogItem } from "components/LogItem";
 import { LOG_MESSAGE_EVENT } from "constants/settings";
 import { clearLogsAction, logAction } from "ducks/logs";
 import { useRedux } from "hooks/useRedux";
-import { LogItem } from "types/types.d";
+import { LogItemProps } from "types/types.d";
 
 export const Logs = () => {
   const { logs } = useRedux("logs");
@@ -12,13 +14,14 @@ export const Logs = () => {
 
   useEffect(() => {
     const onLogEventMessage = (e: any) => {
-      const { type, title, body } = e.detail;
+      const { timestamp, type, title, body } = e.detail;
 
       dispatch(
         logAction({
+          timestamp,
           type,
           title,
-          body: JSON.stringify(body),
+          body,
         }),
       );
     };
@@ -42,11 +45,13 @@ export const Logs = () => {
           </TextLink>
 
           <div className="LogsContent">
-            {logs.items.map((log: LogItem, index: number) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <div key={`${index}-${log.type}`} className="LogItem">
-                <strong>{log.type}:</strong> {log.title} - {log.body}
-              </div>
+            {logs.items.map((log: LogItemProps) => (
+              <LogItem
+                key={log.timestamp}
+                variant={log.type}
+                title={log.title}
+                body={log.body}
+              />
             ))}
           </div>
         </div>
