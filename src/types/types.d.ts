@@ -37,6 +37,8 @@ export interface DepositAssetInitialState {
 
 export interface LogsInitialState {
   items: LogItemProps[];
+  errorString?: string;
+  status: ActionStatus | undefined;
 }
 
 export interface SendPaymentInitialState {

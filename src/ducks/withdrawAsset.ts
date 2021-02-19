@@ -18,6 +18,7 @@ import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { log } from "helpers/log";
 import {
   ActionStatus,
   RejectMessage,
@@ -58,9 +59,7 @@ export const withdrawAssetAction = createAsyncThunk<
     const publicKey = data?.id;
 
     if (!publicKey) {
-      return rejectWithValue({
-        errorString: "Something is wrong with Account, no public key.",
-      });
+      throw new Error("Something is wrong with Account, no public key.");
     }
 
     try {
@@ -74,19 +73,16 @@ export const withdrawAssetAction = createAsyncThunk<
       //   .homeDomain;
 
       if (!homeDomain) {
-        console.log(
-          "request: ",
-          "Fetching issuer account from Horizon",
-          assetIssuer,
-        );
+        log.request({
+          url: "Fetching issuer account from Horizon",
+          body: assetIssuer,
+        });
         const accountRecord = await server.loadAccount(assetIssuer);
 
-        // TODO: log this
-        console.log(
-          "response: ",
-          "Fetching issuer account from Horizon",
-          accountRecord,
-        );
+        log.response({
+          url: "Fetching issuer account from Horizon",
+          body: accountRecord,
+        });
 
         homeDomain = accountRecord.home_domain;
       }
@@ -115,15 +111,13 @@ export const withdrawAssetAction = createAsyncThunk<
 
       const tomlURL = new URL(homeDomain);
       tomlURL.pathname = "/.well-known/stellar.toml";
-      // TODO: log this
-      console.log("request: ", tomlURL.toString());
+      log.request({ url: tomlURL.toString() });
 
       const toml =
         tomlURL.protocol === "http:"
           ? await StellarTomlResolver.resolve(tomlURL.host, { allowHttp: true })
           : await StellarTomlResolver.resolve(tomlURL.host);
-      // TODO: log this
-      console.log("response: ", tomlURL.toString(), toml);
+      log.response({ url: tomlURL.toString(), body: toml });
 
       // TODO: do we need to do this?
       // this.assets.set(`${assetCode}:${assetIssuer}`, { homeDomain, toml });
@@ -188,11 +182,9 @@ export const withdrawAssetAction = createAsyncThunk<
       const transactionUrl = new URL(
         `${toml.TRANSFER_SERVER_SEP0024}/transaction?id=${interactiveJson.id}`,
       );
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        `Polling for updates: ${transactionUrl.toString()}`,
-      );
+      log.instruction({
+        title: `Polling for updates: ${transactionUrl.toString()}`,
+      });
 
       while (!popup.closed && !["completed", "error"].includes(currentStatus)) {
         // eslint-disable-next-line no-await-in-loop
@@ -205,41 +197,37 @@ export const withdrawAssetAction = createAsyncThunk<
         if (transactionJson.transaction.status !== currentStatus) {
           currentStatus = transactionJson.transaction.status;
           popup.location.href = transactionJson.transaction.more_info_url;
-          // TODO: log this
-          console.log(
-            "instruction: ",
-            `Transaction ${interactiveJson.id} is in ${transactionJson.transaction.status} status`,
-          );
+          log.instruction({
+            title: `Transaction ${interactiveJson.id} is in ${transactionJson.transaction.status} status`,
+          });
 
           switch (currentStatus) {
             case "pending_user_transfer_start": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The anchor is waiting for you to send the funds for withdrawal",
-              );
+              log.instruction({
+                title:
+                  "The anchor is waiting for you to send the funds for withdrawal",
+              });
+
               const memo = getMemo(
                 transactionJson.transaction.withdraw_memo,
                 transactionJson.transaction.withdraw_memo_type,
               );
-              // TODO: log this
-              console.log(
-                "request: ",
-                "Fetching account sequence number",
-                keypair.publicKey(),
-              );
+
+              log.request({
+                url: "Fetching account sequence number",
+                body: keypair.publicKey(),
+              });
 
               // eslint-disable-next-line no-await-in-loop
               const { sequence } = await server
                 .accounts()
                 .accountId(keypair.publicKey())
                 .call();
-              // TODO: log this
-              console.log(
-                "response: ",
-                "Fetching account sequence number",
-                sequence,
-              );
+
+              log.response({
+                url: "Fetching account sequence number",
+                body: sequence,
+              });
 
               const account = new Account(keypair.publicKey(), sequence);
               const txn = new TransactionBuilder(account, {
@@ -259,61 +247,50 @@ export const withdrawAssetAction = createAsyncThunk<
                 .build();
 
               txn.sign(keypair);
-              // TODO: log this
-              console.log(
-                "request: ",
-                "Submitting withdrawal transaction to Stellar",
-                txn,
-              );
+
+              log.request({
+                url: "Submitting withdrawal transaction to Stellar",
+                body: txn,
+              });
 
               // eslint-disable-next-line no-await-in-loop
               const horizonResponse = await server.submitTransaction(txn);
-              // TODO: log this
-              console.log(
-                "response: ",
-                "Submitting withdrawal transaction to Stellar",
-                horizonResponse,
-              );
+              log.response({
+                url: "Submitting withdrawal transaction to Stellar",
+                body: horizonResponse,
+              });
               break;
             }
             case "pending_anchor": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The anchor is processing the transaction",
-              );
+              log.instruction({
+                title: "The anchor is processing the transaction",
+              });
               break;
             }
             case "pending_stellar": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The Stellar network is processing the transaction",
-              );
+              log.instruction({
+                title: "The Stellar network is processing the transaction",
+              });
               break;
             }
             case "pending_external": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The transaction is being processed by an external system",
-              );
+              log.instruction({
+                title:
+                  "The transaction is being processed by an external system",
+              });
               break;
             }
             case "pending_user": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The anchor is waiting for you to take the action described in the popup",
-              );
+              log.instruction({
+                title:
+                  "The anchor is waiting for you to take the action described in the popup",
+              });
               break;
             }
             case "error": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "There was a problem processing your transaction",
-              );
+              log.instruction({
+                title: "There was a problem processing your transaction",
+              });
               break;
             }
             default:
@@ -324,21 +301,22 @@ export const withdrawAssetAction = createAsyncThunk<
         // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
-      // TODO: log this
-      console.log("instruction: ", `Transaction status: ${currentStatus}`);
+      log.instruction({ title: `Transaction status: ${currentStatus}` });
       if (!["completed", "error"].includes(currentStatus) && popup.closed) {
-        // TODO: log this
-        console.log(
-          "instruction: ",
-          "The popup was closed before the transaction reached a terminal status, " +
-            "if your balance is not updated soon, the transaction may have failed.",
-        );
+        log.instruction({
+          title: `The popup was closed before the transaction reached a terminal status, if your balance is not updated soon, the transaction may have failed.`,
+        });
       }
 
       return {
         currentStatus,
       };
     } catch (error) {
+      log.error({
+        title: "Withdrawal failed",
+        body: error.toString(),
+      });
+
       return rejectWithValue({
         errorString: error.toString(),
       });

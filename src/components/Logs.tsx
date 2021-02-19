@@ -4,7 +4,7 @@ import { TextButton } from "@stellar/design-system";
 
 import { LogItem } from "components/LogItem";
 import { LOG_MESSAGE_EVENT } from "constants/settings";
-import { clearLogsAction, logAction } from "ducks/logs";
+import { clearLogsAction, addLogAction } from "ducks/logs";
 import { useRedux } from "hooks/useRedux";
 import { LogItemProps } from "types/types.d";
 
@@ -17,7 +17,7 @@ export const Logs = () => {
       const { timestamp, type, title, body } = e.detail;
 
       dispatch(
-        logAction({
+        addLogAction({
           timestamp,
           type,
           title,

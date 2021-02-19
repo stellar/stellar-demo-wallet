@@ -9,6 +9,7 @@ import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { log } from "helpers/log";
 import { trustAsset } from "methods/trustAsset";
 import {
   ActionStatus,
@@ -32,9 +33,7 @@ export const depositAssetAction = createAsyncThunk<
     const publicKey = data?.id;
 
     if (!publicKey) {
-      return rejectWithValue({
-        errorString: "Something is wrong with Account, no public key.",
-      });
+      throw new Error("Something is wrong with Account, no public key.");
     }
 
     try {
@@ -46,22 +45,20 @@ export const depositAssetAction = createAsyncThunk<
       // }
 
       if (!homeDomain) {
-        console.log(
-          "request: ",
-          "Fetching issuer account from Horizon",
-          assetIssuer,
-        );
+        log.request({
+          url: "Fetching issuer account from Horizon",
+          body: assetIssuer,
+        });
+
         const accountRecord = await server
           .accounts()
           .accountId(assetIssuer)
           .call();
 
-        // TODO: log this
-        console.log(
-          "response: ",
-          "Fetching issuer account from Horizon",
-          accountRecord,
-        );
+        log.response({
+          url: "Fetching issuer account from Horizon",
+          body: accountRecord,
+        });
 
         homeDomain = accountRecord.home_domain;
       }
@@ -89,29 +86,22 @@ export const depositAssetAction = createAsyncThunk<
 
       const tomlURL = new URL(homeDomain);
       tomlURL.pathname = "/.well-known/stellar.toml";
-      // TODO: log this
-      console.log("request", tomlURL.toString());
+      log.request({ url: tomlURL.toString() });
 
       const toml =
         tomlURL.protocol === "http:"
           ? await StellarTomlResolver.resolve(tomlURL.host, { allowHttp: true })
           : await StellarTomlResolver.resolve(tomlURL.host);
 
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        `Received WEB_AUTH_ENDPOINT from TOML: ${toml.WEB_AUTH_ENDPOINT}`,
-      );
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        `Received TRANSFER_SERVER_SEP0024 from TOML: ${toml.TRANSFER_SERVER_SEP0024}`,
-      );
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        `Received asset issuer from TOML: ${toml.SIGNING_KEY}`,
-      );
+      log.instruction({
+        title: `Received WEB_AUTH_ENDPOINT from TOML: ${toml.WEB_AUTH_ENDPOINT}`,
+      });
+      log.instruction({
+        title: `Received TRANSFER_SERVER_SEP0024 from TOML: ${toml.TRANSFER_SERVER_SEP0024}`,
+      });
+      log.instruction({
+        title: `Received asset issuer from TOML: ${toml.SIGNING_KEY}`,
+      });
 
       if (
         !toml.SIGNING_KEY ||
@@ -130,38 +120,32 @@ export const depositAssetAction = createAsyncThunk<
       //   this.assets.set(`${asset_code}:${asset_issuer}`, { homeDomain, toml });
       // }
 
-      // TODO: log this
-      console.log(
-        "instruction",
-        "Check /info endpoint to ensure this currency is enabled for deposit",
-      );
+      log.instruction({
+        title:
+          "Check /info endpoint to ensure this currency is enabled for deposit",
+      });
       const infoURL = `${toml.TRANSFER_SERVER_SEP0024}/info`;
-      // TODO: log this
-      console.log("request", infoURL);
+      log.request({ url: infoURL });
 
       const info = await fetch(infoURL);
       const infoJson = await info.json();
-      // TODO: log this
-      console.log("response", infoURL, infoJson);
+      log.response({ url: infoURL, body: infoJson });
 
       if (!get(infoJson, ["deposit", assetCode, "enabled"])) {
         throw new Error("Asset is not enabled in the /info endpoint");
       }
 
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        "Deposit is enabled, and requires authentication so we should go through SEP-0010",
-      );
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        "Start the SEP-0010 flow to authenticate the wallet’s Stellar account",
-      );
+      log.instruction({
+        title:
+          "Deposit is enabled, and requires authentication so we should go through SEP-0010",
+      });
+      log.instruction({
+        title:
+          "Start the SEP-0010 flow to authenticate the wallet’s Stellar account",
+      });
 
       const authParams = { account: publicKey };
-      // TODO: log this
-      console.log("request: ", toml.WEB_AUTH_ENDPOINT, authParams);
+      log.request({ url: toml.WEB_AUTH_ENDPOINT, body: authParams });
 
       const getChallengeURL = new URL(toml.WEB_AUTH_ENDPOINT);
       getChallengeURL.searchParams.set("account", publicKey);
@@ -169,41 +153,39 @@ export const depositAssetAction = createAsyncThunk<
       const challengeResponse = await fetch(getChallengeURL.toString());
       const challengeResponseJson = await challengeResponse.json();
 
-      // TODO: log this
-      console.log("response: ", toml.WEB_AUTH_ENDPOINT, challengeResponseJson);
+      log.response({
+        url: toml.WEB_AUTH_ENDPOINT,
+        body: challengeResponseJson,
+      });
 
-      if (!challengeResponseJson.transaction)
+      if (!challengeResponseJson.transaction) {
         throw new Error(
           "The WEB_AUTH_ENDPOINT didn't return a challenge transaction",
         );
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        "We’ve received a challenge transaction from the server that we need the client to sign with our Stellar account.",
-      );
+      }
+      log.instruction({
+        title:
+          "We’ve received a challenge transaction from the server that we need the client to sign with our Stellar account.",
+      });
 
       const transaction: any = new Transaction(
         challengeResponseJson.transaction,
         challengeResponseJson.network_passphrase,
       );
-      // TODO: log this
-      console.log("request: ", "SEP-0010 Signed Transaction", transaction);
+      log.request({ url: "SEP-0010 Signed Transaction", body: transaction });
 
       const keypair = Keypair.fromSecret(secretKey);
 
       transaction.sign(keypair);
 
-      // TODO: log this
-      console.log("response: ", "Base64 Encoded", transaction.toXDR());
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        "We need to send the signed SEP10 challenge back to the server to get a JWT token to authenticate our stellar account with future actions",
-      );
+      log.response({ url: "Base64 Encoded", body: transaction.toXDR() });
+      log.instruction({
+        title:
+          "We need to send the signed SEP10 challenge back to the server to get a JWT token to authenticate our stellar account with future actions",
+      });
 
       const jwtParams = { account: publicKey };
-      // TODO: log this
-      console.log("request: ", "POST /auth", jwtParams);
+      log.request({ url: "POST /auth", body: jwtParams });
 
       const signedChallenge = transaction.toXDR();
       const tokenResponse = await fetch(`${toml.WEB_AUTH_ENDPOINT}`, {
@@ -213,8 +195,7 @@ export const depositAssetAction = createAsyncThunk<
       });
       const tokenResponseJson = await tokenResponse.json();
 
-      // TODO: log this
-      console.log("response: ", "POST /auth", tokenResponseJson);
+      log.response({ url: "POST /auth", body: tokenResponseJson });
 
       if (!tokenResponseJson.token) {
         throw new Error("No token was returned from POST /auth");
@@ -230,12 +211,10 @@ export const depositAssetAction = createAsyncThunk<
       };
       each(postDepositParams, (value, key) => formData.append(key, value));
 
-      // TODO: log this
-      console.log(
-        "request: ",
-        `POST ${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
-        postDepositParams,
-      );
+      log.request({
+        url: `POST ${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
+        body: postDepositParams,
+      });
 
       let response = await fetch(
         `${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
@@ -249,12 +228,10 @@ export const depositAssetAction = createAsyncThunk<
       );
 
       const interactiveJson = await response.json();
-      // TODO: log this
-      console.log(
-        "response: ",
-        `${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
-        interactiveJson,
-      );
+      log.response({
+        url: `${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
+        body: interactiveJson,
+      });
 
       if (!interactiveJson.url) {
         throw new Error(
@@ -275,11 +252,9 @@ export const depositAssetAction = createAsyncThunk<
       const transactionUrl = new URL(
         `${toml.TRANSFER_SERVER_SEP0024}/transaction?id=${interactiveJson.id}`,
       );
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        `Polling for updates: ${transactionUrl.toString()}`,
-      );
+      log.instruction({
+        title: `Polling for updates: ${transactionUrl.toString()}`,
+      });
 
       while (!popup.closed && !["completed", "error"].includes(currentStatus)) {
         // eslint-disable-next-line no-await-in-loop
@@ -293,53 +268,43 @@ export const depositAssetAction = createAsyncThunk<
         if (transactionJson.transaction.status !== currentStatus) {
           currentStatus = transactionJson.transaction.status;
           popup.location.href = transactionJson.transaction.more_info_url;
-          // TODO: log this
-          console.log(
-            "instruction: ",
-            `Transaction ${interactiveJson.id} is in ${transactionJson.transaction.status} status`,
-          );
+          log.instruction({
+            title: `Transaction ${interactiveJson.id} is in ${transactionJson.transaction.status} status`,
+          });
 
           switch (currentStatus) {
             case "pending_user_transfer_start": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The anchor is waiting on you to take the action described in the popup",
-              );
+              log.instruction({
+                title:
+                  "The anchor is waiting on you to take the action described in the popup",
+              });
               break;
             }
             case "pending_anchor": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The anchor is processing the transaction",
-              );
+              log.instruction({
+                title: "The anchor is processing the transaction",
+              });
               break;
             }
             case "pending_stellar": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The Stellar network is processing the transaction",
-              );
+              log.instruction({
+                title: "The Stellar network is processing the transaction",
+              });
               break;
             }
             case "pending_external": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The transaction is being processed by an external system",
-              );
+              log.instruction({
+                title:
+                  "The transaction is being processed by an external system",
+              });
               break;
             }
             case "pending_trust": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "You must add a trustline to the asset in order to receive your deposit",
-              );
-              // TODO: log this
-              console.log("instruction: ", "Adding trustline...");
+              log.instruction({
+                title:
+                  "You must add a trustline to the asset in order to receive your deposit",
+              });
+              log.instruction({ title: "Adding trustline..." });
               try {
                 const assetString = `${assetCode}:${assetIssuer}`;
                 // eslint-disable-next-line no-await-in-loop
@@ -361,19 +326,16 @@ export const depositAssetAction = createAsyncThunk<
               break;
             }
             case "pending_user": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "The anchor is waiting for you to take the action described in the popup",
-              );
+              log.instruction({
+                title:
+                  "The anchor is waiting for you to take the action described in the popup",
+              });
               break;
             }
             case "error": {
-              // TODO: log this
-              console.log(
-                "instruction: ",
-                "There was a problem processing your transaction",
-              );
+              log.instruction({
+                title: "There was a problem processing your transaction",
+              });
               break;
             }
             default:
@@ -386,16 +348,12 @@ export const depositAssetAction = createAsyncThunk<
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
 
-      // TODO: log this
-      console.log("instruction: ", `Transaction status: ${currentStatus}`);
+      log.instruction({ title: `Transaction status: ${currentStatus}` });
 
       if (!["completed", "error"].includes(currentStatus) && popup.closed) {
-        // TODO: log this
-        console.log(
-          "instruction: ",
-          "The popup was closed before the transaction reached a terminal status, " +
-            "if your balance is not updated soon, the transaction may have failed.",
-        );
+        log.instruction({
+          title: `The popup was closed before the transaction reached a terminal status, if your balance is not updated soon, the transaction may have failed.`,
+        });
       }
 
       return {
@@ -403,6 +361,11 @@ export const depositAssetAction = createAsyncThunk<
         trustedAssetAdded,
       };
     } catch (error) {
+      log.error({
+        title: "Deposit failed",
+        body: error.toString(),
+      });
+
       return rejectWithValue({
         errorString: error.toString(),
       });

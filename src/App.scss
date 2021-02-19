@@ -171,7 +171,14 @@ body {
 }
 
 .AccountDetails {
-  word-break: break-all;
+  .AccountDetailsContent {
+    padding: 1rem;
+    font-weight: var(--font-weight-light);
+    font-family: var(--font-family-monospace);
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+    word-break: break-word;
+  }
 }
 
 .Balances {
