@@ -1,0 +1,24 @@
+.ToastBanner {
+  --loader-color: var(--color-text-contrast);
+
+  background-color: var(--color-background-contrast);
+  color: var(--color-text-contrast);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  z-index: calc(var(--z-index-modal) + 3);
+  opacity: 0;
+  transition: all 300ms;
+
+  &.open {
+    opacity: 1;
+  }
+
+  .Inset {
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

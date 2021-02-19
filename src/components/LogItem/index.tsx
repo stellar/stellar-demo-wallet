@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import ReactJson from "react-json-view";
 import { ReactComponent as IconArrowLeft } from "assets/icons/arrow-left.svg";
 import { ReactComponent as IconArrowRight } from "assets/icons/arrow-right.svg";
@@ -58,30 +59,41 @@ const theme = {
   },
 };
 
-export const LogItem = ({ title, variant, body }: LogItemProps) => (
-  <div className={`LogItem ${variant}`}>
-    <div className="LogItemHeader">
-      <div className="LogItemIcon">{LogItemIcon[variant]}</div>
-      <div className="LogItemTitle">{title}</div>
-    </div>
-    {body && (
-      <div className="LogItemBody">
-        {typeof body === "object" ? (
-          <ReactJson
-            src={body}
-            collapseStringsAfterLength={15}
-            displayDataTypes={false}
-            collapsed={1}
-            theme={
-              variant === LogType.INSTRUCTION || variant === LogType.ERROR
-                ? theme.light
-                : theme.dark
-            }
-          />
-        ) : (
-          body
-        )}
+export const LogItem = ({ title, variant, body }: LogItemProps) => {
+  const [isFadeReady, setIsFadeReady] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setIsFadeReady(true);
+      clearTimeout(t);
+    }, 150);
+  }, []);
+
+  return (
+    <div className={`LogItem ${variant} ${isFadeReady ? "open" : ""}`}>
+      <div className="LogItemHeader">
+        <div className="LogItemIcon">{LogItemIcon[variant]}</div>
+        <div className="LogItemTitle">{title}</div>
       </div>
-    )}
-  </div>
-);
+      {body && (
+        <div className="LogItemBody">
+          {typeof body === "object" ? (
+            <ReactJson
+              src={body}
+              collapseStringsAfterLength={15}
+              displayDataTypes={false}
+              collapsed={1}
+              theme={
+                variant === LogType.INSTRUCTION || variant === LogType.ERROR
+                  ? theme.light
+                  : theme.dark
+              }
+            />
+          ) : (
+            body
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

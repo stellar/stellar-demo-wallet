@@ -68,6 +68,7 @@ export const Logs = () => {
         </div>
       </div>
 
+      {/* TODO: add option to copy/download all logs */}
       <div className="LogsFooter">
         <div className="Inset">
           <TextButton

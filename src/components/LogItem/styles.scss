@@ -2,6 +2,12 @@
   max-width: 100%;
   border-radius: 0.25rem;
   overflow: hidden;
+  opacity: 0;
+  transition: all 300ms;
+
+  &.open {
+    opacity: 1;
+  }
 
   .LogItemHeader {
     display: flex;

@@ -5,6 +5,7 @@ import ReactJson from "react-json-view";
 
 import { CopyWithText } from "components/CopyWithText";
 import { InfoButtonWithTooltip } from "components/InfoButtonWithTooltip";
+import { ToastBanner } from "components/ToastBanner";
 
 import { fetchAccountAction, fundTestnetAccount } from "ducks/account";
 
@@ -41,13 +42,6 @@ export const AccountInfo = () => {
 
   return (
     <>
-      {account.status === ActionStatus.PENDING && (
-        <div className="Inline LoadingBlock">
-          <span>Updating account</span>
-          <Loader />
-        </div>
-      )}
-
       <div className="Account">
         {/* Account keys */}
         <div className="AccountInfo">
@@ -160,6 +154,16 @@ export const AccountInfo = () => {
           </div>
         </div>
       )}
+
+      <ToastBanner
+        parentId="app-wrapper"
+        visible={account.status === ActionStatus.PENDING}
+      >
+        <div className="Inline">
+          <span>Updating account</span>
+          <Loader />
+        </div>
+      </ToastBanner>
     </>
   );
 };
