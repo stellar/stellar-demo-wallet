@@ -15,7 +15,6 @@ body {
 
 @mixin header-footer-vertical-padding {
   padding-top: 1rem;
-  padding-bottom: 1rem;
 }
 
 .Wrapper {
@@ -55,6 +54,7 @@ body {
 
 .Header {
   @include header-footer-vertical-padding;
+  padding-bottom: 1rem;
 
   .Inset {
     @include header-footer-inset;
@@ -191,6 +191,53 @@ body {
   margin-top: 1.5rem;
 }
 
+// Logs
+.Logs {
+  background-color: var(--color-background-off);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+
+  .LogsWrapper {
+    position: relative;
+    flex-grow: 1;
+  }
+
+  .ContentWrapper {
+    flex-direction: column-reverse;
+  }
+
+  .LogsFooter {
+    background-color: var(--color-background-main);
+    border: 1px solid var(--color-border-main);
+
+    .Inset {
+      @include header-footer-inset;
+
+      a:not(:last-child) {
+        margin-right: 1.5rem;
+      }
+    }
+  }
+
+  .LogsContent {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .EmptyLogsContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 1rem;
+  }
+
+  .LogItem {
+    margin-bottom: 1rem;
+  }
+}
+
 // Old styles
 
 .Content {
@@ -215,23 +262,5 @@ body {
 
   & > * {
     margin-right: 1rem;
-  }
-}
-
-.Error {
-  color: var(--color-error);
-}
-
-// Logs
-.Logs {
-  background-color: var(--color-background-off);
-  overflow: auto;
-
-  .LogsContent {
-    margin-top: 2rem;
-  }
-
-  .LogItem {
-    margin-bottom: 1rem;
   }
 }

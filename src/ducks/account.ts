@@ -75,8 +75,8 @@ export const fetchAccountAction = createAsyncThunk<
       });
     }
 
-    log.instruction({
-      title: `Fetching account ${publicKey} success`,
+    log.response({
+      url: `Account ${publicKey} info fetched`,
       body: stellarAccount,
     });
 
