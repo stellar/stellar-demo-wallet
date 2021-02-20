@@ -72,8 +72,6 @@ export const AddAsset = () => {
     untrustedAssets.status === ActionStatus.PENDING ||
     localStatus === ActionStatus.PENDING;
 
-  console.log("isPending: ", isPending);
-
   return (
     <>
       {/* TODO: move to Modal component */}

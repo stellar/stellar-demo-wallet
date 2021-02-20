@@ -69,17 +69,19 @@ export const LogItem = ({ title, variant, body }: LogItemProps) => {
     }, 150);
   }, []);
 
+  const bodyParsed = body ? JSON.parse(`${body}`) : body;
+
   return (
     <div className={`LogItem ${variant} ${isFadeReady ? "open" : ""}`}>
       <div className="LogItemHeader">
         <div className="LogItemIcon">{LogItemIcon[variant]}</div>
         <div className="LogItemTitle">{title}</div>
       </div>
-      {body && (
+      {bodyParsed && (
         <div className="LogItemBody">
-          {typeof body === "object" ? (
+          {typeof bodyParsed === "object" ? (
             <ReactJson
-              src={body}
+              src={bodyParsed}
               collapseStringsAfterLength={15}
               displayDataTypes={false}
               collapsed={1}
@@ -90,7 +92,7 @@ export const LogItem = ({ title, variant, body }: LogItemProps) => {
               }
             />
           ) : (
-            body
+            bodyParsed
           )}
         </div>
       )}

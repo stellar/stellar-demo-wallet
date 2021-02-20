@@ -21,7 +21,7 @@ export const Logs = () => {
           timestamp,
           type,
           title,
-          body,
+          body: JSON.stringify(body),
         }),
       );
     };
