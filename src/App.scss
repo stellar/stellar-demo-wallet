@@ -21,6 +21,7 @@ body {
   min-width: var(--size-min-window);
   display: flex;
   flex-grow: 1;
+  position: relative;
 }
 
 .SplitContainer {

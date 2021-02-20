@@ -4,7 +4,7 @@
   background-color: var(--color-background-contrast);
   color: var(--color-text-contrast);
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   width: 50%;
   z-index: calc(var(--z-index-modal) + 3);
@@ -16,7 +16,7 @@
   }
 
   .Inset {
-    min-height: 3rem;
+    min-height: 3.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
