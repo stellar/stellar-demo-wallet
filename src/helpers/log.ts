@@ -10,8 +10,8 @@ const dispatchLog = (detail: LogItemProps) => {
 };
 
 export const log = {
-  request: ({ url, body }: { url: string; body?: string | object }) => {
-    console.log("🚀", url, body || "");
+  request: ({ url, body = "" }: { url: string; body?: string | object }) => {
+    console.log("🚀", url, body);
     dispatchLog({
       timestamp: new Date().getTime(),
       type: LogType.REQUEST,
@@ -20,8 +20,8 @@ export const log = {
     });
   },
 
-  response: ({ url, body }: { url: string; body?: string | object }) => {
-    console.log("✅", url, body || "");
+  response: ({ url, body = "" }: { url: string; body?: string | object }) => {
+    console.log("✅", url, body);
     dispatchLog({
       timestamp: new Date().getTime(),
       type: LogType.RESPONSE,
@@ -30,8 +30,14 @@ export const log = {
     });
   },
 
-  instruction: ({ title, body }: { title: string; body?: string | object }) => {
-    console.info("💬", title, body || "");
+  instruction: ({
+    title,
+    body = "",
+  }: {
+    title: string;
+    body?: string | object;
+  }) => {
+    console.info("💬", title, body);
     dispatchLog({
       timestamp: new Date().getTime(),
       type: LogType.INSTRUCTION,
@@ -40,8 +46,8 @@ export const log = {
     });
   },
 
-  error: ({ title, body }: { title: string; body?: string | object }) => {
-    console.error(title, body || "");
+  error: ({ title, body = "" }: { title: string; body?: string | object }) => {
+    console.error(title, body);
     dispatchLog({
       timestamp: new Date().getTime(),
       type: LogType.ERROR,
