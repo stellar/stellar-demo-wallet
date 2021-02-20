@@ -21,7 +21,7 @@ export const log = {
   },
 
   response: ({ url, body }: { url: string; body?: string | object }) => {
-    console.log("✔", url, body || "");
+    console.log("✅", url, body || "");
     dispatchLog({
       timestamp: new Date().getTime(),
       type: LogType.RESPONSE,
