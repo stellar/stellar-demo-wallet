@@ -35,9 +35,9 @@ export const fetchAccountAction = createAsyncThunk<
 >(
   "account/fetchAccountAction",
   async ({ publicKey, secretKey }, { rejectWithValue, getState }) => {
-    const { pubnet } = settingsSelector(getState());
+    log.instruction({ title: "Getting account info" });
 
-    log.instruction({ title: `Starting to fetch account ${publicKey}` });
+    const { pubnet } = settingsSelector(getState());
 
     const dataProvider = new DataProvider({
       serverUrl: getNetworkConfig(pubnet).url,
@@ -48,14 +48,15 @@ export const fetchAccountAction = createAsyncThunk<
     let stellarAccount: Types.AccountDetails | null = null;
     let isUnfunded = false;
 
+    log.request({
+      url: `Fetching account info`,
+      body: `Public key: ${publicKey}`,
+    });
+
     try {
-      log.instruction({ title: `Checking if the account is funded` });
       const accountIsFunded = await dataProvider.isAccountFunded();
 
       if (accountIsFunded) {
-        log.instruction({
-          title: `Account is funded, fetching account details`,
-        });
         stellarAccount = await dataProvider.fetchAccountDetails();
       } else {
         log.instruction({ title: `Account is not funded` });
@@ -76,7 +77,7 @@ export const fetchAccountAction = createAsyncThunk<
     }
 
     log.response({
-      url: `Account ${publicKey} info fetched`,
+      url: `Account info fetched`,
       body: stellarAccount,
     });
 
@@ -90,9 +91,14 @@ export const createRandomAccount = createAsyncThunk<
   { rejectValue: RejectMessage; state: RootState }
 >("account/createRandomAccount", (_, { rejectWithValue }) => {
   try {
+    log.instruction({ title: "Generating new keypair" });
     const keypair = Keypair.random();
     return keypair.secret();
   } catch (error) {
+    log.error({
+      title: "Generating new keypair failed",
+      body: error.toString(),
+    });
     return rejectWithValue({
       errorString:
         "Something went wrong while creating random account, please try again.",
@@ -107,6 +113,10 @@ export const fundTestnetAccount = createAsyncThunk<
 >(
   "account/fundTestnetAccount",
   async (publicKey, { rejectWithValue, getState }) => {
+    log.instruction({
+      title: "The friendbot is starting to fund your testnet account",
+    });
+
     const { pubnet } = settingsSelector(getState());
 
     const dataProvider = new DataProvider({
@@ -119,8 +129,18 @@ export const fundTestnetAccount = createAsyncThunk<
       await fetch(`https://friendbot.stellar.org?addr=${publicKey}`);
       const stellarAccount = await dataProvider.fetchAccountDetails();
 
+      log.response({
+        url: "The friendbot funded your account",
+        body: stellarAccount,
+      });
+
       return { data: stellarAccount, isUnfunded: false };
     } catch (error) {
+      log.error({
+        title: "The friendbot funding failed",
+        body: error.toString(),
+      });
+
       return rejectWithValue({
         errorString:
           "Something went wrong funding the account, please try again.",

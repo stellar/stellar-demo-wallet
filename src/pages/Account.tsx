@@ -45,6 +45,21 @@ export const Account = () => {
   const history = useHistory();
   const location = useLocation();
 
+  const handleRemoveUntrustedAsset = useCallback(
+    (removeAsset?: string) => {
+      if (removeAsset) {
+        history.push(
+          removeUntrustedAssetSearchParam({
+            location,
+            removeAsset,
+          }),
+        );
+        dispatch(removeUntrustedAssetAction(removeAsset));
+      }
+    },
+    [history, location, dispatch],
+  );
+
   const handleRefreshAccount = useCallback(() => {
     if (account.data?.id) {
       dispatch(
@@ -90,18 +105,7 @@ export const Account = () => {
       depositAsset.status === ActionStatus.SUCCESS &&
       depositAsset.data.currentStatus === "completed"
     ) {
-      const removeAsset = depositAsset.data.trustedAssetAdded;
-
-      if (removeAsset) {
-        history.push(
-          removeUntrustedAssetSearchParam({
-            location,
-            removeAsset,
-          }),
-        );
-        dispatch(removeUntrustedAssetAction(removeAsset));
-      }
-
+      handleRemoveUntrustedAsset(depositAsset.data.trustedAssetAdded);
       dispatch(resetDepositAssetAction());
       handleRefreshAccount();
       handleFetchClaimableBalances();
@@ -112,6 +116,7 @@ export const Account = () => {
     depositAsset.data.trustedAssetAdded,
     handleRefreshAccount,
     handleFetchClaimableBalances,
+    handleRemoveUntrustedAsset,
     location,
     dispatch,
     history,
@@ -138,15 +143,18 @@ export const Account = () => {
   // Claim asset
   useEffect(() => {
     if (claimAsset.status === ActionStatus.SUCCESS) {
+      handleRemoveUntrustedAsset(claimAsset.data.trustedAssetAdded);
       dispatch(resetClaimAssetAction());
       handleRefreshAccount();
       handleFetchClaimableBalances();
     }
   }, [
     claimAsset.status,
+    claimAsset.data.trustedAssetAdded,
     account.data?.id,
     handleRefreshAccount,
     handleFetchClaimableBalances,
+    handleRemoveUntrustedAsset,
     dispatch,
   ]);
 
@@ -173,7 +181,6 @@ export const Account = () => {
         <div className="Balances">
           <Balance onSend={handleSendPayment} />
           <UntrustedBalance />
-          <ClaimableBalance />
         </div>
 
         {/* Add asset */}
@@ -183,6 +190,9 @@ export const Account = () => {
           </Button>
         </div>
       </div>
+
+      {/* Claimable balances */}
+      <ClaimableBalance />
 
       {/* Send payment */}
       {/* TODO: pre-fill fields from selected asset */}
