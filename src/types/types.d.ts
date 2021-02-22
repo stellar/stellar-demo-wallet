@@ -36,7 +36,9 @@ export interface DepositAssetInitialState {
 }
 
 export interface LogsInitialState {
-  items: LogItem[];
+  items: LogItemProps[];
+  errorString?: string;
+  status: ActionStatus | undefined;
 }
 
 export interface SendPaymentInitialState {
@@ -126,7 +128,8 @@ export enum LogType {
   ERROR = "error",
 }
 
-export interface LogItem {
+export interface LogItemProps {
+  timestamp: number;
   type: LogType;
   title: string;
   body?: string | object;

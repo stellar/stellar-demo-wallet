@@ -4,24 +4,30 @@ import { IconClose } from "@stellar/design-system";
 
 import "./styles.scss";
 
-// const MODAL_OPEN_CLASS_NAME = "modal-open";
+const MODAL_OPEN_CLASS_NAME = "modal-open";
 
 interface ModalProps {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  disableWindowScrollWhenOpened?: boolean;
 }
 
-export const Modal = ({ visible, onClose, children }: ModalProps) => {
+export const Modal = ({
+  visible,
+  onClose,
+  disableWindowScrollWhenOpened = false,
+  children,
+}: ModalProps) => {
   const parent = document.getElementById("app-wrapper");
 
   useEffect(() => {
-    // if (visible) {
-    //   document.body.classList.add(MODAL_OPEN_CLASS_NAME);
-    // } else {
-    //   document.body.classList.remove(MODAL_OPEN_CLASS_NAME);
-    // }
-  }, [visible]);
+    if (disableWindowScrollWhenOpened && visible) {
+      document.body.classList.add(MODAL_OPEN_CLASS_NAME);
+    } else {
+      document.body.classList.remove(MODAL_OPEN_CLASS_NAME);
+    }
+  }, [disableWindowScrollWhenOpened, visible]);
 
   if (!parent || !visible) {
     return null;

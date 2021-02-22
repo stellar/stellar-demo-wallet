@@ -1,21 +1,24 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Heading2, TextLink } from "@stellar/design-system";
+import { TextButton } from "@stellar/design-system";
+
+import { LogItem } from "components/LogItem";
 import { LOG_MESSAGE_EVENT } from "constants/settings";
-import { clearLogsAction, logAction } from "ducks/logs";
+import { clearLogsAction, addLogAction } from "ducks/logs";
 import { useRedux } from "hooks/useRedux";
-import { LogItem } from "types/types.d";
+import { LogItemProps } from "types/types.d";
 
 export const Logs = () => {
-  const { logs } = useRedux("logs");
+  const { account, logs } = useRedux("account", "logs");
   const dispatch = useDispatch();
 
   useEffect(() => {
     const onLogEventMessage = (e: any) => {
-      const { type, title, body } = e.detail;
+      const { timestamp, type, title, body } = e.detail;
 
       dispatch(
-        logAction({
+        addLogAction({
+          timestamp,
           type,
           title,
           body: JSON.stringify(body),
@@ -32,23 +35,48 @@ export const Logs = () => {
     );
   }, [dispatch]);
 
+  if (!account.isAuthenticated) {
+    return (
+      <div className="SplitContainer Logs">
+        <div className="ContentWrapper">
+          <div className="EmptyLogsContent">Your logs will show up here</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="SplitContainer Logs">
-      <div className="ContentWrapper">
-        <div className="Inset">
-          <Heading2>Logs</Heading2>
-          <TextLink onClick={() => dispatch(clearLogsAction())}>
-            Clear logs
-          </TextLink>
-
-          <div className="LogsContent">
-            {logs.items.map((log: LogItem, index: number) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <div key={`${index}-${log.type}`} className="LogItem">
-                <strong>{log.type}:</strong> {log.title} - {log.body}
-              </div>
-            ))}
+      <div className="LogsWrapper">
+        <div className="ContentWrapper">
+          <div className="Inset">
+            <div className="LogsContent">
+              {logs.items.length ? (
+                logs.items.map((log: LogItemProps) => (
+                  <LogItem
+                    key={log.timestamp}
+                    variant={log.type}
+                    title={log.title}
+                    body={log.body}
+                  />
+                ))
+              ) : (
+                <p>No logs to show</p>
+              )}
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* TODO: add option to copy/download all logs */}
+      <div className="LogsFooter">
+        <div className="Inset">
+          <TextButton
+            onClick={() => dispatch(clearLogsAction())}
+            disabled={!logs.items.length}
+          >
+            Clear logs
+          </TextButton>
         </div>
       </div>
     </div>

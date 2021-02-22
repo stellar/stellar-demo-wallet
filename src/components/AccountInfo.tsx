@@ -1,9 +1,11 @@
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Loader, TextButton, TextLink } from "@stellar/design-system";
+import { Heading2, Loader, TextButton, TextLink } from "@stellar/design-system";
+import ReactJson from "react-json-view";
 
 import { CopyWithText } from "components/CopyWithText";
 import { InfoButtonWithTooltip } from "components/InfoButtonWithTooltip";
+import { ToastBanner } from "components/ToastBanner";
 
 import { fetchAccountAction, fundTestnetAccount } from "ducks/account";
 
@@ -40,13 +42,6 @@ export const AccountInfo = () => {
 
   return (
     <>
-      {account.status === ActionStatus.PENDING && (
-        <div className="Inline LoadingBlock">
-          <span>Updating account</span>
-          <Loader />
-        </div>
-      )}
-
       <div className="Account">
         {/* Account keys */}
         <div className="AccountInfo">
@@ -127,13 +122,48 @@ export const AccountInfo = () => {
         </div>
       </div>
 
-      {/* TODO: needs styling */}
       {/* Account details */}
       {isAccountDetailsVisible && (
-        <div>
-          <pre>{JSON.stringify(account.data, null, 2)}</pre>
+        <div className="AccountDetails Section">
+          <Heading2>Account details</Heading2>
+          <div className="AccountDetailsContent">
+            <ReactJson
+              src={account.data}
+              collapseStringsAfterLength={15}
+              displayDataTypes={false}
+              collapsed={1}
+              theme={{
+                base00: "#fff",
+                base01: "#fff",
+                base02: "#fff",
+                base03: "#000",
+                base04: "#3e1bdb",
+                base05: "#000",
+                base06: "#000",
+                base07: "#000",
+                base08: "#000",
+                base09: "#000",
+                base0A: "#000",
+                base0B: "#000",
+                base0C: "#000",
+                base0D: "#3e1bdb",
+                base0E: "#3e1bdb",
+                base0F: "#3e1bdb",
+              }}
+            />
+          </div>
         </div>
       )}
+
+      <ToastBanner
+        parentId="app-wrapper"
+        visible={account.status === ActionStatus.PENDING}
+      >
+        <div className="Inline">
+          <span>Updating account</span>
+          <Loader />
+        </div>
+      </ToastBanner>
     </>
   );
 };
