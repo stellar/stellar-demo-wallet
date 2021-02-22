@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import StellarSdk from "stellar-sdk";
 
 import { RootState } from "config/store";
+import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getAssetRecord } from "helpers/getAssetRecord";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -42,32 +43,39 @@ export const addUntrustedAssetAction = createAsyncThunk<
   async (assetsString, { rejectWithValue, getState }) => {
     log.instruction({ title: "Start adding untrusted asset" });
 
+    const { data: accountData } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
     const { data } = untrustedAssetsSelector(getState());
 
-    const assetsListToAdd = removeExistingAssets({
-      assetsString,
-      untrustedAssets: data,
-    });
+    try {
+      const assetsListToAdd = removeExistingAssets({
+        assetsString,
+        untrustedAssets: data,
+      });
 
-    if (!assetsListToAdd.length) {
-      log.error({ title: "No new assets to add" });
-      rejectWithValue({
-        errorString: `No new assets to add.`,
+      if (!assetsListToAdd.length) {
+        log.error({ title: "No new assets to ad" });
+        return [];
+      }
+
+      const server = new StellarSdk.Server(getNetworkConfig(pubnet).url);
+      const response = await getAssetRecord({
+        assetsToAdd: assetsListToAdd,
+        accountAssets: accountData?.balances,
+        server,
+      });
+
+      if (!response.length) {
+        log.instruction({ title: "No new assets to add" });
+        return [];
+      }
+
+      return response;
+    } catch (error) {
+      return rejectWithValue({
+        errorString: error.toString(),
       });
     }
-
-    const server = new StellarSdk.Server(getNetworkConfig(pubnet).url);
-    const response = await getAssetRecord(assetsListToAdd, server);
-
-    if (!response.length) {
-      log.error({ title: "No new assets to add" });
-      rejectWithValue({
-        errorString: `No new assets were added.`,
-      });
-    }
-
-    return response;
   },
 );
 

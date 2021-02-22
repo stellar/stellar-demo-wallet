@@ -1,15 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import StellarSdk, {
-  Account,
-  BASE_FEE,
-  Keypair,
-  Operation,
-  TransactionBuilder,
-} from "stellar-sdk";
+import StellarSdk, { BASE_FEE } from "stellar-sdk";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { log } from "helpers/log";
+import { claimClaimableBalance } from "methods/claimClaimableBalance";
 import { trustAsset } from "methods/trustAsset";
 import {
   ActionStatus,
@@ -32,10 +28,14 @@ export const claimAssetAction = createAsyncThunk<
     const server = new StellarSdk.Server(networkConfig.url);
     const [assetCode, assetIssuer] = balance.asset.split(":");
 
+    let trustedAssetAdded;
+
     try {
       if (data?.balances && !data?.balances[balance.asset]) {
-        // TODO: log this
-        console.log("instruction: ", "Adding trustline...");
+        log.instruction({
+          title: "Not a trusted asset, need to add a trustline",
+        });
+
         try {
           await trustAsset({
             server,
@@ -47,68 +47,27 @@ export const claimAssetAction = createAsyncThunk<
               assetIssuer,
             },
           });
+
+          trustedAssetAdded = `${assetCode}:${assetIssuer}`;
         } catch (error) {
           throw new Error(error);
         }
       }
 
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        `Claiming ${balance.amount} of ${assetCode}`,
-        `BalanceId: ${balance.id} Sponsor:${balance.sponsor}`,
-      );
+      try {
+        const result = await claimClaimableBalance({
+          secretKey,
+          balance,
+          assetCode,
+          server,
+          networkPassphrase: networkConfig.network,
+          fee: BASE_FEE,
+        });
 
-      const keypair = Keypair.fromSecret(secretKey);
-      const accountRecord = await server
-        .accounts()
-        .accountId(keypair.publicKey())
-        .call();
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        "Loading account to get sequence number for claimClaimableBalance transaction",
-      );
-
-      const account = new Account(keypair.publicKey(), accountRecord.sequence);
-      // TODO: log this
-      console.log(
-        "instruction: ",
-        "Building claimClaimableBalance transaction",
-      );
-
-      const transaction = new TransactionBuilder(account, {
-        fee: BASE_FEE,
-        networkPassphrase: networkConfig.network,
-      })
-        .addOperation(
-          Operation.claimClaimableBalance({
-            balanceId: balance.id,
-          }),
-        )
-        .setTimeout(0)
-        .build();
-
-      transaction.sign(keypair);
-
-      // TODO: log this
-      console.log(
-        "request: ",
-        "Submitting claimClaimableBalance transaction",
-        transaction,
-      );
-
-      const result = await server.submitTransaction(transaction);
-      // TODO: log this
-      console.log(
-        "response: ",
-        "Submitted claimClaimableBalance transaction",
-        result,
-      );
-
-      return {
-        result,
-      };
+        return { result, trustedAssetAdded };
+      } catch (error) {
+        throw new Error(error);
+      }
     } catch (error) {
       return rejectWithValue({
         errorString: error.toString(),
@@ -120,6 +79,7 @@ export const claimAssetAction = createAsyncThunk<
 const initialState: ClaimAssetInitialState = {
   data: {
     result: null,
+    trustedAssetAdded: undefined,
   },
   status: undefined,
   errorString: undefined,

@@ -13,6 +13,7 @@ export interface AccountInitialState {
 export interface ClaimAssetInitialState {
   data: {
     result: any;
+    trustedAssetAdded?: string;
   };
   errorString?: string;
   status: ActionStatus | undefined;

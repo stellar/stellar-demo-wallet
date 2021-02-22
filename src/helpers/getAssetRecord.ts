@@ -1,19 +1,35 @@
+import { Types } from "@stellar/wallet-sdk";
 import { log } from "helpers/log";
 import { UntrustedAsset } from "types/types.d";
 
-export const getAssetRecord = async (assets: string[], server: any) => {
+interface GetAssetRecordProps {
+  assetsToAdd: string[];
+  accountAssets?: Types.BalanceMap;
+  server: any;
+}
+
+export const getAssetRecord = async ({
+  assetsToAdd,
+  accountAssets,
+  server,
+}: GetAssetRecordProps) => {
   log.instruction({ title: "Start getting asset record" });
 
-  if (!assets.length) {
+  if (!assetsToAdd.length) {
     log.instruction({ title: `No assets to fetch.` });
   }
 
   let response: UntrustedAsset[] = [];
 
   // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < assets.length; i++) {
-    const assetString = assets[i];
+  for (let i = 0; i < assetsToAdd.length; i++) {
+    const assetString = assetsToAdd[i];
     const [assetCode, assetIssuer] = assetString.split(":");
+
+    if (accountAssets?.[assetString]) {
+      log.instruction({ title: `Asset ${assetString} is already trusted` });
+      break;
+    }
 
     log.instruction({ title: `Fetching asset ${assetString} record` });
 

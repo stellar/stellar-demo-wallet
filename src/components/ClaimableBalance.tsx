@@ -19,22 +19,26 @@ export const ClaimableBalance = () => {
   }
 
   return (
-    <div className="Block">
+    <div className="ClaimableBalances">
       <Heading2>Claimable Balances</Heading2>
-      {balances.map((balance) => {
-        const [assetCode] = balance.asset.split(":");
+      <div className="Balances">
+        {balances.map((balance) => {
+          const [assetCode] = balance.asset.split(":");
 
-        return (
-          <div key={balance.id}>
-            <div>{`${assetCode}: ${balance.amount || "0"}`}</div>
-            <div className="Inline">
-              <TextButton onClick={() => handleClaim(balance)}>
-                Claim
-              </TextButton>
+          return (
+            <div key={balance.id} className="BalanceRow">
+              <div className="BalanceCell">{`${
+                balance.amount || "0"
+              } ${assetCode}`}</div>
+              <div className="BalanceCell Inline">
+                <TextButton onClick={() => handleClaim(balance)}>
+                  Claim
+                </TextButton>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import {
   Asset,
   Keypair,
 } from "stellar-sdk";
+import { log } from "helpers/log";
 import { TrustAssetParam } from "types/types.d";
 
 export const trustAsset = async ({
@@ -18,11 +19,17 @@ export const trustAsset = async ({
   untrustedAsset: TrustAssetParam;
   networkPassphrase: string;
 }) => {
-  // TODO: add logs
   try {
-    console.log("trust asset started");
+    log.instruction({ title: "Adding trustline…" });
     const keypair = Keypair.fromSecret(secretKey);
+
+    log.instruction({
+      title:
+        "Loading account to get a sequence number for add trustline transaction",
+    });
     const account = await server.loadAccount(keypair.publicKey());
+
+    log.instruction({ title: "Building add trustline transaction…" });
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase,
@@ -40,8 +47,23 @@ export const trustAsset = async ({
 
     transaction.sign(keypair);
 
-    return await server.submitTransaction(transaction);
+    log.request({
+      url: "Submitting add trustline transaction…",
+      body: transaction,
+    });
+    const result = await server.submitTransaction(transaction);
+
+    log.response({
+      url: "Submitted add trustline transaction",
+      body: result,
+    });
+
+    return result;
   } catch (error) {
+    log.error({
+      title: "Add trustline transaction failed",
+      body: error.toString(),
+    });
     throw new Error(error);
   }
 };
