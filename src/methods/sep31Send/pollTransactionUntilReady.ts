@@ -17,7 +17,7 @@ export const pollTransactionUntilReady = async ({
   let transactionStatus;
 
   while (transactionStatus !== "pending_sender") {
-    log.request({ url: `GET /transactions/${transactionId}` });
+    log.request({ title: `GET /transactions/${transactionId}` });
     // eslint-disable-next-line no-await-in-loop
     const result = await fetch(`${sendServer}/transactions/${transactionId}`, {
       headers: {
@@ -34,7 +34,7 @@ export const pollTransactionUntilReady = async ({
     // eslint-disable-next-line no-await-in-loop
     const resultJson = await result.json();
     log.response({
-      url: `GET /transactions/${transactionId}`,
+      title: `GET /transactions/${transactionId}`,
       body: resultJson,
     });
     transactionStatus = resultJson.transaction.status;

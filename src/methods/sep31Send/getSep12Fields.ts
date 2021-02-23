@@ -82,7 +82,7 @@ const collectSep12Fields = async ({
     memo_type: "hash",
   };
 
-  log.request({ url: "GET /customer", body: params });
+  log.request({ title: "GET /customer", body: params });
 
   const urlParams = new URLSearchParams(params);
   const result = await fetch(`${kycServer}/customer?${urlParams.toString()}`, {
@@ -95,7 +95,7 @@ const collectSep12Fields = async ({
   });
   const resultJson = await result.json();
 
-  log.response({ url: "GET /customer", body: resultJson });
+  log.response({ title: "GET /customer", body: resultJson });
 
   if (resultJson.status !== "NEEDS_INFO") {
     throw new Error(`Unexpected status for new customer: ${resultJson.status}`);

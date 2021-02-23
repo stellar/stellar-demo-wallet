@@ -10,22 +10,34 @@ const dispatchLog = (detail: LogItemProps) => {
 };
 
 export const log = {
-  request: ({ url, body = "" }: { url: string; body?: string | object }) => {
-    console.log("🚀", url, body);
+  request: ({
+    title,
+    body = "",
+  }: {
+    title: string;
+    body?: string | object;
+  }) => {
+    console.log("🚀", title, body);
     dispatchLog({
       timestamp: new Date().getTime(),
       type: LogType.REQUEST,
-      title: url,
+      title,
       body,
     });
   },
 
-  response: ({ url, body = "" }: { url: string; body?: string | object }) => {
-    console.log("✅", url, body);
+  response: ({
+    title,
+    body = "",
+  }: {
+    title: string;
+    body?: string | object;
+  }) => {
+    console.log("✅", title, body);
     dispatchLog({
       timestamp: new Date().getTime(),
       type: LogType.RESPONSE,
-      title: url,
+      title,
       body,
     });
   },

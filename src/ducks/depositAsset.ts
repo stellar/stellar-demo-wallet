@@ -46,7 +46,7 @@ export const depositAssetAction = createAsyncThunk<
 
       if (!homeDomain) {
         log.request({
-          url: "Fetching issuer account from Horizon",
+          title: "Fetching issuer account from Horizon",
           body: assetIssuer,
         });
 
@@ -56,7 +56,7 @@ export const depositAssetAction = createAsyncThunk<
           .call();
 
         log.response({
-          url: "Fetching issuer account from Horizon",
+          title: "Fetching issuer account from Horizon",
           body: accountRecord,
         });
 
@@ -86,7 +86,7 @@ export const depositAssetAction = createAsyncThunk<
 
       const tomlURL = new URL(homeDomain);
       tomlURL.pathname = "/.well-known/stellar.toml";
-      log.request({ url: tomlURL.toString() });
+      log.request({ title: tomlURL.toString() });
 
       const toml =
         tomlURL.protocol === "http:"
@@ -125,11 +125,11 @@ export const depositAssetAction = createAsyncThunk<
           "Check /info endpoint to ensure this currency is enabled for deposit",
       });
       const infoURL = `${toml.TRANSFER_SERVER_SEP0024}/info`;
-      log.request({ url: infoURL });
+      log.request({ title: infoURL });
 
       const info = await fetch(infoURL);
       const infoJson = await info.json();
-      log.response({ url: infoURL, body: infoJson });
+      log.response({ title: infoURL, body: infoJson });
 
       if (!get(infoJson, ["deposit", assetCode, "enabled"])) {
         throw new Error("Asset is not enabled in the /info endpoint");
@@ -145,7 +145,7 @@ export const depositAssetAction = createAsyncThunk<
       });
 
       const authParams = { account: publicKey };
-      log.request({ url: toml.WEB_AUTH_ENDPOINT, body: authParams });
+      log.request({ title: toml.WEB_AUTH_ENDPOINT, body: authParams });
 
       const getChallengeURL = new URL(toml.WEB_AUTH_ENDPOINT);
       getChallengeURL.searchParams.set("account", publicKey);
@@ -154,7 +154,7 @@ export const depositAssetAction = createAsyncThunk<
       const challengeResponseJson = await challengeResponse.json();
 
       log.response({
-        url: toml.WEB_AUTH_ENDPOINT,
+        title: toml.WEB_AUTH_ENDPOINT,
         body: challengeResponseJson,
       });
 
@@ -172,20 +172,20 @@ export const depositAssetAction = createAsyncThunk<
         challengeResponseJson.transaction,
         challengeResponseJson.network_passphrase,
       );
-      log.request({ url: "SEP-0010 Signed Transaction", body: transaction });
+      log.request({ title: "SEP-0010 Signed Transaction", body: transaction });
 
       const keypair = Keypair.fromSecret(secretKey);
 
       transaction.sign(keypair);
 
-      log.response({ url: "Base64 Encoded", body: transaction.toXDR() });
+      log.response({ title: "Base64 Encoded", body: transaction.toXDR() });
       log.instruction({
         title:
           "We need to send the signed SEP10 challenge back to the server to get a JWT token to authenticate our stellar account with future actions",
       });
 
       const jwtParams = { account: publicKey };
-      log.request({ url: "POST /auth", body: jwtParams });
+      log.request({ title: "POST /auth", body: jwtParams });
 
       const signedChallenge = transaction.toXDR();
       const tokenResponse = await fetch(`${toml.WEB_AUTH_ENDPOINT}`, {
@@ -195,7 +195,7 @@ export const depositAssetAction = createAsyncThunk<
       });
       const tokenResponseJson = await tokenResponse.json();
 
-      log.response({ url: "POST /auth", body: tokenResponseJson });
+      log.response({ title: "POST /auth", body: tokenResponseJson });
 
       if (!tokenResponseJson.token) {
         throw new Error("No token was returned from POST /auth");
@@ -212,7 +212,7 @@ export const depositAssetAction = createAsyncThunk<
       each(postDepositParams, (value, key) => formData.append(key, value));
 
       log.request({
-        url: `POST ${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
+        title: `POST ${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
         body: postDepositParams,
       });
 
@@ -229,7 +229,7 @@ export const depositAssetAction = createAsyncThunk<
 
       const interactiveJson = await response.json();
       log.response({
-        url: `${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
+        title: `${toml.TRANSFER_SERVER_SEP0024}/transactions/deposit/interactive`,
         body: interactiveJson,
       });
 

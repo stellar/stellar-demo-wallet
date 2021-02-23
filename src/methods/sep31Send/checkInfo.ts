@@ -12,12 +12,12 @@ export const checkInfo = async ({
     title: "Check /info endpoint to see if we need to authenticate",
   });
 
-  log.request({ url: "GET /info" });
+  log.request({ title: "GET /info" });
 
   const result = await fetch(`${sendServer}/info`);
   const resultJson = await result.json();
 
-  log.response({ url: "GET /info", body: resultJson });
+  log.response({ title: "GET /info", body: resultJson });
 
   if (!resultJson.receive) {
     throw new Error("/info response needs a `receive` property");

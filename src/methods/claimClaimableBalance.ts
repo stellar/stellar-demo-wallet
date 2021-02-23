@@ -55,13 +55,13 @@ export const claimClaimableBalance = async ({
     transaction.sign(keypair);
 
     log.request({
-      url: "Submitting claimClaimableBalance transaction",
+      title: "Submitting claimClaimableBalance transaction",
       body: transaction,
     });
 
     const result = await server.submitTransaction(transaction);
     log.response({
-      url: "Submitted claimClaimableBalance transaction",
+      title: "Submitted claimClaimableBalance transaction",
       body: result,
     });
 

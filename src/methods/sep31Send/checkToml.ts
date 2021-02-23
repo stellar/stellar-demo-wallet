@@ -26,7 +26,7 @@ export const checkToml = async ({
   homeDomainParam = homeDomainParam.replace(/\/$/, "");
   const tomlURL = `${homeDomainParam}/.well-known/stellar.toml`;
 
-  log.request({ url: tomlURL });
+  log.request({ title: tomlURL });
 
   const result = await fetch(tomlURL);
   const resultText = await result.text();
@@ -37,7 +37,7 @@ export const checkToml = async ({
 
   try {
     const information = toml.parse(resultText);
-    log.response({ url: tomlURL, body: information });
+    log.response({ title: tomlURL, body: information });
 
     if (!information.WEB_AUTH_ENDPOINT) {
       throw new Error("Toml file doesn't contain a WEB_AUTH_ENDPOINT");
@@ -47,7 +47,7 @@ export const checkToml = async ({
     sendServer = information.DIRECT_PAYMENT_SERVER;
     kycServer = information.KYC_SERVER;
   } catch (error) {
-    log.response({ url: tomlURL, body: resultText });
+    log.response({ title: tomlURL, body: resultText });
     throw new Error("stellar.toml is not a valid SEP31 TOML file");
   }
 

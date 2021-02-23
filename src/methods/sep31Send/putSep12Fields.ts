@@ -83,7 +83,7 @@ const putSEP12Fields = async ({
     ...fields,
   };
 
-  log.request({ url: "PUT /customer", body: data });
+  log.request({ title: "PUT /customer", body: data });
 
   const body = new FormData();
   Object.entries(data).forEach(([key, value]) => {
@@ -100,7 +100,7 @@ const putSEP12Fields = async ({
 
   const resultJson = await result.json();
   log.response({
-    url: `PUT /customer (${isSender ? "sender" : "receiver"})`,
+    title: `PUT /customer (${isSender ? "sender" : "receiver"})`,
     body: resultJson,
   });
 
