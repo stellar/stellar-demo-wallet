@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { Button, Heading2 } from "@stellar/design-system";
+import { Types } from "@stellar/wallet-sdk";
 
 import { AccountInfo } from "components/AccountInfo";
 import { AddAsset } from "components/AddAsset";
@@ -38,8 +39,15 @@ export const Account = () => {
     "trustAsset",
     "withdrawAsset",
   );
-  const [isSendPaymentVisible, setIsSendPaymentVisible] = useState(false);
-  const [isAddAssetModalVisible, setIsAddAssetModalVisible] = useState(false);
+  const [activeModal, setActiveModal] = useState("");
+  const [currentAsset, setCurrentAsset] = useState<
+    Types.AssetBalance | undefined
+  >();
+
+  enum modalType {
+    SEND_PAYMENT = "SEND_PAYMENT",
+    ADD_ASSET = "ADD_ASSET",
+  }
 
   const dispatch = useDispatch();
   const history = useHistory();
@@ -76,6 +84,16 @@ export const Account = () => {
       dispatch(fetchClaimableBalancesAction({ publicKey: account.data.id }));
     }
   }, [account.data?.id, dispatch]);
+
+  const handleCloseModal = () => {
+    setActiveModal("");
+  };
+
+  const handleSendPayment = (asset?: Types.AssetBalance) => {
+    console.log("asset: ", asset);
+    setCurrentAsset(asset);
+    setActiveModal(modalType.SEND_PAYMENT);
+  };
 
   // Trust asset
   useEffect(() => {
@@ -158,14 +176,6 @@ export const Account = () => {
     dispatch,
   ]);
 
-  const handleSendPayment = () => {
-    setIsSendPaymentVisible(true);
-  };
-
-  const handleSendPaymentCancel = () => {
-    setIsSendPaymentVisible(false);
-  };
-
   if (!account.data?.id) {
     return null;
   }
@@ -183,9 +193,8 @@ export const Account = () => {
           <UntrustedBalance />
         </div>
 
-        {/* Add asset */}
         <div className="BalancesButtons">
-          <Button onClick={() => setIsAddAssetModalVisible(true)}>
+          <Button onClick={() => setActiveModal(modalType.ADD_ASSET)}>
             Add asset
           </Button>
         </div>
@@ -194,20 +203,17 @@ export const Account = () => {
       {/* Claimable balances */}
       <ClaimableBalance />
 
-      {/* Send payment */}
-      {/* TODO: pre-fill fields from selected asset */}
-      {isSendPaymentVisible && (
-        <SendPayment onCancel={handleSendPaymentCancel} />
-      )}
-
       {/* SEP-31 Send */}
       <Sep31Send />
 
-      <Modal
-        visible={isAddAssetModalVisible}
-        onClose={() => setIsAddAssetModalVisible(false)}
-      >
-        <AddAsset />
+      <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
+        {/* Add asset */}
+        {activeModal === modalType.ADD_ASSET && <AddAsset />}
+
+        {/* Send payment */}
+        {activeModal === modalType.SEND_PAYMENT && (
+          <SendPayment asset={currentAsset} onClose={handleCloseModal} />
+        )}
       </Modal>
     </div>
   );

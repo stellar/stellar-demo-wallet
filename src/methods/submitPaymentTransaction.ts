@@ -1,6 +1,7 @@
 import StellarSdk, { BASE_FEE, Keypair } from "stellar-sdk";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { log } from "helpers/log";
 import { PaymentTransactionParams } from "types/types.d";
 
 export const submitPaymentTransaction = async ({
@@ -14,25 +15,50 @@ export const submitPaymentTransaction = async ({
 }) => {
   const server = new StellarSdk.Server(getNetworkConfig(isPubnet).url);
 
+  log.instruction({ title: "Starting send payment…" });
+
+  let transaction;
+
   // Build transaction
-  const transaction = await buildPaymentTransaction({
-    isPubnet,
-    params,
-    server,
-  });
+  try {
+    transaction = await buildPaymentTransaction({
+      isPubnet,
+      params,
+      server,
+    });
+  } catch (error) {
+    log.error({
+      title: "Failed to build transaction",
+      body: getErrorString(error),
+    });
+
+    throw new Error(
+      `Failed to build transaction, error: ${getErrorString(error)})}`,
+    );
+  }
 
   try {
     // Sign transaction
     const keypair = Keypair.fromSecret(secretKey);
     await transaction.sign(keypair);
   } catch (error) {
+    log.error({
+      title: "Failed to sign transaction",
+      body: getErrorString(error),
+    });
+
     throw new Error(
       `Failed to sign transaction, error: ${getErrorString(error)}`,
     );
   }
 
   // Submit transaction
-  return server.submitTransaction(transaction);
+  log.request({ url: "Sending payment", body: transaction });
+
+  const result = await server.submitTransaction(transaction);
+  log.response({ url: "Payment sent", body: result });
+
+  return result;
 };
 
 const buildPaymentTransaction = async ({
@@ -44,6 +70,8 @@ const buildPaymentTransaction = async ({
   params: PaymentTransactionParams;
   server: any;
 }) => {
+  log.instruction({ title: "Building send payment transaction…" });
+
   let transaction;
   try {
     const {
@@ -59,7 +87,6 @@ const buildPaymentTransaction = async ({
     let operation;
 
     if (isDestinationFunded) {
-      // TODO: add asset validation
       const asset =
         !assetCode || assetCode === "XLM"
           ? StellarSdk.Asset.native()
@@ -71,6 +98,11 @@ const buildPaymentTransaction = async ({
         amount: amount.toString(),
       });
     } else {
+      log.instruction({
+        title:
+          "Destination account does not exist, we are creating and funding it.",
+      });
+
       // If destination account is not funded, create and fund it
       operation = StellarSdk.Operation.createAccount({
         destination,
@@ -78,10 +110,7 @@ const buildPaymentTransaction = async ({
       });
     }
 
-    // TODO: Do we need to add memo?
-
     transaction = new StellarSdk.TransactionBuilder(source, {
-      // TODO: Do we need to have a custom fee option?
       fee: BASE_FEE,
       networkPassphrase: getNetworkConfig(isPubnet).network,
       timebounds: await server.fetchTimebounds(100),
@@ -89,9 +118,8 @@ const buildPaymentTransaction = async ({
 
     transaction = transaction.build();
   } catch (error) {
-    throw new Error(
-      `Failed to build transaction, error: ${getErrorString(error)})}`,
-    );
+    throw new Error(error);
   }
+
   return transaction;
 };
