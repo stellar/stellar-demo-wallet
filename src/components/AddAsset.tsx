@@ -7,7 +7,7 @@ import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
-export const AddAsset = () => {
+export const AddAsset = ({ onClose }: { onClose: () => void }) => {
   const { account, untrustedAssets } = useRedux("account", "untrustedAssets");
 
   // Form data
@@ -15,7 +15,6 @@ export const AddAsset = () => {
   const [homeDomain, setHomeDomain] = useState("");
   const [assetIssuer, setAssetIssuer] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [localStatus, setLocalStatus] = useState<ActionStatus | undefined>();
 
   const history = useHistory();
@@ -25,7 +24,6 @@ export const AddAsset = () => {
     setHomeDomain("");
     setAssetIssuer("");
     setErrorMessage("");
-    setSuccessMessage("");
     setLocalStatus(undefined);
   };
 
@@ -36,14 +34,13 @@ export const AddAsset = () => {
       localStatus === ActionStatus.SUCCESS &&
       untrustedAssets.status === ActionStatus.SUCCESS
     ) {
-      setSuccessMessage(`Untrusted asset ${assetCode} was added.`);
+      onClose();
     }
-  }, [untrustedAssets.status, localStatus, assetCode]);
+  }, [untrustedAssets.status, localStatus, onClose]);
 
   const handleSetUntrustedAsset = async () => {
     // Reset local state
     setErrorMessage("");
-    setSuccessMessage("");
     setLocalStatus(ActionStatus.PENDING);
 
     try {
@@ -106,12 +103,6 @@ export const AddAsset = () => {
       {errorMessage && localStatus && (
         <div className="ModalMessage error">
           <p>{errorMessage}</p>
-        </div>
-      )}
-
-      {successMessage && localStatus && (
-        <div className="ModalMessage success">
-          <p>{successMessage}</p>
         </div>
       )}
 

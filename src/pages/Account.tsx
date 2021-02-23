@@ -208,7 +208,9 @@ export const Account = () => {
 
       <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
         {/* Add asset */}
-        {activeModal === modalType.ADD_ASSET && <AddAsset />}
+        {activeModal === modalType.ADD_ASSET && (
+          <AddAsset onClose={handleCloseModal} />
+        )}
 
         {/* Send payment */}
         {activeModal === modalType.SEND_PAYMENT && (

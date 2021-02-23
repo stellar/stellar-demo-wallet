@@ -31,7 +31,7 @@ export const getAssetRecord = async ({
       break;
     }
 
-    log.instruction({ title: `Fetching asset ${assetString} record` });
+    log.request({ url: `Fetching asset ${assetString} record` });
 
     // eslint-disable-next-line no-await-in-loop
     const assetResponse = await server
@@ -43,8 +43,8 @@ export const getAssetRecord = async ({
     if (!assetResponse.records) {
       log.error({ title: `Asset ${assetString} does not exist.` });
     } else {
-      log.instruction({
-        title: `Asset ${assetString} record fetched`,
+      log.response({
+        url: `Asset ${assetString} record fetched`,
         body: assetResponse.records[0],
       });
 
