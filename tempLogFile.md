@@ -6,3 +6,4 @@
 - New UI add asset
 - New UI logs
 - New UI claimable balance + more logs
+- New UI send payment

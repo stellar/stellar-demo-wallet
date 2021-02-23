@@ -90,7 +90,6 @@ export const Account = () => {
   };
 
   const handleSendPayment = (asset?: Types.AssetBalance) => {
-    console.log("asset: ", asset);
     setCurrentAsset(asset);
     setActiveModal(modalType.SEND_PAYMENT);
   };
