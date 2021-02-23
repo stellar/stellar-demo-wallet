@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   Button,
-  ButtonVariant,
+  Heading2,
   InfoBlock,
   Input,
   Loader,
   TextLink,
 } from "@stellar/design-system";
-import { DataProvider } from "@stellar/wallet-sdk";
+import { DataProvider, Types } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
 import { fetchAccountAction } from "ducks/account";
@@ -17,7 +17,13 @@ import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
-export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
+export const SendPayment = ({
+  asset,
+  onClose,
+}: {
+  asset?: Types.AssetBalance;
+  onClose: () => void;
+}) => {
   const { account, sendPayment, settings } = useRedux(
     "account",
     "sendPayment",
@@ -29,8 +35,8 @@ export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
   // Form data
   const [destination, setDestination] = useState("");
   const [amount, setAmount] = useState("");
-  const [assetCode, setAssetCode] = useState("");
-  const [assetIssuer, setAssetIssuer] = useState("");
+  const [assetCode, setAssetCode] = useState(asset?.token.code || "XLM");
+  const [assetIssuer, setAssetIssuer] = useState(asset?.token.issuer.key || "");
   const [isDestinationFunded, setIsDestinationFunded] = useState(true);
 
   const resetFormState = () => {
@@ -51,8 +57,9 @@ export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
       );
       dispatch(resetSendPaymentAction());
       resetFormState();
+      onClose();
     }
-  }, [sendPayment.status, secretKey, data?.id, dispatch]);
+  }, [sendPayment.status, secretKey, data?.id, dispatch, onClose]);
 
   const checkAndSetIsDestinationFunded = async () => {
     if (!destination || !StrKey.isValidEd25519PublicKey(destination)) {
@@ -83,68 +90,75 @@ export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
     }
   };
 
-  // TODO: handle error
   return (
-    <div className="SendForm Block">
-      <Input
-        id="send-destination"
-        label="Destination"
-        value={destination}
-        onChange={(e) => setDestination(e.target.value)}
-        onBlur={() => {
-          checkAndSetIsDestinationFunded();
-        }}
-      />
-      <Input
-        id="send-amount"
-        label="Amount"
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
-      <Input
-        id="send-asset-code"
-        label="Asset code"
-        value={assetCode}
-        onChange={(e) => setAssetCode(e.target.value)}
-      />
-      <Input
-        id="send-asset-issuer"
-        label="Asset issuer"
-        value={assetIssuer}
-        onChange={(e) => setAssetIssuer(e.target.value)}
-      />
+    <>
+      <div className="SendForm Block">
+        <Heading2 className="ModalHeading">Send payment</Heading2>
 
-      {!isDestinationFunded && (
-        <InfoBlock>
-          The destination account doesn’t exist. A create account operation will
-          be used to create this account.{" "}
-          <TextLink
-            href="https://developers.stellar.org/docs/tutorials/create-account/"
-            target="_blank"
-            rel="noreferrer"
+        <div className="ModalBody">
+          <Input
+            id="send-destination"
+            label="Destination"
+            value={destination}
+            onChange={(e) => setDestination(e.target.value)}
+            onBlur={() => {
+              checkAndSetIsDestinationFunded();
+            }}
+          />
+          <Input
+            id="send-amount"
+            label="Amount"
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <Input
+            id="send-asset-code"
+            label="Asset code"
+            value={assetCode}
+            onChange={(e) => setAssetCode(e.target.value)}
+          />
+          {asset && (
+            <Input
+              id="send-asset-issuer"
+              label="Asset issuer"
+              value={assetIssuer}
+              onChange={(e) => setAssetIssuer(e.target.value)}
+            />
+          )}
+
+          {!isDestinationFunded && (
+            <InfoBlock>
+              The destination account doesn’t exist. A create account operation
+              will be used to create this account.{" "}
+              <TextLink
+                href="https://developers.stellar.org/docs/tutorials/create-account/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Learn more about account creation
+              </TextLink>
+            </InfoBlock>
+          )}
+        </div>
+
+        {sendPayment.errorString && (
+          <div className="ModalMessage error">
+            <p>{sendPayment.errorString}</p>
+          </div>
+        )}
+
+        <div className="ModalButtonsFooter">
+          {sendPayment.status === ActionStatus.PENDING && <Loader />}
+
+          <Button
+            onClick={handleSubmit}
+            disabled={sendPayment.status === ActionStatus.PENDING}
           >
-            Learn more about account creation
-          </TextLink>
-        </InfoBlock>
-      )}
-
-      <div className="SendFormButtons">
-        <Button
-          onClick={handleSubmit}
-          disabled={sendPayment.status === ActionStatus.PENDING}
-        >
-          Submit
-        </Button>
-        <Button
-          onClick={onCancel}
-          disabled={sendPayment.status === ActionStatus.PENDING}
-          variant={ButtonVariant.secondary}
-        >
-          Cancel
-        </Button>
-        {sendPayment.status === ActionStatus.PENDING && <Loader />}
+            Submit
+          </Button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

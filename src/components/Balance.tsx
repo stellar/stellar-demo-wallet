@@ -11,7 +11,11 @@ interface SortedBalancesResult {
   other: Types.AssetBalance[];
 }
 
-export const Balance = ({ onSend }: { onSend: () => void }) => {
+export const Balance = ({
+  onSend,
+}: {
+  onSend: (asset?: Types.AssetBalance) => void;
+}) => {
   const { account } = useRedux("account");
   const allBalances = account?.data?.balances;
 
@@ -38,10 +42,6 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
     });
 
     return result;
-  };
-
-  const handleSend = () => {
-    onSend();
   };
 
   const handleDeposit = (asset: Types.AssetBalance) => {
@@ -88,7 +88,7 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
             balance.token.code
           }`}</div>
           <div className="BalanceCell">
-            <TextButton onClick={() => handleSend()}>Send</TextButton>
+            <TextButton onClick={() => onSend()}>Send</TextButton>
           </div>
         </div>
       ))}
@@ -103,7 +103,7 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
             balance.token.code
           }`}</div>
           <div className="BalannceCell Inline">
-            <TextButton onClick={() => handleSend()}>Send</TextButton>
+            <TextButton onClick={() => onSend(balance)}>Send</TextButton>
 
             <TextButton onClick={() => handleDeposit(balance)}>
               Deposit
