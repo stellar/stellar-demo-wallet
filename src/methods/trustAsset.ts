@@ -48,13 +48,13 @@ export const trustAsset = async ({
     transaction.sign(keypair);
 
     log.request({
-      url: "Submitting add trustline transaction…",
+      title: "Submitting add trustline transaction…",
       body: transaction,
     });
     const result = await server.submitTransaction(transaction);
 
     log.response({
-      url: "Submitted add trustline transaction",
+      title: "Submitted add trustline transaction",
       body: result,
     });
 

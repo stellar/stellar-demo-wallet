@@ -49,7 +49,7 @@ export const fetchAccountAction = createAsyncThunk<
     let isUnfunded = false;
 
     log.request({
-      url: `Fetching account info`,
+      title: `Fetching account info`,
       body: `Public key: ${publicKey}`,
     });
 
@@ -77,7 +77,7 @@ export const fetchAccountAction = createAsyncThunk<
     }
 
     log.response({
-      url: `Account info fetched`,
+      title: `Account info fetched`,
       body: stellarAccount,
     });
 
@@ -130,7 +130,7 @@ export const fundTestnetAccount = createAsyncThunk<
       const stellarAccount = await dataProvider.fetchAccountDetails();
 
       log.response({
-        url: "The friendbot funded your account",
+        title: "The friendbot funded your account",
         body: stellarAccount,
       });
 

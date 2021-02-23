@@ -16,7 +16,7 @@ export const send = async ({
       "We need to send the signed SEP10 challenge back to the server to get a JWT token to authenticate our stellar account with future actions",
   });
 
-  log.request({ url: "POST /auth", body: params });
+  log.request({ title: "POST /auth", body: params });
 
   const urlParams = new URLSearchParams(params);
   const result = await fetch(authEndpoint, {
@@ -28,7 +28,7 @@ export const send = async ({
   });
 
   const resultJson = await result.json();
-  log.response({ url: "POST /auth", body: resultJson });
+  log.response({ title: "POST /auth", body: resultJson });
 
   if (!resultJson.token) {
     throw new Error("No token returned from /auth");

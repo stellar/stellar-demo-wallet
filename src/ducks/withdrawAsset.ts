@@ -74,13 +74,13 @@ export const withdrawAssetAction = createAsyncThunk<
 
       if (!homeDomain) {
         log.request({
-          url: "Fetching issuer account from Horizon",
+          title: "Fetching issuer account from Horizon",
           body: assetIssuer,
         });
         const accountRecord = await server.loadAccount(assetIssuer);
 
         log.response({
-          url: "Fetching issuer account from Horizon",
+          title: "Fetching issuer account from Horizon",
           body: accountRecord,
         });
 
@@ -111,13 +111,13 @@ export const withdrawAssetAction = createAsyncThunk<
 
       const tomlURL = new URL(homeDomain);
       tomlURL.pathname = "/.well-known/stellar.toml";
-      log.request({ url: tomlURL.toString() });
+      log.request({ title: tomlURL.toString() });
 
       const toml =
         tomlURL.protocol === "http:"
           ? await StellarTomlResolver.resolve(tomlURL.host, { allowHttp: true })
           : await StellarTomlResolver.resolve(tomlURL.host);
-      log.response({ url: tomlURL.toString(), body: toml });
+      log.response({ title: tomlURL.toString(), body: toml });
 
       // TODO: do we need to do this?
       // this.assets.set(`${assetCode}:${assetIssuer}`, { homeDomain, toml });
@@ -214,7 +214,7 @@ export const withdrawAssetAction = createAsyncThunk<
               );
 
               log.request({
-                url: "Fetching account sequence number",
+                title: "Fetching account sequence number",
                 body: keypair.publicKey(),
               });
 
@@ -225,7 +225,7 @@ export const withdrawAssetAction = createAsyncThunk<
                 .call();
 
               log.response({
-                url: "Fetching account sequence number",
+                title: "Fetching account sequence number",
                 body: sequence,
               });
 
@@ -249,14 +249,14 @@ export const withdrawAssetAction = createAsyncThunk<
               txn.sign(keypair);
 
               log.request({
-                url: "Submitting withdrawal transaction to Stellar",
+                title: "Submitting withdrawal transaction to Stellar",
                 body: txn,
               });
 
               // eslint-disable-next-line no-await-in-loop
               const horizonResponse = await server.submitTransaction(txn);
               log.response({
-                url: "Submitting withdrawal transaction to Stellar",
+                title: "Submitting withdrawal transaction to Stellar",
                 body: horizonResponse,
               });
               break;

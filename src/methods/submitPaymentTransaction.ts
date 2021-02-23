@@ -53,10 +53,10 @@ export const submitPaymentTransaction = async ({
   }
 
   // Submit transaction
-  log.request({ url: "Sending payment", body: transaction });
+  log.request({ title: "Sending payment", body: transaction });
 
   const result = await server.submitTransaction(transaction);
-  log.response({ url: "Payment sent", body: result });
+  log.response({ title: "Payment sent", body: result });
 
   return result;
 };

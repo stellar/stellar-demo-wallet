@@ -30,7 +30,7 @@ export const postTransaction = async ({
     asset_code: assetCode,
     amount,
   };
-  log.request({ url: "POST /transactions", body });
+  log.request({ title: "POST /transactions", body });
 
   const result = await fetch(`${sendServer}/transactions`, {
     method: "POST",
@@ -48,7 +48,7 @@ export const postTransaction = async ({
   }
 
   const resultJson = await result.json();
-  log.response({ url: "POST /transactions", body: resultJson });
+  log.response({ title: "POST /transactions", body: resultJson });
 
   const requiredProps = [
     "id",
