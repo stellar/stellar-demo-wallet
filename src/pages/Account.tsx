@@ -19,7 +19,7 @@ import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetSep24DepositAssetAction } from "ducks/sep24DepositAsset";
 import { resetTrustAssetAction } from "ducks/trustAsset";
 import { removeUntrustedAssetAction } from "ducks/untrustedAssets";
-import { resetWithdrawAssetAction } from "ducks/withdrawAsset";
+import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
 import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
 import { useRedux } from "hooks/useRedux";
@@ -30,14 +30,14 @@ export const Account = () => {
     account,
     claimAsset,
     sep24DepositAsset,
+    sep24WithdrawAsset,
     trustAsset,
-    withdrawAsset,
   } = useRedux(
     "account",
     "claimAsset",
     "sep24DepositAsset",
+    "sep24WithdrawAsset",
     "trustAsset",
-    "withdrawAsset",
   );
   const [activeModal, setActiveModal] = useState("");
   const [currentAsset, setCurrentAsset] = useState<
@@ -142,15 +142,15 @@ export const Account = () => {
   // Withdraw asset
   useEffect(() => {
     if (
-      withdrawAsset.status === ActionStatus.SUCCESS &&
-      withdrawAsset.data.currentStatus === "completed"
+      sep24WithdrawAsset.status === ActionStatus.SUCCESS &&
+      sep24WithdrawAsset.data.currentStatus === "completed"
     ) {
-      dispatch(resetWithdrawAssetAction());
+      dispatch(resetSep24WithdrawAssetAction());
       handleRefreshAccount();
     }
   }, [
-    withdrawAsset.status,
-    withdrawAsset.data.currentStatus,
+    sep24WithdrawAsset.status,
+    sep24WithdrawAsset.data.currentStatus,
     handleRefreshAccount,
     location,
     dispatch,

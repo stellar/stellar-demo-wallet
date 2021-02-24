@@ -22,7 +22,7 @@ import { log } from "helpers/log";
 import {
   ActionStatus,
   RejectMessage,
-  WithdrawAssetInitialState,
+  Sep24WithdrawAssetInitialState,
 } from "types/types.d";
 
 const getMemo = (memoString: string, memoType: string): Memo => {
@@ -49,7 +49,7 @@ export const withdrawAssetAction = createAsyncThunk<
   { assetCode: string; assetIssuer: string },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "withdrawAsset/withdrawAssetAction",
+  "sep24WithdrawAsset/withdrawAssetAction",
   async ({ assetCode, assetIssuer }, { rejectWithValue, getState }) => {
     const { data, secretKey } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
@@ -324,7 +324,7 @@ export const withdrawAssetAction = createAsyncThunk<
   },
 );
 
-const initialState: WithdrawAssetInitialState = {
+const initialState: Sep24WithdrawAssetInitialState = {
   data: {
     currentStatus: "",
   },
@@ -332,11 +332,11 @@ const initialState: WithdrawAssetInitialState = {
   errorString: undefined,
 };
 
-const withdrawAssetSlice = createSlice({
-  name: "withdrawAsset",
+const sep24WithdrawAssetSlice = createSlice({
+  name: "sep24WithdrawAsset",
   initialState,
   reducers: {
-    resetWithdrawAssetAction: () => initialState,
+    resetSep24WithdrawAssetAction: () => initialState,
   },
   extraReducers: (builder) => {
     builder.addCase(withdrawAssetAction.pending, (state) => {
@@ -354,5 +354,7 @@ const withdrawAssetSlice = createSlice({
   },
 });
 
-export const { reducer } = withdrawAssetSlice;
-export const { resetWithdrawAssetAction } = withdrawAssetSlice.actions;
+export const { reducer } = sep24WithdrawAssetSlice;
+export const {
+  resetSep24WithdrawAssetAction,
+} = sep24WithdrawAssetSlice.actions;
