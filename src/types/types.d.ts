@@ -66,7 +66,7 @@ export interface AnyObject {
   [key: string]: any;
 }
 
-export interface SendSep31InitialState {
+export interface Sep31SendInitialState {
   data: {
     assetCode: string;
     assetIssuer: string;
@@ -142,7 +142,7 @@ export interface Store {
   claimableBalances: ClaimableBalancesInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
-  sendSep31: SendSep31InitialState;
+  sep31Send: Sep31SendInitialState;
   sep24DepositAsset: Sep24DepositAssetInitialState;
   sep24WithdrawAsset: Sep24WithdrawAssetInitialState;
   settings: SettingsInitialState;
