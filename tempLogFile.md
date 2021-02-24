@@ -7,3 +7,4 @@
 - New UI logs
 - New UI claimable balance + more logs
 - New UI send payment
+- New UI deposit
