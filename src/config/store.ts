@@ -14,11 +14,11 @@ import { reducer as claimableBalances } from "ducks/claimableBalances";
 import { reducer as sep24DepositAsset } from "ducks/sep24DepositAsset";
 import { reducer as logs } from "ducks/logs";
 import { reducer as sendPayment } from "ducks/sendPayment";
-import { reducer as sendSep31 } from "ducks/sendSep31";
+import { reducer as sep31Send } from "ducks/sep31Send";
 import { reducer as settings } from "ducks/settings";
 import { reducer as trustAsset } from "ducks/trustAsset";
 import { reducer as untrustedAssets } from "ducks/untrustedAssets";
-import { reducer as withdrawAsset } from "ducks/withdrawAsset";
+import { reducer as sep24WithdrawAsset } from "ducks/sep24WithdrawAsset";
 
 const RESET_STORE_ACTION_TYPE = "RESET";
 export type RootState = ReturnType<typeof store.getState>;
@@ -30,14 +30,14 @@ const reducers = combineReducers({
   account,
   claimAsset,
   claimableBalances,
-  sep24DepositAsset,
   logs,
   sendPayment,
-  sendSep31,
+  sep24DepositAsset,
+  sep24WithdrawAsset,
+  sep31Send,
   settings,
   trustAsset,
   untrustedAssets,
-  withdrawAsset,
 });
 
 export const resetStoreAction = createAction(RESET_STORE_ACTION_TYPE);

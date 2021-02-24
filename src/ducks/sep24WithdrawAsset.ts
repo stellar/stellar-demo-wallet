@@ -12,23 +12,22 @@ import {
 import {
   checkToml,
   checkInfo,
-  interactiveDepositFlow,
+  interactiveWithdrawFlow,
   createPopup,
-  pollDepositUntilComplete,
+  pollWithdrawUntilComplete,
 } from "methods/sep24";
-import { trustAsset } from "methods/trustAsset";
 import {
   ActionStatus,
-  Sep24DepositAssetInitialState,
   RejectMessage,
+  Sep24WithdrawAssetInitialState,
 } from "types/types.d";
 
-export const depositAssetAction = createAsyncThunk<
-  { currentStatus: string; trustedAssetAdded?: string },
+export const withdrawAssetAction = createAsyncThunk<
+  { currentStatus: string },
   { assetCode: string; assetIssuer: string },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep24DepositAsset/depositAssetAction",
+  "sep24WithdrawAsset/withdrawAssetAction",
   async ({ assetCode, assetIssuer }, { rejectWithValue, getState }) => {
     const { data, secretKey } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
@@ -39,43 +38,15 @@ export const depositAssetAction = createAsyncThunk<
       throw new Error("Something is wrong with Account, no public key.");
     }
 
-    log.instruction({ title: "Initiate a SEP-24 deposit" });
-
-    // TODO: get homeDomain
-    const homeDomain = undefined;
-
-    const trustAssetCallback = async () => {
-      const assetString = `${assetCode}:${assetIssuer}`;
-
-      await trustAsset({
-        secretKey,
-        networkPassphrase: networkConfig.network,
-        networkUrl: networkConfig.url,
-        untrustedAsset: {
-          assetString,
-          assetCode,
-          assetIssuer,
-        },
-      });
-
-      return assetString;
-    };
-
     try {
       // Check toml
       const tomlResponse = await checkToml({
         assetIssuer,
         networkUrl: networkConfig.url,
-        homeDomain,
       });
 
       // Check info
       await checkInfo({ toml: tomlResponse, assetCode });
-
-      log.instruction({
-        title:
-          "Deposit is enabled, and requires authentication so we should go through SEP-0010",
-      });
 
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
@@ -97,7 +68,7 @@ export const depositAssetAction = createAsyncThunk<
       });
 
       // Interactive flow
-      const interactiveResponse = await interactiveDepositFlow({
+      const interactiveResponse = await interactiveWithdrawFlow({
         assetCode,
         publicKey,
         sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
@@ -108,24 +79,24 @@ export const depositAssetAction = createAsyncThunk<
       const popup = createPopup(interactiveResponse.url);
 
       // Poll transaction until complete
-      const {
-        currentStatus,
-        trustedAssetAdded,
-      } = await pollDepositUntilComplete({
+      const currentStatus = await pollWithdrawUntilComplete({
+        secretKey,
         popup,
         transactionId: interactiveResponse.id,
         token,
         sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
-        trustAssetCallback,
+        networkPassphrase: networkConfig.network,
+        networkUrl: networkConfig.url,
+        assetCode,
+        assetIssuer,
       });
 
       return {
         currentStatus,
-        trustedAssetAdded,
       };
     } catch (error) {
       log.error({
-        title: "Deposit failed",
+        title: "Withdrawal failed",
         body: error.toString(),
       });
 
@@ -136,36 +107,37 @@ export const depositAssetAction = createAsyncThunk<
   },
 );
 
-const initialState: Sep24DepositAssetInitialState = {
+const initialState: Sep24WithdrawAssetInitialState = {
   data: {
     currentStatus: "",
-    trustedAssetAdded: undefined,
   },
   status: undefined,
   errorString: undefined,
 };
 
-const sep24DepositAssetSlice = createSlice({
-  name: "sep24DepositAsset",
+const sep24WithdrawAssetSlice = createSlice({
+  name: "sep24WithdrawAsset",
   initialState,
   reducers: {
-    resetSep24DepositAssetAction: () => initialState,
+    resetSep24WithdrawAssetAction: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(depositAssetAction.pending, (state) => {
+    builder.addCase(withdrawAssetAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(depositAssetAction.fulfilled, (state, action) => {
+    builder.addCase(withdrawAssetAction.fulfilled, (state, action) => {
       state.data = action.payload;
       state.status = ActionStatus.SUCCESS;
     });
-    builder.addCase(depositAssetAction.rejected, (state, action) => {
+    builder.addCase(withdrawAssetAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
   },
 });
 
-export const { reducer } = sep24DepositAssetSlice;
-export const { resetSep24DepositAssetAction } = sep24DepositAssetSlice.actions;
+export const { reducer } = sep24WithdrawAssetSlice;
+export const {
+  resetSep24WithdrawAssetAction,
+} = sep24WithdrawAssetSlice.actions;

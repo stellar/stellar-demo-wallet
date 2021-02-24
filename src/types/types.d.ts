@@ -66,7 +66,7 @@ export interface AnyObject {
   [key: string]: any;
 }
 
-export interface SendSep31InitialState {
+export interface Sep31SendInitialState {
   data: {
     assetCode: string;
     assetIssuer: string;
@@ -99,7 +99,7 @@ export interface TrustAssetInitialState {
   status: ActionStatus | undefined;
 }
 
-export interface WithdrawAssetInitialState {
+export interface Sep24WithdrawAssetInitialState {
   data: {
     currentStatus: string;
   };
@@ -140,14 +140,14 @@ export interface Store {
   account: AccountInitialState;
   claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
-  sep24DepositAsset: Sep24DepositAssetInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
-  sendSep31: SendSep31InitialState;
+  sep31Send: Sep31SendInitialState;
+  sep24DepositAsset: Sep24DepositAssetInitialState;
+  sep24WithdrawAsset: Sep24WithdrawAssetInitialState;
   settings: SettingsInitialState;
   trustAsset: TrustAssetInitialState;
   untrustedAssets: UntrustedAssetsInitialState;
-  withdrawAsset: WithdrawAssetInitialState;
 }
 
 export type StoreKey = keyof Store;

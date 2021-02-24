@@ -24,7 +24,7 @@ import {
 import {
   ActionStatus,
   AnyObject,
-  SendSep31InitialState,
+  Sep31SendInitialState,
   RejectMessage,
 } from "types/types.d";
 
@@ -51,7 +51,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
   { assetCode: string; assetIssuer: string },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sendSep31/fetchSendFieldsAction",
+  "sep31Send/fetchSendFieldsAction",
   async ({ assetCode, assetIssuer }, { rejectWithValue, getState }) => {
     try {
       const { homeDomain, pubnet } = settingsSelector(getState());
@@ -130,26 +130,26 @@ export const fetchSendFieldsAction = createAsyncThunk<
   },
 );
 
-interface SubmitSendSep31TransactionActionProps {
+interface SubmitSep31SendTransactionActionProps {
   amount: { amount: string };
   transaction: AnyObject;
   sender: AnyObject;
   receiver: AnyObject;
 }
 
-export const submitSendSep31TransactionAction = createAsyncThunk<
+export const submitSep31SendTransactionAction = createAsyncThunk<
   boolean,
-  SubmitSendSep31TransactionActionProps,
+  SubmitSep31SendTransactionActionProps,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sendSep31/submitSendSep31TransactionAction",
+  "sep31Send/submitSep31SendTransactionAction",
   async (
     { amount, transaction, sender, receiver },
     { rejectWithValue, getState },
   ) => {
     try {
       const { secretKey } = accountSelector(getState());
-      const { data } = sendSep31Selector(getState());
+      const { data } = sep31SendSelector(getState());
       const { pubnet } = settingsSelector(getState());
       const networkConfig = getNetworkConfig(pubnet);
       const {
@@ -235,7 +235,7 @@ export const submitSendSep31TransactionAction = createAsyncThunk<
   },
 );
 
-const initialState: SendSep31InitialState = {
+const initialState: Sep31SendInitialState = {
   data: {
     assetCode: "",
     assetIssuer: "",
@@ -257,11 +257,11 @@ const initialState: SendSep31InitialState = {
   status: undefined,
 };
 
-const sendSep31Slice = createSlice({
-  name: "sendSep31",
+const sep31SendSlice = createSlice({
+  name: "sep31Send",
   initialState,
   reducers: {
-    resetSendSep31Action: () => initialState,
+    resetSep31SendAction: () => initialState,
   },
   extraReducers: (builder) => {
     builder.addCase(fetchSendFieldsAction.pending, (state = initialState) => {
@@ -277,16 +277,16 @@ const sendSep31Slice = createSlice({
     });
 
     builder.addCase(
-      submitSendSep31TransactionAction.pending,
+      submitSep31SendTransactionAction.pending,
       (state = initialState) => {
         state.status = ActionStatus.PENDING;
       },
     );
-    builder.addCase(submitSendSep31TransactionAction.fulfilled, (state) => {
+    builder.addCase(submitSep31SendTransactionAction.fulfilled, (state) => {
       state.status = ActionStatus.SUCCESS;
     });
     builder.addCase(
-      submitSendSep31TransactionAction.rejected,
+      submitSep31SendTransactionAction.rejected,
       (state, action) => {
         state.errorString = action.payload?.errorString;
         state.status = ActionStatus.ERROR;
@@ -295,7 +295,7 @@ const sendSep31Slice = createSlice({
   },
 });
 
-export const sendSep31Selector = (state: RootState) => state.sendSep31;
+export const sep31SendSelector = (state: RootState) => state.sep31Send;
 
-export const { reducer } = sendSep31Slice;
-export const { resetSendSep31Action } = sendSep31Slice.actions;
+export const { reducer } = sep31SendSlice;
+export const { resetSep31SendAction } = sep31SendSlice.actions;

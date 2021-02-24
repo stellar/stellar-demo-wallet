@@ -2,8 +2,8 @@ import { TextButton } from "@stellar/design-system";
 import { Types } from "@stellar/wallet-sdk";
 import { useDispatch } from "react-redux";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
-import { fetchSendFieldsAction } from "ducks/sendSep31";
-import { withdrawAssetAction } from "ducks/withdrawAsset";
+import { fetchSendFieldsAction } from "ducks/sep31Send";
+import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
 
 interface SortedBalancesResult {
@@ -64,7 +64,7 @@ export const Balance = ({
     );
   };
 
-  const handleSendSep31 = (asset: Types.AssetBalance) => {
+  const handleSep31Send = (asset: Types.AssetBalance) => {
     dispatch(
       fetchSendFieldsAction({
         assetCode: asset.token.code,
@@ -106,13 +106,13 @@ export const Balance = ({
             <TextButton onClick={() => onSend(balance)}>Send</TextButton>
 
             <TextButton onClick={() => handleDeposit(balance)}>
-              Deposit
+              Deposit (SEP-24)
             </TextButton>
             <TextButton onClick={() => handleWithdraw(balance)}>
-              Withdraw
+              Withdraw (SEP-24)
             </TextButton>
 
-            <TextButton onClick={() => handleSendSep31(balance)}>
+            <TextButton onClick={() => handleSep31Send(balance)}>
               Send (SEP-31)
             </TextButton>
           </div>

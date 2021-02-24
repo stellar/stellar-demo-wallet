@@ -3,21 +3,21 @@ import { useDispatch } from "react-redux";
 import { Button, Heading2, Heading3, Input } from "@stellar/design-system";
 import { fetchAccountAction } from "ducks/account";
 import {
-  resetSendSep31Action,
-  submitSendSep31TransactionAction,
-} from "ducks/sendSep31";
+  resetSep31SendAction,
+  submitSep31SendTransactionAction,
+} from "ducks/sep31Send";
 import { capitalizeString } from "helpers/capitalizeString";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
 export const Sep31Send = () => {
-  const { account, sendSep31 } = useRedux("account", "sendSep31");
+  const { account, sep31Send } = useRedux("account", "sep31Send");
   const [formData, setFormData] = useState<any>({});
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (sendSep31.status === ActionStatus.SUCCESS) {
+    if (sep31Send.status === ActionStatus.SUCCESS) {
       if (account.data?.id) {
         dispatch(
           fetchAccountAction({
@@ -25,10 +25,10 @@ export const Sep31Send = () => {
             secretKey: account.secretKey,
           }),
         );
-        dispatch(resetSendSep31Action());
+        dispatch(resetSep31SendAction());
       }
     }
-  }, [sendSep31.status, account.data?.id, account.secretKey, dispatch]);
+  }, [sep31Send.status, account.data?.id, account.secretKey, dispatch]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
@@ -49,11 +49,11 @@ export const Sep31Send = () => {
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     event.preventDefault();
-    dispatch(submitSendSep31TransactionAction({ ...formData }));
+    dispatch(submitSep31SendTransactionAction({ ...formData }));
   };
 
   const renderInfoInputs = () => {
-    const { data } = sendSep31;
+    const { data } = sep31Send;
     const { transaction, sender, receiver } = data.fields;
 
     const allFields = {
@@ -62,9 +62,9 @@ export const Sep31Send = () => {
           description: "amount to send",
         },
       },
-      sender,
-      receiver,
-      transaction,
+      ...(sender ? { sender } : {}),
+      ...(receiver ? { receiver } : {}),
+      ...(transaction ? { transaction } : {}),
     };
 
     return (
@@ -93,7 +93,7 @@ export const Sep31Send = () => {
     );
   };
 
-  if (sendSep31.status === ActionStatus.NEEDS_INPUT) {
+  if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
     return renderInfoInputs();
   }
 
