@@ -5,7 +5,11 @@ import { settingsSelector } from "ducks/settings";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 
-import { start, sign, send } from "methods/sep10Auth";
+import {
+  sep10AuthStart,
+  sep10AuthSign,
+  sep10AuthSend,
+} from "methods/sep10Auth";
 import {
   checkToml,
   checkInfo,
@@ -64,21 +68,23 @@ export const fetchSendFieldsAction = createAsyncThunk<
       const infoResponse = await checkInfo({ assetCode, sendServer });
 
       // SEP-10 start
-      const challengeTransaction = await start({
+      const challengeTransaction = await sep10AuthStart({
         authEndpoint,
         secretKey,
       });
 
       // SEP-10 sign
-      const signedChallengeTransaction = sign({
+      const signedChallengeTransaction = sep10AuthSign({
         secretKey,
         networkPassphrase: networkConfig.network,
         challengeTransaction,
       });
 
       // SEP-10 send
-      const token = await send({ authEndpoint, signedChallengeTransaction });
-      console.log("token: ", token);
+      const token = await sep10AuthSend({
+        authEndpoint,
+        signedChallengeTransaction,
+      });
 
       // Get SEP-12 fields
       const sep12Fields = await getSep12Fields({

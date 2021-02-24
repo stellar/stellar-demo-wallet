@@ -16,7 +16,7 @@ import { UntrustedBalance } from "components/UntrustedBalance";
 import { fetchAccountAction } from "ducks/account";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
-import { resetDepositAssetAction } from "ducks/depositAsset";
+import { resetSep24DepositAssetAction } from "ducks/sep24DepositAsset";
 import { resetTrustAssetAction } from "ducks/trustAsset";
 import { removeUntrustedAssetAction } from "ducks/untrustedAssets";
 import { resetWithdrawAssetAction } from "ducks/withdrawAsset";
@@ -29,13 +29,13 @@ export const Account = () => {
   const {
     account,
     claimAsset,
-    depositAsset,
+    sep24DepositAsset,
     trustAsset,
     withdrawAsset,
   } = useRedux(
     "account",
     "claimAsset",
-    "depositAsset",
+    "sep24DepositAsset",
     "trustAsset",
     "withdrawAsset",
   );
@@ -119,18 +119,18 @@ export const Account = () => {
   // Deposit asset
   useEffect(() => {
     if (
-      depositAsset.status === ActionStatus.SUCCESS &&
-      depositAsset.data.currentStatus === "completed"
+      sep24DepositAsset.status === ActionStatus.SUCCESS &&
+      sep24DepositAsset.data.currentStatus === "completed"
     ) {
-      handleRemoveUntrustedAsset(depositAsset.data.trustedAssetAdded);
-      dispatch(resetDepositAssetAction());
+      handleRemoveUntrustedAsset(sep24DepositAsset.data.trustedAssetAdded);
+      dispatch(resetSep24DepositAssetAction());
       handleRefreshAccount();
       handleFetchClaimableBalances();
     }
   }, [
-    depositAsset.status,
-    depositAsset.data.currentStatus,
-    depositAsset.data.trustedAssetAdded,
+    sep24DepositAsset.status,
+    sep24DepositAsset.data.currentStatus,
+    sep24DepositAsset.data.trustedAssetAdded,
     handleRefreshAccount,
     handleFetchClaimableBalances,
     handleRemoveUntrustedAsset,

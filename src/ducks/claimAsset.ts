@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import StellarSdk, { BASE_FEE } from "stellar-sdk";
+import { BASE_FEE } from "stellar-sdk";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
@@ -25,7 +25,6 @@ export const claimAssetAction = createAsyncThunk<
     const { pubnet } = settingsSelector(getState());
 
     const networkConfig = getNetworkConfig(pubnet);
-    const server = new StellarSdk.Server(networkConfig.url);
     const [assetCode, assetIssuer] = balance.asset.split(":");
 
     let trustedAssetAdded;
@@ -38,9 +37,9 @@ export const claimAssetAction = createAsyncThunk<
 
         try {
           await trustAsset({
-            server,
             secretKey,
             networkPassphrase: networkConfig.network,
+            networkUrl: networkConfig.url,
             untrustedAsset: {
               assetString: balance.asset,
               assetCode,
@@ -59,8 +58,8 @@ export const claimAssetAction = createAsyncThunk<
           secretKey,
           balance,
           assetCode,
-          server,
           networkPassphrase: networkConfig.network,
+          networkUrl: networkConfig.url,
           fee: BASE_FEE,
         });
 

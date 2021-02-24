@@ -27,7 +27,7 @@ export interface ClaimableBalancesInitialState {
   status: ActionStatus | undefined;
 }
 
-export interface DepositAssetInitialState {
+export interface Sep24DepositAssetInitialState {
   data: {
     currentStatus: string;
     trustedAssetAdded?: string;
@@ -140,7 +140,7 @@ export interface Store {
   account: AccountInitialState;
   claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
-  depositAsset: DepositAssetInitialState;
+  sep24DepositAsset: Sep24DepositAssetInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
   sendSep31: SendSep31InitialState;
