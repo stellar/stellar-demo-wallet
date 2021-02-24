@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { TextButton } from "@stellar/design-system";
-import { depositAssetAction } from "ducks/depositAsset";
+import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { trustAssetAction } from "ducks/trustAsset";
 import { addUntrustedAssetAction } from "ducks/untrustedAssets";
 import { useRedux } from "hooks/useRedux";

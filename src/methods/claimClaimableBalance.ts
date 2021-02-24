@@ -1,4 +1,9 @@
-import { Account, Keypair, Operation, TransactionBuilder } from "stellar-sdk";
+import StellarSdk, {
+  Account,
+  Keypair,
+  Operation,
+  TransactionBuilder,
+} from "stellar-sdk";
 import { log } from "helpers/log";
 import { CleanedClaimableBalanceRecord } from "types/types.d";
 
@@ -6,8 +11,8 @@ interface ClaimClaimableBalanceProps {
   secretKey: string;
   balance: CleanedClaimableBalanceRecord;
   assetCode: string;
-  server: any;
   networkPassphrase: string;
+  networkUrl: string;
   fee: string;
 }
 
@@ -15,8 +20,8 @@ export const claimClaimableBalance = async ({
   secretKey,
   balance,
   assetCode,
-  server,
   networkPassphrase,
+  networkUrl,
   fee,
 }: ClaimClaimableBalanceProps) => {
   log.instruction({
@@ -27,6 +32,7 @@ export const claimClaimableBalance = async ({
 
   try {
     const keypair = Keypair.fromSecret(secretKey);
+    const server = new StellarSdk.Server(networkUrl);
     const accountRecord = await server
       .accounts()
       .accountId(keypair.publicKey())

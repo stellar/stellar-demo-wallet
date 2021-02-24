@@ -19,7 +19,7 @@ export const checkToml = async ({
       "Check the stellar.toml to find the necessary information about the receivers payment server",
   });
 
-  if (!homeDomainParam.includes("http")) {
+  if (!homeDomainParam.startsWith("http")) {
     homeDomainParam = `https://${homeDomainParam}`;
   }
 

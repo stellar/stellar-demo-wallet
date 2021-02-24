@@ -1,4 +1,4 @@
-import {
+import StellarSdk, {
   TransactionBuilder,
   BASE_FEE,
   Operation,
@@ -9,19 +9,20 @@ import { log } from "helpers/log";
 import { TrustAssetParam } from "types/types.d";
 
 export const trustAsset = async ({
-  server,
   secretKey,
   untrustedAsset,
+  networkUrl,
   networkPassphrase,
 }: {
-  server: any;
   secretKey: string;
   untrustedAsset: TrustAssetParam;
+  networkUrl: string;
   networkPassphrase: string;
 }) => {
   try {
     log.instruction({ title: "Adding trustline…" });
     const keypair = Keypair.fromSecret(secretKey);
+    const server = new StellarSdk.Server(networkUrl);
 
     log.instruction({
       title:

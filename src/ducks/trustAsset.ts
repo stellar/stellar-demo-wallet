@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import StellarSdk from "stellar-sdk";
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getErrorString } from "helpers/getErrorString";
@@ -26,7 +25,6 @@ export const trustAssetAction = createAsyncThunk<
   async (untrustedAsset, { rejectWithValue, getState }) => {
     const { pubnet, secretKey } = settingsSelector(getState());
     const networkConfig = getNetworkConfig(pubnet);
-    const server = new StellarSdk.Server(networkConfig.url);
 
     try {
       return {
@@ -34,8 +32,8 @@ export const trustAssetAction = createAsyncThunk<
         response: JSON.stringify(
           await trustAsset({
             secretKey,
-            server,
             untrustedAsset,
+            networkUrl: networkConfig.url,
             networkPassphrase: networkConfig.network,
           }),
         ),

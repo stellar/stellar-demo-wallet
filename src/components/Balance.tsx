@@ -1,7 +1,7 @@
 import { TextButton } from "@stellar/design-system";
 import { Types } from "@stellar/wallet-sdk";
 import { useDispatch } from "react-redux";
-import { depositAssetAction } from "ducks/depositAsset";
+import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { fetchSendFieldsAction } from "ducks/sendSep31";
 import { withdrawAssetAction } from "ducks/withdrawAsset";
 import { useRedux } from "hooks/useRedux";
