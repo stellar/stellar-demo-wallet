@@ -41,6 +41,7 @@ export const depositAssetAction = createAsyncThunk<
 
     log.instruction({ title: "Initiate a SEP-24 deposit" });
 
+    // TODO: get homeDomain
     const homeDomain = undefined;
 
     const trustAssetCallback = async () => {
@@ -68,7 +69,7 @@ export const depositAssetAction = createAsyncThunk<
         homeDomain,
       });
 
-      // Check Info
+      // Check info
       await checkInfo({ toml: tomlResponse, assetCode });
 
       log.instruction({

@@ -1,7 +1,7 @@
 import { each } from "lodash";
 import { log } from "helpers/log";
 
-export const interactiveDepositFlow = async ({
+export const interactiveWithdrawFlow = async ({
   assetCode,
   publicKey,
   sep24TransferServerUrl,
@@ -13,22 +13,21 @@ export const interactiveDepositFlow = async ({
   token: string;
 }) => {
   const formData = new FormData();
-  const postDepositParams = {
+  const postWithdrawParams = {
     asset_code: assetCode,
     account: publicKey,
     lang: "en",
-    claimable_balance_supported: "true",
   };
 
-  each(postDepositParams, (value, key) => formData.append(key, value));
+  each(postWithdrawParams, (value, key) => formData.append(key, value));
 
   log.request({
-    title: `POST ${sep24TransferServerUrl}/transactions/deposit/interactive`,
-    body: postDepositParams,
+    title: `POST ${sep24TransferServerUrl}/transactions/withdraw/interactive`,
+    body: postWithdrawParams,
   });
 
   const response = await fetch(
-    `${sep24TransferServerUrl}/transactions/deposit/interactive`,
+    `${sep24TransferServerUrl}/transactions/withdraw/interactive`,
     {
       method: "POST",
       body: formData,
@@ -41,13 +40,13 @@ export const interactiveDepositFlow = async ({
   const interactiveJson = await response.json();
 
   log.response({
-    title: `${sep24TransferServerUrl}/transactions/deposit/interactive`,
+    title: `${sep24TransferServerUrl}/transactions/withdraw/interactive`,
     body: interactiveJson,
   });
 
   if (!interactiveJson.url) {
     throw new Error(
-      "No URL Returned from POST /transactions/deposit/interactive",
+      "No URL Returned from POST /transactions/withdraw/interactive",
     );
   }
 

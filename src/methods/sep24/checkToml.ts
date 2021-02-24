@@ -25,7 +25,7 @@ export const checkToml = async ({
       body: assetIssuer,
     });
 
-    const accountRecord = await server.accounts().accountId(assetIssuer).call();
+    const accountRecord = await server.loadAccount(assetIssuer);
 
     log.response({
       title: "Fetching issuer account from Horizon",
