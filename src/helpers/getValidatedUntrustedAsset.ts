@@ -4,14 +4,12 @@ import { log } from "helpers/log";
 
 interface GetUntrustedAssetProps {
   assetCode: string;
-  assetIssuer?: string;
-  homeDomain?: string;
+  homeDomain: string;
   accountBalances?: Types.BalanceMap;
 }
 
 export const getValidatedUntrustedAsset = async ({
   assetCode,
-  assetIssuer,
   homeDomain,
   accountBalances,
 }: GetUntrustedAssetProps) => {
@@ -19,27 +17,23 @@ export const getValidatedUntrustedAsset = async ({
     title: `Start validating untrusted asset ${assetCode}`,
   });
 
-  if (!assetCode && !(assetIssuer || homeDomain)) {
-    log.error({ title: "REQUIRED: asset code AND (home domain OR issuer)" });
-    throw new Error("REQUIRED: asset code AND (home domain OR issuer)");
+  if (!assetCode && !homeDomain) {
+    log.error({ title: "REQUIRED: asset code AND home domain" });
+    throw new Error("REQUIRED: asset code AND home domain");
   }
 
   let asset;
 
-  if (assetIssuer) {
-    asset = `${assetCode}:${assetIssuer}`;
-  } else if (homeDomain) {
-    try {
-      const homeDomainIssuer = await getIssuerFromDomain({
-        assetCode,
-        homeDomain,
-      });
+  try {
+    const homeDomainIssuer = await getIssuerFromDomain({
+      assetCode,
+      homeDomain,
+    });
 
-      asset = `${assetCode}:${homeDomainIssuer}`;
-    } catch (e) {
-      log.error({ title: "Issuer domain error: ", body: e.toString() });
-      throw new Error(e.toString());
-    }
+    asset = `${assetCode}:${homeDomainIssuer}`;
+  } catch (e) {
+    log.error({ title: "Issuer domain error: ", body: e.toString() });
+    throw new Error(e.toString());
   }
 
   if (!asset) {
