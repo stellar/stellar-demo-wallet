@@ -41,6 +41,66 @@ export const checkInfo = async ({
     throw new Error("No transaction fields specified");
   }
 
+  let senderSep12Type;
+  let receiverSep12Type;
+
+  if (asset.sep12) {
+    if (asset.sep12.sender.types) {
+      const senderTypes = Object.keys(asset.sep12.sender.types);
+      senderSep12Type = senderTypes[0];
+
+      log.instruction({
+        title: `Found the following customer types for senders: ${senderTypes.join(
+          ", ",
+        )}`,
+      });
+
+      log.instruction({
+        title: `Using ${senderTypes[0]}: ${
+          asset.sep12.sender.types[senderTypes[0]].description
+        }`,
+      });
+    }
+
+    if (asset.sep12.receiver.types) {
+      const receiverTypes = Object.keys(asset.sep12.receiver.types);
+      receiverSep12Type = receiverTypes[0];
+
+      log.instruction({
+        title: `Found the following customer types for senders: ${receiverTypes.join(
+          ", ",
+        )}`,
+      });
+
+      log.instruction({
+        title: `Using ${receiverTypes[0]}: ${
+          asset.sep12.receiver.types[receiverTypes[0]].description
+        }`,
+      });
+    }
+  } else {
+    senderSep12Type = asset.sender_sep12_type;
+    receiverSep12Type = asset.receiver_sep12_type;
+
+    if (senderSep12Type) {
+      log.instruction({
+        title: `Using ${senderSep12Type} type for sending customer`,
+      });
+    }
+  }
+
+  if (!senderSep12Type) {
+    log.instruction({
+      title: "The anchor does not require KYC for sending customers",
+    });
+  }
+
+  if (!receiverSep12Type) {
+    log.instruction({
+      title: "The anchor does not require KYC for receiving customers",
+    });
+  }
+
   log.instruction({ title: `Send is enabled for asset ${assetCode}` });
   log.instruction({
     title: "The receiving anchor requires the following fields",
@@ -49,7 +109,7 @@ export const checkInfo = async ({
 
   return {
     fields: asset.fields,
-    senderSep12Type: asset.sender_sep12_type,
-    receiverSep12Type: asset.receiver_sep12_type,
+    senderSep12Type,
+    receiverSep12Type,
   };
 };
