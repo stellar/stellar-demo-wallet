@@ -64,7 +64,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
       const tomlResponse = await checkToml({ homeDomain, pubnet });
       const { authEndpoint, sendServer, kycServer } = tomlResponse;
 
-      // Check Info
+      // Check info
       const infoResponse = await checkInfo({ assetCode, sendServer });
 
       // SEP-10 start

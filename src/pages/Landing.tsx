@@ -57,7 +57,7 @@ export const Landing = () => {
 
   return (
     <div className="Inset">
-      <Heading1>Load or create an account</Heading1>
+      <Heading1>Import or generate keypair</Heading1>
 
       <div className="LandingButtons">
         <TextButton
@@ -65,7 +65,7 @@ export const Landing = () => {
           variant={TextButtonVariant.secondary}
           disabled={account.status === ActionStatus.PENDING}
         >
-          Connect a Stellar account (testnet or mainnet)
+          Provide a secret key (testnet or mainnet)
         </TextButton>
 
         <div className="Inline">
