@@ -10,7 +10,7 @@ export const getIssuerFromDomain = async ({
   let domain = homeDomain;
 
   domain = domain.startsWith("http") ? domain : `https://${domain}`;
-  domain = domain[domain.length - 1] !== "/" ? domain : domain.slice(0, -1);
+  domain = domain.replace(/\/$/, "");
 
   let domainURL;
   try {

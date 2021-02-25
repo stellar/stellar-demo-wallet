@@ -13,7 +13,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
   // Form data
   const [assetCode, setAssetCode] = useState("");
   const [homeDomain, setHomeDomain] = useState("");
-  const [assetIssuer, setAssetIssuer] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [localStatus, setLocalStatus] = useState<ActionStatus | undefined>();
 
@@ -22,7 +21,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
   const resetState = () => {
     setAssetCode("");
     setHomeDomain("");
-    setAssetIssuer("");
     setErrorMessage("");
     setLocalStatus(undefined);
   };
@@ -47,7 +45,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
       const asset = await getValidatedUntrustedAsset({
         assetCode,
         homeDomain,
-        assetIssuer,
         accountBalances: account.data?.balances,
       });
 
@@ -91,13 +88,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
           value={homeDomain}
           placeholder="ex. example.com"
         />
-
-        <Input
-          id="aa-asset-issuer"
-          label="Issuer public key"
-          onChange={(e) => setAssetIssuer(e.target.value)}
-          value={assetIssuer}
-        />
       </div>
 
       {errorMessage && localStatus && (
@@ -111,7 +101,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
         <Button
           onClick={handleSetUntrustedAsset}
-          disabled={!(assetCode && (homeDomain || assetIssuer)) || isPending}
+          disabled={!(assetCode && homeDomain) || isPending}
         >
           Add
         </Button>
