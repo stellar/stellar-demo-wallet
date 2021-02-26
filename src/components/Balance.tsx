@@ -1,4 +1,4 @@
-import { TextButton } from "@stellar/design-system";
+import { Select } from "@stellar/design-system";
 import { Types } from "@stellar/wallet-sdk";
 import { useDispatch } from "react-redux";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
@@ -8,18 +8,27 @@ import { useRedux } from "hooks/useRedux";
 
 interface SortedBalancesResult {
   native: Types.NativeBalance[];
-  other: Types.AssetBalance[];
+  other: any[];
 }
 
 export const Balance = ({
+  onAssetAction,
   onSend,
 }: {
+  onAssetAction: ({ balanceId, balance, callback }: any) => void;
   onSend: (asset?: Types.AssetBalance) => void;
 }) => {
   const { account } = useRedux("account");
-  const allBalances = account?.data?.balances;
+  const allBalances = account?.assets;
 
   const dispatch = useDispatch();
+
+  enum assetActionId {
+    SEND_PAYMENT = "send-payment",
+    SEP24_DEPOSIT = "sep24-deposit",
+    SEP24_WITHDRAW = "sep24-withdraw",
+    SEP31_SEND = "sep31-send",
+  }
 
   const groupBalances = () => {
     if (!allBalances) {
@@ -44,7 +53,7 @@ export const Balance = ({
     return result;
   };
 
-  const handleDeposit = (asset: Types.AssetBalance) => {
+  const handleSep24Deposit = (asset: Types.AssetBalance) => {
     // TODO: handle global errors on UI
     dispatch(
       depositAssetAction({
@@ -54,7 +63,7 @@ export const Balance = ({
     );
   };
 
-  const handleWithdraw = (asset: Types.AssetBalance) => {
+  const handleSep24Withdraw = (asset: Types.AssetBalance) => {
     // TODO: handle global errors on UI
     dispatch(
       withdrawAssetAction({
@@ -73,6 +82,46 @@ export const Balance = ({
     );
   };
 
+  const handleActionChange = ({
+    actionId,
+    balance,
+  }: {
+    actionId: string;
+    balance: any;
+  }) => {
+    if (!actionId) {
+      return;
+    }
+
+    console.log("handleActionChange: ", actionId, balance);
+
+    let callback;
+
+    switch (actionId) {
+      case assetActionId.SEND_PAYMENT:
+        callback = onSend;
+        break;
+      case assetActionId.SEP24_DEPOSIT:
+        callback = () => handleSep24Deposit(balance);
+        break;
+      case assetActionId.SEP24_WITHDRAW:
+        callback = () => handleSep24Withdraw(balance);
+        break;
+      case assetActionId.SEP31_SEND:
+        callback = () => handleSep31Send(balance);
+        break;
+      default:
+      // nothing
+    }
+
+    if (!callback) {
+      // TODO: show error
+      return;
+    }
+
+    onAssetAction({ balanceId: "test", balance, callback });
+  };
+
   const sortedBalances = groupBalances();
 
   if (!sortedBalances) {
@@ -88,7 +137,15 @@ export const Balance = ({
             balance.token.code
           }`}</div>
           <div className="BalanceCell">
-            <TextButton onClick={() => onSend()}>Send</TextButton>
+            <Select
+              id={`${balance.token.code}:native-actions`}
+              onChange={(e) =>
+                handleActionChange({ actionId: e.target.value, balance })
+              }
+            >
+              <option value="">Select action</option>
+              <option value={assetActionId.SEND_PAYMENT}>Send payment</option>
+            </Select>
           </div>
         </div>
       ))}
@@ -99,22 +156,54 @@ export const Balance = ({
           className="BalanceRow"
           key={`${balance.token.code}:${balance.token.issuer.key}`}
         >
-          <div className="BalanceCell">{`${balance.total || "0"} ${
-            balance.token.code
-          }`}</div>
-          <div className="BalannceCell Inline">
-            <TextButton onClick={() => onSend(balance)}>Send</TextButton>
+          <div className="BalanceCell">
+            <div>{`${balance.total || "0"} ${balance.token.code}`}</div>
+            {balance.supportedActions.homeDomain && (
+              <div>{balance.supportedActions.homeDomain}</div>
+            )}
+          </div>
+          <div className="BalannceCell">
+            <Select
+              id={`${balance.token.code}:${balance.token.issuer.key}-actions`}
+              onChange={(e) =>
+                handleActionChange({ actionId: e.target.value, balance })
+              }
+            >
+              <option value="">Select action</option>
+              <option value={assetActionId.SEND_PAYMENT}>Send payment</option>
+              {balance.supportedActions.sep24 && (
+                <>
+                  <option value={assetActionId.SEP24_DEPOSIT}>
+                    SEP-24 Deposit
+                  </option>
+                  <option value={assetActionId.SEP24_WITHDRAW}>
+                    SEP-24 Withdraw
+                  </option>
+                </>
+              )}
+              {balance.supportedActions.sep31 && (
+                <option value={assetActionId.SEP31_SEND}>SEP-31 Send</option>
+              )}
+            </Select>
 
-            <TextButton onClick={() => handleDeposit(balance)}>
-              Deposit (SEP-24)
-            </TextButton>
-            <TextButton onClick={() => handleWithdraw(balance)}>
-              Withdraw (SEP-24)
-            </TextButton>
+            {/* <TextButton onClick={() => onSend(balance)}>Send</TextButton>
 
-            <TextButton onClick={() => handleSep31Send(balance)}>
-              Send (SEP-31)
-            </TextButton>
+            {balance.supportedActions.sep24 && (
+              <>
+                <TextButton onClick={() => handleSep24Deposit(balance)}>
+                  Deposit (SEP-24)
+                </TextButton>
+                <TextButton onClick={() => handleSep24Withdraw(balance)}>
+                  Withdraw (SEP-24)
+                </TextButton>
+              </>
+            )}
+
+            {balance.supportedActions.sep31 && (
+              <TextButton onClick={() => handleSep31Send(balance)}>
+                Send (SEP-31)
+              </TextButton>
+            )} */}
           </div>
         </div>
       ))}

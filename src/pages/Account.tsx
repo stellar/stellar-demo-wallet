@@ -94,6 +94,28 @@ export const Account = () => {
     setActiveModal(modalType.SEND_PAYMENT);
   };
 
+  const handleAssetAction = ({
+    balanceId,
+    balance,
+    callback,
+  }: {
+    balanceId: string;
+    balance: any;
+    callback: (balance: any) => void;
+  }) => {
+    console.log("handleAssetAction");
+    console.log("balanceId: ", balanceId);
+    console.log("balance: ", balance);
+    console.log("callback: ", callback);
+
+    // need for confirmation modal
+    // callback + balance
+    // assetCode
+    // homeDomain
+
+    callback(balance);
+  };
+
   // Trust asset
   useEffect(() => {
     if (trustAsset.status === ActionStatus.SUCCESS) {
@@ -188,7 +210,10 @@ export const Account = () => {
       <div className="Section">
         <Heading2>Balances</Heading2>
         <div className="Balances">
-          <Balance onSend={handleSendPayment} />
+          <Balance
+            onSend={handleSendPayment}
+            onAssetAction={handleAssetAction}
+          />
           <UntrustedBalance />
         </div>
 

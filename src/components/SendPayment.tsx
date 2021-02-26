@@ -35,8 +35,10 @@ export const SendPayment = ({
   // Form data
   const [destination, setDestination] = useState("");
   const [amount, setAmount] = useState("");
-  const [assetCode, setAssetCode] = useState(asset?.token.code || "XLM");
-  const [assetIssuer, setAssetIssuer] = useState(asset?.token.issuer.key || "");
+  const [assetCode, setAssetCode] = useState(asset?.token.code);
+  const [assetIssuer, setAssetIssuer] = useState(
+    asset?.token?.issuer?.key || "",
+  );
   const [isDestinationFunded, setIsDestinationFunded] = useState(true);
 
   const resetFormState = () => {
@@ -118,7 +120,7 @@ export const SendPayment = ({
             value={assetCode}
             onChange={(e) => setAssetCode(e.target.value)}
           />
-          {asset && (
+          {asset?.token.code === "native" && (
             <Input
               id="send-asset-issuer"
               label="Asset issuer"

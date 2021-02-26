@@ -3,6 +3,7 @@ import { Horizon, ServerApi } from "stellar-sdk";
 
 export interface AccountInitialState {
   data: Types.AccountDetails | null;
+  assets: AnyObject;
   errorString?: string;
   isAuthenticated: boolean;
   isUnfunded: boolean;
