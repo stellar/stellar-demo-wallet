@@ -5,17 +5,24 @@ import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { fetchSendFieldsAction } from "ducks/sep31Send";
 import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
+import { AssetActionItem, AssetWithSupportedActions } from "types/types.d";
 
 interface SortedBalancesResult {
   native: Types.NativeBalance[];
-  other: any[];
+  other: AssetWithSupportedActions[];
 }
 
 export const Balance = ({
   onAssetAction,
   onSend,
 }: {
-  onAssetAction: ({ balanceId, balance, callback }: any) => void;
+  onAssetAction: ({
+    balance,
+    callback,
+    title,
+    description,
+    options,
+  }: AssetActionItem) => void;
   onSend: (asset?: Types.AssetBalance) => void;
 }) => {
   const { account } = useRedux("account");
@@ -44,7 +51,7 @@ export const Balance = ({
       if (balance.token.type === "native") {
         result.native = [...result.native, balance as Types.NativeBalance];
       } else {
-        result.other = [...result.other, balance as Types.AssetBalance];
+        result.other = [...result.other, balance];
       }
 
       return result;
@@ -54,7 +61,6 @@ export const Balance = ({
   };
 
   const handleSep24Deposit = (asset: Types.AssetBalance) => {
-    // TODO: handle global errors on UI
     dispatch(
       depositAssetAction({
         assetCode: asset.token.code,
@@ -64,7 +70,6 @@ export const Balance = ({
   };
 
   const handleSep24Withdraw = (asset: Types.AssetBalance) => {
-    // TODO: handle global errors on UI
     dispatch(
       withdrawAssetAction({
         assetCode: asset.token.code,
@@ -93,33 +98,55 @@ export const Balance = ({
       return;
     }
 
-    console.log("handleActionChange: ", actionId, balance);
-
-    let callback;
+    let props: AssetActionItem | undefined;
 
     switch (actionId) {
       case assetActionId.SEND_PAYMENT:
-        callback = onSend;
+        // TODO: title + description
+        props = {
+          balance,
+          title: "Send payment",
+          description: "Send payment description",
+          callback: onSend,
+        };
         break;
       case assetActionId.SEP24_DEPOSIT:
-        callback = () => handleSep24Deposit(balance);
+        // TODO: title + description
+        props = {
+          balance,
+          title: "SEP-24 deposit",
+          description: "SEP-24 deposit description",
+          callback: () => handleSep24Deposit(balance),
+        };
         break;
       case assetActionId.SEP24_WITHDRAW:
-        callback = () => handleSep24Withdraw(balance);
+        // TODO: title + description
+        props = {
+          balance,
+          title: "SEP-24 withdrawal",
+          description: "SEP-24 withdrawal description",
+          callback: () => handleSep24Withdraw(balance),
+        };
         break;
       case assetActionId.SEP31_SEND:
-        callback = () => handleSep31Send(balance);
+        // TODO: title + description
+        props = {
+          balance,
+          title: "SEP-31 send",
+          description: "SEP-31 send description",
+          callback: () => handleSep31Send(balance),
+          // TODO: add options
+        };
         break;
       default:
       // nothing
     }
 
-    if (!callback) {
-      // TODO: show error
+    if (!props) {
       return;
     }
 
-    onAssetAction({ balanceId: "test", balance, callback });
+    onAssetAction(props);
   };
 
   const sortedBalances = groupBalances();
@@ -185,25 +212,6 @@ export const Balance = ({
                 <option value={assetActionId.SEP31_SEND}>SEP-31 Send</option>
               )}
             </Select>
-
-            {/* <TextButton onClick={() => onSend(balance)}>Send</TextButton>
-
-            {balance.supportedActions.sep24 && (
-              <>
-                <TextButton onClick={() => handleSep24Deposit(balance)}>
-                  Deposit (SEP-24)
-                </TextButton>
-                <TextButton onClick={() => handleSep24Withdraw(balance)}>
-                  Withdraw (SEP-24)
-                </TextButton>
-              </>
-            )}
-
-            {balance.supportedActions.sep31 && (
-              <TextButton onClick={() => handleSep31Send(balance)}>
-                Send (SEP-31)
-              </TextButton>
-            )} */}
           </div>
         </div>
       ))}

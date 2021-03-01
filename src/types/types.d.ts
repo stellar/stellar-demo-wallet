@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { Types } from "@stellar/wallet-sdk";
 import { Horizon, ServerApi } from "stellar-sdk";
 
@@ -183,4 +184,26 @@ export interface CleanedClaimableBalanceRecord
   links: undefined;
   pagingToken: undefined;
   self: undefined;
+}
+
+export interface ActiveAsset {
+  title: string;
+  description?: string;
+  callback: (args?: any) => void;
+  options?: ReactNode;
+}
+
+export interface AssetActionItem extends ActiveAsset {
+  balance: any;
+}
+
+export interface AssetSupportedActions {
+  homeDomain: string;
+  sep6?: boolean;
+  sep24?: boolean;
+  sep31?: boolean;
+}
+
+export interface AssetWithSupportedActions extends Types.AssetBalance {
+  supportedActions: AssetSupportedActions;
 }

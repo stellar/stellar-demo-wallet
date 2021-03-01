@@ -1,5 +1,6 @@
 import { Server, StellarTomlResolver } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
+import { AssetSupportedActions, AnyObject } from "types/types.d";
 
 // TODO: add logs
 export const getAssetData = async ({
@@ -10,8 +11,9 @@ export const getAssetData = async ({
   networkUrl: string;
 }) => {
   const allAssets = Object.entries(balances);
-  // TODO: any type
-  const assets: any = {};
+  const assets: {
+    [key: string]: Types.AssetBalance | Types.NativeBalance;
+  } = {};
 
   if (!allAssets?.length) {
     return assets;
@@ -30,8 +32,7 @@ export const getAssetData = async ({
       };
     } else {
       // Other assets
-      // TODO: any type
-      let supportedActions: any = {};
+      let supportedActions: AssetSupportedActions | AnyObject = {};
       const [, assetIssuer] = assetId.split(":");
       // eslint-disable-next-line no-await-in-loop
       const accountRecord = await server.loadAccount(assetIssuer);
@@ -40,12 +41,17 @@ export const getAssetData = async ({
       if (homeDomain) {
         // eslint-disable-next-line no-await-in-loop
         const toml = await getToml(homeDomain);
+        const {
+          TRANSFER_SERVER,
+          TRANSFER_SERVER_SEP0024,
+          DIRECT_PAYMENT_SERVER,
+        } = toml;
 
         supportedActions = {
           homeDomain,
-          sep6: Boolean(toml.TRANSFER_SERVER),
-          sep24: Boolean(toml.TRANSFER_SERVER_SEP0024),
-          sep31: Boolean(toml.DIRECT_PAYMENT_SERVER),
+          sep6: Boolean(TRANSFER_SERVER),
+          sep24: Boolean(TRANSFER_SERVER_SEP0024),
+          sep31: Boolean(DIRECT_PAYMENT_SERVER),
         };
       }
 
