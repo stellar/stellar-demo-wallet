@@ -1,17 +1,19 @@
+import { Server } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
+import { getAssetSettingsFromToml } from "helpers/getAssetSettingsFromToml";
 import { log } from "helpers/log";
 import { UntrustedAsset } from "types/types.d";
 
 interface GetAssetRecordProps {
   assetsToAdd: string[];
   accountAssets?: Types.BalanceMap;
-  server: any;
+  networkUrl: string;
 }
 
 export const getAssetRecord = async ({
   assetsToAdd,
   accountAssets,
-  server,
+  networkUrl,
 }: GetAssetRecordProps) => {
   log.instruction({ title: "Start getting asset record" });
 
@@ -33,6 +35,8 @@ export const getAssetRecord = async ({
 
     log.request({ title: `Fetching asset ${assetString} record` });
 
+    const server = new Server(networkUrl);
+
     // eslint-disable-next-line no-await-in-loop
     const assetResponse = await server
       .assets()
@@ -48,9 +52,10 @@ export const getAssetRecord = async ({
         body: assetResponse.records[0],
       });
 
-      response = [
-        ...response,
-        {
+      // eslint-disable-next-line no-await-in-loop
+      const data = await getAssetSettingsFromToml<UntrustedAsset>({
+        assetId: assetString,
+        data: {
           assetString,
           assetCode,
           assetIssuer,
@@ -58,7 +63,10 @@ export const getAssetRecord = async ({
           assetType: assetResponse.records[0].asset_type,
           untrusted: true,
         },
-      ];
+        networkUrl,
+      });
+
+      response = [...response, data];
     }
   }
 

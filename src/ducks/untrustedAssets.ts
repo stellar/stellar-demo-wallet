@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import StellarSdk from "stellar-sdk";
-
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
@@ -58,11 +56,10 @@ export const addUntrustedAssetAction = createAsyncThunk<
         return [];
       }
 
-      const server = new StellarSdk.Server(getNetworkConfig(pubnet).url);
       const response = await getAssetRecord({
         assetsToAdd: assetsListToAdd,
         accountAssets: accountData?.balances,
-        server,
+        networkUrl: getNetworkConfig(pubnet).url,
       });
 
       if (!response.length) {
