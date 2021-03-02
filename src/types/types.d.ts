@@ -116,6 +116,7 @@ export interface UntrustedAsset {
   assetType: string;
   balance: string;
   untrusted: boolean;
+  supportedActions?: AssetSupportedActions;
 }
 
 export interface TrustAssetParam {
@@ -206,4 +207,12 @@ export interface AssetSupportedActions {
 
 export interface AssetWithSupportedActions extends Types.AssetBalance {
   supportedActions: AssetSupportedActions;
+}
+
+export enum AssetActionId {
+  SEND_PAYMENT = "send-payment",
+  SEP24_DEPOSIT = "sep24-deposit",
+  SEP24_WITHDRAW = "sep24-withdraw",
+  SEP31_SEND = "sep31-send",
+  TRUST_ASSET = "trust-asset",
 }

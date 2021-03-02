@@ -1,11 +1,15 @@
-import { Select } from "@stellar/design-system";
 import { Types } from "@stellar/wallet-sdk";
 import { useDispatch } from "react-redux";
+import { BalanceRow } from "components/BalanceRow";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { fetchSendFieldsAction } from "ducks/sep31Send";
 import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
-import { AssetActionItem, AssetWithSupportedActions } from "types/types.d";
+import {
+  AssetActionItem,
+  AssetWithSupportedActions,
+  AssetActionId,
+} from "types/types.d";
 
 interface SortedBalancesResult {
   native: Types.NativeBalance[];
@@ -29,13 +33,6 @@ export const Balance = ({
   const allBalances = account?.assets;
 
   const dispatch = useDispatch();
-
-  enum assetActionId {
-    SEND_PAYMENT = "send-payment",
-    SEP24_DEPOSIT = "sep24-deposit",
-    SEP24_WITHDRAW = "sep24-withdraw",
-    SEP31_SEND = "sep31-send",
-  }
 
   const groupBalances = () => {
     if (!allBalances) {
@@ -101,38 +98,38 @@ export const Balance = ({
     let props: AssetActionItem | undefined;
 
     switch (actionId) {
-      case assetActionId.SEND_PAYMENT:
+      case AssetActionId.SEND_PAYMENT:
         // TODO: title + description
         props = {
           balance,
-          title: "Send payment",
+          title: `Send payment ${balance.token.code}`,
           description: "Send payment description",
           callback: onSend,
         };
         break;
-      case assetActionId.SEP24_DEPOSIT:
+      case AssetActionId.SEP24_DEPOSIT:
         // TODO: title + description
         props = {
           balance,
-          title: "SEP-24 deposit",
+          title: `SEP-24 deposit ${balance.token.code}`,
           description: "SEP-24 deposit description",
           callback: () => handleSep24Deposit(balance),
         };
         break;
-      case assetActionId.SEP24_WITHDRAW:
+      case AssetActionId.SEP24_WITHDRAW:
         // TODO: title + description
         props = {
           balance,
-          title: "SEP-24 withdrawal",
+          title: `SEP-24 withdrawal ${balance.token.code}`,
           description: "SEP-24 withdrawal description",
           callback: () => handleSep24Withdraw(balance),
         };
         break;
-      case assetActionId.SEP31_SEND:
+      case AssetActionId.SEP31_SEND:
         // TODO: title + description
         props = {
           balance,
-          title: "SEP-31 send",
+          title: `SEP-31 send ${balance.token.code}`,
           description: "SEP-31 send description",
           callback: () => handleSep31Send(balance),
           // TODO: add options
@@ -159,61 +156,33 @@ export const Balance = ({
     <>
       {/* Native (XLM) balance */}
       {sortedBalances.native.map((balance) => (
-        <div className="BalanceRow" key={`${balance.token.code}:native`}>
-          <div className="BalanceCell">{`${balance.total || "0"} ${
-            balance.token.code
-          }`}</div>
-          <div className="BalanceCell">
-            <Select
-              id={`${balance.token.code}:native-actions`}
-              onChange={(e) =>
-                handleActionChange({ actionId: e.target.value, balance })
-              }
-            >
-              <option value="">Select action</option>
-              <option value={assetActionId.SEND_PAYMENT}>Send payment</option>
-            </Select>
-          </div>
-        </div>
+        <BalanceRow
+          key={`${balance.token.code}:native`}
+          asset={{
+            id: `${balance.token.code}:native`,
+            code: balance.token.code,
+            amount: balance.total.toString(),
+          }}
+          onChange={(e) =>
+            handleActionChange({ actionId: e.target.value, balance })
+          }
+        />
       ))}
 
       {/* Other balances */}
       {sortedBalances.other.map((balance) => (
-        <div
-          className="BalanceRow"
-          key={`${balance.token.code}:${balance.token.issuer.key}`}
-        >
-          <div className="BalanceCell">
-            <div>{`${balance.total || "0"} ${balance.token.code}`}</div>
-            {balance.supportedActions.homeDomain && (
-              <div>{balance.supportedActions.homeDomain}</div>
-            )}
-          </div>
-          <div className="BalannceCell">
-            <Select
-              id={`${balance.token.code}:${balance.token.issuer.key}-actions`}
-              onChange={(e) =>
-                handleActionChange({ actionId: e.target.value, balance })
-              }
-            >
-              <option value="">Select action</option>
-              <option value={assetActionId.SEND_PAYMENT}>Send payment</option>
-              {balance.supportedActions.sep24 && (
-                <>
-                  <option value={assetActionId.SEP24_DEPOSIT}>
-                    SEP-24 Deposit
-                  </option>
-                  <option value={assetActionId.SEP24_WITHDRAW}>
-                    SEP-24 Withdraw
-                  </option>
-                </>
-              )}
-              {balance.supportedActions.sep31 && (
-                <option value={assetActionId.SEP31_SEND}>SEP-31 Send</option>
-              )}
-            </Select>
-          </div>
-        </div>
+        <BalanceRow
+          key={`${balance.token.code}:${balance.token?.issuer?.key}`}
+          asset={{
+            id: `${balance.token.code}:${balance.token?.issuer?.key}`,
+            code: balance.token.code,
+            amount: balance.total.toString(),
+            supportedActions: balance?.supportedActions,
+          }}
+          onChange={(e) =>
+            handleActionChange({ actionId: e.target.value, balance })
+          }
+        />
       ))}
     </>
   );

@@ -197,7 +197,7 @@ export const Assets = ({
         <Heading2>Balances</Heading2>
         <div className="Balances">
           <Balance onSend={onSendPayment} onAssetAction={handleAssetAction} />
-          <UntrustedBalance />
+          <UntrustedBalance onAssetAction={handleAssetAction} />
         </div>
 
         <div className="BalancesButtons">

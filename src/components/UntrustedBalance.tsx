@@ -1,13 +1,29 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { TextButton } from "@stellar/design-system";
+import { BalanceRow } from "components/BalanceRow";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { trustAssetAction } from "ducks/trustAsset";
 import { addUntrustedAssetAction } from "ducks/untrustedAssets";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, UntrustedAsset } from "types/types.d";
+import {
+  ActionStatus,
+  UntrustedAsset,
+  AssetActionItem,
+  AssetActionId,
+} from "types/types.d";
 
-export const UntrustedBalance = () => {
+export const UntrustedBalance = ({
+  onAssetAction,
+}: {
+  onAssetAction: ({
+    balance,
+    callback,
+    title,
+    description,
+    options,
+  }: AssetActionItem) => void;
+}) => {
   const { settings, trustAsset, untrustedAssets } = useRedux(
     "settings",
     "trustAsset",
@@ -39,26 +55,77 @@ export const UntrustedBalance = () => {
     );
   };
 
+  const handleActionChange = ({
+    actionId,
+    asset,
+  }: {
+    actionId: string;
+    asset: UntrustedAsset;
+  }) => {
+    if (!actionId) {
+      return;
+    }
+
+    let props: AssetActionItem | undefined;
+
+    switch (actionId) {
+      case AssetActionId.SEP24_DEPOSIT:
+        // TODO: title + description
+        props = {
+          balance: asset,
+          title: `SEP-24 deposit ${asset.assetCode}`,
+          description: "Untrusted asset SEP-24 deposit description",
+          callback: () => handleDepositAsset(asset),
+        };
+        break;
+      case AssetActionId.TRUST_ASSET:
+        // TODO: title + description
+        props = {
+          balance: asset,
+          title: `Trust asset ${asset.assetCode}`,
+          description: "Trust asset description",
+          callback: () => handleTrustAsset(asset),
+        };
+        break;
+      default:
+      // nothing
+    }
+
+    if (!props) {
+      return;
+    }
+
+    onAssetAction(props);
+  };
+
   return (
     <>
       {untrustedAssets.data.map((asset: UntrustedAsset) => (
-        <div
-          className="BalanceRow"
-          key={`${asset.assetCode}:${asset.assetIssuer}`}
+        <BalanceRow
+          key={asset.assetString}
+          asset={{
+            id: asset.assetString,
+            code: asset.assetCode,
+            amount: asset.balance,
+            supportedActions: asset.supportedActions,
+            isUntrusted: true,
+          }}
+          onChange={(e) =>
+            handleActionChange({ actionId: e.target.value, asset })
+          }
         >
-          <div className="BalanceCell">{`0 ${asset.assetCode}`}</div>
-          <div className="BalannceCell Inline">
-            <TextButton
-              onClick={() => handleTrustAsset(asset)}
-              disabled={trustAsset.status === ActionStatus.PENDING}
-            >
-              Trust asset
-            </TextButton>
-            <TextButton onClick={() => handleDepositAsset(asset)}>
-              Deposit
-            </TextButton>
-          </div>
-        </div>
+          <TextButton
+            onClick={() =>
+              handleActionChange({
+                actionId: AssetActionId.TRUST_ASSET,
+                asset,
+              })
+            }
+            disabled={trustAsset.status === ActionStatus.PENDING}
+          >
+            Trust asset
+          </TextButton>
+        </BalanceRow>
       ))}
     </>
   );
