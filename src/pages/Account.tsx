@@ -1,25 +1,22 @@
 import { useState } from "react";
-import { Types } from "@stellar/wallet-sdk";
-
 import { AccountInfo } from "components/AccountInfo";
 import { Assets } from "components/Assets";
 import { Modal } from "components/Modal";
 import { SendPayment } from "components/SendPayment";
 import { Sep31Send } from "components/Sep31Send";
 import { useRedux } from "hooks/useRedux";
+import { Asset } from "types/types.d";
 
 export const Account = () => {
   const { account } = useRedux("account");
   const [sendPaymentModalVisible, setSendPaymentModalVisible] = useState(false);
-  const [currentAsset, setCurrentAsset] = useState<
-    Types.AssetBalance | undefined
-  >();
+  const [currentAsset, setCurrentAsset] = useState<Asset | undefined>();
 
   const handleCloseModal = () => {
     setSendPaymentModalVisible(false);
   };
 
-  const handleSendPayment = (asset?: Types.AssetBalance) => {
+  const handleSendPayment = (asset?: Asset) => {
     setCurrentAsset(asset);
     setSendPaymentModalVisible(true);
   };
@@ -29,7 +26,7 @@ export const Account = () => {
   }
 
   return (
-    <div className="Inset">
+    <>
       {/* Account */}
       <AccountInfo />
 
@@ -46,6 +43,6 @@ export const Account = () => {
         {/* Send payment */}
         <SendPayment asset={currentAsset} onClose={handleCloseModal} />
       </Modal>
-    </div>
+    </>
   );
 };

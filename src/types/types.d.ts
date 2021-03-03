@@ -2,9 +2,29 @@ import { ReactNode } from "react";
 import { Types } from "@stellar/wallet-sdk";
 import { Horizon, ServerApi } from "stellar-sdk";
 
+export interface Asset {
+  assetString: string;
+  assetCode: string;
+  assetIssuer: string;
+  assetType: string;
+  total: string;
+  homeDomain?: string;
+  supportedActions?: AssetSupportedActions;
+  isUntrusted?: boolean;
+  source: any;
+}
+
+export interface AssetSupportedActions {
+  sep6?: boolean;
+  sep24?: boolean;
+  sep31?: boolean;
+}
+
 export interface AccountInitialState {
   data: Types.AccountDetails | null;
-  assets: AnyObject;
+  assets: {
+    [key: string]: Asset;
+  };
   errorString?: string;
   isAuthenticated: boolean;
   isUnfunded: boolean;
@@ -59,7 +79,7 @@ export interface SettingsInitialState {
 }
 
 export interface UntrustedAssetsInitialState {
-  data: UntrustedAsset[];
+  data: Asset[];
   errorString?: string;
   status: ActionStatus | undefined;
 }
@@ -107,16 +127,6 @@ export interface Sep24WithdrawAssetInitialState {
   };
   errorString?: string;
   status: ActionStatus | undefined;
-}
-
-export interface UntrustedAsset {
-  assetCode: string;
-  assetIssuer: string;
-  assetString: string;
-  assetType: string;
-  balance: string;
-  untrusted: boolean;
-  supportedActions?: AssetSupportedActions;
 }
 
 export interface TrustAssetParam {
@@ -188,6 +198,7 @@ export interface CleanedClaimableBalanceRecord
 }
 
 export interface ActiveAsset {
+  id: string;
   title: string;
   description?: string;
   callback: (args?: any) => void;
@@ -195,18 +206,7 @@ export interface ActiveAsset {
 }
 
 export interface AssetActionItem extends ActiveAsset {
-  balance: any;
-}
-
-export interface AssetSupportedActions {
-  homeDomain: string;
-  sep6?: boolean;
-  sep24?: boolean;
-  sep31?: boolean;
-}
-
-export interface AssetWithSupportedActions extends Types.AssetBalance {
-  supportedActions: AssetSupportedActions;
+  balance: Asset;
 }
 
 export enum AssetActionId {

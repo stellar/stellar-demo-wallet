@@ -1,5 +1,7 @@
 import { Types } from "@stellar/wallet-sdk";
 import { getAssetSettingsFromToml } from "helpers/getAssetSettingsFromToml";
+import { normalizeAssetProps } from "helpers/normalizeAssetProps";
+import { Asset } from "types/types.d";
 
 // TODO: add logs
 export const getAssetData = async ({
@@ -11,7 +13,7 @@ export const getAssetData = async ({
 }) => {
   const allAssets = Object.entries(balances);
   const assets: {
-    [key: string]: Types.AssetBalance | Types.NativeBalance;
+    [key: string]: Asset;
   } = {};
 
   if (!allAssets?.length) {
@@ -23,12 +25,15 @@ export const getAssetData = async ({
     const [assetId, data] = allAssets[i];
 
     // eslint-disable-next-line no-await-in-loop
-    assets[assetId] = await getAssetSettingsFromToml<
-      Types.AssetBalance | Types.NativeBalance
-    >({
+    const { homeDomain, supportedActions } = await getAssetSettingsFromToml({
       assetId,
-      data,
       networkUrl,
+    });
+
+    assets[assetId] = normalizeAssetProps({
+      source: data,
+      homeDomain,
+      supportedActions,
     });
   }
 

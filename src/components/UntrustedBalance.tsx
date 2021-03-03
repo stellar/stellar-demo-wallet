@@ -8,13 +8,14 @@ import { addUntrustedAssetAction } from "ducks/untrustedAssets";
 import { useRedux } from "hooks/useRedux";
 import {
   ActionStatus,
-  UntrustedAsset,
+  Asset,
   AssetActionItem,
   AssetActionId,
 } from "types/types.d";
 
 export const UntrustedBalance = ({
   onAssetAction,
+  activeAssetId,
 }: {
   onAssetAction: ({
     balance,
@@ -23,6 +24,7 @@ export const UntrustedBalance = ({
     description,
     options,
   }: AssetActionItem) => void;
+  activeAssetId: string | undefined;
 }) => {
   const { settings, trustAsset, untrustedAssets } = useRedux(
     "settings",
@@ -40,12 +42,12 @@ export const UntrustedBalance = ({
     dispatch(addUntrustedAssetAction(settings.untrustedAssets));
   }, [settings.untrustedAssets, dispatch]);
 
-  const handleTrustAsset = (asset: UntrustedAsset) => {
+  const handleTrustAsset = (asset: Asset) => {
     const { assetString, assetCode, assetIssuer } = asset;
     dispatch(trustAssetAction({ assetString, assetCode, assetIssuer }));
   };
 
-  const handleDepositAsset = (asset: UntrustedAsset) => {
+  const handleDepositAsset = (asset: Asset) => {
     const { assetCode, assetIssuer } = asset;
     dispatch(
       depositAssetAction({
@@ -60,7 +62,7 @@ export const UntrustedBalance = ({
     asset,
   }: {
     actionId: string;
-    asset: UntrustedAsset;
+    asset: Asset;
   }) => {
     if (!actionId) {
       return;
@@ -72,6 +74,7 @@ export const UntrustedBalance = ({
       case AssetActionId.SEP24_DEPOSIT:
         // TODO: title + description
         props = {
+          id: asset.assetString,
           balance: asset,
           title: `SEP-24 deposit ${asset.assetCode}`,
           description: "Untrusted asset SEP-24 deposit description",
@@ -81,6 +84,7 @@ export const UntrustedBalance = ({
       case AssetActionId.TRUST_ASSET:
         // TODO: title + description
         props = {
+          id: asset.assetString,
           balance: asset,
           title: `Trust asset ${asset.assetCode}`,
           description: "Trust asset description",
@@ -100,16 +104,11 @@ export const UntrustedBalance = ({
 
   return (
     <>
-      {untrustedAssets.data.map((asset: UntrustedAsset) => (
+      {untrustedAssets.data.map((asset: Asset) => (
         <BalanceRow
+          activeAssetId={activeAssetId}
           key={asset.assetString}
-          asset={{
-            id: asset.assetString,
-            code: asset.assetCode,
-            amount: asset.balance,
-            supportedActions: asset.supportedActions,
-            isUntrusted: true,
-          }}
+          asset={asset}
           onChange={(e) =>
             handleActionChange({ actionId: e.target.value, asset })
           }

@@ -1,27 +1,28 @@
 import { Server } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 import { getAssetSettingsFromToml } from "helpers/getAssetSettingsFromToml";
+import { normalizeAssetProps } from "helpers/normalizeAssetProps";
 import { log } from "helpers/log";
-import { UntrustedAsset } from "types/types.d";
+import { Asset } from "types/types.d";
 
-interface GetAssetRecordProps {
+interface GetUntrustedAssetDataProps {
   assetsToAdd: string[];
   accountAssets?: Types.BalanceMap;
   networkUrl: string;
 }
 
-export const getAssetRecord = async ({
+export const getUntrustedAssetData = async ({
   assetsToAdd,
   accountAssets,
   networkUrl,
-}: GetAssetRecordProps) => {
+}: GetUntrustedAssetDataProps) => {
   log.instruction({ title: "Start getting asset record" });
 
   if (!assetsToAdd.length) {
     log.instruction({ title: `No assets to fetch.` });
   }
 
-  let response: UntrustedAsset[] = [];
+  let response: Asset[] = [];
 
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < assetsToAdd.length; i++) {
@@ -53,17 +54,19 @@ export const getAssetRecord = async ({
       });
 
       // eslint-disable-next-line no-await-in-loop
-      const data = await getAssetSettingsFromToml<UntrustedAsset>({
+      const { homeDomain, supportedActions } = await getAssetSettingsFromToml({
         assetId: assetString,
-        data: {
-          assetString,
-          assetCode,
-          assetIssuer,
-          balance: "0.0000000",
-          assetType: assetResponse.records[0].asset_type,
-          untrusted: true,
-        },
         networkUrl,
+      });
+
+      // eslint-disable-next-line no-await-in-loop
+      const data = normalizeAssetProps({
+        assetCode,
+        assetIssuer,
+        assetType: assetResponse.records[0].asset_type,
+        homeDomain,
+        supportedActions,
+        isUntrusted: true,
       });
 
       response = [...response, data];

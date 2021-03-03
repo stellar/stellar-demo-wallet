@@ -1,24 +1,20 @@
-import { Types } from "@stellar/wallet-sdk";
 import { useDispatch } from "react-redux";
 import { BalanceRow } from "components/BalanceRow";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { fetchSendFieldsAction } from "ducks/sep31Send";
 import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
-import {
-  AssetActionItem,
-  AssetWithSupportedActions,
-  AssetActionId,
-} from "types/types.d";
+import { Asset, AssetActionItem, AssetActionId } from "types/types.d";
 
 interface SortedBalancesResult {
-  native: Types.NativeBalance[];
-  other: AssetWithSupportedActions[];
+  native: Asset[];
+  other: Asset[];
 }
 
 export const Balance = ({
   onAssetAction,
   onSend,
+  activeAssetId,
 }: {
   onAssetAction: ({
     balance,
@@ -27,7 +23,8 @@ export const Balance = ({
     description,
     options,
   }: AssetActionItem) => void;
-  onSend: (asset?: Types.AssetBalance) => void;
+  onSend: (asset?: Asset) => void;
+  activeAssetId: string | undefined;
 }) => {
   const { account } = useRedux("account");
   const allBalances = account?.assets;
@@ -45,8 +42,8 @@ export const Balance = ({
     };
 
     Object.values(allBalances).map((balance) => {
-      if (balance.token.type === "native") {
-        result.native = [...result.native, balance as Types.NativeBalance];
+      if (balance.assetType === "native") {
+        result.native = [...result.native, balance];
       } else {
         result.other = [...result.other, balance];
       }
@@ -57,29 +54,29 @@ export const Balance = ({
     return result;
   };
 
-  const handleSep24Deposit = (asset: Types.AssetBalance) => {
+  const handleSep24Deposit = (asset: Asset) => {
     dispatch(
       depositAssetAction({
-        assetCode: asset.token.code,
-        assetIssuer: asset.token.issuer.key,
+        assetCode: asset.assetCode,
+        assetIssuer: asset.assetIssuer,
       }),
     );
   };
 
-  const handleSep24Withdraw = (asset: Types.AssetBalance) => {
+  const handleSep24Withdraw = (asset: Asset) => {
     dispatch(
       withdrawAssetAction({
-        assetCode: asset.token.code,
-        assetIssuer: asset.token.issuer.key,
+        assetCode: asset.assetCode,
+        assetIssuer: asset.assetIssuer,
       }),
     );
   };
 
-  const handleSep31Send = (asset: Types.AssetBalance) => {
+  const handleSep31Send = (asset: Asset) => {
     dispatch(
       fetchSendFieldsAction({
-        assetCode: asset.token.code,
-        assetIssuer: asset.token.issuer.key,
+        assetCode: asset.assetCode,
+        assetIssuer: asset.assetIssuer,
       }),
     );
   };
@@ -89,7 +86,7 @@ export const Balance = ({
     balance,
   }: {
     actionId: string;
-    balance: any;
+    balance: Asset;
   }) => {
     if (!actionId) {
       return;
@@ -101,8 +98,9 @@ export const Balance = ({
       case AssetActionId.SEND_PAYMENT:
         // TODO: title + description
         props = {
+          id: balance.assetString,
           balance,
-          title: `Send payment ${balance.token.code}`,
+          title: `Send payment ${balance.assetCode}`,
           description: "Send payment description",
           callback: onSend,
         };
@@ -110,8 +108,9 @@ export const Balance = ({
       case AssetActionId.SEP24_DEPOSIT:
         // TODO: title + description
         props = {
+          id: balance.assetString,
           balance,
-          title: `SEP-24 deposit ${balance.token.code}`,
+          title: `SEP-24 deposit ${balance.assetCode}`,
           description: "SEP-24 deposit description",
           callback: () => handleSep24Deposit(balance),
         };
@@ -119,8 +118,9 @@ export const Balance = ({
       case AssetActionId.SEP24_WITHDRAW:
         // TODO: title + description
         props = {
+          id: balance.assetString,
           balance,
-          title: `SEP-24 withdrawal ${balance.token.code}`,
+          title: `SEP-24 withdrawal ${balance.assetCode}`,
           description: "SEP-24 withdrawal description",
           callback: () => handleSep24Withdraw(balance),
         };
@@ -128,8 +128,9 @@ export const Balance = ({
       case AssetActionId.SEP31_SEND:
         // TODO: title + description
         props = {
+          id: balance.assetString,
           balance,
-          title: `SEP-31 send ${balance.token.code}`,
+          title: `SEP-31 send ${balance.assetCode}`,
           description: "SEP-31 send description",
           callback: () => handleSep31Send(balance),
           // TODO: add options
@@ -157,12 +158,9 @@ export const Balance = ({
       {/* Native (XLM) balance */}
       {sortedBalances.native.map((balance) => (
         <BalanceRow
-          key={`${balance.token.code}:native`}
-          asset={{
-            id: `${balance.token.code}:native`,
-            code: balance.token.code,
-            amount: balance.total.toString(),
-          }}
+          key={balance.assetString}
+          activeAssetId={activeAssetId}
+          asset={balance}
           onChange={(e) =>
             handleActionChange({ actionId: e.target.value, balance })
           }
@@ -172,13 +170,9 @@ export const Balance = ({
       {/* Other balances */}
       {sortedBalances.other.map((balance) => (
         <BalanceRow
-          key={`${balance.token.code}:${balance.token?.issuer?.key}`}
-          asset={{
-            id: `${balance.token.code}:${balance.token?.issuer?.key}`,
-            code: balance.token.code,
-            amount: balance.total.toString(),
-            supportedActions: balance?.supportedActions,
-          }}
+          activeAssetId={activeAssetId}
+          key={balance.assetString}
+          asset={balance}
           onChange={(e) =>
             handleActionChange({ actionId: e.target.value, balance })
           }

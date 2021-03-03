@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { Button, Heading2 } from "@stellar/design-system";
-import { Types } from "@stellar/wallet-sdk";
 
 import { AddAsset } from "components/AddAsset";
 import { Balance } from "components/Balance";
@@ -21,12 +20,17 @@ import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
 import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, ActiveAsset, AssetActionItem } from "types/types.d";
+import {
+  Asset,
+  ActionStatus,
+  ActiveAsset,
+  AssetActionItem,
+} from "types/types.d";
 
 export const Assets = ({
   onSendPayment,
 }: {
-  onSendPayment: (asset?: Types.AssetBalance) => void;
+  onSendPayment: (asset?: Asset) => void;
 }) => {
   const {
     account,
@@ -92,6 +96,7 @@ export const Assets = ({
   };
 
   const handleAssetAction = ({
+    id,
     balance,
     callback,
     title,
@@ -99,6 +104,7 @@ export const Assets = ({
     options,
   }: AssetActionItem) => {
     setActiveItem({
+      id,
       title,
       description,
       callback: () => {
@@ -194,13 +200,22 @@ export const Assets = ({
     <>
       {/* Balances */}
       <div className="Section">
-        <Heading2>Balances</Heading2>
+        <div className="Inset">
+          <Heading2>Balances</Heading2>
+        </div>
         <div className="Balances">
-          <Balance onSend={onSendPayment} onAssetAction={handleAssetAction} />
-          <UntrustedBalance onAssetAction={handleAssetAction} />
+          <Balance
+            onSend={onSendPayment}
+            onAssetAction={handleAssetAction}
+            activeAssetId={activeItem?.id}
+          />
+          <UntrustedBalance
+            onAssetAction={handleAssetAction}
+            activeAssetId={activeItem?.id}
+          />
         </div>
 
-        <div className="BalancesButtons">
+        <div className="BalancesButtons Inset">
           <Button onClick={() => setActiveModal(modalType.ADD_ASSET)}>
             Add asset
           </Button>
