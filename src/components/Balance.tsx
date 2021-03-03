@@ -14,7 +14,6 @@ interface SortedBalancesResult {
 export const Balance = ({
   onAssetAction,
   onSend,
-  activeAssetId,
 }: {
   onAssetAction: ({
     balance,
@@ -24,9 +23,8 @@ export const Balance = ({
     options,
   }: AssetActionItem) => void;
   onSend: (asset?: Asset) => void;
-  activeAssetId: string | undefined;
 }) => {
-  const { account } = useRedux("account");
+  const { account, activeAsset } = useRedux("account", "activeAsset");
   const allBalances = account?.assets;
 
   const dispatch = useDispatch();
@@ -159,7 +157,7 @@ export const Balance = ({
       {sortedBalances.native.map((balance) => (
         <BalanceRow
           key={balance.assetString}
-          activeAssetId={activeAssetId}
+          activeAsset={activeAsset.asset}
           asset={balance}
           onChange={(e) =>
             handleActionChange({ actionId: e.target.value, balance })
@@ -170,7 +168,7 @@ export const Balance = ({
       {/* Other balances */}
       {sortedBalances.other.map((balance) => (
         <BalanceRow
-          activeAssetId={activeAssetId}
+          activeAsset={activeAsset.asset}
           key={balance.assetString}
           asset={balance}
           onChange={(e) =>

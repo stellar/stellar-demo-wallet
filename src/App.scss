@@ -191,6 +191,19 @@ body {
     padding-top: 1rem;
     padding-bottom: 1rem;
 
+    &.disabled {
+      background-color: var(--color-background-off);
+      cursor: not-allowed;
+
+      .BalanceCell.BalanceInfo {
+        opacity: 0.6;
+      }
+
+      a {
+        pointer-events: none;
+      }
+    }
+
     &.active {
       background-color: #dfd8ff;
     }

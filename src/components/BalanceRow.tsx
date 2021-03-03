@@ -1,16 +1,16 @@
 import { ReactNode } from "react";
 import { Select, TextLink } from "@stellar/design-system";
-import { Asset, AssetActionId } from "types/types.d";
+import { Asset, ActiveAsset, AssetActionId } from "types/types.d";
 
 interface BalanceRowProps {
-  activeAssetId: string | undefined;
+  activeAsset: ActiveAsset | undefined;
   asset: Asset;
   onChange: (e: any) => void;
   children?: ReactNode;
 }
 
 export const BalanceRow = ({
-  activeAssetId,
+  activeAsset,
   asset,
   onChange,
   children,
@@ -23,11 +23,14 @@ export const BalanceRow = ({
     isUntrusted,
     homeDomain,
   } = asset;
-  const isActive = activeAssetId === assetString;
+  const isActive = activeAsset?.id === assetString;
+  const disabled = Boolean(activeAsset);
 
   return (
     <div
-      className={`BalanceRow Inset ${isActive ? "active" : ""}`}
+      className={`BalanceRow Inset ${isActive ? "active" : ""} ${
+        disabled ? "disabled" : ""
+      }`}
       key={assetString}
     >
       <div className="BalanceCell BalanceInfo">
@@ -48,7 +51,11 @@ export const BalanceRow = ({
         {children && <div className="CustomCell">{children}</div>}
 
         <div className="BalanceCellSelect">
-          <Select id={`${assetString}-actions`} onChange={onChange}>
+          <Select
+            id={`${assetString}-actions`}
+            onChange={onChange}
+            disabled={disabled}
+          >
             <option value="">Select action</option>
             {!isUntrusted && (
               <option value={AssetActionId.SEND_PAYMENT}>Send payment</option>

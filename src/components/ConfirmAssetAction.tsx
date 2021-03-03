@@ -1,14 +1,14 @@
 import { Button, ButtonVariant, Heading2 } from "@stellar/design-system";
-import { ActiveAsset } from "types/types.d";
+import { useRedux } from "hooks/useRedux";
 
-export const ConfirmAssetAction = ({
-  activeItem,
-  onClose,
-}: {
-  activeItem: ActiveAsset;
-  onClose: () => void;
-}) => {
-  const { title, description, callback, options } = activeItem;
+export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
+  const { activeAsset } = useRedux("activeAsset");
+
+  if (!activeAsset?.asset) {
+    return null;
+  }
+
+  const { title, description, callback, options } = activeAsset.asset;
 
   return (
     <>

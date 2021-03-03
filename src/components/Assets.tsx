@@ -11,6 +11,7 @@ import { Modal } from "components/Modal";
 import { UntrustedBalance } from "components/UntrustedBalance";
 
 import { fetchAccountAction } from "ducks/account";
+import { setActiveAsset, resetActiveAsset } from "ducks/activeAsset";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetSep24DepositAssetAction } from "ducks/sep24DepositAsset";
@@ -20,12 +21,7 @@ import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
 import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
 import { useRedux } from "hooks/useRedux";
-import {
-  Asset,
-  ActionStatus,
-  ActiveAsset,
-  AssetActionItem,
-} from "types/types.d";
+import { Asset, ActionStatus, AssetActionItem } from "types/types.d";
 
 export const Assets = ({
   onSendPayment,
@@ -47,15 +43,14 @@ export const Assets = ({
   );
 
   const [activeModal, setActiveModal] = useState("");
-  const [activeItem, setActiveItem] = useState<ActiveAsset>();
 
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
 
   enum modalType {
-    SEND_PAYMENT = "SEND_PAYMENT",
     ADD_ASSET = "ADD_ASSET",
+    CONFIRM_ACTION = "CONFIRM_ACTION",
   }
 
   const handleRemoveUntrustedAsset = useCallback(
@@ -92,7 +87,7 @@ export const Assets = ({
 
   const handleCloseModal = () => {
     setActiveModal("");
-    setActiveItem(undefined);
+    dispatch(resetActiveAsset());
   };
 
   const handleAssetAction = ({
@@ -103,16 +98,19 @@ export const Assets = ({
     description,
     options,
   }: AssetActionItem) => {
-    setActiveItem({
-      id,
-      title,
-      description,
-      callback: () => {
-        setActiveItem(undefined);
-        callback(balance);
-      },
-      options,
-    });
+    setActiveModal(modalType.CONFIRM_ACTION);
+    dispatch(
+      setActiveAsset({
+        id,
+        title,
+        description,
+        callback: () => {
+          setActiveModal("");
+          callback(balance);
+        },
+        options,
+      }),
+    );
   };
 
   // Trust asset
@@ -204,15 +202,8 @@ export const Assets = ({
           <Heading2>Balances</Heading2>
         </div>
         <div className="Balances">
-          <Balance
-            onSend={onSendPayment}
-            onAssetAction={handleAssetAction}
-            activeAssetId={activeItem?.id}
-          />
-          <UntrustedBalance
-            onAssetAction={handleAssetAction}
-            activeAssetId={activeItem?.id}
-          />
+          <Balance onSend={onSendPayment} onAssetAction={handleAssetAction} />
+          <UntrustedBalance onAssetAction={handleAssetAction} />
         </div>
 
         <div className="BalancesButtons Inset">
@@ -225,16 +216,10 @@ export const Assets = ({
       {/* Claimable balances */}
       <ClaimableBalance />
 
-      <Modal
-        visible={Boolean(activeModal || activeItem)}
-        onClose={handleCloseModal}
-      >
+      <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
         {/* Action confirmation */}
-        {activeItem && (
-          <ConfirmAssetAction
-            activeItem={activeItem}
-            onClose={handleCloseModal}
-          />
+        {activeModal === modalType.CONFIRM_ACTION && (
+          <ConfirmAssetAction onClose={handleCloseModal} />
         )}
 
         {/* Add asset */}

@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { AccountInfo } from "components/AccountInfo";
 import { Assets } from "components/Assets";
 import { Modal } from "components/Modal";
 import { SendPayment } from "components/SendPayment";
 import { Sep31Send } from "components/Sep31Send";
+import { resetActiveAsset } from "ducks/activeAsset";
 import { useRedux } from "hooks/useRedux";
 import { Asset } from "types/types.d";
 
@@ -12,8 +14,11 @@ export const Account = () => {
   const [sendPaymentModalVisible, setSendPaymentModalVisible] = useState(false);
   const [currentAsset, setCurrentAsset] = useState<Asset | undefined>();
 
+  const dispatch = useDispatch();
+
   const handleCloseModal = () => {
     setSendPaymentModalVisible(false);
+    dispatch(resetActiveAsset());
   };
 
   const handleSendPayment = (asset?: Asset) => {

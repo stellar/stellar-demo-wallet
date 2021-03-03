@@ -12,6 +12,7 @@ import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
 import { fetchAccountAction } from "ducks/account";
+import { resetActiveAsset } from "ducks/activeAsset";
 import { sendPaymentAction, resetSendPaymentAction } from "ducks/sendPayment";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
@@ -56,6 +57,7 @@ export const SendPayment = ({
         }),
       );
       dispatch(resetSendPaymentAction());
+      dispatch(resetActiveAsset());
       resetFormState();
       onClose();
     }

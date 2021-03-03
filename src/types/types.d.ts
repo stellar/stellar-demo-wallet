@@ -32,6 +32,11 @@ export interface AccountInitialState {
   status: ActionStatus | undefined;
 }
 
+export interface ActiveAssetInitialState {
+  asset: ActiveAsset | undefined;
+  status: ActionStatus | undefined;
+}
+
 export interface ClaimAssetInitialState {
   data: {
     result: any;
@@ -151,6 +156,7 @@ export interface LogItemProps {
 
 export interface Store {
   account: AccountInitialState;
+  activeAsset: ActiveAssetInitialState;
   claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
   logs: LogsInitialState;

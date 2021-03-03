@@ -15,7 +15,6 @@ import {
 
 export const UntrustedBalance = ({
   onAssetAction,
-  activeAssetId,
 }: {
   onAssetAction: ({
     balance,
@@ -24,9 +23,9 @@ export const UntrustedBalance = ({
     description,
     options,
   }: AssetActionItem) => void;
-  activeAssetId: string | undefined;
 }) => {
-  const { settings, trustAsset, untrustedAssets } = useRedux(
+  const { activeAsset, settings, trustAsset, untrustedAssets } = useRedux(
+    "activeAsset",
     "settings",
     "trustAsset",
     "untrustedAssets",
@@ -106,7 +105,7 @@ export const UntrustedBalance = ({
     <>
       {untrustedAssets.data.map((asset: Asset) => (
         <BalanceRow
-          activeAssetId={activeAssetId}
+          activeAsset={activeAsset.asset}
           key={asset.assetString}
           asset={asset}
           onChange={(e) =>
@@ -120,7 +119,10 @@ export const UntrustedBalance = ({
                 asset,
               })
             }
-            disabled={trustAsset.status === ActionStatus.PENDING}
+            disabled={
+              Boolean(activeAsset.asset) ||
+              trustAsset.status === ActionStatus.PENDING
+            }
           >
             Trust asset
           </TextButton>
