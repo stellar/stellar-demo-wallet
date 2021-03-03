@@ -1,17 +1,22 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
-import { Button, Heading2 } from "@stellar/design-system";
+import { Button, Heading2, Loader } from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
 import { Balance } from "components/Balance";
 import { ClaimableBalance } from "components/ClaimableBalance";
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
 import { Modal } from "components/Modal";
+import { ToastBanner } from "components/ToastBanner";
 import { UntrustedBalance } from "components/UntrustedBalance";
 
 import { fetchAccountAction } from "ducks/account";
-import { setActiveAsset, resetActiveAsset } from "ducks/activeAsset";
+import {
+  setActiveAsset,
+  setActiveAssetStatus,
+  resetActiveAsset,
+} from "ducks/activeAsset";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetSep24DepositAssetAction } from "ducks/sep24DepositAsset";
@@ -30,12 +35,14 @@ export const Assets = ({
 }) => {
   const {
     account,
+    activeAsset,
     claimAsset,
     sep24DepositAsset,
     sep24WithdrawAsset,
     trustAsset,
   } = useRedux(
     "account",
+    "activeAsset",
     "claimAsset",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
@@ -43,6 +50,7 @@ export const Assets = ({
   );
 
   const [activeModal, setActiveModal] = useState("");
+  const [toastMessage, setToastMessage] = useState<string | React.ReactNode>();
 
   const dispatch = useDispatch();
   const history = useHistory();
@@ -113,6 +121,27 @@ export const Assets = ({
     );
   };
 
+  const setActiveAssetStatusAndToastMessage = useCallback(
+    ({
+      status,
+      message,
+    }: {
+      status: ActionStatus | undefined;
+      message: string | React.ReactNode;
+    }) => {
+      if (status === ActionStatus.SUCCESS || status === ActionStatus.ERROR) {
+        dispatch(resetActiveAsset());
+        setToastMessage(undefined);
+      }
+
+      if (status === ActionStatus.PENDING) {
+        dispatch(setActiveAssetStatus(ActionStatus.PENDING));
+        setToastMessage(message);
+      }
+    },
+    [dispatch],
+  );
+
   // Trust asset
   useEffect(() => {
     if (trustAsset.status === ActionStatus.SUCCESS) {
@@ -126,10 +155,16 @@ export const Assets = ({
       dispatch(resetTrustAssetAction());
       handleRefreshAccount();
     }
+
+    setActiveAssetStatusAndToastMessage({
+      status: trustAsset.status,
+      message: "Trust asset in progress",
+    });
   }, [
     trustAsset.status,
     trustAsset.assetString,
     handleRefreshAccount,
+    setActiveAssetStatusAndToastMessage,
     location,
     dispatch,
     history,
@@ -145,7 +180,13 @@ export const Assets = ({
       dispatch(resetSep24DepositAssetAction());
       handleRefreshAccount();
       handleFetchClaimableBalances();
+      dispatch(resetActiveAsset());
     }
+
+    setActiveAssetStatusAndToastMessage({
+      status: sep24DepositAsset.status,
+      message: "SEP-24 deposit in progress",
+    });
   }, [
     sep24DepositAsset.status,
     sep24DepositAsset.data.currentStatus,
@@ -153,6 +194,7 @@ export const Assets = ({
     handleRefreshAccount,
     handleFetchClaimableBalances,
     handleRemoveUntrustedAsset,
+    setActiveAssetStatusAndToastMessage,
     location,
     dispatch,
     history,
@@ -167,10 +209,16 @@ export const Assets = ({
       dispatch(resetSep24WithdrawAssetAction());
       handleRefreshAccount();
     }
+
+    setActiveAssetStatusAndToastMessage({
+      status: sep24WithdrawAsset.status,
+      message: "SEP-24 withdrawal in progress",
+    });
   }, [
     sep24WithdrawAsset.status,
     sep24WithdrawAsset.data.currentStatus,
     handleRefreshAccount,
+    setActiveAssetStatusAndToastMessage,
     location,
     dispatch,
     history,
@@ -184,6 +232,11 @@ export const Assets = ({
       handleRefreshAccount();
       handleFetchClaimableBalances();
     }
+
+    setActiveAssetStatusAndToastMessage({
+      status: claimAsset.status,
+      message: "Claim asset in progress",
+    });
   }, [
     claimAsset.status,
     claimAsset.data.trustedAssetAdded,
@@ -191,6 +244,7 @@ export const Assets = ({
     handleRefreshAccount,
     handleFetchClaimableBalances,
     handleRemoveUntrustedAsset,
+    setActiveAssetStatusAndToastMessage,
     dispatch,
   ]);
 
@@ -207,7 +261,10 @@ export const Assets = ({
         </div>
 
         <div className="BalancesButtons Inset">
-          <Button onClick={() => setActiveModal(modalType.ADD_ASSET)}>
+          <Button
+            onClick={() => setActiveModal(modalType.ADD_ASSET)}
+            disabled={Boolean(activeAsset.asset)}
+          >
             Add asset
           </Button>
         </div>
@@ -227,6 +284,13 @@ export const Assets = ({
           <AddAsset onClose={handleCloseModal} />
         )}
       </Modal>
+
+      <ToastBanner parentId="app-wrapper" visible={Boolean(toastMessage)}>
+        <div className="Inline">
+          <div>{toastMessage}</div>
+          <Loader />
+        </div>
+      </ToastBanner>
     </>
   );
 };
