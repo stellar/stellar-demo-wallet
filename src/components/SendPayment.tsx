@@ -94,72 +94,70 @@ export const SendPayment = ({
 
   return (
     <>
-      <div className="SendForm Block">
-        <Heading2 className="ModalHeading">Send payment</Heading2>
+      <Heading2 className="ModalHeading">Send payment</Heading2>
 
-        <div className="ModalBody">
+      <div className="ModalBody">
+        <Input
+          id="send-destination"
+          label="Destination"
+          value={destination}
+          onChange={(e) => setDestination(e.target.value)}
+          onBlur={() => {
+            checkAndSetIsDestinationFunded();
+          }}
+        />
+        <Input
+          id="send-amount"
+          label="Amount"
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
+        <Input
+          id="send-asset-code"
+          label="Asset code"
+          value={assetCode}
+          onChange={(e) => setAssetCode(e.target.value)}
+        />
+        {asset?.assetType !== "native" && (
           <Input
-            id="send-destination"
-            label="Destination"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            onBlur={() => {
-              checkAndSetIsDestinationFunded();
-            }}
+            id="send-asset-issuer"
+            label="Asset issuer"
+            value={assetIssuer}
+            onChange={(e) => setAssetIssuer(e.target.value)}
           />
-          <Input
-            id="send-amount"
-            label="Amount"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
-          <Input
-            id="send-asset-code"
-            label="Asset code"
-            value={assetCode}
-            onChange={(e) => setAssetCode(e.target.value)}
-          />
-          {asset?.assetType !== "native" && (
-            <Input
-              id="send-asset-issuer"
-              label="Asset issuer"
-              value={assetIssuer}
-              onChange={(e) => setAssetIssuer(e.target.value)}
-            />
-          )}
-
-          {!isDestinationFunded && (
-            <InfoBlock>
-              The destination account doesn’t exist. A create account operation
-              will be used to create this account.{" "}
-              <TextLink
-                href="https://developers.stellar.org/docs/tutorials/create-account/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Learn more about account creation
-              </TextLink>
-            </InfoBlock>
-          )}
-        </div>
-
-        {sendPayment.errorString && (
-          <div className="ModalMessage error">
-            <p>{sendPayment.errorString}</p>
-          </div>
         )}
 
-        <div className="ModalButtonsFooter">
-          {sendPayment.status === ActionStatus.PENDING && <Loader />}
+        {!isDestinationFunded && (
+          <InfoBlock>
+            The destination account doesn’t exist. A create account operation
+            will be used to create this account.{" "}
+            <TextLink
+              href="https://developers.stellar.org/docs/tutorials/create-account/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Learn more about account creation
+            </TextLink>
+          </InfoBlock>
+        )}
+      </div>
 
-          <Button
-            onClick={handleSubmit}
-            disabled={sendPayment.status === ActionStatus.PENDING}
-          >
-            Submit
-          </Button>
+      {sendPayment.errorString && (
+        <div className="ModalMessage error">
+          <p>{sendPayment.errorString}</p>
         </div>
+      )}
+
+      <div className="ModalButtonsFooter">
+        {sendPayment.status === ActionStatus.PENDING && <Loader />}
+
+        <Button
+          onClick={handleSubmit}
+          disabled={sendPayment.status === ActionStatus.PENDING}
+        >
+          Submit
+        </Button>
       </div>
     </>
   );
