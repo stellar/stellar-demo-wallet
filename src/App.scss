@@ -188,15 +188,90 @@ body {
 
   .BalanceRow {
     border-bottom: 1px solid var(--color-border-main);
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+
+    &.disabled {
+      background-color: var(--color-background-off);
+      cursor: not-allowed;
+
+      .BalanceCell.BalanceInfo {
+        opacity: 0.6;
+      }
+
+      a {
+        pointer-events: none;
+      }
+    }
+
+    &.active {
+      background-color: #dfd8ff;
+    }
   }
 
   .BalanceCell {
     position: relative;
+
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+
+    & > :not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+
+    &.BalanceInfo {
+      .BalanceAmount {
+        font-size: 1.1em;
+        font-weight: var(--font-weight-medium);
+      }
+
+      .BalanceHomeDomain {
+        margin-top: 0.3rem;
+      }
+    }
+
+    &.BalanceActions {
+      .CustomCell {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  @media (min-width: 1020px) {
+    .BalanceRow {
+      padding-top: 0.7rem;
+      padding-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .BalanceCell {
+      &:not(:last-child) {
+        margin-bottom: 0;
+      }
+
+      & > :not(:last-child) {
+        margin-bottom: 0;
+      }
+
+      &.BalanceActions {
+        display: flex;
+
+        .BalanceCellSelect {
+          width: 12rem;
+          flex-grow: 0;
+          flex-shrink: 0;
+        }
+
+        .CustomCell {
+          margin-right: 1rem;
+          justify-content: flex-end;
+        }
+      }
+    }
   }
 }
 

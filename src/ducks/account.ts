@@ -4,6 +4,7 @@ import { Keypair } from "stellar-sdk";
 
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
+import { getAssetData } from "helpers/getAssetData";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
@@ -11,6 +12,7 @@ import {
   ActionStatus,
   RejectMessage,
   AccountInitialState,
+  AnyObject,
 } from "types/types.d";
 
 interface UnfundedAccount extends Types.AccountDetails {
@@ -24,6 +26,7 @@ interface AccountKeyPair {
 
 interface FetchAccountActionResponse {
   data: Types.AccountDetails | UnfundedAccount;
+  assets: AnyObject;
   secretKey: string;
   isUnfunded: boolean;
 }
@@ -38,14 +41,16 @@ export const fetchAccountAction = createAsyncThunk<
     log.instruction({ title: "Getting account info" });
 
     const { pubnet } = settingsSelector(getState());
+    const networkConfig = getNetworkConfig(pubnet);
 
     const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig(pubnet).url,
+      serverUrl: networkConfig.url,
       accountOrKey: publicKey,
-      networkPassphrase: getNetworkConfig(pubnet).network,
+      networkPassphrase: networkConfig.network,
     });
 
     let stellarAccount: Types.AccountDetails | null = null;
+    let assets = {};
     let isUnfunded = false;
 
     log.request({
@@ -58,6 +63,10 @@ export const fetchAccountAction = createAsyncThunk<
 
       if (accountIsFunded) {
         stellarAccount = await dataProvider.fetchAccountDetails();
+        assets = await getAssetData({
+          balances: stellarAccount.balances,
+          networkUrl: networkConfig.url,
+        });
       } else {
         log.instruction({ title: `Account is not funded` });
         stellarAccount = {
@@ -81,7 +90,7 @@ export const fetchAccountAction = createAsyncThunk<
       body: stellarAccount,
     });
 
-    return { data: stellarAccount, isUnfunded, secretKey };
+    return { data: stellarAccount, assets, isUnfunded, secretKey };
   },
 );
 
@@ -107,7 +116,7 @@ export const createRandomAccount = createAsyncThunk<
 });
 
 export const fundTestnetAccount = createAsyncThunk<
-  { data: Types.AccountDetails; isUnfunded: boolean },
+  { data: Types.AccountDetails; assets: AnyObject; isUnfunded: boolean },
   string,
   { rejectValue: RejectMessage; state: RootState }
 >(
@@ -118,23 +127,28 @@ export const fundTestnetAccount = createAsyncThunk<
     });
 
     const { pubnet } = settingsSelector(getState());
+    const networkConfig = getNetworkConfig(pubnet);
 
     const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig(pubnet).url,
+      serverUrl: networkConfig.url,
       accountOrKey: publicKey,
-      networkPassphrase: getNetworkConfig(pubnet).network,
+      networkPassphrase: networkConfig.network,
     });
 
     try {
       await fetch(`https://friendbot.stellar.org?addr=${publicKey}`);
       const stellarAccount = await dataProvider.fetchAccountDetails();
+      const assets = await getAssetData({
+        balances: stellarAccount.balances,
+        networkUrl: networkConfig.url,
+      });
 
       log.response({
         title: "The friendbot funded your account",
         body: stellarAccount,
       });
 
-      return { data: stellarAccount, isUnfunded: false };
+      return { data: stellarAccount, assets, isUnfunded: false };
     } catch (error) {
       log.error({
         title: "The friendbot funding failed",
@@ -151,6 +165,7 @@ export const fundTestnetAccount = createAsyncThunk<
 
 const initialState: AccountInitialState = {
   data: null,
+  assets: {},
   errorString: undefined,
   isAuthenticated: false,
   isUnfunded: false,
@@ -170,6 +185,7 @@ const accountSlice = createSlice({
     });
     builder.addCase(fetchAccountAction.fulfilled, (state, action) => {
       state.data = action.payload.data;
+      state.assets = action.payload.assets;
       state.isAuthenticated = Boolean(action.payload.data);
       state.isUnfunded = action.payload.isUnfunded;
       state.secretKey = action.payload.secretKey;
@@ -197,6 +213,7 @@ const accountSlice = createSlice({
     });
     builder.addCase(fundTestnetAccount.fulfilled, (state, action) => {
       state.data = action.payload.data;
+      state.assets = action.payload.assets;
       state.isUnfunded = action.payload.isUnfunded;
       state.status = ActionStatus.SUCCESS;
     });

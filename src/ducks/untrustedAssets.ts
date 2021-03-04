@@ -1,16 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import StellarSdk from "stellar-sdk";
-
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
-import { getAssetRecord } from "helpers/getAssetRecord";
+import { getUntrustedAssetData } from "helpers/getUntrustedAssetData";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import {
   ActionStatus,
   RejectMessage,
-  UntrustedAsset,
+  Asset,
   UntrustedAssetsInitialState,
 } from "types/types.d";
 
@@ -19,7 +17,7 @@ const removeExistingAssets = ({
   untrustedAssets,
 }: {
   assetsString: string;
-  untrustedAssets: UntrustedAsset[];
+  untrustedAssets: Asset[];
 }) => {
   const assetsArray = assetsString.split(",");
 
@@ -35,7 +33,7 @@ const removeExistingAssets = ({
 };
 
 export const addUntrustedAssetAction = createAsyncThunk<
-  UntrustedAsset[],
+  Asset[],
   string,
   { rejectValue: RejectMessage; state: RootState }
 >(
@@ -58,11 +56,10 @@ export const addUntrustedAssetAction = createAsyncThunk<
         return [];
       }
 
-      const server = new StellarSdk.Server(getNetworkConfig(pubnet).url);
-      const response = await getAssetRecord({
+      const response = await getUntrustedAssetData({
         assetsToAdd: assetsListToAdd,
         accountAssets: accountData?.balances,
-        server,
+        networkUrl: getNetworkConfig(pubnet).url,
       });
 
       if (!response.length) {

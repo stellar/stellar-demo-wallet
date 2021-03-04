@@ -9,6 +9,7 @@ import { combineReducers, Action } from "redux";
 import BigNumber from "bignumber.js";
 
 import { reducer as account } from "ducks/account";
+import { reducer as activeAsset } from "ducks/activeAsset";
 import { reducer as claimAsset } from "ducks/claimAsset";
 import { reducer as claimableBalances } from "ducks/claimableBalances";
 import { reducer as sep24DepositAsset } from "ducks/sep24DepositAsset";
@@ -23,11 +24,18 @@ import { reducer as sep24WithdrawAsset } from "ducks/sep24WithdrawAsset";
 const RESET_STORE_ACTION_TYPE = "RESET";
 export type RootState = ReturnType<typeof store.getState>;
 
-const isSerializable = (value: any) =>
-  BigNumber.isBigNumber(value) || isPlain(value);
+const isSerializable = (value: any) => {
+  // activeAsset has callback function
+  if (typeof value === "function") {
+    return true;
+  }
+
+  return BigNumber.isBigNumber(value) || isPlain(value);
+};
 
 const reducers = combineReducers({
   account,
+  activeAsset,
   claimAsset,
   claimableBalances,
   logs,

@@ -1,12 +1,39 @@
+import { ReactNode } from "react";
 import { Types } from "@stellar/wallet-sdk";
 import { Horizon, ServerApi } from "stellar-sdk";
 
+export interface Asset {
+  assetString: string;
+  assetCode: string;
+  assetIssuer: string;
+  assetType: string;
+  total: string;
+  homeDomain?: string;
+  supportedActions?: AssetSupportedActions;
+  isUntrusted?: boolean;
+  source: any;
+}
+
+export interface AssetSupportedActions {
+  sep6?: boolean;
+  sep24?: boolean;
+  sep31?: boolean;
+}
+
 export interface AccountInitialState {
   data: Types.AccountDetails | null;
+  assets: {
+    [key: string]: Asset;
+  };
   errorString?: string;
   isAuthenticated: boolean;
   isUnfunded: boolean;
   secretKey: string;
+  status: ActionStatus | undefined;
+}
+
+export interface ActiveAssetInitialState {
+  asset: ActiveAsset | undefined;
   status: ActionStatus | undefined;
 }
 
@@ -57,7 +84,7 @@ export interface SettingsInitialState {
 }
 
 export interface UntrustedAssetsInitialState {
-  data: UntrustedAsset[];
+  data: Asset[];
   errorString?: string;
   status: ActionStatus | undefined;
 }
@@ -107,15 +134,6 @@ export interface Sep24WithdrawAssetInitialState {
   status: ActionStatus | undefined;
 }
 
-export interface UntrustedAsset {
-  assetCode: string;
-  assetIssuer: string;
-  assetString: string;
-  assetType: string;
-  balance: string;
-  untrusted: boolean;
-}
-
 export interface TrustAssetParam {
   assetString: string;
   assetCode: string;
@@ -138,6 +156,7 @@ export interface LogItemProps {
 
 export interface Store {
   account: AccountInitialState;
+  activeAsset: ActiveAssetInitialState;
   claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
   logs: LogsInitialState;
@@ -182,4 +201,28 @@ export interface CleanedClaimableBalanceRecord
   links: undefined;
   pagingToken: undefined;
   self: undefined;
+}
+
+export interface ActiveAsset {
+  id: string;
+  title: string;
+  description?: string;
+  callback: (args?: any) => void;
+  options?: ReactNode;
+}
+
+export interface AssetActionItem extends ActiveAsset {
+  balance: Asset;
+}
+
+export enum AssetActionId {
+  SEND_PAYMENT = "send-payment",
+  SEP24_DEPOSIT = "sep24-deposit",
+  SEP24_WITHDRAW = "sep24-withdraw",
+  SEP31_SEND = "sep31-send",
+  TRUST_ASSET = "trust-asset",
+}
+
+export enum AssetType {
+  NATIVE = "native",
 }

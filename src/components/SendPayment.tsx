@@ -8,20 +8,21 @@ import {
   Loader,
   TextLink,
 } from "@stellar/design-system";
-import { DataProvider, Types } from "@stellar/wallet-sdk";
+import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
 import { fetchAccountAction } from "ducks/account";
+import { resetActiveAsset } from "ducks/activeAsset";
 import { sendPaymentAction, resetSendPaymentAction } from "ducks/sendPayment";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, Asset } from "types/types.d";
 
 export const SendPayment = ({
   asset,
   onClose,
 }: {
-  asset?: Types.AssetBalance;
+  asset?: Asset;
   onClose: () => void;
 }) => {
   const { account, sendPayment, settings } = useRedux(
@@ -35,8 +36,8 @@ export const SendPayment = ({
   // Form data
   const [destination, setDestination] = useState("");
   const [amount, setAmount] = useState("");
-  const [assetCode, setAssetCode] = useState(asset?.token.code || "XLM");
-  const [assetIssuer, setAssetIssuer] = useState(asset?.token.issuer.key || "");
+  const [assetCode, setAssetCode] = useState(asset?.assetCode);
+  const [assetIssuer, setAssetIssuer] = useState(asset?.assetIssuer || "");
   const [isDestinationFunded, setIsDestinationFunded] = useState(true);
 
   const resetFormState = () => {
@@ -56,6 +57,7 @@ export const SendPayment = ({
         }),
       );
       dispatch(resetSendPaymentAction());
+      dispatch(resetActiveAsset());
       resetFormState();
       onClose();
     }
@@ -118,7 +120,7 @@ export const SendPayment = ({
             value={assetCode}
             onChange={(e) => setAssetCode(e.target.value)}
           />
-          {asset && (
+          {asset?.assetType !== "native" && (
             <Input
               id="send-asset-issuer"
               label="Asset issuer"

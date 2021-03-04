@@ -41,7 +41,7 @@ export const AccountInfo = () => {
   }
 
   return (
-    <>
+    <div className="Inset">
       <div className="Account">
         {/* Account keys */}
         <div className="AccountInfo">
@@ -164,6 +164,6 @@ export const AccountInfo = () => {
           <Loader />
         </div>
       </ToastBanner>
-    </>
+    </div>
   );
 };

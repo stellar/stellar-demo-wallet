@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import "./styles.scss";
 
@@ -9,15 +9,15 @@ interface ToastBannerProps {
 }
 
 export const ToastBanner = ({
-  visible,
   parentId,
+  visible,
   children,
 }: ToastBannerProps) => {
   const parent = document.getElementById(parentId);
   const [isVisible, setIsVisible] = useState(visible);
   const [isFadeReady, setIsFadeReady] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (visible) {
       setIsVisible(true);
 
