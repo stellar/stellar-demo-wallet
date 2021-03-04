@@ -116,7 +116,7 @@ export const createRandomAccount = createAsyncThunk<
 });
 
 export const fundTestnetAccount = createAsyncThunk<
-  { data: Types.AccountDetails; isUnfunded: boolean },
+  { data: Types.AccountDetails; assets: AnyObject; isUnfunded: boolean },
   string,
   { rejectValue: RejectMessage; state: RootState }
 >(
@@ -127,23 +127,28 @@ export const fundTestnetAccount = createAsyncThunk<
     });
 
     const { pubnet } = settingsSelector(getState());
+    const networkConfig = getNetworkConfig(pubnet);
 
     const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig(pubnet).url,
+      serverUrl: networkConfig.url,
       accountOrKey: publicKey,
-      networkPassphrase: getNetworkConfig(pubnet).network,
+      networkPassphrase: networkConfig.network,
     });
 
     try {
       await fetch(`https://friendbot.stellar.org?addr=${publicKey}`);
       const stellarAccount = await dataProvider.fetchAccountDetails();
+      const assets = await getAssetData({
+        balances: stellarAccount.balances,
+        networkUrl: networkConfig.url,
+      });
 
       log.response({
         title: "The friendbot funded your account",
         body: stellarAccount,
       });
 
-      return { data: stellarAccount, isUnfunded: false };
+      return { data: stellarAccount, assets, isUnfunded: false };
     } catch (error) {
       log.error({
         title: "The friendbot funding failed",
@@ -208,6 +213,7 @@ const accountSlice = createSlice({
     });
     builder.addCase(fundTestnetAccount.fulfilled, (state, action) => {
       state.data = action.payload.data;
+      state.assets = action.payload.assets;
       state.isUnfunded = action.payload.isUnfunded;
       state.status = ActionStatus.SUCCESS;
     });
