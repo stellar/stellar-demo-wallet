@@ -1,6 +1,6 @@
 import { Server } from "stellar-sdk";
 import { getToml } from "methods/getToml";
-import { AssetSupportedActions, AnyObject } from "types/types.d";
+import { AssetSupportedActions, AnyObject, AssetType } from "types/types.d";
 
 interface GetAssetSettingsFromToml {
   assetId: string;
@@ -17,7 +17,7 @@ export const getAssetSettingsFromToml = async ({
   const server = new Server(networkUrl);
 
   // Native (XLM) asset
-  if (assetId === "native") {
+  if (assetId === AssetType.NATIVE) {
     return {
       homeDomain: undefined,
       supportedActions: {},

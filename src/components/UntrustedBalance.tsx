@@ -68,13 +68,16 @@ export const UntrustedBalance = ({
     }
 
     let props: AssetActionItem | undefined;
+    const defaultProps = {
+      id: asset.assetString,
+      balance: asset,
+    };
 
     switch (actionId) {
       case AssetActionId.SEP24_DEPOSIT:
         // TODO: title + description
         props = {
-          id: asset.assetString,
-          balance: asset,
+          ...defaultProps,
           title: `SEP-24 deposit ${asset.assetCode}`,
           description: "Untrusted asset SEP-24 deposit description",
           callback: () => handleDepositAsset(asset),
@@ -83,8 +86,7 @@ export const UntrustedBalance = ({
       case AssetActionId.TRUST_ASSET:
         // TODO: title + description
         props = {
-          id: asset.assetString,
-          balance: asset,
+          ...defaultProps,
           title: `Trust asset ${asset.assetCode}`,
           description: "Trust asset description",
           callback: () => handleTrustAsset(asset),

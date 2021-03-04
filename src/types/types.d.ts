@@ -222,3 +222,7 @@ export enum AssetActionId {
   SEP31_SEND = "sep31-send",
   TRUST_ASSET = "trust-asset",
 }
+
+export enum AssetType {
+  NATIVE = "native",
+}

@@ -4,7 +4,12 @@ import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { fetchSendFieldsAction } from "ducks/sep31Send";
 import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
-import { Asset, AssetActionItem, AssetActionId } from "types/types.d";
+import {
+  Asset,
+  AssetActionItem,
+  AssetActionId,
+  AssetType,
+} from "types/types.d";
 
 interface SortedBalancesResult {
   native: Asset[];
@@ -40,7 +45,7 @@ export const Balance = ({
     };
 
     Object.values(allBalances).map((balance) => {
-      if (balance.assetType === "native") {
+      if (balance.assetType === AssetType.NATIVE) {
         result.native = [...result.native, balance];
       } else {
         result.other = [...result.other, balance];
@@ -91,13 +96,16 @@ export const Balance = ({
     }
 
     let props: AssetActionItem | undefined;
+    const defaultProps = {
+      id: balance.assetString,
+      balance,
+    };
 
     switch (actionId) {
       case AssetActionId.SEND_PAYMENT:
         // TODO: title + description
         props = {
-          id: balance.assetString,
-          balance,
+          ...defaultProps,
           title: `Send payment ${balance.assetCode}`,
           description: "Send payment description",
           callback: onSend,
@@ -106,8 +114,7 @@ export const Balance = ({
       case AssetActionId.SEP24_DEPOSIT:
         // TODO: title + description
         props = {
-          id: balance.assetString,
-          balance,
+          ...defaultProps,
           title: `SEP-24 deposit ${balance.assetCode}`,
           description: "SEP-24 deposit description",
           callback: () => handleSep24Deposit(balance),
@@ -116,8 +123,7 @@ export const Balance = ({
       case AssetActionId.SEP24_WITHDRAW:
         // TODO: title + description
         props = {
-          id: balance.assetString,
-          balance,
+          ...defaultProps,
           title: `SEP-24 withdrawal ${balance.assetCode}`,
           description: "SEP-24 withdrawal description",
           callback: () => handleSep24Withdraw(balance),
@@ -126,8 +132,7 @@ export const Balance = ({
       case AssetActionId.SEP31_SEND:
         // TODO: title + description
         props = {
-          id: balance.assetString,
-          balance,
+          ...defaultProps,
           title: `SEP-31 send ${balance.assetCode}`,
           description: "SEP-31 send description",
           callback: () => handleSep31Send(balance),
