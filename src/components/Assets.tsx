@@ -271,7 +271,7 @@ export const Assets = ({
       </div>
 
       {/* Claimable balances */}
-      <ClaimableBalance />
+      <ClaimableBalance onAssetAction={handleAssetAction} />
 
       <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
         {/* Action confirmation */}

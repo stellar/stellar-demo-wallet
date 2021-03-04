@@ -267,7 +267,10 @@ body {
         }
 
         .CustomCell {
-          margin-right: 1rem;
+          &:not(:last-child) {
+            margin-right: 1rem;
+          }
+
           justify-content: flex-end;
         }
       }

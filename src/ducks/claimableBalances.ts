@@ -1,13 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import StellarSdk, { ServerApi } from "stellar-sdk";
-import { omit } from "lodash";
-
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { log } from "helpers/log";
 import {
   ActionStatus,
-  CleanedClaimableBalanceRecord,
+  ClaimableAsset,
   ClaimableBalancesInitialState,
   RejectMessage,
 } from "types/types.d";
@@ -29,21 +28,29 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
         .claimant(publicKey)
         .call();
 
-      const cleanedRecords: CleanedClaimableBalanceRecord[] = [];
+      const cleanedRecords: ClaimableAsset[] = [];
 
       claimableBalanceResponse.records.forEach(
         (record: ServerApi.ClaimableBalanceRecord) => {
-          const cleanedRecord = omit(record, [
-            "_links",
-            "paging_token",
-            "self",
-          ]);
-          console.log(
-            "response: ",
-            "Claimable Balances Available ",
-            cleanedRecord,
-          );
-          cleanedRecords.push(cleanedRecord as CleanedClaimableBalanceRecord);
+          const [assetCode, assetIssuer] = record.asset.split(":");
+
+          const cleanedRecord = {
+            id: record.id,
+            assetString: record.id,
+            assetCode,
+            assetIssuer,
+            total: record.amount,
+            sponsor: record.sponsor,
+            lastModifiedLedger: record.last_modified_ledger,
+            source: record,
+          };
+
+          log.response({
+            title: "Claimable Balances Available ",
+            body: cleanedRecord,
+          });
+
+          cleanedRecords.push(cleanedRecord as ClaimableAsset);
         },
       );
 

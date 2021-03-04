@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Types } from "@stellar/wallet-sdk";
-import { Horizon, ServerApi } from "stellar-sdk";
+import { Horizon } from "stellar-sdk";
 
 export interface Asset {
   assetString: string;
@@ -48,7 +48,7 @@ export interface ClaimAssetInitialState {
 
 export interface ClaimableBalancesInitialState {
   data: {
-    records: CleanedClaimableBalanceRecord[] | null;
+    records: ClaimableAsset[] | null;
   };
   errorString?: string;
   status: ActionStatus | undefined;
@@ -196,11 +196,11 @@ export interface PaymentTransactionParams {
   publicKey: string;
 }
 
-export interface CleanedClaimableBalanceRecord
-  extends ServerApi.ClaimableBalanceRecord {
-  links: undefined;
-  pagingToken: undefined;
-  self: undefined;
+export interface ClaimableAsset extends Asset {
+  id: string;
+  sponsor: string;
+  lastModifiedLedger: number;
+  claimants: any[];
 }
 
 export interface ActiveAsset {

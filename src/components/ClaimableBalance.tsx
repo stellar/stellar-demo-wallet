@@ -1,17 +1,37 @@
 import { Heading2, TextButton } from "@stellar/design-system";
 import { useDispatch } from "react-redux";
+import { BalanceRow } from "components/BalanceRow";
 import { claimAssetAction } from "ducks/claimAsset";
 import { useRedux } from "hooks/useRedux";
-import { CleanedClaimableBalanceRecord } from "types/types.d";
+import { AssetActionItem, ClaimableAsset } from "types/types.d";
 
-export const ClaimableBalance = () => {
-  const { claimableBalances } = useRedux("claimableBalances");
+export const ClaimableBalance = ({
+  onAssetAction,
+}: {
+  onAssetAction: ({
+    balance,
+    callback,
+    title,
+    description,
+    options,
+  }: AssetActionItem) => void;
+}) => {
+  const { activeAsset, claimableBalances } = useRedux(
+    "activeAsset",
+    "claimableBalances",
+  );
   const balances = claimableBalances.data.records;
 
   const dispatch = useDispatch();
 
-  const handleClaim = (balance: CleanedClaimableBalanceRecord) => {
-    dispatch(claimAssetAction(balance));
+  const handleClaim = (balance: ClaimableAsset) => {
+    onAssetAction({
+      id: balance.assetString,
+      balance,
+      title: `Claim balance ${balance.assetCode}`,
+      description: `Claimable balance description ${balance.total} ${balance.assetCode}`,
+      callback: () => dispatch(claimAssetAction(balance)),
+    });
   };
 
   if (!balances || !balances.length) {
@@ -20,24 +40,24 @@ export const ClaimableBalance = () => {
 
   return (
     <div className="ClaimableBalances">
-      <Heading2>Claimable Balances</Heading2>
+      <div className="Inset">
+        <Heading2>Claimable Balances</Heading2>
+      </div>
       <div className="Balances">
-        {balances.map((balance) => {
-          const [assetCode] = balance.asset.split(":");
-
-          return (
-            <div key={balance.id} className="BalanceRow">
-              <div className="BalanceCell">{`${
-                balance.amount || "0"
-              } ${assetCode}`}</div>
-              <div className="BalanceCell Inline">
-                <TextButton onClick={() => handleClaim(balance)}>
-                  Claim
-                </TextButton>
-              </div>
-            </div>
-          );
-        })}
+        {balances.map((balance) => (
+          <BalanceRow
+            activeAsset={activeAsset.asset}
+            key={balance.assetString}
+            asset={balance}
+          >
+            <TextButton
+              onClick={() => handleClaim(balance)}
+              disabled={Boolean(activeAsset.asset)}
+            >
+              Claim
+            </TextButton>
+          </BalanceRow>
+        ))}
       </div>
     </div>
   );
