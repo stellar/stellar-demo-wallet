@@ -16,7 +16,7 @@ import { resetActiveAsset } from "ducks/activeAsset";
 import { sendPaymentAction, resetSendPaymentAction } from "ducks/sendPayment";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, Asset } from "types/types.d";
+import { ActionStatus, Asset, AssetType } from "types/types.d";
 
 export const SendPayment = ({
   asset,
@@ -119,7 +119,7 @@ export const SendPayment = ({
           value={assetCode}
           onChange={(e) => setAssetCode(e.target.value)}
         />
-        {asset?.assetType !== "native" && (
+        {asset?.assetType !== AssetType.NATIVE && (
           <Input
             id="send-asset-issuer"
             label="Asset issuer"

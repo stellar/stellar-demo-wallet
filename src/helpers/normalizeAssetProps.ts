@@ -34,7 +34,7 @@ export const normalizeAssetProps = ({
 
   let _assetIssuer = assetIssuer;
 
-  if (!_assetIssuer && _assetType !== "native") {
+  if (!_assetIssuer && _assetType !== AssetType.NATIVE) {
     _assetIssuer = (source as Types.AssetBalance).token.issuer.key;
   }
 
