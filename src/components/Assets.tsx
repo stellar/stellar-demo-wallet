@@ -131,9 +131,12 @@ export const Assets = ({
       status: ActionStatus | undefined;
       message: string | React.ReactNode;
     }) => {
+      if (!status) {
+        return;
+      }
+
       if (status === ActionStatus.SUCCESS || status === ActionStatus.ERROR) {
         dispatch(resetActiveAsset());
-        setToastMessage(undefined);
       }
 
       if (
@@ -143,13 +146,15 @@ export const Assets = ({
         dispatch(setActiveAssetStatus(ActionStatus.PENDING));
         setToastMessage(message);
       }
-
-      if (!activeAsset.asset) {
-        setToastMessage(undefined);
-      }
     },
-    [dispatch, activeAsset.asset],
+    [dispatch],
   );
+
+  useEffect(() => {
+    if (!activeAsset.asset) {
+      setToastMessage(undefined);
+    }
+  }, [activeAsset.asset]);
 
   // Trust asset
   useEffect(() => {
@@ -181,15 +186,17 @@ export const Assets = ({
 
   // Deposit asset
   useEffect(() => {
-    if (
-      sep24DepositAsset.status === ActionStatus.SUCCESS &&
-      sep24DepositAsset.data.currentStatus === "completed"
-    ) {
-      handleRemoveUntrustedAsset(sep24DepositAsset.data.trustedAssetAdded);
+    if (sep24DepositAsset.status === ActionStatus.SUCCESS) {
       dispatch(resetSep24DepositAssetAction());
-      handleRefreshAccount();
-      handleFetchClaimableBalances();
-      dispatch(resetActiveAsset());
+
+      if (sep24DepositAsset.data.trustedAssetAdded) {
+        handleRemoveUntrustedAsset(sep24DepositAsset.data.trustedAssetAdded);
+      }
+
+      if (sep24DepositAsset.data.currentStatus === "completed") {
+        handleRefreshAccount();
+        handleFetchClaimableBalances();
+      }
     }
 
     setActiveAssetStatusAndToastMessage({
@@ -211,12 +218,12 @@ export const Assets = ({
 
   // Withdraw asset
   useEffect(() => {
-    if (
-      sep24WithdrawAsset.status === ActionStatus.SUCCESS &&
-      sep24WithdrawAsset.data.currentStatus === "completed"
-    ) {
+    if (sep24WithdrawAsset.status === ActionStatus.SUCCESS) {
       dispatch(resetSep24WithdrawAssetAction());
-      handleRefreshAccount();
+
+      if (sep24WithdrawAsset.data.currentStatus === "completed") {
+        handleRefreshAccount();
+      }
     }
 
     setActiveAssetStatusAndToastMessage({
