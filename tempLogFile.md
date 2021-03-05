@@ -12,3 +12,4 @@
 - Text update on landing + remove issuer from add asset
 - New UI balances and assets
 - Claimable balance with confirmation modal
+- SEP-31 Send UX updates
