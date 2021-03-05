@@ -95,14 +95,6 @@ body {
   }
 }
 
-.error {
-  color: var(--color-error);
-}
-
-.success {
-  color: var(--color-success);
-}
-
 .LoadingBlock {
   margin-bottom: 1rem;
 }
@@ -117,9 +109,25 @@ body {
   margin-top: 3rem;
 }
 
+// Generic
+.error {
+  color: var(--color-error);
+}
+
+.success {
+  color: var(--color-success);
+}
+
 .vertical-spacing {
   & > * {
     margin-bottom: 1rem;
+  }
+}
+
+.horizontal-spacing {
+  & > *:not(:first-child),
+  & > *:not(:last-child) {
+    margin-right: 1.5rem;
   }
 }
 
