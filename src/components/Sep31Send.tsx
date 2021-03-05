@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Heading2, Heading3, Input } from "@stellar/design-system";
+import { Modal } from "components/Modal";
 import { fetchAccountAction } from "ducks/account";
+import { resetActiveAsset } from "ducks/activeAsset";
 import {
   resetSep31SendAction,
   submitSep31SendTransactionAction,
@@ -52,7 +54,12 @@ export const Sep31Send = () => {
     dispatch(submitSep31SendTransactionAction({ ...formData }));
   };
 
-  const renderInfoInputs = () => {
+  const handleClose = () => {
+    dispatch(resetSep31SendAction());
+    dispatch(resetActiveAsset());
+  };
+
+  if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
     const { data } = sep31Send;
     const { transaction, sender, receiver } = data.fields;
 
@@ -68,11 +75,12 @@ export const Sep31Send = () => {
     };
 
     return (
-      <>
-        <Heading2>Collect Info</Heading2>
-        <div className="SendForm Block">
+      <Modal visible={true} onClose={handleClose}>
+        <Heading2 className="ModalHeading">Collect Info</Heading2>
+
+        <div className="ModalBody">
           {Object.entries(allFields).map(([sectionTitle, sectionItems]) => (
-            <div key={sectionTitle}>
+            <div className="vertical-spacing" key={sectionTitle}>
               <Heading3>{capitalizeString(sectionTitle)}</Heading3>
               {Object.entries(sectionItems).map(([id, input]) => (
                 // TODO: if input.choices, render Select
@@ -88,13 +96,11 @@ export const Sep31Send = () => {
           ))}
         </div>
 
-        <Button onClick={handleSubmit}>Submit</Button>
-      </>
+        <div className="ModalButtonsFooter">
+          <Button onClick={handleSubmit}>Submit</Button>
+        </div>
+      </Modal>
     );
-  };
-
-  if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
-    return renderInfoInputs();
   }
 
   return null;

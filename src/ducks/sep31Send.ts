@@ -22,6 +22,7 @@ import {
 } from "methods/sep31Send";
 
 import {
+  Asset,
   ActionStatus,
   AnyObject,
   Sep31SendInitialState,
@@ -48,15 +49,22 @@ interface FetchSendFieldsActionResponse {
 
 export const fetchSendFieldsAction = createAsyncThunk<
   FetchSendFieldsActionResponse,
-  { assetCode: string; assetIssuer: string },
+  Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep31Send/fetchSendFieldsAction",
-  async ({ assetCode, assetIssuer }, { rejectWithValue, getState }) => {
+  async (asset, { rejectWithValue, getState }) => {
     try {
-      const { homeDomain, pubnet } = settingsSelector(getState());
+      const { pubnet } = settingsSelector(getState());
       const { secretKey } = accountSelector(getState());
       const networkConfig = getNetworkConfig(pubnet);
+
+      const { assetCode, assetIssuer, homeDomain } = asset;
+
+      if (!homeDomain) {
+        // TODO: do settings/config modal to enter?
+        throw new Error("Home domain is required");
+      }
 
       // Check toml
       log.instruction({ title: "Initiate a direct payment request" });

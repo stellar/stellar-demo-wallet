@@ -76,12 +76,7 @@ export const Balance = ({
   };
 
   const handleSep31Send = (asset: Asset) => {
-    dispatch(
-      fetchSendFieldsAction({
-        assetCode: asset.assetCode,
-        assetIssuer: asset.assetIssuer,
-      }),
-    );
+    dispatch(fetchSendFieldsAction(asset));
   };
 
   const handleActionChange = ({
