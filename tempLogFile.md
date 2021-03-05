@@ -13,3 +13,4 @@
 - New UI balances and assets
 - Claimable balance with confirmation modal
 - SEP-31 Send UX updates
+- Fix bug when active asset not set after SEP-24 popup closed
