@@ -10,13 +10,13 @@ import { trustAsset } from "methods/trustAsset";
 import {
   ActionStatus,
   ClaimAssetInitialState,
-  CleanedClaimableBalanceRecord,
+  ClaimableAsset,
   RejectMessage,
 } from "types/types.d";
 
 export const claimAssetAction = createAsyncThunk<
   { result: any },
-  CleanedClaimableBalanceRecord,
+  ClaimableAsset,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "claimAsset/claimAssetAction",
@@ -25,12 +25,14 @@ export const claimAssetAction = createAsyncThunk<
     const { pubnet } = settingsSelector(getState());
 
     const networkConfig = getNetworkConfig(pubnet);
-    const [assetCode, assetIssuer] = balance.asset.split(":");
+    const { assetString, assetCode, assetIssuer } = balance;
 
     let trustedAssetAdded;
 
+    // TODO: add logs
+
     try {
-      if (data?.balances && !data?.balances[balance.asset]) {
+      if (data?.balances && !data?.balances[assetString]) {
         log.instruction({
           title: "Not a trusted asset, need to add a trustline",
         });
@@ -41,7 +43,7 @@ export const claimAssetAction = createAsyncThunk<
             networkPassphrase: networkConfig.network,
             networkUrl: networkConfig.url,
             untrustedAsset: {
-              assetString: balance.asset,
+              assetString,
               assetCode,
               assetIssuer,
             },

@@ -5,11 +5,11 @@ import StellarSdk, {
   TransactionBuilder,
 } from "stellar-sdk";
 import { log } from "helpers/log";
-import { CleanedClaimableBalanceRecord } from "types/types.d";
+import { ClaimableAsset } from "types/types.d";
 
 interface ClaimClaimableBalanceProps {
   secretKey: string;
-  balance: CleanedClaimableBalanceRecord;
+  balance: ClaimableAsset;
   assetCode: string;
   networkPassphrase: string;
   networkUrl: string;
@@ -25,7 +25,7 @@ export const claimClaimableBalance = async ({
   fee,
 }: ClaimClaimableBalanceProps) => {
   log.instruction({
-    title: `Claiming ${balance.amount} of ${assetCode}
+    title: `Claiming ${balance.total} of ${assetCode}
     BalanceId: ${balance.id}
     Sponsor:${balance.sponsor}`,
   });
