@@ -39,6 +39,7 @@ export const Assets = ({
     claimAsset,
     sep24DepositAsset,
     sep24WithdrawAsset,
+    sep31Send,
     trustAsset,
   } = useRedux(
     "account",
@@ -46,6 +47,7 @@ export const Assets = ({
     "claimAsset",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
+    "sep31Send",
     "trustAsset",
   );
 
@@ -134,12 +136,19 @@ export const Assets = ({
         setToastMessage(undefined);
       }
 
-      if (status === ActionStatus.PENDING) {
+      if (
+        status === ActionStatus.PENDING ||
+        status === ActionStatus.NEEDS_INPUT
+      ) {
         dispatch(setActiveAssetStatus(ActionStatus.PENDING));
         setToastMessage(message);
       }
+
+      if (!activeAsset.asset) {
+        setToastMessage(undefined);
+      }
     },
-    [dispatch],
+    [dispatch, activeAsset.asset],
   );
 
   // Trust asset
@@ -247,6 +256,14 @@ export const Assets = ({
     setActiveAssetStatusAndToastMessage,
     dispatch,
   ]);
+
+  // SEP-31 Send
+  useEffect(() => {
+    setActiveAssetStatusAndToastMessage({
+      status: sep31Send.status,
+      message: "SEP-31 send in progress",
+    });
+  }, [sep31Send.status, setActiveAssetStatusAndToastMessage]);
 
   return (
     <>

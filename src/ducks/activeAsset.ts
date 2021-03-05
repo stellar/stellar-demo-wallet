@@ -15,7 +15,9 @@ const activeAssetSlice = createSlice({
       state.asset = action.payload;
     },
     setActiveAssetStatus: (state, action) => {
-      state.status = action.payload;
+      if (state.asset) {
+        state.status = action.payload;
+      }
     },
     resetActiveAsset: () => initialState,
   },
