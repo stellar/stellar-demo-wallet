@@ -1,4 +1,5 @@
 import { log } from "helpers/log";
+import { TransactionStatus } from "types/types.d";
 
 export const pollTransactionUntilReady = async ({
   sendServer,
@@ -10,13 +11,12 @@ export const pollTransactionUntilReady = async ({
   token: string;
 }) => {
   log.instruction({
-    title:
-      "Poll /transactions/:id endpoint until transaction status is 'pending_sender'",
+    title: `Poll /transactions/:id endpoint until transaction status is ${TransactionStatus.PENDING_SENDER}`,
   });
 
   let transactionStatus;
 
-  while (transactionStatus !== "pending_sender") {
+  while (transactionStatus !== TransactionStatus.PENDING_SENDER) {
     log.request({ title: `GET /transactions/${transactionId}` });
     // eslint-disable-next-line no-await-in-loop
     const result = await fetch(`${sendServer}/transactions/${transactionId}`, {

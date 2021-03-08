@@ -26,7 +26,12 @@ import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
 import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
 import { useRedux } from "hooks/useRedux";
-import { Asset, ActionStatus, AssetActionItem } from "types/types.d";
+import {
+  Asset,
+  ActionStatus,
+  AssetActionItem,
+  TransactionStatus,
+} from "types/types.d";
 
 export const Assets = ({
   onSendPayment,
@@ -193,7 +198,9 @@ export const Assets = ({
         handleRemoveUntrustedAsset(sep24DepositAsset.data.trustedAssetAdded);
       }
 
-      if (sep24DepositAsset.data.currentStatus === "completed") {
+      if (
+        sep24DepositAsset.data.currentStatus === TransactionStatus.COMPLETED
+      ) {
         handleRefreshAccount();
         handleFetchClaimableBalances();
       }
@@ -221,7 +228,9 @@ export const Assets = ({
     if (sep24WithdrawAsset.status === ActionStatus.SUCCESS) {
       dispatch(resetSep24WithdrawAssetAction());
 
-      if (sep24WithdrawAsset.data.currentStatus === "completed") {
+      if (
+        sep24WithdrawAsset.data.currentStatus === TransactionStatus.COMPLETED
+      ) {
         handleRefreshAccount();
       }
     }
