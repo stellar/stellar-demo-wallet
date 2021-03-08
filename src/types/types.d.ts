@@ -226,3 +226,25 @@ export enum AssetActionId {
 export enum AssetType {
   NATIVE = "native",
 }
+
+export enum TransactionStatus {
+  COMPLETED = "completed",
+  ERROR = "error",
+  INCOMPLETE = "incomplete",
+  PENDING_ANCHOR = "pending_anchor",
+  PENDING_CUSTOMER_INFO_UPDATE = "pending_customer_info_update",
+  PENDING_EXTERNAL = "pending_external",
+  PENDING_RECEIVER = "pending_receiver",
+  PENDING_SENDER = "pending_sender",
+  PENDING_STELLAR = "pending_stellar",
+  PENDING_TRANSACTION_INFO_UPDATE = "pending_transaction_info_update",
+  PENDING_TRUST = "pending_trust",
+  PENDING_USER = "pending_user",
+  PENDING_USER_TRANSFER_START = "pending_user_transfer_start",
+}
+
+export enum MemoTypeString {
+  TEXT = "text",
+  ID = "id",
+  HASH = "hash",
+}

@@ -1,4 +1,5 @@
 import { log } from "helpers/log";
+import { TransactionStatus } from "types/types.d";
 
 export const pollTransactionUntilComplete = async ({
   sendServer,
@@ -19,7 +20,13 @@ export const pollTransactionUntilComplete = async ({
 
   log.request({ title: `GET /transactions/${transactionId}` });
 
-  while (!["pending_external", "completed", "error"].includes(currentStatus)) {
+  while (
+    ![
+      TransactionStatus.PENDING_EXTERNAL,
+      TransactionStatus.COMPLETED,
+      TransactionStatus.ERROR,
+    ].includes(currentStatus)
+  ) {
     // eslint-disable-next-line no-await-in-loop
     const result = await fetch(`${sendServer}/transactions/${transactionId}`, {
       headers: {
@@ -44,30 +51,30 @@ export const pollTransactionUntilComplete = async ({
       });
 
       switch (currentStatus) {
-        case "pending_sender":
+        case TransactionStatus.PENDING_SENDER:
           log.instruction({
             title: "Awaiting payment to be initiated by sending anchor",
           });
           break;
-        case "pending_stellar":
+        case TransactionStatus.PENDING_STELLAR:
           log.instruction({
             title:
               "Transaction has been submitted to Stellar network, but is not yet confirmed",
           });
           break;
-        case "pending_customer_info_update":
+        case TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE:
           log.instruction({
             title:
               "Certain pieces of information need to be updated by the sending anchor",
           });
           break;
-        case "pending_transaction_info_update":
+        case TransactionStatus.PENDING_TRANSACTION_INFO_UPDATE:
           log.instruction({
             title:
               "Certain pieces of information need to be updated by the sending anchor",
           });
           break;
-        case "pending_receiver":
+        case TransactionStatus.PENDING_RECEIVER:
           log.instruction({
             title: "Payment is being processed by the receiving anchor",
           });

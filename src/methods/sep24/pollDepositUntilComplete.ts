@@ -1,4 +1,5 @@
 import { log } from "helpers/log";
+import { TransactionStatus } from "types/types.d";
 
 export const pollDepositUntilComplete = async ({
   popup,
@@ -13,7 +14,7 @@ export const pollDepositUntilComplete = async ({
   sep24TransferServerUrl: string;
   trustAssetCallback: () => Promise<string>;
 }) => {
-  let currentStatus = "incomplete";
+  let currentStatus = TransactionStatus.INCOMPLETE;
   let trustedAssetAdded;
 
   const transactionUrl = new URL(
@@ -23,7 +24,12 @@ export const pollDepositUntilComplete = async ({
     title: `Polling for updates: ${transactionUrl.toString()}`,
   });
 
-  while (!popup.closed && !["completed", "error"].includes(currentStatus)) {
+  while (
+    !popup.closed &&
+    ![TransactionStatus.COMPLETED, TransactionStatus.ERROR].includes(
+      currentStatus,
+    )
+  ) {
     // eslint-disable-next-line no-await-in-loop
     const response = await fetch(transactionUrl.toString(), {
       headers: { Authorization: `Bearer ${token}` },
@@ -41,32 +47,32 @@ export const pollDepositUntilComplete = async ({
       });
 
       switch (currentStatus) {
-        case "pending_user_transfer_start": {
+        case TransactionStatus.PENDING_USER_TRANSFER_START: {
           log.instruction({
             title:
               "The anchor is waiting on you to take the action described in the popup",
           });
           break;
         }
-        case "pending_anchor": {
+        case TransactionStatus.PENDING_ANCHOR: {
           log.instruction({
             title: "The anchor is processing the transaction",
           });
           break;
         }
-        case "pending_stellar": {
+        case TransactionStatus.PENDING_STELLAR: {
           log.instruction({
             title: "The Stellar network is processing the transaction",
           });
           break;
         }
-        case "pending_external": {
+        case TransactionStatus.PENDING_EXTERNAL: {
           log.instruction({
             title: "The transaction is being processed by an external system",
           });
           break;
         }
-        case "pending_trust": {
+        case TransactionStatus.PENDING_TRUST: {
           log.instruction({
             title:
               "You must add a trustline to the asset in order to receive your deposit",
@@ -80,14 +86,14 @@ export const pollDepositUntilComplete = async ({
           }
           break;
         }
-        case "pending_user": {
+        case TransactionStatus.PENDING_USER: {
           log.instruction({
             title:
               "The anchor is waiting for you to take the action described in the popup",
           });
           break;
         }
-        case "error": {
+        case TransactionStatus.ERROR: {
           log.instruction({
             title: "There was a problem processing your transaction",
           });
@@ -105,7 +111,12 @@ export const pollDepositUntilComplete = async ({
 
   log.instruction({ title: `Transaction status: ${currentStatus}` });
 
-  if (!["completed", "error"].includes(currentStatus) && popup.closed) {
+  if (
+    ![TransactionStatus.COMPLETED, TransactionStatus.ERROR].includes(
+      currentStatus,
+    ) &&
+    popup.closed
+  ) {
     log.instruction({
       title: `The popup was closed before the transaction reached a terminal status, if your balance is not updated soon, the transaction may have failed.`,
     });

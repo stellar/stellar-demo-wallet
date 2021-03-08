@@ -8,6 +8,7 @@ import {
   TransactionBuilder,
 } from "stellar-sdk";
 import { log } from "helpers/log";
+import { MemoTypeString } from "types/types.d";
 
 interface SendPaymentProps {
   secretKey: string;
@@ -17,7 +18,7 @@ interface SendPaymentProps {
   networkPassphrase: string;
   amount: string;
   sendMemo: string;
-  sendMemoType: string;
+  sendMemoType: MemoTypeString;
   receiverAddress: string;
 }
 
@@ -69,14 +70,13 @@ export const sendPayment = async ({
   let memo;
 
   try {
-    // @ts-ignore
     const memoType = {
-      text: Memo.text,
-      id: Memo.id,
-      hash: Memo.hash,
+      [MemoTypeString.TEXT]: Memo.text,
+      [MemoTypeString.ID]: Memo.id,
+      [MemoTypeString.HASH]: Memo.hash,
     }[sendMemoType];
 
-    if (sendMemoType === "hash") {
+    if (sendMemoType === MemoTypeString.HASH) {
       memo = memoType(Buffer.from(sendMemo, "base64").toString("hex"));
     } else {
       memo = memoType(sendMemo);
