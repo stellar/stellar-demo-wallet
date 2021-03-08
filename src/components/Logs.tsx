@@ -35,6 +35,50 @@ export const Logs = () => {
     );
   }, [dispatch]);
 
+  const logsToMarkdown = (logItems: LogItemProps[]) => {
+    const heading = `# Stellar Demo Wallet logs\n\n`;
+    const date = `${new Date()}\n\n`;
+    const divider = `---\n\n`;
+    const contentHeader = `${heading}${date}${divider}`;
+
+    return logItems.reduce((result, log, index) => {
+      const isLastItem = index === logItems.length - 1;
+      let content = `**${log.type}:** ${log.title}\n`;
+      let body = log.body ? JSON.parse(`${log.body}`) : null;
+
+      if (body) {
+        body = typeof body === "string" ? body : JSON.stringify(body, null, 2);
+        content += `\n\`\`\`javascript\n${body}\n\`\`\`\n`;
+      }
+
+      if (!isLastItem) {
+        content += "\n";
+      }
+
+      return `${result}${content}`;
+    }, contentHeader);
+  };
+
+  const handleDownload = () => {
+    if (!logs.items.length) {
+      return;
+    }
+
+    const filename = `stellar-dw-logs-${Date.now()}.md`;
+    const content = logsToMarkdown(logs.items);
+    const element = document.createElement("a");
+
+    element.setAttribute(
+      "href",
+      `data:text/plain;charset=utf-8,${encodeURIComponent(content)}`,
+    );
+    element.setAttribute("download", filename);
+    element.style.display = "none";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
   if (!account.isAuthenticated) {
     return (
       <div className="SplitContainer Logs">
@@ -68,9 +112,12 @@ export const Logs = () => {
         </div>
       </div>
 
-      {/* TODO: add option to copy/download all logs */}
       <div className="LogsFooter">
-        <div className="Inset">
+        <div className="Inset horizontal-spacing">
+          <TextButton onClick={handleDownload} disabled={!logs.items.length}>
+            Download logs
+          </TextButton>
+
           <TextButton
             onClick={() => dispatch(clearLogsAction())}
             disabled={!logs.items.length}
