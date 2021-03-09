@@ -11,6 +11,7 @@ export interface Asset {
   homeDomain?: string;
   supportedActions?: AssetSupportedActions;
   isUntrusted?: boolean;
+  notExist?: boolean;
   source: any;
 }
 
@@ -221,6 +222,7 @@ export enum AssetActionId {
   SEP24_WITHDRAW = "sep24-withdraw",
   SEP31_SEND = "sep31-send",
   TRUST_ASSET = "trust-asset",
+  REMOVE_ASSET = "remove-asset",
 }
 
 export enum AssetType {

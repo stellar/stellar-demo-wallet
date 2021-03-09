@@ -35,13 +35,17 @@ export const getIssuerFromDomain = async ({
   const matchingCurrency = toml.CURRENCIES.find(
     (c: any) => c.code === assetCode,
   );
-  const { issuer } = matchingCurrency;
 
-  if (!issuer) {
+  if (!matchingCurrency?.issuer) {
+    const availableAssets = toml.CURRENCIES.map((c: any) => c.code).join(", ");
+
     throw new Error(
-      `unable to find the ${assetCode} issuer on the home domain's TOML file`,
+      `Unable to find the ${assetCode} issuer on the home domain's TOML file.
+      Available asset${
+        toml.CURRENCIES.length > 1 ? "s" : ""
+      }: ${availableAssets}`,
     );
   }
 
-  return issuer;
+  return matchingCurrency.issuer;
 };

@@ -21,7 +21,10 @@ import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetSep24DepositAssetAction } from "ducks/sep24DepositAsset";
 import { resetTrustAssetAction } from "ducks/trustAsset";
-import { removeUntrustedAssetAction } from "ducks/untrustedAssets";
+import {
+  removeUntrustedAssetAction,
+  resetUntrustedAssetStatusAction,
+} from "ducks/untrustedAssets";
 import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
 import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
@@ -46,6 +49,7 @@ export const Assets = ({
     sep24WithdrawAsset,
     sep31Send,
     trustAsset,
+    untrustedAssets,
   } = useRedux(
     "account",
     "activeAsset",
@@ -54,6 +58,7 @@ export const Assets = ({
     "sep24WithdrawAsset",
     "sep31Send",
     "trustAsset",
+    "untrustedAssets",
   );
 
   const [activeModal, setActiveModal] = useState("");
@@ -280,6 +285,17 @@ export const Assets = ({
       message: "SEP-31 send in progress",
     });
   }, [sep31Send.status, setActiveAssetStatusAndToastMessage]);
+
+  // Remove untrusted asset
+  useEffect(() => {
+    if (
+      untrustedAssets.status === ActionStatus.SUCCESS ||
+      untrustedAssets.status === ActionStatus.ERROR
+    ) {
+      dispatch(resetUntrustedAssetStatusAction());
+      dispatch(resetActiveAsset());
+    }
+  }, [untrustedAssets.status, setActiveAssetStatusAndToastMessage, dispatch]);
 
   return (
     <>

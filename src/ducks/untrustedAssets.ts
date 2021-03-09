@@ -39,8 +39,6 @@ export const addUntrustedAssetAction = createAsyncThunk<
 >(
   "untrustedAssets/addUntrustedAssetAction",
   async (assetsString, { rejectWithValue, getState }) => {
-    log.instruction({ title: "Start adding untrusted asset" });
-
     const { data: accountData } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
     const { data } = untrustedAssetsSelector(getState());
@@ -52,15 +50,22 @@ export const addUntrustedAssetAction = createAsyncThunk<
       });
 
       if (!assetsListToAdd.length) {
-        log.error({ title: "No new assets to ad" });
         return [];
       }
 
-      const response = await getUntrustedAssetData({
-        assetsToAdd: assetsListToAdd,
-        accountAssets: accountData?.balances,
-        networkUrl: getNetworkConfig(pubnet).url,
-      });
+      log.instruction({ title: "Start adding untrusted asset" });
+
+      let response;
+
+      try {
+        response = await getUntrustedAssetData({
+          assetsToAdd: assetsListToAdd,
+          accountAssets: accountData?.balances,
+          networkUrl: getNetworkConfig(pubnet).url,
+        });
+      } catch (error) {
+        throw Error(error.message);
+      }
 
       if (!response.length) {
         log.instruction({ title: "No new assets to add" });
@@ -69,6 +74,7 @@ export const addUntrustedAssetAction = createAsyncThunk<
 
       return response;
     } catch (error) {
+      log.error({ title: error.toString() });
       return rejectWithValue({
         errorString: error.toString(),
       });
@@ -86,6 +92,9 @@ const untrustedAssetsSlice = createSlice({
   name: "untrustedAssets",
   initialState,
   reducers: {
+    resetUntrustedAssetStatusAction: (state) => {
+      state.status = undefined;
+    },
     removeUntrustedAssetAction: (state, action: PayloadAction<string>) => {
       state.data = state.data.filter((ua) => ua.assetString !== action.payload);
     },
@@ -111,6 +120,7 @@ export const untrustedAssetsSelector = (state: RootState) =>
 
 export const { reducer } = untrustedAssetsSlice;
 export const {
+  resetUntrustedAssetStatusAction,
   removeUntrustedAssetAction,
   resetUntrustedAssetsAction,
 } = untrustedAssetsSlice.actions;

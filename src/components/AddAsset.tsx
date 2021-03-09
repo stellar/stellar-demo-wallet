@@ -1,18 +1,30 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, Heading2, Input, Loader } from "@stellar/design-system";
+import {
+  Button,
+  Heading2,
+  InfoBlock,
+  InfoBlockVariant,
+  Input,
+  Loader,
+} from "@stellar/design-system";
+import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { getUntrustedAssetsSearchParam } from "helpers/getUntrustedAssetsSearchParam";
 import { getValidatedUntrustedAsset } from "helpers/getValidatedUntrustedAsset";
-import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
 export const AddAsset = ({ onClose }: { onClose: () => void }) => {
-  const { account, untrustedAssets } = useRedux("account", "untrustedAssets");
+  const { account, settings, untrustedAssets } = useRedux(
+    "account",
+    "settings",
+    "untrustedAssets",
+  );
 
   // Form data
   const [assetCode, setAssetCode] = useState("");
   const [homeDomain, setHomeDomain] = useState("");
+  const [issuerPublicKey, setIssuerPublicKey] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [localStatus, setLocalStatus] = useState<ActionStatus | undefined>();
 
@@ -34,7 +46,16 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
     ) {
       onClose();
     }
-  }, [untrustedAssets.status, localStatus, onClose]);
+
+    if (localStatus === ActionStatus.SUCCESS && untrustedAssets.errorString) {
+      setErrorMessage(untrustedAssets.errorString);
+    }
+  }, [
+    untrustedAssets.status,
+    untrustedAssets.errorString,
+    localStatus,
+    onClose,
+  ]);
 
   const handleSetUntrustedAsset = async () => {
     // Reset local state
@@ -45,7 +66,9 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
       const asset = await getValidatedUntrustedAsset({
         assetCode,
         homeDomain,
+        issuerPublicKey,
         accountBalances: account.data?.balances,
+        networkUrl: getNetworkConfig(settings.pubnet).url,
       });
 
       history.push(
@@ -56,7 +79,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
       );
       setLocalStatus(ActionStatus.SUCCESS);
     } catch (e) {
-      log.error({ title: e.toString() });
       setErrorMessage(e.toString());
       setLocalStatus(ActionStatus.ERROR);
     }
@@ -75,33 +97,53 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
         <Input
           id="aa-asset-code"
           label="Asset code"
-          onChange={(e) => setAssetCode(e.target.value)}
+          onChange={(e) => {
+            setErrorMessage("");
+            setLocalStatus(undefined);
+            setAssetCode(e.target.value);
+          }}
           value={assetCode}
-          placeholder="ex. USD"
+          placeholder="ex: USDC, EURT, NGNT"
         />
 
         {/* TODO: add info icon and bubble to SDS */}
         <Input
           id="aa-home-domain"
           label="Anchor home domain"
-          onChange={(e) => setHomeDomain(e.target.value)}
+          onChange={(e) => {
+            setErrorMessage("");
+            setLocalStatus(undefined);
+            setHomeDomain(e.target.value);
+          }}
           value={homeDomain}
-          placeholder="ex. example.com"
+          placeholder="ex: example.com"
         />
-      </div>
 
-      {errorMessage && localStatus && (
-        <div className="ModalMessage error">
-          <p>{errorMessage}</p>
-        </div>
-      )}
+        <Input
+          id="aa-public-key"
+          label="Issuer public key"
+          onChange={(e) => {
+            setErrorMessage("");
+            setLocalStatus(undefined);
+            setIssuerPublicKey(e.target.value);
+          }}
+          value={issuerPublicKey}
+          placeholder="ex: GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B"
+        />
+
+        {errorMessage && localStatus && (
+          <InfoBlock variant={InfoBlockVariant.error}>
+            <p>{errorMessage}</p>
+          </InfoBlock>
+        )}
+      </div>
 
       <div className="ModalButtonsFooter">
         {isPending && <Loader />}
 
         <Button
           onClick={handleSetUntrustedAsset}
-          disabled={!(assetCode && homeDomain) || isPending}
+          disabled={!assetCode || isPending}
         >
           Add
         </Button>

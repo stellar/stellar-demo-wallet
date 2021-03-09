@@ -1,10 +1,16 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom";
 import { TextButton } from "@stellar/design-system";
 import { BalanceRow } from "components/BalanceRow";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { trustAssetAction } from "ducks/trustAsset";
-import { addUntrustedAssetAction } from "ducks/untrustedAssets";
+import {
+  addUntrustedAssetAction,
+  removeUntrustedAssetAction,
+} from "ducks/untrustedAssets";
+import { log } from "helpers/log";
+import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
 import { useRedux } from "hooks/useRedux";
 import {
   ActionStatus,
@@ -32,6 +38,8 @@ export const UntrustedBalance = ({
   );
 
   const dispatch = useDispatch();
+  const history = useHistory();
+  const location = useLocation();
 
   useEffect(() => {
     if (!settings.untrustedAssets) {
@@ -54,6 +62,19 @@ export const UntrustedBalance = ({
         assetIssuer,
       }),
     );
+  };
+
+  const handleRemoveAsset = (asset: Asset) => {
+    const { assetString } = asset;
+
+    history.push(
+      removeUntrustedAssetSearchParam({
+        location,
+        removeAsset: assetString,
+      }),
+    );
+    dispatch(removeUntrustedAssetAction(assetString));
+    log.instruction({ title: `Untrusted asset ${assetString} removed` });
   };
 
   const handleActionChange = ({
@@ -92,6 +113,15 @@ export const UntrustedBalance = ({
           callback: () => handleTrustAsset(asset),
         };
         break;
+      case AssetActionId.REMOVE_ASSET:
+        // TODO: title + description
+        props = {
+          ...defaultProps,
+          title: `Remove asset ${asset.assetCode}`,
+          description: `Asset ${asset.assetCode}:${asset.assetIssuer} does not exist`,
+          callback: () => handleRemoveAsset(asset),
+        };
+        break;
       default:
       // nothing
     }
@@ -105,31 +135,56 @@ export const UntrustedBalance = ({
 
   return (
     <>
-      {untrustedAssets.data.map((asset: Asset) => (
-        <BalanceRow
-          activeAsset={activeAsset.asset}
-          key={asset.assetString}
-          asset={asset}
-          onChange={(e) =>
-            handleActionChange({ actionId: e.target.value, asset })
-          }
-        >
-          <TextButton
-            onClick={() =>
-              handleActionChange({
-                actionId: AssetActionId.TRUST_ASSET,
-                asset,
-              })
-            }
-            disabled={
-              Boolean(activeAsset.asset) ||
-              trustAsset.status === ActionStatus.PENDING
+      {untrustedAssets.data.map((asset: Asset) =>
+        asset.isUntrusted ? (
+          // Untrusted
+          <BalanceRow
+            activeAsset={activeAsset.asset}
+            key={asset.assetString}
+            asset={asset}
+            onChange={(e) =>
+              handleActionChange({ actionId: e.target.value, asset })
             }
           >
-            Trust asset
-          </TextButton>
-        </BalanceRow>
-      ))}
+            <TextButton
+              onClick={() =>
+                handleActionChange({
+                  actionId: AssetActionId.TRUST_ASSET,
+                  asset,
+                })
+              }
+              disabled={
+                Boolean(activeAsset.asset) ||
+                trustAsset.status === ActionStatus.PENDING
+              }
+            >
+              Trust asset
+            </TextButton>
+          </BalanceRow>
+        ) : (
+          // Does not exist
+          <BalanceRow
+            activeAsset={activeAsset.asset}
+            key={asset.assetString}
+            asset={asset}
+          >
+            <TextButton
+              onClick={() =>
+                handleActionChange({
+                  actionId: AssetActionId.REMOVE_ASSET,
+                  asset,
+                })
+              }
+              disabled={
+                Boolean(activeAsset.asset) ||
+                trustAsset.status === ActionStatus.PENDING
+              }
+            >
+              Remove
+            </TextButton>
+          </BalanceRow>
+        ),
+      )}
     </>
   );
 };

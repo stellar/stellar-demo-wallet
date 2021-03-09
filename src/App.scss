@@ -7,6 +7,10 @@ body {
   overflow-y: hidden;
 }
 
+p {
+  word-break: break-word;
+}
+
 @mixin header-footer-inset {
   height: 3rem;
   display: flex;

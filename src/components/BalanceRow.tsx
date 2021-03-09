@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Select, TextLink } from "@stellar/design-system";
+import { shortenStellarKey } from "helpers/shortenStellarKey";
 import {
   Asset,
   ActiveAsset,
@@ -23,9 +24,11 @@ export const BalanceRow = ({
   const {
     assetString,
     assetCode,
+    assetIssuer,
     total,
     supportedActions,
     isUntrusted,
+    notExist,
     homeDomain,
   } = asset;
   const isActive = activeAsset?.id === assetString;
@@ -39,7 +42,13 @@ export const BalanceRow = ({
       key={assetString}
     >
       <div className="BalanceCell BalanceInfo">
-        <div className="BalanceAmount">{`${total || "0"} ${assetCode}`}</div>
+        {notExist ? (
+          <div className="BalanceAmount error">{`${assetCode}:${shortenStellarKey(
+            assetIssuer,
+          )} does not exist`}</div>
+        ) : (
+          <div className="BalanceAmount">{`${total || "0"} ${assetCode}`}</div>
+        )}
         {homeDomain && (
           <div className="BalanceHomeDomain">
             <TextLink
