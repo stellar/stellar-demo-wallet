@@ -106,7 +106,7 @@ export const createRandomAccount = createAsyncThunk<
   } catch (error) {
     log.error({
       title: "Generating new keypair failed",
-      body: error.toString(),
+      body: error.message,
     });
     return rejectWithValue({
       errorString:
@@ -152,7 +152,7 @@ export const fundTestnetAccount = createAsyncThunk<
     } catch (error) {
       log.error({
         title: "The friendbot funding failed",
-        body: error.toString(),
+        body: error.message,
       });
 
       return rejectWithValue({

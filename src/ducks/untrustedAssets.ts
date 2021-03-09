@@ -70,7 +70,7 @@ export const addUntrustedAssetAction = createAsyncThunk<
       return response;
     } catch (error) {
       return rejectWithValue({
-        errorString: error.toString(),
+        errorString: error.message,
       });
     }
   },

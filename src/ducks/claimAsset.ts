@@ -71,7 +71,7 @@ export const claimAssetAction = createAsyncThunk<
       }
     } catch (error) {
       return rejectWithValue({
-        errorString: error.toString(),
+        errorString: error.message,
       });
     }
   },

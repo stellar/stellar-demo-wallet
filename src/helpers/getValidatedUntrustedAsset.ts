@@ -32,8 +32,8 @@ export const getValidatedUntrustedAsset = async ({
 
     asset = `${assetCode}:${homeDomainIssuer}`;
   } catch (e) {
-    log.error({ title: "Issuer domain error: ", body: e.toString() });
-    throw new Error(e.toString());
+    log.error({ title: "Issuer domain error: ", body: e.message });
+    throw new Error(e.message);
   }
 
   if (!asset) {
@@ -48,7 +48,7 @@ export const getValidatedUntrustedAsset = async ({
   // Is asset already trusted
   if (accountBalances?.[asset]) {
     log.instruction({ title: `Asset ${asset} is already trusted.` });
-    throw new Error(`Asset ${asset} is already trusted.`);
+    throw new Error(`Asset ${asset} is already trusted`);
   }
 
   return asset;

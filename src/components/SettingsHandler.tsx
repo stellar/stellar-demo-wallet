@@ -5,6 +5,7 @@ import { Keypair } from "stellar-sdk";
 import { fetchAccountAction } from "ducks/account";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { updateSettingsAction } from "ducks/settings";
+import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
@@ -52,8 +53,7 @@ export const SettingsHandler = ({
           fetchClaimableBalancesAction({ publicKey: keypair.publicKey() }),
         );
       } catch (error) {
-        // TODO: handle error
-        console.log("Fetch account error: ", error.toString());
+        log.error({ title: "Fetch account error", body: error.message });
       }
     }
   }, [secretKeyParam, dispatch]);

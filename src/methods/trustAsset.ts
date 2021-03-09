@@ -63,7 +63,7 @@ export const trustAsset = async ({
   } catch (error) {
     log.error({
       title: "Add trustline transaction failed",
-      body: error.toString(),
+      body: error.message,
     });
     throw new Error(error);
   }

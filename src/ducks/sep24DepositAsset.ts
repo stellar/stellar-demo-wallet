@@ -126,11 +126,11 @@ export const depositAssetAction = createAsyncThunk<
     } catch (error) {
       log.error({
         title: "Deposit failed",
-        body: error.toString(),
+        body: error.message,
       });
 
       return rejectWithValue({
-        errorString: error.toString(),
+        errorString: error.message,
       });
     }
   },

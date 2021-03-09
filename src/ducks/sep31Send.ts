@@ -128,11 +128,11 @@ export const fetchSendFieldsAction = createAsyncThunk<
       };
     } catch (error) {
       log.error({
-        title: error.toString(),
+        title: error.message,
       });
 
       return rejectWithValue({
-        errorString: error.toString(),
+        errorString: error.message,
       });
     }
   },
@@ -233,11 +233,11 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
       return true;
     } catch (error) {
       log.error({
-        title: error.toString(),
+        title: error.message,
       });
 
       return rejectWithValue({
-        errorString: error.toString(),
+        errorString: error.message,
       });
     }
   },

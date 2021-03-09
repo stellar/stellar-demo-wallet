@@ -97,11 +97,11 @@ export const withdrawAssetAction = createAsyncThunk<
     } catch (error) {
       log.error({
         title: "Withdrawal failed",
-        body: error.toString(),
+        body: error.message,
       });
 
       return rejectWithValue({
-        errorString: error.toString(),
+        errorString: error.message,
       });
     }
   },

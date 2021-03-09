@@ -75,7 +75,7 @@ export const claimClaimableBalance = async ({
   } catch (error) {
     log.error({
       title: "claimClaimableBalance transaction failed",
-      body: error.toString(),
+      body: error.message,
     });
     throw new Error(error);
   }
