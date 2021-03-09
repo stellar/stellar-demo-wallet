@@ -30,7 +30,14 @@ export const UntrustedBalance = ({
     options,
   }: AssetActionItem) => void;
 }) => {
-  const { activeAsset, settings, trustAsset, untrustedAssets } = useRedux(
+  const {
+    account,
+    activeAsset,
+    settings,
+    trustAsset,
+    untrustedAssets,
+  } = useRedux(
+    "account",
     "activeAsset",
     "settings",
     "trustAsset",
@@ -154,6 +161,7 @@ export const UntrustedBalance = ({
                 })
               }
               disabled={
+                account.isUnfunded ||
                 Boolean(activeAsset.asset) ||
                 trustAsset.status === ActionStatus.PENDING
               }
