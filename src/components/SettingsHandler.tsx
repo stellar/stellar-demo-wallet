@@ -60,9 +60,16 @@ export const SettingsHandler = ({
 
   // Untrusted assets
   useEffect(() => {
-    dispatch(
-      updateSettingsAction({ untrustedAssets: untrustedAssetsParam || "" }),
-    );
+    const cleanedAssets = untrustedAssetsParam
+      ?.split(",")
+      .reduce(
+        (unique: string[], item: string) =>
+          unique.includes(item) ? unique : [...unique, item],
+        [],
+      )
+      .join(",");
+
+    dispatch(updateSettingsAction({ untrustedAssets: cleanedAssets || "" }));
   }, [untrustedAssetsParam, dispatch]);
 
   // Home domain

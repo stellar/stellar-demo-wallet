@@ -21,46 +21,38 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
     "untrustedAssets",
   );
 
+  const [isValidating, setIsValidating] = useState(false);
   // Form data
   const [assetCode, setAssetCode] = useState("");
   const [homeDomain, setHomeDomain] = useState("");
   const [issuerPublicKey, setIssuerPublicKey] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [localStatus, setLocalStatus] = useState<ActionStatus | undefined>();
 
   const history = useHistory();
 
   const resetState = () => {
     setAssetCode("");
     setHomeDomain("");
+    setIssuerPublicKey("");
     setErrorMessage("");
-    setLocalStatus(undefined);
+    setIsValidating(false);
   };
 
   useEffect(() => () => resetState(), []);
 
   useEffect(() => {
-    if (
-      localStatus === ActionStatus.SUCCESS &&
-      untrustedAssets.status === ActionStatus.SUCCESS
-    ) {
+    if (untrustedAssets.status === ActionStatus.SUCCESS) {
       onClose();
     }
 
-    if (localStatus === ActionStatus.SUCCESS && untrustedAssets.errorString) {
+    if (untrustedAssets.errorString) {
       setErrorMessage(untrustedAssets.errorString);
     }
-  }, [
-    untrustedAssets.status,
-    untrustedAssets.errorString,
-    localStatus,
-    onClose,
-  ]);
+  }, [untrustedAssets.status, untrustedAssets.errorString, onClose]);
 
   const handleSetUntrustedAsset = async () => {
-    // Reset local state
     setErrorMessage("");
-    setLocalStatus(ActionStatus.PENDING);
+    setIsValidating(true);
 
     try {
       const asset = await getValidatedUntrustedAsset({
@@ -77,16 +69,17 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
           asset,
         }),
       );
-      setLocalStatus(ActionStatus.SUCCESS);
+
+      setIsValidating(false);
     } catch (e) {
       setErrorMessage(e.toString());
-      setLocalStatus(ActionStatus.ERROR);
+      setIsValidating(false);
     }
   };
 
   const isPending =
-    untrustedAssets.status === ActionStatus.PENDING ||
-    localStatus === ActionStatus.PENDING;
+    isValidating || untrustedAssets.status === ActionStatus.PENDING;
+  const formIsEmpty = !assetCode && !homeDomain && !issuerPublicKey;
 
   return (
     <>
@@ -99,7 +92,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
           label="Asset code"
           onChange={(e) => {
             setErrorMessage("");
-            setLocalStatus(undefined);
             setAssetCode(e.target.value);
           }}
           value={assetCode}
@@ -112,7 +104,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
           label="Anchor home domain"
           onChange={(e) => {
             setErrorMessage("");
-            setLocalStatus(undefined);
             setHomeDomain(e.target.value);
           }}
           value={homeDomain}
@@ -124,14 +115,13 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
           label="Issuer public key"
           onChange={(e) => {
             setErrorMessage("");
-            setLocalStatus(undefined);
             setIssuerPublicKey(e.target.value);
           }}
           value={issuerPublicKey}
           placeholder="ex: GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B"
         />
 
-        {errorMessage && localStatus && (
+        {errorMessage && (
           <InfoBlock variant={InfoBlockVariant.error}>
             <p>{errorMessage}</p>
           </InfoBlock>
@@ -143,7 +133,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
         <Button
           onClick={handleSetUntrustedAsset}
-          disabled={!assetCode || isPending}
+          disabled={formIsEmpty || isPending}
         >
           Add
         </Button>

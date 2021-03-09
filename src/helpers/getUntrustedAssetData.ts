@@ -86,6 +86,10 @@ export const getUntrustedAssetData = async ({
       });
 
       response = [...response, data];
+
+      log.instruction({
+        title: `Asset ${assetString} added`,
+      });
     }
   }
 

@@ -1,3 +1,5 @@
+import { log } from "helpers/log";
+
 export const getUntrustedAssetsSearchParam = ({
   location,
   asset,
@@ -12,7 +14,10 @@ export const getUntrustedAssetsSearchParam = ({
   if (!untrustedAssetsParam) {
     queryParams.set("untrustedAssets", asset);
   } else if (untrustedAssetsParam.includes(asset)) {
-    throw new Error("Asset was already added.");
+    const errorMessage = `Asset ${asset} was already added`;
+
+    log.error({ title: errorMessage });
+    throw Error(errorMessage);
   } else {
     queryParams.set("untrustedAssets", `${untrustedAssetsParam},${asset}`);
   }

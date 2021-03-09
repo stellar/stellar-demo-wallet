@@ -1,5 +1,6 @@
 import { Server } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
+import { getCurrenciesFromDomain } from "helpers/getCurrenciesFromDomain";
 import { getIssuerFromDomain } from "helpers/getIssuerFromDomain";
 import { log } from "helpers/log";
 
@@ -31,8 +32,6 @@ export const getValidatedUntrustedAsset = async ({
       throw Error(errorMessage);
     }
   };
-
-  // TODO: if only home domain provided, fetch all assets from toml if exists
 
   if (assetCode && !(homeDomain || issuerPublicKey)) {
     const errorMessage =
@@ -71,14 +70,45 @@ export const getValidatedUntrustedAsset = async ({
           return `${assetCode}:${homeDomainIssuer}`;
         }
       } catch (e) {
-        // TODO: better message
-        log.error({ title: "Issuer domain error: ", body: e.toString() });
-        throw new Error(e);
+        log.error({
+          title: e.message,
+        });
+        throw Error(e.message);
+      }
+    } else {
+      // Get available assets if no asset code was provided
+      try {
+        const tomlCurrencies = (await getCurrenciesFromDomain(homeDomain)).map(
+          (currency: any) => currency.code,
+        );
+
+        let message = `No asset code was provided. The following assets are available on the home domain’s TOML file: ${tomlCurrencies.join(
+          ", ",
+        )}.`;
+
+        if (tomlCurrencies.length === 1) {
+          message = `No asset code was provided. ${tomlCurrencies[0]} asset is available on the home domain’s TOML file.`;
+        }
+
+        throw Error(message);
+      } catch (e) {
+        log.error({
+          title: e.message,
+        });
+        throw Error(e.message);
       }
     }
   }
 
-  throw Error("No asset was found matching information provided");
+  log.error({
+    title: "No asset was found matching provided information",
+    body: {
+      assetCode,
+      homeDomain,
+      issuerPublicKey,
+    },
+  });
+  throw Error("No asset was found matching provided information");
 };
 
 const assetExists = async ({
