@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getUntrustedAssetData } from "helpers/getUntrustedAssetData";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
@@ -70,7 +71,7 @@ export const addUntrustedAssetAction = createAsyncThunk<
       return response;
     } catch (error) {
       return rejectWithValue({
-        errorString: error.message,
+        errorString: getErrorMessage(error),
       });
     }
   },

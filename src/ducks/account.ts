@@ -5,6 +5,7 @@ import { Keypair } from "stellar-sdk";
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getAssetData } from "helpers/getAssetData";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
@@ -106,7 +107,7 @@ export const createRandomAccount = createAsyncThunk<
   } catch (error) {
     log.error({
       title: "Generating new keypair failed",
-      body: error.message,
+      body: getErrorMessage(error),
     });
     return rejectWithValue({
       errorString:
@@ -152,7 +153,7 @@ export const fundTestnetAccount = createAsyncThunk<
     } catch (error) {
       log.error({
         title: "The friendbot funding failed",
-        body: error.message,
+        body: getErrorMessage(error),
       });
 
       return rejectWithValue({

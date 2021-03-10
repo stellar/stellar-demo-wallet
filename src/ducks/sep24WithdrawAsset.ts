@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import {
@@ -97,11 +98,11 @@ export const withdrawAssetAction = createAsyncThunk<
     } catch (error) {
       log.error({
         title: "Withdrawal failed",
-        body: error.message,
+        body: getErrorMessage(error),
       });
 
       return rejectWithValue({
-        errorString: error.message,
+        errorString: getErrorMessage(error),
       });
     }
   },

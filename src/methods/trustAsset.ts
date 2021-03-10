@@ -5,6 +5,7 @@ import StellarSdk, {
   Asset,
   Keypair,
 } from "stellar-sdk";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { log } from "helpers/log";
 import { TrustAssetParam } from "types/types.d";
 
@@ -63,7 +64,7 @@ export const trustAsset = async ({
   } catch (error) {
     log.error({
       title: "Add trustline transaction failed",
-      body: error.message,
+      body: getErrorMessage(error),
     });
     throw new Error(error);
   }

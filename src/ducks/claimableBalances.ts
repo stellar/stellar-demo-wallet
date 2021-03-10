@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import StellarSdk, { ServerApi } from "stellar-sdk";
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import {
@@ -59,7 +60,7 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
       };
     } catch (error) {
       return rejectWithValue({
-        errorString: error.message,
+        errorString: getErrorMessage(error),
       });
     }
   },

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, Heading2, Input, Loader } from "@stellar/design-system";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getUntrustedAssetsSearchParam } from "helpers/getUntrustedAssetsSearchParam";
 import { getValidatedUntrustedAsset } from "helpers/getValidatedUntrustedAsset";
 import { log } from "helpers/log";
@@ -56,8 +57,8 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
       );
       setLocalStatus(ActionStatus.SUCCESS);
     } catch (e) {
-      log.error({ title: e.message });
-      setErrorMessage(e.message);
+      log.error({ title: getErrorMessage(e) });
+      setErrorMessage(getErrorMessage(e));
       setLocalStatus(ActionStatus.ERROR);
     }
   };

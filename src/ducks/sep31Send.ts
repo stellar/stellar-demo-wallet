@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 
@@ -128,11 +129,11 @@ export const fetchSendFieldsAction = createAsyncThunk<
       };
     } catch (error) {
       log.error({
-        title: error.message,
+        title: getErrorMessage(error),
       });
 
       return rejectWithValue({
-        errorString: error.message,
+        errorString: getErrorMessage(error),
       });
     }
   },
@@ -233,11 +234,11 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
       return true;
     } catch (error) {
       log.error({
-        title: error.message,
+        title: getErrorMessage(error),
       });
 
       return rejectWithValue({
-        errorString: error.message,
+        errorString: getErrorMessage(error),
       });
     }
   },

@@ -3,6 +3,7 @@ import { BASE_FEE } from "stellar-sdk";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import { claimClaimableBalance } from "methods/claimClaimableBalance";
@@ -71,7 +72,7 @@ export const claimAssetAction = createAsyncThunk<
       }
     } catch (error) {
       return rejectWithValue({
-        errorString: error.message,
+        errorString: getErrorMessage(error),
       });
     }
   },
