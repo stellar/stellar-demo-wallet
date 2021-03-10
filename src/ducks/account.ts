@@ -10,9 +10,9 @@ import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import {
   ActionStatus,
+  Asset,
   RejectMessage,
   AccountInitialState,
-  AnyObject,
 } from "types/types.d";
 
 interface UnfundedAccount extends Types.AccountDetails {
@@ -24,11 +24,16 @@ interface AccountKeyPair {
   secretKey: string;
 }
 
-interface FetchAccountActionResponse {
+interface AccountActionBaseResponse {
   data: Types.AccountDetails | UnfundedAccount;
-  assets: AnyObject;
-  secretKey: string;
+  assets: {
+    [key: string]: Asset;
+  };
   isUnfunded: boolean;
+}
+
+interface FetchAccountActionResponse extends AccountActionBaseResponse {
+  secretKey: string;
 }
 
 export const fetchAccountAction = createAsyncThunk<
@@ -114,7 +119,7 @@ export const createRandomAccount = createAsyncThunk<
 });
 
 export const fundTestnetAccount = createAsyncThunk<
-  { data: Types.AccountDetails; assets: AnyObject; isUnfunded: boolean },
+  AccountActionBaseResponse,
   string,
   { rejectValue: RejectMessage; state: RootState }
 >(
