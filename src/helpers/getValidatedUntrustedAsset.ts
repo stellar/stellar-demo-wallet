@@ -33,8 +33,10 @@ export const getValidatedUntrustedAsset = async ({
 
     asset = `${assetCode}:${homeDomainIssuer}`;
   } catch (e) {
-    log.error({ title: "Issuer domain error: ", body: getErrorMessage(e) });
-    throw new Error(e);
+    const errorMessage = getErrorMessage(e);
+
+    log.error({ title: "Issuer domain error: ", body: errorMessage });
+    throw new Error(errorMessage);
   }
 
   if (!asset) {

@@ -125,13 +125,15 @@ export const depositAssetAction = createAsyncThunk<
         trustedAssetAdded,
       };
     } catch (error) {
+      const errorMessage = getErrorMessage(error);
+
       log.error({
         title: "Deposit failed",
-        body: getErrorMessage(error),
+        body: errorMessage,
       });
 
       return rejectWithValue({
-        errorString: getErrorMessage(error),
+        errorString: errorMessage,
       });
     }
   },

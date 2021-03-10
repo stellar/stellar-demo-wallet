@@ -57,8 +57,10 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
       );
       setLocalStatus(ActionStatus.SUCCESS);
     } catch (e) {
-      log.error({ title: getErrorMessage(e) });
-      setErrorMessage(getErrorMessage(e));
+      const errorMsg = getErrorMessage(e);
+
+      log.error({ title: errorMsg });
+      setErrorMessage(errorMsg);
       setLocalStatus(ActionStatus.ERROR);
     }
   };

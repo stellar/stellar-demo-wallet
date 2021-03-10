@@ -96,13 +96,15 @@ export const withdrawAssetAction = createAsyncThunk<
         currentStatus,
       };
     } catch (error) {
+      const errorMessage = getErrorMessage(error);
+
       log.error({
         title: "Withdrawal failed",
-        body: getErrorMessage(error),
+        body: errorMessage,
       });
 
       return rejectWithValue({
-        errorString: getErrorMessage(error),
+        errorString: errorMessage,
       });
     }
   },

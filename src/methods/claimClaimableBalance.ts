@@ -74,10 +74,12 @@ export const claimClaimableBalance = async ({
 
     return result;
   } catch (error) {
+    const errorMessage = getErrorMessage(error);
+
     log.error({
       title: "claimClaimableBalance transaction failed",
-      body: getErrorMessage(error),
+      body: errorMessage,
     });
-    throw new Error(error);
+    throw new Error(errorMessage);
   }
 };

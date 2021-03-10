@@ -1,4 +1,5 @@
 import StellarSdk, { BASE_FEE, Keypair } from "stellar-sdk";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
@@ -118,7 +119,7 @@ const buildPaymentTransaction = async ({
 
     transaction = transaction.build();
   } catch (error) {
-    throw new Error(error);
+    throw new Error(getErrorMessage(error));
   }
 
   return transaction;

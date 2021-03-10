@@ -52,7 +52,7 @@ export const claimAssetAction = createAsyncThunk<
 
           trustedAssetAdded = `${assetCode}:${assetIssuer}`;
         } catch (error) {
-          throw new Error(error);
+          throw new Error(getErrorMessage(error));
         }
       }
 
@@ -68,7 +68,7 @@ export const claimAssetAction = createAsyncThunk<
 
         return { result, trustedAssetAdded };
       } catch (error) {
-        throw new Error(error);
+        throw new Error(getErrorMessage(error));
       }
     } catch (error) {
       return rejectWithValue({

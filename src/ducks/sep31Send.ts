@@ -128,12 +128,14 @@ export const fetchSendFieldsAction = createAsyncThunk<
         kycServer: tomlResponse.kycServer,
       };
     } catch (error) {
+      const errorMessage = getErrorMessage(error);
+
       log.error({
-        title: getErrorMessage(error),
+        title: errorMessage,
       });
 
       return rejectWithValue({
-        errorString: getErrorMessage(error),
+        errorString: errorMessage,
       });
     }
   },
@@ -233,12 +235,14 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
 
       return true;
     } catch (error) {
+      const errorMessage = getErrorMessage(error);
+
       log.error({
-        title: getErrorMessage(error),
+        title: errorMessage,
       });
 
       return rejectWithValue({
-        errorString: getErrorMessage(error),
+        errorString: errorMessage,
       });
     }
   },
