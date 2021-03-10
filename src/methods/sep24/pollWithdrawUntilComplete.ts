@@ -162,7 +162,9 @@ export const pollWithdrawUntilComplete = async ({
     // eslint-disable-next-line no-await-in-loop
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
+
   log.instruction({ title: `Transaction status: ${currentStatus}` });
+
   if (
     ![TransactionStatus.COMPLETED, TransactionStatus.ERROR].includes(
       currentStatus,

@@ -26,9 +26,11 @@ export const pollDepositUntilComplete = async ({
 
   while (
     !popup.closed &&
-    ![TransactionStatus.COMPLETED, TransactionStatus.ERROR].includes(
-      currentStatus,
-    )
+    ![
+      TransactionStatus.PENDING_EXTERNAL,
+      TransactionStatus.COMPLETED,
+      TransactionStatus.ERROR,
+    ].includes(currentStatus)
   ) {
     // eslint-disable-next-line no-await-in-loop
     const response = await fetch(transactionUrl.toString(), {
@@ -112,9 +114,11 @@ export const pollDepositUntilComplete = async ({
   log.instruction({ title: `Transaction status: ${currentStatus}` });
 
   if (
-    ![TransactionStatus.COMPLETED, TransactionStatus.ERROR].includes(
-      currentStatus,
-    ) &&
+    ![
+      TransactionStatus.PENDING_EXTERNAL,
+      TransactionStatus.COMPLETED,
+      TransactionStatus.ERROR,
+    ].includes(currentStatus) &&
     popup.closed
   ) {
     log.instruction({
