@@ -79,8 +79,6 @@ export interface SettingsInitialState {
   pubnet: boolean;
   secretKey: string;
   untrustedAssets: string;
-  homeDomain: string;
-  horizonURL: string;
 }
 
 export interface UntrustedAssetsInitialState {
