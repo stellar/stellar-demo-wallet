@@ -16,7 +16,7 @@ export const getIssuerFromDomain = async ({
   try {
     domainURL = new URL(domain);
   } catch (e) {
-    throw new Error("anchor home domain is not a valid URL using HTTPS");
+    throw new Error("Anchor home domain is not a valid URL using HTTPS");
   }
 
   const toml =
@@ -28,7 +28,7 @@ export const getIssuerFromDomain = async ({
 
   if (!toml.CURRENCIES) {
     throw new Error(
-      "the home domain specified does not have a CURRENCIES section on it's TOML file",
+      "The home domain specified does not have a CURRENCIES section on it’s TOML file",
     );
   }
 
@@ -39,7 +39,7 @@ export const getIssuerFromDomain = async ({
 
   if (!issuer) {
     throw new Error(
-      `unable to find the ${assetCode} issuer on the home domain's TOML file`,
+      `Unable to find the ${assetCode} issuer on the home domain’s TOML file`,
     );
   }
 

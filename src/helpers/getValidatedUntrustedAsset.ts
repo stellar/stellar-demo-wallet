@@ -1,4 +1,5 @@
 import { Types } from "@stellar/wallet-sdk";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getIssuerFromDomain } from "helpers/getIssuerFromDomain";
 import { log } from "helpers/log";
 
@@ -32,8 +33,10 @@ export const getValidatedUntrustedAsset = async ({
 
     asset = `${assetCode}:${homeDomainIssuer}`;
   } catch (e) {
-    log.error({ title: "Issuer domain error: ", body: e.toString() });
-    throw new Error(e.toString());
+    const errorMessage = getErrorMessage(e);
+
+    log.error({ title: "Issuer domain error: ", body: errorMessage });
+    throw new Error(errorMessage);
   }
 
   if (!asset) {
@@ -48,7 +51,7 @@ export const getValidatedUntrustedAsset = async ({
   // Is asset already trusted
   if (accountBalances?.[asset]) {
     log.instruction({ title: `Asset ${asset} is already trusted.` });
-    throw new Error(`Asset ${asset} is already trusted.`);
+    throw new Error(`Asset ${asset} is already trusted`);
   }
 
   return asset;

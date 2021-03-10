@@ -1,3 +1,4 @@
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { log } from "helpers/log";
 import { TransactionStatus } from "types/types.d";
 
@@ -82,7 +83,7 @@ export const pollDepositUntilComplete = async ({
             // eslint-disable-next-line no-await-in-loop
             trustedAssetAdded = await trustAssetCallback();
           } catch (error) {
-            throw new Error(error);
+            throw new Error(getErrorMessage(error));
           }
           break;
         }
