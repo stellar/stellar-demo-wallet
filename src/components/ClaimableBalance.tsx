@@ -26,7 +26,7 @@ export const ClaimableBalance = ({
 
   const handleClaim = (balance: ClaimableAsset) => {
     onAssetAction({
-      id: balance.assetString,
+      assetString: balance.assetString,
       balance,
       title: `Claim balance ${balance.assetCode}`,
       description: `Claimable balance description ${balance.total} ${balance.assetCode}`,

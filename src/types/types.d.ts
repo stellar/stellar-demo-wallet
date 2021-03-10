@@ -202,7 +202,7 @@ export interface ClaimableAsset extends Asset {
 }
 
 export interface ActiveAssetAction {
-  id: string;
+  assetString: string;
   title: string;
   description?: string;
   callback: (args?: any) => void;

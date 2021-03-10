@@ -106,7 +106,7 @@ export const Assets = ({
   };
 
   const handleAssetAction = ({
-    id,
+    assetString,
     balance,
     callback,
     title,
@@ -116,7 +116,7 @@ export const Assets = ({
     setActiveModal(modalType.CONFIRM_ACTION);
     dispatch(
       setActiveAsset({
-        id,
+        assetString,
         title,
         description,
         callback: () => {

@@ -92,7 +92,7 @@ export const Balance = ({
 
     let props: AssetActionItem | undefined;
     const defaultProps = {
-      id: balance.assetString,
+      assetString: balance.assetString,
       balance,
     };
 

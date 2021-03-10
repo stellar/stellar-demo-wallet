@@ -28,7 +28,7 @@ export const BalanceRow = ({
     isUntrusted,
     homeDomain,
   } = asset;
-  const isActive = activeAction?.id === assetString;
+  const isActive = activeAction?.assetString === assetString;
   const disabled = Boolean(activeAction);
 
   return (

@@ -69,7 +69,7 @@ export const UntrustedBalance = ({
 
     let props: AssetActionItem | undefined;
     const defaultProps = {
-      id: asset.assetString,
+      assetString: asset.assetString,
       balance: asset,
     };
 
