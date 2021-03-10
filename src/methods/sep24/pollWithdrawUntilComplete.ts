@@ -42,12 +42,9 @@ export const pollWithdrawUntilComplete = async ({
     title: `Polling for updates: ${transactionUrl.toString()}`,
   });
 
-  while (
-    !popup.closed &&
-    ![TransactionStatus.COMPLETED, TransactionStatus.ERROR].includes(
-      currentStatus,
-    )
-  ) {
+  const endStatuses = [TransactionStatus.COMPLETED, TransactionStatus.ERROR];
+
+  while (!popup.closed && !endStatuses.includes(currentStatus)) {
     // eslint-disable-next-line no-await-in-loop
     const response = await fetch(transactionUrl.toString(), {
       headers: { Authorization: `Bearer ${token}` },
@@ -165,12 +162,7 @@ export const pollWithdrawUntilComplete = async ({
 
   log.instruction({ title: `Transaction status: ${currentStatus}` });
 
-  if (
-    ![TransactionStatus.COMPLETED, TransactionStatus.ERROR].includes(
-      currentStatus,
-    ) &&
-    popup.closed
-  ) {
+  if (!endStatuses.includes(currentStatus) && popup.closed) {
     log.instruction({
       title: `The popup was closed before the transaction reached a terminal status, if your balance is not updated soon, the transaction may have failed.`,
     });
