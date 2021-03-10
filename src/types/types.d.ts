@@ -33,7 +33,7 @@ export interface AccountInitialState {
 }
 
 export interface ActiveAssetInitialState {
-  asset: ActiveAsset | undefined;
+  action: ActiveAssetAction | undefined;
   status: ActionStatus | undefined;
 }
 
@@ -201,7 +201,7 @@ export interface ClaimableAsset extends Asset {
   claimants: any[];
 }
 
-export interface ActiveAsset {
+export interface ActiveAssetAction {
   id: string;
   title: string;
   description?: string;
@@ -209,7 +209,7 @@ export interface ActiveAsset {
   options?: ReactNode;
 }
 
-export interface AssetActionItem extends ActiveAsset {
+export interface AssetActionItem extends ActiveAssetAction {
   balance: Asset;
 }
 

@@ -156,10 +156,10 @@ export const Assets = ({
   );
 
   useEffect(() => {
-    if (!activeAsset.asset) {
+    if (!activeAsset.action) {
       setToastMessage(undefined);
     }
-  }, [activeAsset.asset]);
+  }, [activeAsset.action]);
 
   // Trust asset
   useEffect(() => {
@@ -296,7 +296,7 @@ export const Assets = ({
         <div className="BalancesButtons Inset">
           <Button
             onClick={() => setActiveModal(modalType.ADD_ASSET)}
-            disabled={Boolean(activeAsset.asset)}
+            disabled={Boolean(activeAsset.action)}
           >
             Add asset
           </Button>

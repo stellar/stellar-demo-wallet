@@ -46,13 +46,13 @@ export const ClaimableBalance = ({
       <div className="Balances">
         {balances.map((balance) => (
           <BalanceRow
-            activeAsset={activeAsset.asset}
+            activeAction={activeAsset.action}
             key={balance.assetString}
             asset={balance}
           >
             <TextButton
               onClick={() => handleClaim(balance)}
-              disabled={Boolean(activeAsset.asset)}
+              disabled={Boolean(activeAsset.action)}
             >
               Claim
             </TextButton>
