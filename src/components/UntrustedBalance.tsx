@@ -140,6 +140,9 @@ export const UntrustedBalance = ({
     onAssetAction(props);
   };
 
+  const disabledButton =
+    Boolean(activeAsset.asset) || trustAsset.status === ActionStatus.PENDING;
+
   return (
     <>
       {untrustedAssets.data.map((asset: Asset) =>
@@ -160,11 +163,7 @@ export const UntrustedBalance = ({
                   asset,
                 })
               }
-              disabled={
-                account.isUnfunded ||
-                Boolean(activeAsset.asset) ||
-                trustAsset.status === ActionStatus.PENDING
-              }
+              disabled={account.isUnfunded || disabledButton}
             >
               Trust asset
             </TextButton>
@@ -183,10 +182,7 @@ export const UntrustedBalance = ({
                   asset,
                 })
               }
-              disabled={
-                Boolean(activeAsset.asset) ||
-                trustAsset.status === ActionStatus.PENDING
-              }
+              disabled={disabledButton}
             >
               Remove
             </TextButton>

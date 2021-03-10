@@ -13,7 +13,7 @@ export const getIssuerFromDomain = async ({
   if (!matchingCurrency?.issuer) {
     const availableAssets = currencies.map((c: any) => c.code).join(", ");
 
-    throw Error(
+    throw new Error(
       `Unable to find the ${assetCode} issuer on the home domain’s TOML file.
       Available asset${currencies.length > 1 ? "s" : ""}: ${availableAssets}.`,
     );

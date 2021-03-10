@@ -29,7 +29,7 @@ export const getValidatedUntrustedAsset = async ({
     if (accountBalances?.[asset]) {
       const errorMessage = `Asset ${asset} is already trusted.`;
       log.instruction({ title: errorMessage });
-      throw Error(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
@@ -73,7 +73,7 @@ export const getValidatedUntrustedAsset = async ({
         log.error({
           title: e.message,
         });
-        throw Error(e.message);
+        throw new Error(e.message);
       }
     } else {
       // Get available assets if no asset code was provided
@@ -90,12 +90,12 @@ export const getValidatedUntrustedAsset = async ({
           message = `No asset code was provided. ${tomlCurrencies[0]} asset is available on the home domain’s TOML file.`;
         }
 
-        throw Error(message);
+        throw new Error(message);
       } catch (e) {
         log.error({
           title: e.message,
         });
-        throw Error(e.message);
+        throw new Error(e.message);
       }
     }
   }
@@ -108,7 +108,7 @@ export const getValidatedUntrustedAsset = async ({
       issuerPublicKey,
     },
   });
-  throw Error("No asset was found matching provided information");
+  throw new Error("No asset was found matching provided information");
 };
 
 const assetExists = async ({

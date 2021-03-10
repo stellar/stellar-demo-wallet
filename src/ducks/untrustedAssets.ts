@@ -64,7 +64,7 @@ export const addUntrustedAssetAction = createAsyncThunk<
           networkUrl: getNetworkConfig(pubnet).url,
         });
       } catch (error) {
-        throw Error(error.message);
+        throw new Error(error.message);
       }
 
       if (!response.length) {

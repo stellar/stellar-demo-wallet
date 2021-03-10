@@ -10,7 +10,7 @@ export const getCurrenciesFromDomain = async (homeDomain: string) => {
   try {
     domainURL = new URL(domain);
   } catch (e) {
-    throw Error("Anchor home domain is not a valid URL using HTTPS");
+    throw new Error("Anchor home domain is not a valid URL using HTTPS");
   }
 
   const toml =
@@ -21,7 +21,7 @@ export const getCurrenciesFromDomain = async (homeDomain: string) => {
       : await StellarTomlResolver.resolve(domainURL.host);
 
   if (!toml.CURRENCIES) {
-    throw Error(
+    throw new Error(
       "The home domain specified does not have a CURRENCIES section on it's TOML file",
     );
   }

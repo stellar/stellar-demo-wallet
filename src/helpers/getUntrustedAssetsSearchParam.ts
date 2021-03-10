@@ -17,7 +17,7 @@ export const getUntrustedAssetsSearchParam = ({
     const errorMessage = `Asset ${asset} was already added`;
 
     log.error({ title: errorMessage });
-    throw Error(errorMessage);
+    throw new Error(errorMessage);
   } else {
     queryParams.set("untrustedAssets", `${untrustedAssetsParam},${asset}`);
   }
