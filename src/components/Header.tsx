@@ -18,16 +18,16 @@ export const Header = () => {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
   const handleSignOut = () => {
     dispatch(resetStoreAction());
     history.push({
       pathname: "/",
     });
-    setModalVisible(false);
-  };
-
-  const handleCloseModal = () => {
-    setModalVisible(false);
+    handleCloseModal();
   };
 
   return (
