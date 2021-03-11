@@ -4,6 +4,7 @@ import StellarSdk, {
   Operation,
   TransactionBuilder,
 } from "stellar-sdk";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { log } from "helpers/log";
 import { ClaimableAsset } from "types/types.d";
 
@@ -73,10 +74,12 @@ export const claimClaimableBalance = async ({
 
     return result;
   } catch (error) {
+    const errorMessage = getErrorMessage(error);
+
     log.error({
       title: "claimClaimableBalance transaction failed",
-      body: error.toString(),
+      body: errorMessage,
     });
-    throw new Error(error);
+    throw new Error(errorMessage);
   }
 };

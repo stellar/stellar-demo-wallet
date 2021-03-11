@@ -5,6 +5,8 @@ import { Keypair } from "stellar-sdk";
 import { fetchAccountAction } from "ducks/account";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { updateSettingsAction } from "ducks/settings";
+import { getErrorMessage } from "helpers/getErrorMessage";
+import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
@@ -23,8 +25,6 @@ export const SettingsHandler = ({
   const pubnetParam = queryParams.get("pubnet");
   const secretKeyParam = queryParams.get("secretKey");
   const untrustedAssetsParam = queryParams.get("untrustedAssets");
-  const homeDomainParam = queryParams.get("homeDomain");
-  const horizonURLParam = queryParams.get("horizonURL");
 
   // Set network param (pubnet=true)
   useEffect(() => {
@@ -52,8 +52,10 @@ export const SettingsHandler = ({
           fetchClaimableBalancesAction({ publicKey: keypair.publicKey() }),
         );
       } catch (error) {
-        // TODO: handle error
-        console.log("Fetch account error: ", error.toString());
+        log.error({
+          title: "Fetch account error",
+          body: getErrorMessage(error),
+        });
       }
     }
   }, [secretKeyParam, dispatch]);
@@ -71,16 +73,6 @@ export const SettingsHandler = ({
 
     dispatch(updateSettingsAction({ untrustedAssets: cleanedAssets || "" }));
   }, [untrustedAssetsParam, dispatch]);
-
-  // Home domain
-  useEffect(() => {
-    dispatch(updateSettingsAction({ homeDomain: homeDomainParam || "" }));
-  }, [homeDomainParam, dispatch]);
-
-  // Horizon instance URL
-  useEffect(() => {
-    dispatch(updateSettingsAction({ horizonURL: horizonURLParam || "" }));
-  }, [horizonURLParam, dispatch]);
 
   // Go to /account page if fetching account was success
   useEffect(() => {

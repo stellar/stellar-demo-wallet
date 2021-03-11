@@ -1,6 +1,7 @@
 import { Server } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 import { getCurrenciesFromDomain } from "helpers/getCurrenciesFromDomain";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getIssuerFromDomain } from "helpers/getIssuerFromDomain";
 import { log } from "helpers/log";
 
@@ -70,10 +71,11 @@ export const getValidatedUntrustedAsset = async ({
           return `${assetCode}:${homeDomainIssuer}`;
         }
       } catch (e) {
+        const errorMessage = getErrorMessage(e);
         log.error({
-          title: e.message,
+          title: errorMessage,
         });
-        throw new Error(e.message);
+        throw new Error(errorMessage);
       }
     } else {
       // Get available assets if no asset code was provided
@@ -92,23 +94,26 @@ export const getValidatedUntrustedAsset = async ({
 
         throw new Error(message);
       } catch (e) {
+        const errorMessage = getErrorMessage(e);
         log.error({
-          title: e.message,
+          title: errorMessage,
         });
-        throw new Error(e.message);
+        throw new Error(errorMessage);
       }
     }
   }
 
+  const errorMessage = "No asset was found matching provided information";
+
   log.error({
-    title: "No asset was found matching provided information",
+    title: errorMessage,
     body: {
       assetCode,
       homeDomain,
       issuerPublicKey,
     },
   });
-  throw new Error("No asset was found matching provided information");
+  throw new Error(errorMessage);
 };
 
 const assetExists = async ({

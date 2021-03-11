@@ -3,11 +3,13 @@ import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { TextButton } from "@stellar/design-system";
 import { BalanceRow } from "components/BalanceRow";
+import { resetActiveAssetAction } from "ducks/activeAsset";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { trustAssetAction } from "ducks/trustAsset";
 import {
   addUntrustedAssetAction,
   removeUntrustedAssetAction,
+  resetUntrustedAssetStatusAction,
 } from "ducks/untrustedAssets";
 import { log } from "helpers/log";
 import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
@@ -82,6 +84,9 @@ export const UntrustedBalance = ({
     );
     dispatch(removeUntrustedAssetAction(assetString));
     log.instruction({ title: `Untrusted asset ${assetString} removed` });
+
+    dispatch(resetUntrustedAssetStatusAction());
+    dispatch(resetActiveAssetAction());
   };
 
   const handleActionChange = ({
@@ -97,7 +102,7 @@ export const UntrustedBalance = ({
 
     let props: AssetActionItem | undefined;
     const defaultProps = {
-      id: asset.assetString,
+      assetString: asset.assetString,
       balance: asset,
     };
 
@@ -141,7 +146,7 @@ export const UntrustedBalance = ({
   };
 
   const disabledButton =
-    Boolean(activeAsset.asset) || trustAsset.status === ActionStatus.PENDING;
+    Boolean(activeAsset.action) || trustAsset.status === ActionStatus.PENDING;
 
   return (
     <>
@@ -149,7 +154,7 @@ export const UntrustedBalance = ({
         asset.isUntrusted ? (
           // Untrusted
           <BalanceRow
-            activeAsset={activeAsset.asset}
+            activeAction={activeAsset.action}
             key={asset.assetString}
             asset={asset}
             onChange={(e) =>
@@ -171,7 +176,7 @@ export const UntrustedBalance = ({
         ) : (
           // Does not exist
           <BalanceRow
-            activeAsset={activeAsset.asset}
+            activeAction={activeAsset.action}
             key={asset.assetString}
             asset={asset}
           >

@@ -8,9 +8,11 @@ import {
   Input,
   Loader,
 } from "@stellar/design-system";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { getUntrustedAssetsSearchParam } from "helpers/getUntrustedAssetsSearchParam";
 import { getValidatedUntrustedAsset } from "helpers/getValidatedUntrustedAsset";
+import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
@@ -72,7 +74,10 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
       setIsValidating(false);
     } catch (e) {
-      setErrorMessage(e.toString());
+      const errorMsg = getErrorMessage(e);
+
+      log.error({ title: errorMsg });
+      setErrorMessage(errorMsg);
       setIsValidating(false);
     }
   };

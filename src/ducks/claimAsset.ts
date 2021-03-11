@@ -3,6 +3,7 @@ import { BASE_FEE } from "stellar-sdk";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
+import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import { claimClaimableBalance } from "methods/claimClaimableBalance";
@@ -51,7 +52,7 @@ export const claimAssetAction = createAsyncThunk<
 
           trustedAssetAdded = `${assetCode}:${assetIssuer}`;
         } catch (error) {
-          throw new Error(error);
+          throw new Error(getErrorMessage(error));
         }
       }
 
@@ -67,11 +68,11 @@ export const claimAssetAction = createAsyncThunk<
 
         return { result, trustedAssetAdded };
       } catch (error) {
-        throw new Error(error);
+        throw new Error(getErrorMessage(error));
       }
     } catch (error) {
       return rejectWithValue({
-        errorString: error.toString(),
+        errorString: getErrorMessage(error),
       });
     }
   },

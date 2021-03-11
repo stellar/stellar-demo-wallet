@@ -3,20 +3,20 @@ import { Select, TextLink } from "@stellar/design-system";
 import { shortenStellarKey } from "helpers/shortenStellarKey";
 import {
   Asset,
-  ActiveAsset,
+  ActiveAssetAction,
   AssetActionId,
   ClaimableAsset,
 } from "types/types.d";
 
 interface BalanceRowProps {
-  activeAsset: ActiveAsset | undefined;
+  activeAction: ActiveAssetAction | undefined;
   asset: Asset | ClaimableAsset;
   onChange?: (e: any) => void;
   children?: ReactNode;
 }
 
 export const BalanceRow = ({
-  activeAsset,
+  activeAction,
   asset,
   onChange,
   children,
@@ -31,8 +31,8 @@ export const BalanceRow = ({
     notExist,
     homeDomain,
   } = asset;
-  const isActive = activeAsset?.id === assetString;
-  const disabled = Boolean(activeAsset);
+  const isActive = activeAction?.assetString === assetString;
+  const disabled = Boolean(activeAction);
 
   return (
     <div

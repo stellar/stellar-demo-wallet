@@ -13,9 +13,9 @@ import { UntrustedBalance } from "components/UntrustedBalance";
 
 import { fetchAccountAction } from "ducks/account";
 import {
-  setActiveAsset,
-  setActiveAssetStatus,
-  resetActiveAsset,
+  setActiveAssetAction,
+  setActiveAssetStatusAction,
+  resetActiveAssetAction,
 } from "ducks/activeAsset";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
@@ -107,11 +107,11 @@ export const Assets = ({
 
   const handleCloseModal = () => {
     setActiveModal("");
-    dispatch(resetActiveAsset());
+    dispatch(resetActiveAssetAction());
   };
 
   const handleAssetAction = ({
-    id,
+    assetString,
     balance,
     callback,
     title,
@@ -120,8 +120,8 @@ export const Assets = ({
   }: AssetActionItem) => {
     setActiveModal(modalType.CONFIRM_ACTION);
     dispatch(
-      setActiveAsset({
-        id,
+      setActiveAssetAction({
+        assetString,
         title,
         description,
         callback: () => {
@@ -146,14 +146,14 @@ export const Assets = ({
       }
 
       if (status === ActionStatus.SUCCESS || status === ActionStatus.ERROR) {
-        dispatch(resetActiveAsset());
+        dispatch(resetActiveAssetAction());
       }
 
       if (
         status === ActionStatus.PENDING ||
         status === ActionStatus.NEEDS_INPUT
       ) {
-        dispatch(setActiveAssetStatus(ActionStatus.PENDING));
+        dispatch(setActiveAssetStatusAction(ActionStatus.PENDING));
         setToastMessage(message);
       }
     },
@@ -161,10 +161,10 @@ export const Assets = ({
   );
 
   useEffect(() => {
-    if (!activeAsset.asset) {
+    if (!activeAsset.action) {
       setToastMessage(undefined);
     }
-  }, [activeAsset.asset]);
+  }, [activeAsset.action]);
 
   // Trust asset
   useEffect(() => {
@@ -293,9 +293,9 @@ export const Assets = ({
       untrustedAssets.status === ActionStatus.ERROR
     ) {
       dispatch(resetUntrustedAssetStatusAction());
-      dispatch(resetActiveAsset());
+      dispatch(resetActiveAssetAction());
     }
-  }, [untrustedAssets.status, setActiveAssetStatusAndToastMessage, dispatch]);
+  }, [untrustedAssets.status, dispatch]);
 
   return (
     <>
@@ -312,7 +312,7 @@ export const Assets = ({
         <div className="BalancesButtons Inset">
           <Button
             onClick={() => setActiveModal(modalType.ADD_ASSET)}
-            disabled={Boolean(activeAsset.asset)}
+            disabled={Boolean(activeAsset.action)}
           >
             Add asset
           </Button>

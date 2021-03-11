@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { Button, Heading2, Heading3, Input } from "@stellar/design-system";
 import { Modal } from "components/Modal";
 import { fetchAccountAction } from "ducks/account";
-import { resetActiveAsset } from "ducks/activeAsset";
+import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep31SendAction,
   submitSep31SendTransactionAction,
@@ -56,7 +56,7 @@ export const Sep31Send = () => {
 
   const handleClose = () => {
     dispatch(resetSep31SendAction());
-    dispatch(resetActiveAsset());
+    dispatch(resetActiveAssetAction());
   };
 
   if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
