@@ -15,3 +15,6 @@
 - SEP-31 Send UX updates
 - Fix bug when active asset not set after SEP-24 popup closed
 - Download logs markdown file
+- Improve error messages
+- Code review fixes 1
+- Sign out confirmation
