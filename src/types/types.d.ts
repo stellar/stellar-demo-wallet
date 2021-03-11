@@ -33,7 +33,7 @@ export interface AccountInitialState {
 }
 
 export interface ActiveAssetInitialState {
-  asset: ActiveAsset | undefined;
+  action: ActiveAssetAction | undefined;
   status: ActionStatus | undefined;
 }
 
@@ -79,8 +79,6 @@ export interface SettingsInitialState {
   pubnet: boolean;
   secretKey: string;
   untrustedAssets: string;
-  homeDomain: string;
-  horizonURL: string;
 }
 
 export interface UntrustedAssetsInitialState {
@@ -203,15 +201,15 @@ export interface ClaimableAsset extends Asset {
   claimants: any[];
 }
 
-export interface ActiveAsset {
-  id: string;
+export interface ActiveAssetAction {
+  assetString: string;
   title: string;
   description?: string;
   callback: (args?: any) => void;
   options?: ReactNode;
 }
 
-export interface AssetActionItem extends ActiveAsset {
+export interface AssetActionItem extends ActiveAssetAction {
   balance: Asset;
 }
 

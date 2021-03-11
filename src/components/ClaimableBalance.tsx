@@ -26,7 +26,7 @@ export const ClaimableBalance = ({
 
   const handleClaim = (balance: ClaimableAsset) => {
     onAssetAction({
-      id: balance.assetString,
+      assetString: balance.assetString,
       balance,
       title: `Claim balance ${balance.assetCode}`,
       description: `Claimable balance description ${balance.total} ${balance.assetCode}`,
@@ -46,13 +46,13 @@ export const ClaimableBalance = ({
       <div className="Balances">
         {balances.map((balance) => (
           <BalanceRow
-            activeAsset={activeAsset.asset}
+            activeAction={activeAsset.action}
             key={balance.assetString}
             asset={balance}
           >
             <TextButton
               onClick={() => handleClaim(balance)}
-              disabled={Boolean(activeAsset.asset)}
+              disabled={Boolean(activeAsset.action)}
             >
               Claim
             </TextButton>

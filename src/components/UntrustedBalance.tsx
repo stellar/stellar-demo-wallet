@@ -69,7 +69,7 @@ export const UntrustedBalance = ({
 
     let props: AssetActionItem | undefined;
     const defaultProps = {
-      id: asset.assetString,
+      assetString: asset.assetString,
       balance: asset,
     };
 
@@ -107,7 +107,7 @@ export const UntrustedBalance = ({
     <>
       {untrustedAssets.data.map((asset: Asset) => (
         <BalanceRow
-          activeAsset={activeAsset.asset}
+          activeAction={activeAsset.action}
           key={asset.assetString}
           asset={asset}
           onChange={(e) =>
@@ -122,7 +122,7 @@ export const UntrustedBalance = ({
               })
             }
             disabled={
-              Boolean(activeAsset.asset) ||
+              Boolean(activeAsset.action) ||
               trustAsset.status === ActionStatus.PENDING
             }
           >

@@ -92,7 +92,7 @@ export const Balance = ({
 
     let props: AssetActionItem | undefined;
     const defaultProps = {
-      id: balance.assetString,
+      assetString: balance.assetString,
       balance,
     };
 
@@ -157,7 +157,7 @@ export const Balance = ({
       {sortedBalances.native.map((balance) => (
         <BalanceRow
           key={balance.assetString}
-          activeAsset={activeAsset.asset}
+          activeAction={activeAsset.action}
           asset={balance}
           onChange={(e) =>
             handleActionChange({ actionId: e.target.value, balance })
@@ -168,7 +168,7 @@ export const Balance = ({
       {/* Other balances */}
       {sortedBalances.other.map((balance) => (
         <BalanceRow
-          activeAsset={activeAsset.asset}
+          activeAction={activeAsset.action}
           key={balance.assetString}
           asset={balance}
           onChange={(e) =>

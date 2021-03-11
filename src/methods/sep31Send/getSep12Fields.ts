@@ -89,8 +89,7 @@ const collectSep12Fields = async ({
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
-      // TODO: update URL
-      Origin: "https://sep31-demo-client.netlify.app",
+      Origin: "https://demo-wallet.stellar.org",
     },
   });
   const resultJson = await result.json();

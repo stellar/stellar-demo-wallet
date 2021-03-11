@@ -3,7 +3,7 @@ import { RootState } from "config/store";
 import { ActiveAssetInitialState } from "types/types.d";
 
 const initialState: ActiveAssetInitialState = {
-  asset: undefined,
+  action: undefined,
   status: undefined,
 };
 
@@ -12,10 +12,10 @@ const activeAssetSlice = createSlice({
   initialState,
   reducers: {
     setActiveAsset: (state, action) => {
-      state.asset = action.payload;
+      state.action = action.payload;
     },
     setActiveAssetStatus: (state, action) => {
-      if (state.asset) {
+      if (state.action) {
         state.status = action.payload;
       }
     },

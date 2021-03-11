@@ -4,11 +4,11 @@ import { useRedux } from "hooks/useRedux";
 export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
   const { activeAsset } = useRedux("activeAsset");
 
-  if (!activeAsset?.asset) {
+  if (!activeAsset?.action) {
     return null;
   }
 
-  const { title, description, callback, options } = activeAsset.asset;
+  const { title, description, callback, options } = activeAsset.action;
 
   return (
     <>

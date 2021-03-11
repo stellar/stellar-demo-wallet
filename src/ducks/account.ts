@@ -11,9 +11,9 @@ import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import {
   ActionStatus,
+  Asset,
   RejectMessage,
   AccountInitialState,
-  AnyObject,
 } from "types/types.d";
 
 interface UnfundedAccount extends Types.AccountDetails {
@@ -25,11 +25,16 @@ interface AccountKeyPair {
   secretKey: string;
 }
 
-interface FetchAccountActionResponse {
+interface AccountActionBaseResponse {
   data: Types.AccountDetails | UnfundedAccount;
-  assets: AnyObject;
-  secretKey: string;
+  assets: {
+    [key: string]: Asset;
+  };
   isUnfunded: boolean;
+}
+
+interface FetchAccountActionResponse extends AccountActionBaseResponse {
+  secretKey: string;
 }
 
 export const fetchAccountAction = createAsyncThunk<
@@ -60,30 +65,28 @@ export const fetchAccountAction = createAsyncThunk<
     });
 
     try {
-      const accountIsFunded = await dataProvider.isAccountFunded();
-
-      if (accountIsFunded) {
-        stellarAccount = await dataProvider.fetchAccountDetails();
-        assets = await getAssetData({
-          balances: stellarAccount.balances,
-          networkUrl: networkConfig.url,
-        });
-      } else {
+      stellarAccount = await dataProvider.fetchAccountDetails();
+      assets = await getAssetData({
+        balances: stellarAccount.balances,
+        networkUrl: networkConfig.url,
+      });
+    } catch (error) {
+      if (error.isUnfunded) {
         log.instruction({ title: `Account is not funded` });
         stellarAccount = {
           id: publicKey,
         } as UnfundedAccount;
         isUnfunded = true;
-      }
-    } catch (error) {
-      log.error({
-        title: `Fetching account ${publicKey} failure`,
-        body: error,
-      });
+      } else {
+        log.error({
+          title: `Fetching account ${publicKey} failure`,
+          body: getErrorString(error),
+        });
 
-      return rejectWithValue({
-        errorString: getErrorString(error),
-      });
+        return rejectWithValue({
+          errorString: getErrorString(error),
+        });
+      }
     }
 
     log.response({
@@ -117,7 +120,7 @@ export const createRandomAccount = createAsyncThunk<
 });
 
 export const fundTestnetAccount = createAsyncThunk<
-  { data: Types.AccountDetails; assets: AnyObject; isUnfunded: boolean },
+  AccountActionBaseResponse,
   string,
   { rejectValue: RejectMessage; state: RootState }
 >(
