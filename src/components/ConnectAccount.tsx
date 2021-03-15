@@ -9,10 +9,9 @@ import {
   Loader,
 } from "@stellar/design-system";
 import { useHistory } from "react-router-dom";
-import { getNetworkSearchParam } from "helpers/getNetworkSearchParam";
-import { getSecretKeySearchParam } from "helpers/getSecretKeySearchParam";
+import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, SearchParams } from "types/types.d";
 
 export const ConnectAccount = () => {
   const { account, settings } = useRedux("account", "settings");
@@ -20,20 +19,12 @@ export const ConnectAccount = () => {
   const history = useHistory();
 
   const handleSetSecretKey = () => {
-    history.push(
-      getSecretKeySearchParam({
-        location,
-        secretKey,
-      }),
-    );
+    history.push(searchParam.update(SearchParams.SECRET_KEY, secretKey));
   };
 
   const handleSwitchNetwork = () => {
     history.push(
-      getNetworkSearchParam({
-        location,
-        pubnet: !settings.pubnet,
-      }),
+      searchParam.update(SearchParams.PUBNET, (!settings.pubnet).toString()),
     );
   };
 

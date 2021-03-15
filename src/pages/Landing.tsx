@@ -11,10 +11,9 @@ import {
 import { createRandomAccount } from "ducks/account";
 import { ConnectAccount } from "components/ConnectAccount";
 import { Modal } from "components/Modal";
-import { getNetworkSearchParam } from "helpers/getNetworkSearchParam";
-import { getSecretKeySearchParam } from "helpers/getSecretKeySearchParam";
+import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, SearchParams } from "types/types.d";
 
 export const Landing = () => {
   const { account } = useRedux("account");
@@ -30,10 +29,7 @@ export const Landing = () => {
   useEffect(() => {
     if (account.status === ActionStatus.SUCCESS && !account.isAuthenticated) {
       history.push(
-        getSecretKeySearchParam({
-          location,
-          secretKey: account.secretKey,
-        }),
+        searchParam.update(SearchParams.SECRET_KEY, account.secretKey),
       );
     }
   }, [
@@ -46,12 +42,7 @@ export const Landing = () => {
 
   const handleCreateAccount = () => {
     // Make sure we are on testnet
-    history.push(
-      getNetworkSearchParam({
-        location,
-        pubnet: false,
-      }),
-    );
+    history.push(searchParam.update(SearchParams.PUBNET, "false"));
     dispatch(createRandomAccount());
   };
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Button, Heading2, Loader } from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
@@ -27,12 +27,13 @@ import {
 } from "ducks/untrustedAssets";
 import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
-import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
+import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import {
   Asset,
   ActionStatus,
   AssetActionItem,
+  SearchParams,
   TransactionStatus,
 } from "types/types.d";
 
@@ -66,7 +67,6 @@ export const Assets = ({
 
   const dispatch = useDispatch();
   const history = useHistory();
-  const location = useLocation();
 
   enum modalType {
     ADD_ASSET = "ADD_ASSET",
@@ -77,15 +77,12 @@ export const Assets = ({
     (removeAsset?: string) => {
       if (removeAsset) {
         history.push(
-          removeUntrustedAssetSearchParam({
-            location,
-            removeAsset,
-          }),
+          searchParam.remove(SearchParams.UNTRUSTED_ASSETS, removeAsset),
         );
         dispatch(removeUntrustedAssetAction(removeAsset));
       }
     },
-    [history, location, dispatch],
+    [history, dispatch],
   );
 
   const handleRefreshAccount = useCallback(() => {
@@ -170,10 +167,10 @@ export const Assets = ({
   useEffect(() => {
     if (trustAsset.status === ActionStatus.SUCCESS) {
       history.push(
-        removeUntrustedAssetSearchParam({
-          location,
-          removeAsset: trustAsset.assetString,
-        }),
+        searchParam.remove(
+          SearchParams.UNTRUSTED_ASSETS,
+          trustAsset.assetString,
+        ),
       );
       dispatch(removeUntrustedAssetAction(trustAsset.assetString));
       dispatch(resetTrustAssetAction());
@@ -189,7 +186,6 @@ export const Assets = ({
     trustAsset.assetString,
     handleRefreshAccount,
     setActiveAssetStatusAndToastMessage,
-    location,
     dispatch,
     history,
   ]);
@@ -223,7 +219,6 @@ export const Assets = ({
     handleFetchClaimableBalances,
     handleRemoveUntrustedAsset,
     setActiveAssetStatusAndToastMessage,
-    location,
     dispatch,
     history,
   ]);
@@ -249,7 +244,6 @@ export const Assets = ({
     sep24WithdrawAsset.data.currentStatus,
     handleRefreshAccount,
     setActiveAssetStatusAndToastMessage,
-    location,
     dispatch,
     history,
   ]);

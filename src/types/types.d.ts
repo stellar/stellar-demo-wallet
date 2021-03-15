@@ -2,6 +2,12 @@ import { ReactNode } from "react";
 import { Types } from "@stellar/wallet-sdk";
 import { Horizon } from "stellar-sdk";
 
+export enum SearchParams {
+  SECRET_KEY = "secretKey",
+  PUBNET = "pubnet",
+  UNTRUSTED_ASSETS = "untrustedAssets",
+}
+
 export interface Asset {
   assetString: string;
   assetCode: string;

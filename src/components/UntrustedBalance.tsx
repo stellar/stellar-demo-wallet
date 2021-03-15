@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { TextButton } from "@stellar/design-system";
 import { BalanceRow } from "components/BalanceRow";
 import { resetActiveAssetAction } from "ducks/activeAsset";
@@ -12,13 +12,14 @@ import {
   resetUntrustedAssetStatusAction,
 } from "ducks/untrustedAssets";
 import { log } from "helpers/log";
-import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
+import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import {
   ActionStatus,
   Asset,
   AssetActionItem,
   AssetActionId,
+  SearchParams,
 } from "types/types.d";
 
 export const UntrustedBalance = ({
@@ -48,7 +49,6 @@ export const UntrustedBalance = ({
 
   const dispatch = useDispatch();
   const history = useHistory();
-  const location = useLocation();
 
   useEffect(() => {
     if (!settings.untrustedAssets) {
@@ -77,10 +77,7 @@ export const UntrustedBalance = ({
     const { assetString } = asset;
 
     history.push(
-      removeUntrustedAssetSearchParam({
-        location,
-        removeAsset: assetString,
-      }),
+      searchParam.remove(SearchParams.UNTRUSTED_ASSETS, assetString),
     );
     dispatch(removeUntrustedAssetAction(assetString));
     log.instruction({ title: `Untrusted asset ${assetString} removed` });

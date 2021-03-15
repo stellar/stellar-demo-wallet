@@ -10,11 +10,11 @@ import {
 } from "@stellar/design-system";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
-import { getUntrustedAssetsSearchParam } from "helpers/getUntrustedAssetsSearchParam";
 import { getValidatedUntrustedAsset } from "helpers/getValidatedUntrustedAsset";
+import { searchParam } from "helpers/searchParam";
 import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, SearchParams } from "types/types.d";
 
 export const AddAsset = ({ onClose }: { onClose: () => void }) => {
   const { account, settings, untrustedAssets } = useRedux(
@@ -75,12 +75,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
         networkUrl: getNetworkConfig(settings.pubnet).url,
       });
 
-      history.push(
-        getUntrustedAssetsSearchParam({
-          location,
-          asset,
-        }),
-      );
+      history.push(searchParam.update(SearchParams.UNTRUSTED_ASSETS, asset));
 
       setIsValidating(false);
     } catch (e) {
