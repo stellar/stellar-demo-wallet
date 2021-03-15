@@ -1,6 +1,8 @@
-import { StellarTomlResolver } from "stellar-sdk";
+import { Asset, StellarTomlResolver } from "stellar-sdk";
 
-export const getCurrenciesFromDomain = async (homeDomain: string) => {
+export const getCurrenciesFromDomain = async (
+  homeDomain: string,
+): Promise<Asset[]> => {
   let domain = homeDomain;
 
   domain = domain.startsWith("http") ? domain : `https://${domain}`;

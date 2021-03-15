@@ -1,12 +1,11 @@
-import { Server } from "stellar-sdk";
+import { Server, Asset } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 import { getCurrenciesFromDomain } from "helpers/getCurrenciesFromDomain";
 import { getErrorMessage } from "helpers/getErrorMessage";
-import { getIssuerFromDomain } from "helpers/getIssuerFromDomain";
 import { log } from "helpers/log";
 
 interface GetUntrustedAssetProps {
-  assetCode?: string;
+  assetCode: string;
   homeDomain?: string;
   issuerPublicKey?: string;
   accountBalances?: Types.BalanceMap;
@@ -24,82 +23,86 @@ export const getValidatedUntrustedAsset = async ({
     title: `Start validating untrusted asset ${assetCode}`,
   });
 
-  const isAssetAlreadyTrusted = (code: string, issuer: string) => {
+  if (assetCode && !(homeDomain || issuerPublicKey)) {
+    throw new Error(
+      "Home domain OR issuer public key is required with asset code",
+    );
+  }
+
+  const checkAsset = async (code: string, issuer: string) => {
     const asset = `${code}:${issuer}`;
 
     if (accountBalances?.[asset]) {
-      const errorMessage = `Asset ${asset} is already trusted.`;
-      log.instruction({ title: errorMessage });
-      throw new Error(errorMessage);
+      throw new Error(`Asset ${asset} is already trusted`);
     }
+
+    await checkAssetExists({
+      assetCode: code,
+      assetIssuer: issuer,
+      networkUrl,
+    });
   };
 
-  if (assetCode && !(homeDomain || issuerPublicKey)) {
-    const errorMessage =
-      "Home domain or issuer public key is required with asset code";
-    log.error({ title: errorMessage });
-    throw new Error(errorMessage);
-  }
-
-  // Valid asset from issuer public key
-  if (
-    assetCode &&
-    issuerPublicKey &&
-    (await assetExists({ assetCode, assetIssuer: issuerPublicKey, networkUrl }))
-  ) {
-    isAssetAlreadyTrusted(assetCode, issuerPublicKey);
+  // Asset code and issuer public key (no home domain provided)
+  if (issuerPublicKey && !homeDomain) {
+    await checkAsset(assetCode, issuerPublicKey);
     return `${assetCode}:${issuerPublicKey}`;
   }
 
+  // Asset code and home domain
   if (homeDomain) {
-    // Valid asset from home domain
-    if (assetCode) {
-      try {
-        const homeDomainIssuer = await getIssuerFromDomain({
-          assetCode,
-          homeDomain,
-        });
+    try {
+      const tomlCurrencies = await getCurrenciesFromDomain(homeDomain);
+      const matchingAssets = tomlCurrencies.filter(
+        (currency) => currency.code === assetCode,
+      );
 
-        if (
-          await assetExists({
-            assetCode,
-            assetIssuer: homeDomainIssuer,
-            networkUrl,
-          })
-        ) {
-          isAssetAlreadyTrusted(assetCode, homeDomainIssuer);
-          return `${assetCode}:${homeDomainIssuer}`;
-        }
-      } catch (e) {
-        const errorMessage = getErrorMessage(e);
-        log.error({
-          title: errorMessage,
-        });
-        throw new Error(errorMessage);
+      const availableAssetsString = getAssetListString(tomlCurrencies, "code");
+      const availableIssuersString = getAssetListString(
+        matchingAssets,
+        "issuer",
+      );
+
+      // No matching asset
+      if (!matchingAssets.length) {
+        throw new Error(
+          `Unable to find the ${assetCode} asset on ${homeDomain} TOML file.
+          Available assets: ${availableAssetsString}.`,
+        );
       }
-    } else {
-      // Get available assets if no asset code was provided
-      try {
-        const tomlCurrencies = (await getCurrenciesFromDomain(homeDomain)).map(
-          (currency: any) => currency.code,
+
+      // Home domain and issuer public key provided
+      if (issuerPublicKey) {
+        const matchingIssuer = matchingAssets.find(
+          (m) => m.issuer === issuerPublicKey,
         );
 
-        let message = `No asset code was provided. The following assets are available on the home domain’s TOML file: ${tomlCurrencies.join(
-          ", ",
-        )}.`;
-
-        if (tomlCurrencies.length === 1) {
-          message = `No asset code was provided. ${tomlCurrencies[0]} asset is available on the home domain’s TOML file.`;
+        if (matchingIssuer) {
+          await checkAsset(assetCode, issuerPublicKey);
+          return `${assetCode}:${issuerPublicKey}`;
         }
 
-        throw new Error(message);
-      } catch (e) {
-        const errorMessage = getErrorMessage(e);
-        log.error({
-          title: errorMessage,
-        });
-        throw new Error(errorMessage);
+        throw new Error(
+          `Unable to find the ${assetCode} asset from issuer ${issuerPublicKey} on ${homeDomain} TOML file.
+          Available issuers for ${assetCode}: ${availableIssuersString}.`,
+        );
+        // Home domain only (no issuer public key provided)
+      } else {
+        // Single match
+        if (matchingAssets.length === 1) {
+          const { issuer } = matchingAssets[0];
+          await checkAsset(assetCode, issuer);
+          return `${assetCode}:${issuer}`;
+        }
+
+        // Multiple matches
+        throw new Error(
+          `Multiple issuers found for asset ${assetCode}, please provide issuer public key.
+          Available issuers for ${assetCode}: ${availableIssuersString}.`,
+        );
       }
+    } catch (e) {
+      throw new Error(getErrorMessage(e));
     }
   }
 
@@ -116,7 +119,7 @@ export const getValidatedUntrustedAsset = async ({
   throw new Error(errorMessage);
 };
 
-const assetExists = async ({
+const checkAssetExists = async ({
   assetCode,
   assetIssuer,
   networkUrl,
@@ -132,5 +135,12 @@ const assetExists = async ({
     .forIssuer(assetIssuer)
     .call();
 
-  return Boolean(assetResponse.records.length);
+  if (!assetResponse.records.length) {
+    throw new Error(`Asset ${assetCode}:${assetIssuer} does not exist.`);
+  }
 };
+
+const getAssetListString = (assetsArray: Asset[], key: "code" | "issuer") =>
+  assetsArray && assetsArray.length
+    ? assetsArray.map((a) => a[key]).join(", ")
+    : "";

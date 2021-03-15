@@ -1,4 +1,3 @@
-import React from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { ProjectLogo, TextButton } from "@stellar/design-system";

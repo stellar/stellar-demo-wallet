@@ -54,6 +54,16 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
   const handleSetUntrustedAsset = async () => {
     setErrorMessage("");
+
+    if (!(homeDomain || issuerPublicKey)) {
+      const errorMsg =
+        "Home domain OR issuer public key is required with asset code";
+
+      log.error({ title: errorMsg });
+      setErrorMessage(errorMsg);
+      return;
+    }
+
     setIsValidating(true);
 
     try {
@@ -84,7 +94,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
   const isPending =
     isValidating || untrustedAssets.status === ActionStatus.PENDING;
-  const formIsEmpty = !assetCode && !homeDomain && !issuerPublicKey;
 
   return (
     <>
@@ -92,6 +101,8 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
       <Heading2 className="ModalHeading">Add asset</Heading2>
 
       <div className="ModalBody">
+        <p>Required: asset code AND (home domain OR issuer)</p>
+
         <Input
           id="aa-asset-code"
           label="Asset code"
@@ -138,7 +149,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
         <Button
           onClick={handleSetUntrustedAsset}
-          disabled={formIsEmpty || isPending}
+          disabled={!assetCode || isPending}
         >
           Add
         </Button>
