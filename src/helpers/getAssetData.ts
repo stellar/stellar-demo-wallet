@@ -12,9 +12,7 @@ export const getAssetData = async ({
   networkUrl: string;
 }) => {
   const allAssets = Object.entries(balances);
-  const assets: {
-    [key: string]: Asset;
-  } = {};
+  const assets: Asset[] = [];
 
   if (!allAssets?.length) {
     return assets;
@@ -30,11 +28,13 @@ export const getAssetData = async ({
       networkUrl,
     });
 
-    assets[assetId] = normalizeAssetProps({
-      source: data,
-      homeDomain,
-      supportedActions,
-    });
+    assets.push(
+      normalizeAssetProps({
+        source: data,
+        homeDomain,
+        supportedActions,
+      }),
+    );
   }
 
   return assets;

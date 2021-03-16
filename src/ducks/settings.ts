@@ -3,6 +3,7 @@ import { RootState } from "config/store";
 import { SettingsInitialState, Setting } from "types/types.d";
 
 const initialState: SettingsInitialState = {
+  assetOverrides: "",
   pubnet: false,
   secretKey: "",
   untrustedAssets: "",

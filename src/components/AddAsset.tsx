@@ -75,7 +75,22 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
         networkUrl: getNetworkConfig(settings.pubnet).url,
       });
 
-      history.push(searchParam.update(SearchParams.UNTRUSTED_ASSETS, asset));
+      history.push(
+        searchParam.update(
+          SearchParams.UNTRUSTED_ASSETS,
+          `${asset.assetCode}:${asset.assetIssuer}`,
+        ),
+      );
+
+      if (asset.homeDomain) {
+        history.push(
+          searchParam.updateKeyPair({
+            searchParam: SearchParams.ASSET_OVERRIDES,
+            itemId: `${asset.assetCode}:${asset.assetIssuer}`,
+            keyPairs: { homeDomain },
+          }),
+        );
+      }
 
       setIsValidating(false);
     } catch (e) {

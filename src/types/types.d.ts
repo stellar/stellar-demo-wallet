@@ -6,6 +6,7 @@ export enum SearchParams {
   SECRET_KEY = "secretKey",
   PUBNET = "pubnet",
   UNTRUSTED_ASSETS = "untrustedAssets",
+  ASSET_OVERRIDES = "assetOverrides",
 }
 
 export interface Asset {
@@ -21,6 +22,11 @@ export interface Asset {
   source: any;
 }
 
+export interface SearchParamAsset {
+  assetString?: string;
+  homeDomain?: string;
+}
+
 export interface AssetSupportedActions {
   sep6?: boolean;
   sep24?: boolean;
@@ -29,9 +35,7 @@ export interface AssetSupportedActions {
 
 export interface AccountInitialState {
   data: Types.AccountDetails | null;
-  assets: {
-    [key: string]: Asset;
-  };
+  assets: Asset[];
   errorString?: string;
   isAuthenticated: boolean;
   isUnfunded: boolean;
@@ -83,6 +87,7 @@ export interface SendPaymentInitialState {
 }
 
 export interface SettingsInitialState {
+  assetOverrides: string;
   pubnet: boolean;
   secretKey: string;
   untrustedAssets: string;
@@ -96,6 +101,20 @@ export interface UntrustedAssetsInitialState {
 
 export interface AnyObject {
   [key: string]: any;
+}
+
+export interface AssetsObject {
+  [key: string]: Asset;
+}
+
+export interface StringObject {
+  [key: string]: string;
+}
+
+export interface NestedStringObject {
+  [key: string]: {
+    [key: string]: string;
+  };
 }
 
 export interface Sep31SendInitialState {

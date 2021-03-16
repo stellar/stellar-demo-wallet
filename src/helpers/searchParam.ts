@@ -1,4 +1,5 @@
-import { SearchParams } from "types/types.d";
+import { searchKeyPairStringToArray } from "helpers/searchKeyPairStringToArray";
+import { SearchParams, SearchParamAsset, StringObject } from "types/types.d";
 
 const update = (searchParam: SearchParams, value: string) => {
   const queryParams = new URLSearchParams(window.location.search);
@@ -46,6 +47,65 @@ const remove = (searchParam: SearchParams, removeValue: string) => {
   return `?${queryParams.toString()}`;
 };
 
+type UpdateKeyPairProps = {
+  searchParam: SearchParams;
+  itemId: string;
+  keyPairs: StringObject;
+};
+
+const updateKeyPair = ({
+  searchParam,
+  itemId,
+  keyPairs,
+}: UpdateKeyPairProps) => {
+  const queryParams = new URLSearchParams(window.location.search);
+  const currentParamValue = queryParams.get(searchParam) || "";
+  const valuesArray = currentParamValue ? currentParamValue.split(",") : [];
+
+  const assetArray = searchKeyPairStringToArray(currentParamValue);
+  const isExistingItem = assetArray.find((v) => v.assetString === itemId);
+
+  // Update exisiting item
+  if (isExistingItem) {
+    // Example:
+    // {
+    //   SRT:GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B: {
+    //     homeDomain: testanchor.stellar.org
+    //   }
+    // }
+    const updatedValuesArray = assetArray.reduce(
+      (result: SearchParamAsset[], asset) => {
+        if (asset.assetString === itemId) {
+          return [...result, { ...asset, ...keyPairs }];
+        }
+
+        return [...result, asset];
+      },
+      [],
+    );
+
+    const updatedValuesString = updatedValuesArray.reduce(
+      (result: string[], asset) => [
+        ...result,
+        `${asset.assetString}:${getKeyPairString(asset as StringObject)}`,
+      ],
+      [],
+    );
+
+    queryParams.set(searchParam, updatedValuesString.join(","));
+  } else {
+    // Add new item
+    const updatedValue = [
+      ...valuesArray,
+      `${itemId}|${getKeyPairString(keyPairs)}`,
+    ].join(",");
+
+    queryParams.set(searchParam, updatedValue);
+  }
+
+  return `?${queryParams.toString()}`;
+};
+
 type UpdateValueProps = {
   currentVal: string;
   newVal?: string;
@@ -71,7 +131,23 @@ const updateValue = ({ currentVal, newVal, removeVal }: UpdateValueProps) => {
   return currentVal;
 };
 
+const getKeyPairString = (keyPairs: StringObject) => {
+  const arr = Object.entries(keyPairs).reduce(
+    (result: string[], [key, value]) => {
+      if (key !== "assetString") {
+        return [...result, `${key}:${value}`];
+      }
+
+      return result;
+    },
+    [],
+  );
+
+  return `${arr.join("|")}`;
+};
+
 export const searchParam = {
   update,
+  updateKeyPair,
   remove,
 };

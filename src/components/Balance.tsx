@@ -44,7 +44,7 @@ export const Balance = ({
       other: [],
     };
 
-    Object.values(allBalances).map((balance) => {
+    allBalances.map((balance) => {
       if (balance.assetType === AssetType.NATIVE) {
         result.native = [...result.native, balance];
       } else {

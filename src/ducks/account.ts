@@ -27,9 +27,7 @@ interface AccountKeyPair {
 
 interface AccountActionBaseResponse {
   data: Types.AccountDetails | UnfundedAccount;
-  assets: {
-    [key: string]: Asset;
-  };
+  assets: Asset[];
   isUnfunded: boolean;
 }
 
@@ -56,7 +54,7 @@ export const fetchAccountAction = createAsyncThunk<
     });
 
     let stellarAccount: Types.AccountDetails | null = null;
-    let assets = {};
+    let assets: Asset[] = [];
     let isUnfunded = false;
 
     log.request({
@@ -169,7 +167,7 @@ export const fundTestnetAccount = createAsyncThunk<
 
 const initialState: AccountInitialState = {
   data: null,
-  assets: {},
+  assets: [],
   errorString: undefined,
   isAuthenticated: false,
   isUnfunded: false,

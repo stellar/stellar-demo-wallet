@@ -5,8 +5,10 @@ import { Keypair } from "stellar-sdk";
 import { fetchAccountAction } from "ducks/account";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { updateSettingsAction } from "ducks/settings";
+// import { updateUntrustedAssetAction } from "ducks/untrustedAssets";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { log } from "helpers/log";
+// import { searchKeyPairStringToArray } from "helpers/searchKeyPairStringToArray";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
 
@@ -25,6 +27,7 @@ export const SettingsHandler = ({
   const pubnetParam = queryParams.get(SearchParams.PUBNET);
   const secretKeyParam = queryParams.get(SearchParams.SECRET_KEY);
   const untrustedAssetsParam = queryParams.get(SearchParams.UNTRUSTED_ASSETS);
+  const assetOverridesParam = queryParams.get(SearchParams.ASSET_OVERRIDES);
 
   // Set network param (pubnet=true)
   useEffect(() => {
@@ -85,6 +88,21 @@ export const SettingsHandler = ({
       }),
     );
   }, [untrustedAssetsParam, dispatch]);
+
+  // Asset overrides
+  useEffect(() => {
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.ASSET_OVERRIDES]: assetOverridesParam || "",
+      }),
+    );
+
+    // TODO:
+    // update assets in account
+    // update untrusted assets
+    // const test = searchKeyPairStringToArray(assetOverridesParam || "");
+    // dispatch(updateUntrustedAssetAction(test));
+  }, [assetOverridesParam, dispatch]);
 
   // Go to /account page if fetching account was success
   useEffect(() => {

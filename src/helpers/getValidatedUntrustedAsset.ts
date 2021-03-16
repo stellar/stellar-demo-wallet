@@ -12,13 +12,19 @@ interface GetUntrustedAssetProps {
   networkUrl: string;
 }
 
+interface GetUntrustedAssetResponse {
+  assetCode: string;
+  assetIssuer: string;
+  homeDomain?: string;
+}
+
 export const getValidatedUntrustedAsset = async ({
   assetCode,
   homeDomain,
   issuerPublicKey,
   accountBalances,
   networkUrl,
-}: GetUntrustedAssetProps) => {
+}: GetUntrustedAssetProps): Promise<GetUntrustedAssetResponse> => {
   log.instruction({
     title: `Start validating untrusted asset ${assetCode}`,
   });
@@ -46,7 +52,10 @@ export const getValidatedUntrustedAsset = async ({
   // Asset code and issuer public key (no home domain provided)
   if (issuerPublicKey && !homeDomain) {
     await checkAsset(assetCode, issuerPublicKey);
-    return `${assetCode}:${issuerPublicKey}`;
+    return {
+      assetCode,
+      assetIssuer: issuerPublicKey,
+    };
   }
 
   // Asset code and home domain
@@ -79,7 +88,16 @@ export const getValidatedUntrustedAsset = async ({
 
         if (matchingIssuer) {
           await checkAsset(assetCode, issuerPublicKey);
-          return `${assetCode}:${issuerPublicKey}`;
+
+          return {
+            assetCode,
+            assetIssuer: issuerPublicKey,
+            homeDomain: await getOverrideHomeDomain({
+              assetIssuer: issuerPublicKey,
+              homeDomain,
+              networkUrl,
+            }),
+          };
         }
 
         throw new Error(
@@ -92,7 +110,15 @@ export const getValidatedUntrustedAsset = async ({
         if (matchingAssets.length === 1) {
           const { issuer } = matchingAssets[0];
           await checkAsset(assetCode, issuer);
-          return `${assetCode}:${issuer}`;
+          return {
+            assetCode,
+            assetIssuer: issuer,
+            homeDomain: await getOverrideHomeDomain({
+              assetIssuer: issuer,
+              homeDomain,
+              networkUrl,
+            }),
+          };
         }
 
         // Multiple matches
@@ -119,15 +145,17 @@ export const getValidatedUntrustedAsset = async ({
   throw new Error(errorMessage);
 };
 
+type CheckAssetExistsProps = {
+  assetCode: string;
+  assetIssuer: string;
+  networkUrl: string;
+};
+
 const checkAssetExists = async ({
   assetCode,
   assetIssuer,
   networkUrl,
-}: {
-  assetCode: string;
-  assetIssuer: string;
-  networkUrl: string;
-}) => {
+}: CheckAssetExistsProps) => {
   const server = new Server(networkUrl);
   const assetResponse = await server
     .assets()
@@ -144,3 +172,31 @@ const getAssetListString = (assetsArray: Asset[], key: "code" | "issuer") =>
   assetsArray && assetsArray.length
     ? assetsArray.map((a) => a[key]).join(", ")
     : "";
+
+type GetOverrideHomeDomainProps = {
+  assetIssuer: string;
+  homeDomain: string;
+  networkUrl: string;
+};
+
+const getOverrideHomeDomain = async ({
+  assetIssuer,
+  homeDomain,
+  networkUrl,
+}: GetOverrideHomeDomainProps) => {
+  const server = new Server(networkUrl);
+  const accountRecord = await server.loadAccount(assetIssuer);
+  const assetHomeDomain = accountRecord.home_domain;
+
+  if (assetHomeDomain !== homeDomain) {
+    log.instruction({
+      title:
+        "Asset home domain is different than the provided home domain. Provided home domain will override asset home domain.",
+      body: `Asset home domain: ${assetHomeDomain || "not configured"}.
+    Provided home domain: ${homeDomain}.`,
+    });
+    return homeDomain;
+  }
+
+  return undefined;
+};
