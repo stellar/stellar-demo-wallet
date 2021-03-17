@@ -20,6 +20,7 @@ import {
   AssetActionItem,
   AssetActionId,
   SearchParams,
+  AssetCategory,
 } from "types/types.d";
 
 export const UntrustedBalance = ({
@@ -33,22 +34,20 @@ export const UntrustedBalance = ({
     options,
   }: AssetActionItem) => void;
 }) => {
-  const {
-    account,
-    activeAsset,
-    settings,
-    trustAsset,
-    untrustedAssets,
-  } = useRedux(
+  const { account, activeAsset, allAssets, settings, trustAsset } = useRedux(
     "account",
     "activeAsset",
+    "allAssets",
     "settings",
     "trustAsset",
-    "untrustedAssets",
   );
 
   const dispatch = useDispatch();
   const history = useHistory();
+
+  const allUntrustedAssets = allAssets.data.filter(
+    (a) => a.category === AssetCategory.UNTRUSTED,
+  );
 
   useEffect(() => {
     if (!settings.untrustedAssets) {
@@ -147,7 +146,7 @@ export const UntrustedBalance = ({
 
   return (
     <>
-      {untrustedAssets.data.map((asset: Asset) =>
+      {allUntrustedAssets.map((asset: Asset) =>
         asset.isUntrusted ? (
           // Untrusted
           <BalanceRow

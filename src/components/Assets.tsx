@@ -11,12 +11,16 @@ import { Modal } from "components/Modal";
 import { ToastBanner } from "components/ToastBanner";
 import { UntrustedBalance } from "components/UntrustedBalance";
 
-import { fetchAccountAction } from "ducks/account";
+import { fetchAccountAction, resetAccountStatusAction } from "ducks/account";
 import {
   setActiveAssetAction,
   setActiveAssetStatusAction,
   resetActiveAssetAction,
 } from "ducks/activeAsset";
+import {
+  getAllAssetsAction,
+  resetAllAssetsStatusAction,
+} from "ducks/allAssets";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetSep24DepositAssetAction } from "ducks/sep24DepositAsset";
@@ -45,6 +49,7 @@ export const Assets = ({
   const {
     account,
     activeAsset,
+    allAssets,
     claimAsset,
     sep24DepositAsset,
     sep24WithdrawAsset,
@@ -54,6 +59,7 @@ export const Assets = ({
   } = useRedux(
     "account",
     "activeAsset",
+    "allAssets",
     "claimAsset",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
@@ -162,6 +168,19 @@ export const Assets = ({
       setToastMessage(undefined);
     }
   }, [activeAsset.action]);
+
+  useEffect(() => {
+    if (account.status === ActionStatus.SUCCESS) {
+      dispatch(resetAccountStatusAction());
+      dispatch(getAllAssetsAction());
+    }
+  }, [account.status, dispatch]);
+
+  useEffect(() => {
+    if (allAssets.status === ActionStatus.SUCCESS) {
+      dispatch(resetAllAssetsStatusAction());
+    }
+  }, [allAssets.status, dispatch]);
 
   // Trust asset
   useEffect(() => {
@@ -286,6 +305,7 @@ export const Assets = ({
       untrustedAssets.status === ActionStatus.SUCCESS ||
       untrustedAssets.status === ActionStatus.ERROR
     ) {
+      dispatch(getAllAssetsAction());
       dispatch(resetUntrustedAssetStatusAction());
       dispatch(resetActiveAssetAction());
     }

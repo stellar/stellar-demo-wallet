@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
@@ -83,6 +83,18 @@ export const addUntrustedAssetAction = createAsyncThunk<
   },
 );
 
+export const removeUntrustedAssetAction = createAsyncThunk<
+  Asset[],
+  string,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "untrustedAssets/removeUntrustedAssetAction",
+  (removeAssetString, { getState }) => {
+    const { data } = untrustedAssetsSelector(getState());
+    return data.filter((ua) => ua.assetString !== removeAssetString);
+  },
+);
+
 const initialState: UntrustedAssetsInitialState = {
   data: [],
   errorString: undefined,
@@ -95,9 +107,6 @@ const untrustedAssetsSlice = createSlice({
   reducers: {
     resetUntrustedAssetStatusAction: (state) => {
       state.status = undefined;
-    },
-    removeUntrustedAssetAction: (state, action: PayloadAction<string>) => {
-      state.data = state.data.filter((ua) => ua.assetString !== action.payload);
     },
     resetUntrustedAssetsAction: () => initialState,
   },
@@ -113,6 +122,17 @@ const untrustedAssetsSlice = createSlice({
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
+    builder.addCase(
+      removeUntrustedAssetAction.pending,
+      (state = initialState) => {
+        state.status = ActionStatus.PENDING;
+      },
+    );
+    builder.addCase(removeUntrustedAssetAction.fulfilled, (state, action) => {
+      state.data = action.payload;
+      state.status = ActionStatus.SUCCESS;
+    });
   },
 });
 
@@ -122,6 +142,5 @@ export const untrustedAssetsSelector = (state: RootState) =>
 export const { reducer } = untrustedAssetsSlice;
 export const {
   resetUntrustedAssetStatusAction,
-  removeUntrustedAssetAction,
   resetUntrustedAssetsAction,
 } = untrustedAssetsSlice.actions;

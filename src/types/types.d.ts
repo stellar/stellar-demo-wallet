@@ -9,6 +9,12 @@ export enum SearchParams {
   ASSET_OVERRIDES = "assetOverrides",
 }
 
+export enum AssetCategory {
+  TRUSTED = "trusted",
+  UNTRUSTED = "untrusted",
+  OVERRIDE = "override",
+}
+
 export interface Asset {
   assetString: string;
   assetCode: string;
@@ -20,6 +26,7 @@ export interface Asset {
   isUntrusted?: boolean;
   notExist?: boolean;
   source: any;
+  category?: AssetCategory;
 }
 
 export interface SearchParamAsset {
@@ -45,6 +52,18 @@ export interface AccountInitialState {
 
 export interface ActiveAssetInitialState {
   action: ActiveAssetAction | undefined;
+  status: ActionStatus | undefined;
+}
+
+export interface AllAssetsInitialState {
+  data: Asset[];
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
+
+export interface AssetOverridesInitialState {
+  data: Asset[];
+  errorString?: string;
   status: ActionStatus | undefined;
 }
 
@@ -181,6 +200,8 @@ export interface LogItemProps {
 export interface Store {
   account: AccountInitialState;
   activeAsset: ActiveAssetInitialState;
+  allAssets: AllAssetsInitialState;
+  assetOverrides: AssetOverridesInitialState;
   claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
   logs: LogsInitialState;

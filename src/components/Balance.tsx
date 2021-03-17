@@ -9,6 +9,7 @@ import {
   AssetActionItem,
   AssetActionId,
   AssetType,
+  AssetCategory,
 } from "types/types.d";
 
 interface SortedBalancesResult {
@@ -29,8 +30,10 @@ export const Balance = ({
   }: AssetActionItem) => void;
   onSend: (asset?: Asset) => void;
 }) => {
-  const { account, activeAsset } = useRedux("account", "activeAsset");
-  const allBalances = account?.assets;
+  const { activeAsset, allAssets } = useRedux("activeAsset", "allAssets");
+  const allBalances = allAssets.data.filter(
+    (a) => a.category === AssetCategory.TRUSTED,
+  );
 
   const dispatch = useDispatch();
 
