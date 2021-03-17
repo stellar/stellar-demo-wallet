@@ -12,7 +12,6 @@ export enum SearchParams {
 export enum AssetCategory {
   TRUSTED = "trusted",
   UNTRUSTED = "untrusted",
-  OVERRIDE = "override",
 }
 
 export interface Asset {
@@ -24,13 +23,14 @@ export interface Asset {
   homeDomain?: string;
   supportedActions?: AssetSupportedActions;
   isUntrusted?: boolean;
+  isOverride?: boolean;
   notExist?: boolean;
   source: any;
   category?: AssetCategory;
 }
 
 export interface SearchParamAsset {
-  assetString?: string;
+  assetString: string;
   homeDomain?: string;
 }
 

@@ -21,6 +21,10 @@ import {
   getAllAssetsAction,
   resetAllAssetsStatusAction,
 } from "ducks/allAssets";
+import {
+  addAssetOverridesAction,
+  resetAssetOverridesStatusAction,
+} from "ducks/assetOverrides";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetSep24DepositAssetAction } from "ducks/sep24DepositAsset";
@@ -50,20 +54,24 @@ export const Assets = ({
     account,
     activeAsset,
     allAssets,
+    assetOverrides,
     claimAsset,
     sep24DepositAsset,
     sep24WithdrawAsset,
     sep31Send,
+    settings,
     trustAsset,
     untrustedAssets,
   } = useRedux(
     "account",
     "activeAsset",
     "allAssets",
+    "assetOverrides",
     "claimAsset",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
     "sep31Send",
+    "settings",
     "trustAsset",
     "untrustedAssets",
   );
@@ -181,6 +189,21 @@ export const Assets = ({
       dispatch(resetAllAssetsStatusAction());
     }
   }, [allAssets.status, dispatch]);
+
+  useEffect(() => {
+    if (!settings.assetOverrides) {
+      return;
+    }
+
+    dispatch(addAssetOverridesAction(settings.assetOverrides));
+  }, [settings.assetOverrides, dispatch]);
+
+  useEffect(() => {
+    if (assetOverrides.status === ActionStatus.SUCCESS) {
+      dispatch(resetAssetOverridesStatusAction());
+      dispatch(getAllAssetsAction());
+    }
+  }, [assetOverrides.status, dispatch]);
 
   // Trust asset
   useEffect(() => {

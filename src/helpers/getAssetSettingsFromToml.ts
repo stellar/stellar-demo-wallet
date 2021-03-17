@@ -5,11 +5,13 @@ import { AssetSupportedActions, AnyObject, AssetType } from "types/types.d";
 interface GetAssetSettingsFromToml {
   assetId: string;
   networkUrl: string;
+  homeDomainOverride?: string;
 }
 
 export const getAssetSettingsFromToml = async ({
   assetId,
   networkUrl,
+  homeDomainOverride,
 }: GetAssetSettingsFromToml): Promise<{
   homeDomain: string | undefined;
   supportedActions: AssetSupportedActions | {};
@@ -27,8 +29,12 @@ export const getAssetSettingsFromToml = async ({
   // Other assets
   let supportedActions: AssetSupportedActions | AnyObject = {};
   const [, assetIssuer] = assetId.split(":");
-  const accountRecord = await server.loadAccount(assetIssuer);
-  const homeDomain = accountRecord.home_domain;
+  let homeDomain = homeDomainOverride;
+
+  if (!homeDomainOverride) {
+    const accountRecord = await server.loadAccount(assetIssuer);
+    homeDomain = accountRecord.home_domain;
+  }
 
   if (homeDomain) {
     const toml = await getToml(homeDomain);

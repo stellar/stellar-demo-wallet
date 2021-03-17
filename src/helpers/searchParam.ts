@@ -100,7 +100,8 @@ const updateKeyPair = ({
     const updatedValuesString = updatedValuesArray.reduce(
       (result: string[], asset) => [
         ...result,
-        `${asset.assetString}:${getKeyPairString(asset as StringObject)}`,
+        // TODO: any type
+        `${asset.assetString}:${getKeyPairString(asset as any)}`,
       ],
       [],
     );

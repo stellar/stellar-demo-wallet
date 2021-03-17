@@ -29,7 +29,12 @@ const includeAssetOverrides = ({
       (ao) => ao.assetString === asset.assetString,
     );
     const updatedAsset = overrideAsset
-      ? { ...overrideAsset, category: AssetCategory.OVERRIDE }
+      ? {
+          ...overrideAsset,
+          category: assetCategory,
+          isUntrusted: asset.isUntrusted,
+          isOverride: true,
+        }
       : { ...asset, category: assetCategory };
 
     return [...result, updatedAsset];
