@@ -45,7 +45,7 @@ export const getUntrustedAssetData = async ({
       .forIssuer(assetIssuer)
       .call();
 
-    if (!assetResponse.records) {
+    if (!assetResponse.records?.length) {
       log.error({ title: `Asset ${assetString} does not exist.` });
     } else {
       log.response({
