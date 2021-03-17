@@ -6,13 +6,11 @@ import { getErrorMessage } from "helpers/getErrorMessage";
 import { getUntrustedAssetData } from "helpers/getUntrustedAssetData";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
-import { updateAssetsInStore } from "helpers/updateAssetsInStore";
 import {
   ActionStatus,
   RejectMessage,
   Asset,
   UntrustedAssetsInitialState,
-  SearchParamAsset,
 } from "types/types.d";
 
 const removeExistingAssets = ({
@@ -85,19 +83,6 @@ export const addUntrustedAssetAction = createAsyncThunk<
   },
 );
 
-export const updateUntrustedAssetAction = createAsyncThunk<
-  Asset[],
-  SearchParamAsset[],
-  { rejectValue: RejectMessage; state: RootState }
->(
-  "untrustedAssets/updateUntrustedAssetAction",
-  (assetsToUpdate, { getState }) => {
-    const { data } = untrustedAssetsSelector(getState());
-
-    return updateAssetsInStore(data, assetsToUpdate);
-  },
-);
-
 const initialState: UntrustedAssetsInitialState = {
   data: [],
   errorString: undefined,
@@ -127,10 +112,6 @@ const untrustedAssetsSlice = createSlice({
     builder.addCase(addUntrustedAssetAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
-    });
-
-    builder.addCase(updateUntrustedAssetAction.fulfilled, (state, action) => {
-      state.data = action.payload;
     });
   },
 });

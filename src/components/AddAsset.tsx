@@ -75,23 +75,21 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
         networkUrl: getNetworkConfig(settings.pubnet).url,
       });
 
-      history.push(
-        searchParam.update(
-          SearchParams.UNTRUSTED_ASSETS,
-          `${asset.assetCode}:${asset.assetIssuer}`,
-        ),
+      let search = searchParam.update(
+        SearchParams.UNTRUSTED_ASSETS,
+        `${asset.assetCode}:${asset.assetIssuer}`,
       );
 
       if (asset.homeDomain) {
-        history.push(
-          searchParam.updateKeyPair({
-            searchParam: SearchParams.ASSET_OVERRIDES,
-            itemId: `${asset.assetCode}:${asset.assetIssuer}`,
-            keyPairs: { homeDomain },
-          }),
-        );
+        search = searchParam.updateKeyPair({
+          searchParam: SearchParams.ASSET_OVERRIDES,
+          itemId: `${asset.assetCode}:${asset.assetIssuer}`,
+          keyPairs: { homeDomain },
+          searchParams: new URLSearchParams(search),
+        });
       }
 
+      history.push(search);
       setIsValidating(false);
     } catch (e) {
       const errorMsg = getErrorMessage(e);

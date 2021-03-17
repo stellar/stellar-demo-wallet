@@ -1,8 +1,13 @@
 import { searchKeyPairStringToArray } from "helpers/searchKeyPairStringToArray";
 import { SearchParams, SearchParamAsset, StringObject } from "types/types.d";
 
-const update = (searchParam: SearchParams, value: string) => {
-  const queryParams = new URLSearchParams(window.location.search);
+const update = (
+  searchParam: SearchParams,
+  value: string,
+  searchParams?: URLSearchParams,
+) => {
+  const queryParams =
+    searchParams || new URLSearchParams(window.location.search);
   const currentParamValue = queryParams.get(searchParam) || "";
 
   switch (searchParam) {
@@ -29,8 +34,13 @@ const update = (searchParam: SearchParams, value: string) => {
   return `?${queryParams.toString()}`;
 };
 
-const remove = (searchParam: SearchParams, removeValue: string) => {
-  const queryParams = new URLSearchParams(window.location.search);
+const remove = (
+  searchParam: SearchParams,
+  removeValue: string,
+  searchParams?: URLSearchParams,
+) => {
+  const queryParams =
+    searchParams || new URLSearchParams(window.location.search);
   const currentParamValue = queryParams.get(searchParam) || "";
 
   const updatedValue = updateValue({
@@ -51,14 +61,17 @@ type UpdateKeyPairProps = {
   searchParam: SearchParams;
   itemId: string;
   keyPairs: StringObject;
+  searchParams?: URLSearchParams;
 };
 
 const updateKeyPair = ({
   searchParam,
   itemId,
   keyPairs,
+  searchParams,
 }: UpdateKeyPairProps) => {
-  const queryParams = new URLSearchParams(window.location.search);
+  const queryParams =
+    searchParams || new URLSearchParams(window.location.search);
   const currentParamValue = queryParams.get(searchParam) || "";
   const valuesArray = currentParamValue ? currentParamValue.split(",") : [];
 
