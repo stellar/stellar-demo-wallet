@@ -1,24 +1,26 @@
 import { ReactNode } from "react";
 import { Select, TextLink } from "@stellar/design-system";
+import { HomeDomainOverrideButtons } from "components/HomeDomainOverrideButtons";
 import { shortenStellarKey } from "helpers/shortenStellarKey";
 import {
   Asset,
   ActiveAssetAction,
   AssetActionId,
+  AssetType,
   ClaimableAsset,
 } from "types/types.d";
 
 interface BalanceRowProps {
   activeAction: ActiveAssetAction | undefined;
   asset: Asset | ClaimableAsset;
-  onChange?: (e: any) => void;
+  onAction?: (actionId: string, asset: Asset) => void;
   children?: ReactNode;
 }
 
 export const BalanceRow = ({
   activeAction,
   asset,
-  onChange,
+  onAction,
   children,
 }: BalanceRowProps) => {
   const {
@@ -60,15 +62,18 @@ export const BalanceRow = ({
             </TextLink>
           </div>
         )}
+        {asset.assetType !== AssetType.NATIVE && (
+          <HomeDomainOverrideButtons asset={asset} />
+        )}
       </div>
       <div className="BalanceCell BalanceActions">
         {children && <div className="CustomCell">{children}</div>}
 
-        {onChange && (
+        {onAction && (
           <div className="BalanceCellSelect">
             <Select
               id={`${assetString}-actions`}
-              onChange={onChange}
+              onChange={(e) => onAction(e.target.value, asset)}
               disabled={disabled}
             >
               <option value="">Select action</option>

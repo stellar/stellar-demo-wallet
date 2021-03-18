@@ -82,7 +82,7 @@ export const Balance = ({
     dispatch(fetchSendFieldsAction(asset));
   };
 
-  const handleActionChange = ({
+  const handleAction = ({
     actionId,
     balance,
   }: {
@@ -162,8 +162,8 @@ export const Balance = ({
           key={balance.assetString}
           activeAction={activeAsset.action}
           asset={balance}
-          onChange={(e) =>
-            handleActionChange({ actionId: e.target.value, balance })
+          onAction={(actionId, asset) =>
+            handleAction({ actionId, balance: asset })
           }
         />
       ))}
@@ -174,8 +174,8 @@ export const Balance = ({
           activeAction={activeAsset.action}
           key={balance.assetString}
           asset={balance}
-          onChange={(e) =>
-            handleActionChange({ actionId: e.target.value, balance })
+          onAction={(actionId, asset) =>
+            handleAction({ actionId, balance: asset })
           }
         />
       ))}

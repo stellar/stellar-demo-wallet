@@ -85,7 +85,17 @@ export const UntrustedBalance = ({
     dispatch(resetActiveAssetAction());
   };
 
-  const handleActionChange = ({
+  const handleRemoveHomeDomainOverride = (asset: Asset) => {
+    history.push(
+      searchParam.removeKeyPair({
+        searchParam: SearchParams.ASSET_OVERRIDES,
+        itemId: asset.assetString,
+      }),
+    );
+    dispatch(resetActiveAssetAction());
+  };
+
+  const handleAction = ({
     actionId,
     asset,
   }: {
@@ -130,6 +140,15 @@ export const UntrustedBalance = ({
           callback: () => handleRemoveAsset(asset),
         };
         break;
+      case AssetActionId.REMOVE_ASSET_OVERRIDE:
+        // TODO: title + description
+        props = {
+          ...defaultProps,
+          title: `Remove ${asset.assetCode} asset override`,
+          description: `Home domain will be remove`,
+          callback: () => handleRemoveHomeDomainOverride(asset),
+        };
+        break;
       default:
       // nothing
     }
@@ -153,13 +172,13 @@ export const UntrustedBalance = ({
             activeAction={activeAsset.action}
             key={asset.assetString}
             asset={asset}
-            onChange={(e) =>
-              handleActionChange({ actionId: e.target.value, asset })
+            onAction={(actionId, assetItem) =>
+              handleAction({ actionId, asset: assetItem })
             }
           >
             <TextButton
               onClick={() =>
-                handleActionChange({
+                handleAction({
                   actionId: AssetActionId.TRUST_ASSET,
                   asset,
                 })
@@ -178,7 +197,7 @@ export const UntrustedBalance = ({
           >
             <TextButton
               onClick={() =>
-                handleActionChange({
+                handleAction({
                   actionId: AssetActionId.REMOVE_ASSET,
                   asset,
                 })

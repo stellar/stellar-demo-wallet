@@ -85,7 +85,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
           searchParam: SearchParams.ASSET_OVERRIDES,
           itemId: `${asset.assetCode}:${asset.assetIssuer}`,
           keyPairs: { homeDomain },
-          searchParams: new URLSearchParams(search),
+          urlSearchParams: new URLSearchParams(search),
         });
       }
 

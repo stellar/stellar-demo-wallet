@@ -267,6 +267,8 @@ export enum AssetActionId {
   SEP31_SEND = "sep31-send",
   TRUST_ASSET = "trust-asset",
   REMOVE_ASSET = "remove-asset",
+  ADD_ASSET_OVERRIDE = "add-asset-override",
+  REMOVE_ASSET_OVERRIDE = "remove-asset-override",
 }
 
 export enum AssetType {

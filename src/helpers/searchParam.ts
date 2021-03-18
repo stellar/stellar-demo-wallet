@@ -4,10 +4,10 @@ import { SearchParams, SearchParamAsset, StringObject } from "types/types.d";
 const update = (
   searchParam: SearchParams,
   value: string,
-  searchParams?: URLSearchParams,
+  urlSearchParams?: URLSearchParams,
 ) => {
   const queryParams =
-    searchParams || new URLSearchParams(window.location.search);
+    urlSearchParams || new URLSearchParams(window.location.search);
   const currentParamValue = queryParams.get(searchParam) || "";
 
   switch (searchParam) {
@@ -37,10 +37,10 @@ const update = (
 const remove = (
   searchParam: SearchParams,
   removeValue: string,
-  searchParams?: URLSearchParams,
+  urlSearchParams?: URLSearchParams,
 ) => {
   const queryParams =
-    searchParams || new URLSearchParams(window.location.search);
+    urlSearchParams || new URLSearchParams(window.location.search);
   const currentParamValue = queryParams.get(searchParam) || "";
 
   const updatedValue = updateValue({
@@ -61,17 +61,17 @@ type UpdateKeyPairProps = {
   searchParam: SearchParams;
   itemId: string;
   keyPairs: StringObject;
-  searchParams?: URLSearchParams;
+  urlSearchParams?: URLSearchParams;
 };
 
 const updateKeyPair = ({
   searchParam,
   itemId,
   keyPairs,
-  searchParams,
+  urlSearchParams,
 }: UpdateKeyPairProps) => {
   const queryParams =
-    searchParams || new URLSearchParams(window.location.search);
+    urlSearchParams || new URLSearchParams(window.location.search);
   const currentParamValue = queryParams.get(searchParam) || "";
   const valuesArray = currentParamValue ? currentParamValue.split(",") : [];
 
@@ -120,6 +120,39 @@ const updateKeyPair = ({
   return `?${queryParams.toString()}`;
 };
 
+const removeKeyPair = ({
+  searchParam,
+  itemId,
+  urlSearchParams,
+}: {
+  searchParam: SearchParams;
+  itemId: string;
+  urlSearchParams?: URLSearchParams;
+}) => {
+  const queryParams =
+    urlSearchParams || new URLSearchParams(window.location.search);
+  const currentParamValue = queryParams.get(searchParam) || "";
+  const assetArray = searchKeyPairStringToArray(currentParamValue);
+  const assetsToKeep = assetArray.filter((v) => v.assetString !== itemId);
+
+  if (assetsToKeep.length) {
+    const updatedValuesString = assetsToKeep.reduce(
+      (result: string[], asset) => [
+        ...result,
+        // TODO: any type
+        `${asset.assetString}:${getKeyPairString(asset as any)}`,
+      ],
+      [],
+    );
+
+    queryParams.set(searchParam, updatedValuesString.join(","));
+  } else {
+    queryParams.delete(searchParam);
+  }
+
+  return `?${queryParams.toString()}`;
+};
+
 type UpdateValueProps = {
   currentVal: string;
   newVal?: string;
@@ -162,6 +195,7 @@ const getKeyPairString = (keyPairs: StringObject) => {
 
 export const searchParam = {
   update,
-  updateKeyPair,
   remove,
+  updateKeyPair,
+  removeKeyPair,
 };

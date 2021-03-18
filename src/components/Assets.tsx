@@ -191,10 +191,6 @@ export const Assets = ({
   }, [allAssets.status, dispatch]);
 
   useEffect(() => {
-    if (!settings.assetOverrides) {
-      return;
-    }
-
     dispatch(addAssetOverridesAction(settings.assetOverrides));
   }, [settings.assetOverrides, dispatch]);
 
