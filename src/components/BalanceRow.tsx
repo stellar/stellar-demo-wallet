@@ -51,8 +51,8 @@ export const BalanceRow = ({
         ) : (
           <div className="BalanceAmount">{`${total || "0"} ${assetCode}`}</div>
         )}
-        {homeDomain && (
-          <div className="BalanceHomeDomain">
+        <div className="BalanceOptions Inline">
+          {homeDomain && (
             <TextLink
               href={`//${homeDomain}/.well-known/stellar.toml`}
               target="_blank"
@@ -60,11 +60,11 @@ export const BalanceRow = ({
             >
               {homeDomain}
             </TextLink>
-          </div>
-        )}
-        {asset.assetType !== AssetType.NATIVE && (
-          <HomeDomainOverrideButtons asset={asset} />
-        )}
+          )}
+          {asset.assetType !== AssetType.NATIVE && (
+            <HomeDomainOverrideButtons asset={asset} />
+          )}
+        </div>
       </div>
       <div className="BalanceCell BalanceActions">
         {children && <div className="CustomCell">{children}</div>}

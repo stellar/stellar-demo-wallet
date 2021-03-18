@@ -5,12 +5,16 @@ import { TextLink } from "@stellar/design-system";
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
 import { HomeDomainOverrideModal } from "components/HomeDomainOverrideModal";
 import { Modal } from "components/Modal";
+import { IconButton } from "components/IconButton";
 import {
   setActiveAssetAction,
   resetActiveAssetAction,
 } from "ducks/activeAsset";
 import { searchParam } from "helpers/searchParam";
 import { Asset, SearchParams } from "types/types.d";
+
+import { ReactComponent as IconEdit } from "assets/icons/edit.svg";
+import { ReactComponent as IconRemove } from "assets/icons/error.svg";
 
 export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
   const [activeModal, setActiveModal] = useState("");
@@ -68,16 +72,29 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
 
   return (
     <>
-      <>
-        <TextLink onClick={() => showModal(ModalType.ASSET_OVERRIDE)}>
-          Add override
-        </TextLink>{" "}
-        {asset.isOverride && (
-          <TextLink onClick={() => showModal(ModalType.CONFIRM_ACTION)}>
-            Delete override
-          </TextLink>
-        )}
-      </>
+      {asset.homeDomain ? (
+        <IconButton
+          icon={<IconEdit />}
+          altText="Edit home domain"
+          onClick={() => showModal(ModalType.ASSET_OVERRIDE)}
+        />
+      ) : (
+        <TextLink
+          onClick={() => showModal(ModalType.ASSET_OVERRIDE)}
+          target="_blank"
+        >
+          Add home domain
+        </TextLink>
+      )}
+
+      {asset.isOverride && (
+        <IconButton
+          icon={<IconRemove />}
+          altText="Remove home domain override"
+          onClick={() => showModal(ModalType.CONFIRM_ACTION)}
+          color="var(--color-error)"
+        />
+      )}
 
       <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
         {/* Action confirmation */}
