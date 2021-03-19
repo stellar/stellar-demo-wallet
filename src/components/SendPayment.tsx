@@ -6,8 +6,8 @@ import {
   InfoBlock,
   Input,
   Loader,
-  TextLink,
 } from "@stellar/design-system";
+import { TextLink } from "components/TextLink";
 import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
@@ -134,8 +134,7 @@ export const SendPayment = ({
             will be used to create this account.{" "}
             <TextLink
               href="https://developers.stellar.org/docs/tutorials/create-account/"
-              target="_blank"
-              rel="noreferrer"
+              isExternal
             >
               Learn more about account creation
             </TextLink>

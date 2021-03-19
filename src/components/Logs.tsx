@@ -83,7 +83,9 @@ export const Logs = () => {
     return (
       <div className="SplitContainer Logs">
         <div className="ContentWrapper">
-          <div className="EmptyLogsContent">Your logs will show up here</div>
+          <div className="EmptyLogsContent">
+            Operation logs will appear here once a transaction begins
+          </div>
         </div>
       </div>
     );

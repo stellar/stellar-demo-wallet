@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Heading2, Loader, TextButton, TextLink } from "@stellar/design-system";
+import { Heading2, Loader } from "@stellar/design-system";
+import { TextButton } from "components/TextButton";
+import { TextLink } from "components/TextLink";
 import ReactJson from "react-json-view";
 
 import { CopyWithText } from "components/CopyWithText";
-import { InfoButtonWithTooltip } from "components/InfoButtonWithTooltip";
 import { ToastBanner } from "components/ToastBanner";
 
 import { fetchAccountAction, fundTestnetAccount } from "ducks/account";
@@ -76,19 +77,22 @@ export const AccountInfo = () => {
                   <TextButton
                     onClick={handleCreateAccount}
                     disabled={account.status === ActionStatus.PENDING}
+                    tooltipText={
+                      <>
+                        Clicking create will fund your test account with XLM. If
+                        you’re testing SEP-24 you may want to leave this account
+                        unfunded.{" "}
+                        <TextLink
+                          href="https://developers.stellar.org/docs/tutorials/create-account/#create-account"
+                          isExternal
+                        >
+                          Learn more
+                        </TextLink>
+                      </>
+                    }
                   >
                     Create account
                   </TextButton>
-
-                  {/* TODO: add link */}
-                  <InfoButtonWithTooltip>
-                    Clicking create will fund your test account with XLM. If
-                    you’re testing SEP-24 you may want to leave this account
-                    unfunded.{" "}
-                    <TextLink href="#" target="_blank" rel="noreferrer">
-                      Learn more
-                    </TextLink>
-                  </InfoButtonWithTooltip>
                 </div>
               )}
 
@@ -110,14 +114,11 @@ export const AccountInfo = () => {
                 <TextButton
                   onClick={handleRefreshAccount}
                   disabled={account.status === ActionStatus.PENDING}
+                  tooltipText="If you performed account actions elsewhere, like in the
+                  Stellar Laboratory, click here to update."
                 >
                   Refresh account
                 </TextButton>
-
-                <InfoButtonWithTooltip>
-                  If you performed account actions elsewhere, like in the
-                  Stellar Laboratory, click here to update.
-                </InfoButtonWithTooltip>
               </div>
             </div>
           </div>
