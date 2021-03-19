@@ -8,6 +8,7 @@ import { InfoButtonWithTooltip } from "components/InfoButtonWithTooltip";
 import { ToastBanner } from "components/ToastBanner";
 
 import { fetchAccountAction, fundTestnetAccount } from "ducks/account";
+import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 
 import { shortenStellarKey } from "helpers/shortenStellarKey";
 import { useRedux } from "hooks/useRedux";
@@ -27,6 +28,7 @@ export const AccountInfo = () => {
           secretKey: account.secretKey,
         }),
       );
+      dispatch(fetchClaimableBalancesAction({ publicKey: account.data.id }));
     }
   }, [account.data?.id, account.secretKey, dispatch]);
 

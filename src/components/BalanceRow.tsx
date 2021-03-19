@@ -61,9 +61,10 @@ export const BalanceRow = ({
               {homeDomain}
             </TextLink>
           )}
-          {asset.assetType !== AssetType.NATIVE && (
-            <HomeDomainOverrideButtons asset={asset} />
-          )}
+          {!asset.isClaimableBalance &&
+            asset.assetType !== AssetType.NATIVE && (
+              <HomeDomainOverrideButtons asset={asset} />
+            )}
         </div>
       </div>
       <div className="BalanceCell BalanceActions">

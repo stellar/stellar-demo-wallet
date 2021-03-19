@@ -24,6 +24,7 @@ export interface Asset {
   supportedActions?: AssetSupportedActions;
   isUntrusted?: boolean;
   isOverride?: boolean;
+  isClaimableBalance?: boolean;
   notExist?: boolean;
   source: any;
   category?: AssetCategory;
