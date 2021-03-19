@@ -11,15 +11,15 @@ const activeAssetSlice = createSlice({
   name: "activeAsset",
   initialState,
   reducers: {
-    setActiveAsset: (state, action) => {
+    setActiveAssetAction: (state, action) => {
       state.action = action.payload;
     },
-    setActiveAssetStatus: (state, action) => {
+    setActiveAssetStatusAction: (state, action) => {
       if (state.action) {
         state.status = action.payload;
       }
     },
-    resetActiveAsset: () => initialState,
+    resetActiveAssetAction: () => initialState,
   },
 });
 
@@ -27,7 +27,7 @@ export const activeAssetSelector = (state: RootState) => state.activeAsset;
 
 export const { reducer } = activeAssetSlice;
 export const {
-  setActiveAsset,
-  setActiveAssetStatus,
-  resetActiveAsset,
+  setActiveAssetAction,
+  setActiveAssetStatusAction,
+  resetActiveAssetAction,
 } = activeAssetSlice.actions;

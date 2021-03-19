@@ -10,6 +10,8 @@ import BigNumber from "bignumber.js";
 
 import { reducer as account } from "ducks/account";
 import { reducer as activeAsset } from "ducks/activeAsset";
+import { reducer as allAssets } from "ducks/allAssets";
+import { reducer as assetOverrides } from "ducks/assetOverrides";
 import { reducer as claimAsset } from "ducks/claimAsset";
 import { reducer as claimableBalances } from "ducks/claimableBalances";
 import { reducer as sep24DepositAsset } from "ducks/sep24DepositAsset";
@@ -36,6 +38,8 @@ const isSerializable = (value: any) => {
 const reducers = combineReducers({
   account,
   activeAsset,
+  allAssets,
+  assetOverrides,
   claimAsset,
   claimableBalances,
   logs,

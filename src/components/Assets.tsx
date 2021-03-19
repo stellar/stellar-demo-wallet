@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Button, Heading2, Loader } from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
@@ -11,25 +11,37 @@ import { Modal } from "components/Modal";
 import { ToastBanner } from "components/ToastBanner";
 import { UntrustedBalance } from "components/UntrustedBalance";
 
-import { fetchAccountAction } from "ducks/account";
+import { fetchAccountAction, resetAccountStatusAction } from "ducks/account";
 import {
-  setActiveAsset,
-  setActiveAssetStatus,
-  resetActiveAsset,
+  setActiveAssetAction,
+  setActiveAssetStatusAction,
+  resetActiveAssetAction,
 } from "ducks/activeAsset";
+import {
+  getAllAssetsAction,
+  resetAllAssetsStatusAction,
+} from "ducks/allAssets";
+import {
+  addAssetOverridesAction,
+  resetAssetOverridesStatusAction,
+} from "ducks/assetOverrides";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 import { resetSep24DepositAssetAction } from "ducks/sep24DepositAsset";
 import { resetTrustAssetAction } from "ducks/trustAsset";
-import { removeUntrustedAssetAction } from "ducks/untrustedAssets";
+import {
+  removeUntrustedAssetAction,
+  resetUntrustedAssetStatusAction,
+} from "ducks/untrustedAssets";
 import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
-import { removeUntrustedAssetSearchParam } from "helpers/removeUntrustedAssetSearchParam";
+import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import {
   Asset,
   ActionStatus,
   AssetActionItem,
+  SearchParams,
   TransactionStatus,
 } from "types/types.d";
 
@@ -41,19 +53,27 @@ export const Assets = ({
   const {
     account,
     activeAsset,
+    allAssets,
+    assetOverrides,
     claimAsset,
     sep24DepositAsset,
     sep24WithdrawAsset,
     sep31Send,
+    settings,
     trustAsset,
+    untrustedAssets,
   } = useRedux(
     "account",
     "activeAsset",
+    "allAssets",
+    "assetOverrides",
     "claimAsset",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
     "sep31Send",
+    "settings",
     "trustAsset",
+    "untrustedAssets",
   );
 
   const [activeModal, setActiveModal] = useState("");
@@ -61,7 +81,6 @@ export const Assets = ({
 
   const dispatch = useDispatch();
   const history = useHistory();
-  const location = useLocation();
 
   enum modalType {
     ADD_ASSET = "ADD_ASSET",
@@ -72,15 +91,12 @@ export const Assets = ({
     (removeAsset?: string) => {
       if (removeAsset) {
         history.push(
-          removeUntrustedAssetSearchParam({
-            location,
-            removeAsset,
-          }),
+          searchParam.remove(SearchParams.UNTRUSTED_ASSETS, removeAsset),
         );
         dispatch(removeUntrustedAssetAction(removeAsset));
       }
     },
-    [history, location, dispatch],
+    [history, dispatch],
   );
 
   const handleRefreshAccount = useCallback(() => {
@@ -102,7 +118,7 @@ export const Assets = ({
 
   const handleCloseModal = () => {
     setActiveModal("");
-    dispatch(resetActiveAsset());
+    dispatch(resetActiveAssetAction());
   };
 
   const handleAssetAction = ({
@@ -115,7 +131,7 @@ export const Assets = ({
   }: AssetActionItem) => {
     setActiveModal(modalType.CONFIRM_ACTION);
     dispatch(
-      setActiveAsset({
+      setActiveAssetAction({
         assetString,
         title,
         description,
@@ -141,14 +157,14 @@ export const Assets = ({
       }
 
       if (status === ActionStatus.SUCCESS || status === ActionStatus.ERROR) {
-        dispatch(resetActiveAsset());
+        dispatch(resetActiveAssetAction());
       }
 
       if (
         status === ActionStatus.PENDING ||
         status === ActionStatus.NEEDS_INPUT
       ) {
-        dispatch(setActiveAssetStatus(ActionStatus.PENDING));
+        dispatch(setActiveAssetStatusAction(ActionStatus.PENDING));
         setToastMessage(message);
       }
     },
@@ -161,14 +177,38 @@ export const Assets = ({
     }
   }, [activeAsset.action]);
 
+  useEffect(() => {
+    if (account.status === ActionStatus.SUCCESS) {
+      dispatch(resetAccountStatusAction());
+      dispatch(getAllAssetsAction());
+    }
+  }, [account.status, dispatch]);
+
+  useEffect(() => {
+    if (allAssets.status === ActionStatus.SUCCESS) {
+      dispatch(resetAllAssetsStatusAction());
+    }
+  }, [allAssets.status, dispatch]);
+
+  useEffect(() => {
+    dispatch(addAssetOverridesAction(settings.assetOverrides));
+  }, [settings.assetOverrides, dispatch]);
+
+  useEffect(() => {
+    if (assetOverrides.status === ActionStatus.SUCCESS) {
+      dispatch(resetAssetOverridesStatusAction());
+      dispatch(getAllAssetsAction());
+    }
+  }, [assetOverrides.status, dispatch]);
+
   // Trust asset
   useEffect(() => {
     if (trustAsset.status === ActionStatus.SUCCESS) {
       history.push(
-        removeUntrustedAssetSearchParam({
-          location,
-          removeAsset: trustAsset.assetString,
-        }),
+        searchParam.remove(
+          SearchParams.UNTRUSTED_ASSETS,
+          trustAsset.assetString,
+        ),
       );
       dispatch(removeUntrustedAssetAction(trustAsset.assetString));
       dispatch(resetTrustAssetAction());
@@ -184,7 +224,6 @@ export const Assets = ({
     trustAsset.assetString,
     handleRefreshAccount,
     setActiveAssetStatusAndToastMessage,
-    location,
     dispatch,
     history,
   ]);
@@ -218,7 +257,6 @@ export const Assets = ({
     handleFetchClaimableBalances,
     handleRemoveUntrustedAsset,
     setActiveAssetStatusAndToastMessage,
-    location,
     dispatch,
     history,
   ]);
@@ -244,7 +282,6 @@ export const Assets = ({
     sep24WithdrawAsset.data.currentStatus,
     handleRefreshAccount,
     setActiveAssetStatusAndToastMessage,
-    location,
     dispatch,
     history,
   ]);
@@ -280,6 +317,18 @@ export const Assets = ({
       message: "SEP-31 send in progress",
     });
   }, [sep31Send.status, setActiveAssetStatusAndToastMessage]);
+
+  // Remove untrusted asset
+  useEffect(() => {
+    if (
+      untrustedAssets.status === ActionStatus.SUCCESS ||
+      untrustedAssets.status === ActionStatus.ERROR
+    ) {
+      dispatch(getAllAssetsAction());
+      dispatch(resetUntrustedAssetStatusAction());
+      dispatch(resetActiveAssetAction());
+    }
+  }, [untrustedAssets.status, dispatch]);
 
   return (
     <>

@@ -9,6 +9,7 @@ import {
   AssetActionItem,
   AssetActionId,
   AssetType,
+  AssetCategory,
 } from "types/types.d";
 
 interface SortedBalancesResult {
@@ -29,8 +30,10 @@ export const Balance = ({
   }: AssetActionItem) => void;
   onSend: (asset?: Asset) => void;
 }) => {
-  const { account, activeAsset } = useRedux("account", "activeAsset");
-  const allBalances = account?.assets;
+  const { activeAsset, allAssets } = useRedux("activeAsset", "allAssets");
+  const allBalances = allAssets.data.filter(
+    (a) => a.category === AssetCategory.TRUSTED,
+  );
 
   const dispatch = useDispatch();
 
@@ -44,7 +47,7 @@ export const Balance = ({
       other: [],
     };
 
-    Object.values(allBalances).map((balance) => {
+    allBalances.map((balance) => {
       if (balance.assetType === AssetType.NATIVE) {
         result.native = [...result.native, balance];
       } else {
@@ -79,7 +82,7 @@ export const Balance = ({
     dispatch(fetchSendFieldsAction(asset));
   };
 
-  const handleActionChange = ({
+  const handleAction = ({
     actionId,
     balance,
   }: {
@@ -159,8 +162,8 @@ export const Balance = ({
           key={balance.assetString}
           activeAction={activeAsset.action}
           asset={balance}
-          onChange={(e) =>
-            handleActionChange({ actionId: e.target.value, balance })
+          onAction={(actionId, asset) =>
+            handleAction({ actionId, balance: asset })
           }
         />
       ))}
@@ -171,8 +174,8 @@ export const Balance = ({
           activeAction={activeAsset.action}
           key={balance.assetString}
           asset={balance}
-          onChange={(e) =>
-            handleActionChange({ actionId: e.target.value, balance })
+          onAction={(actionId, asset) =>
+            handleAction({ actionId, balance: asset })
           }
         />
       ))}

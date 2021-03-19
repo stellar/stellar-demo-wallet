@@ -1,31 +1,36 @@
 import { ReactNode } from "react";
 import { Select, TextLink } from "@stellar/design-system";
+import { HomeDomainOverrideButtons } from "components/HomeDomainOverrideButtons";
+import { shortenStellarKey } from "helpers/shortenStellarKey";
 import {
   Asset,
   ActiveAssetAction,
   AssetActionId,
+  AssetType,
   ClaimableAsset,
 } from "types/types.d";
 
 interface BalanceRowProps {
   activeAction: ActiveAssetAction | undefined;
   asset: Asset | ClaimableAsset;
-  onChange?: (e: any) => void;
+  onAction?: (actionId: string, asset: Asset) => void;
   children?: ReactNode;
 }
 
 export const BalanceRow = ({
   activeAction,
   asset,
-  onChange,
+  onAction,
   children,
 }: BalanceRowProps) => {
   const {
     assetString,
     assetCode,
+    assetIssuer,
     total,
     supportedActions,
     isUntrusted,
+    notExist,
     homeDomain,
   } = asset;
   const isActive = activeAction?.assetString === assetString;
@@ -39,9 +44,15 @@ export const BalanceRow = ({
       key={assetString}
     >
       <div className="BalanceCell BalanceInfo">
-        <div className="BalanceAmount">{`${total || "0"} ${assetCode}`}</div>
-        {homeDomain && (
-          <div className="BalanceHomeDomain">
+        {notExist ? (
+          <div className="BalanceAmount error">{`${assetCode}:${shortenStellarKey(
+            assetIssuer,
+          )} does not exist`}</div>
+        ) : (
+          <div className="BalanceAmount">{`${total || "0"} ${assetCode}`}</div>
+        )}
+        <div className="BalanceOptions Inline">
+          {homeDomain && (
             <TextLink
               href={`//${homeDomain}/.well-known/stellar.toml`}
               target="_blank"
@@ -49,17 +60,21 @@ export const BalanceRow = ({
             >
               {homeDomain}
             </TextLink>
-          </div>
-        )}
+          )}
+          {!asset.isClaimableBalance &&
+            asset.assetType !== AssetType.NATIVE && (
+              <HomeDomainOverrideButtons asset={asset} />
+            )}
+        </div>
       </div>
       <div className="BalanceCell BalanceActions">
         {children && <div className="CustomCell">{children}</div>}
 
-        {onChange && (
+        {onAction && (
           <div className="BalanceCellSelect">
             <Select
               id={`${assetString}-actions`}
-              onChange={onChange}
+              onChange={(e) => onAction(e.target.value, asset)}
               disabled={disabled}
             >
               <option value="">Select action</option>

@@ -45,8 +45,23 @@ export const getUntrustedAssetData = async ({
       .forIssuer(assetIssuer)
       .call();
 
-    if (!assetResponse.records) {
-      log.error({ title: `Asset ${assetString} does not exist.` });
+    if (!assetResponse.records.length) {
+      log.error({
+        title: `Asset ${assetString} does not exist.`,
+      });
+
+      response = [
+        ...response,
+        {
+          assetString,
+          assetCode,
+          assetIssuer,
+          assetType: "none",
+          total: "0",
+          notExist: true,
+          source: {},
+        },
+      ];
     } else {
       log.response({
         title: `Asset ${assetString} record fetched`,
@@ -70,6 +85,10 @@ export const getUntrustedAssetData = async ({
       });
 
       response = [...response, data];
+
+      log.instruction({
+        title: `Asset ${assetString} added`,
+      });
     }
   }
 

@@ -1,58 +1,78 @@
 import { Types } from "@stellar/wallet-sdk";
+import { checkAssetExists } from "helpers/checkAssetExists";
 import { getErrorMessage } from "helpers/getErrorMessage";
-import { getIssuerFromDomain } from "helpers/getIssuerFromDomain";
+import { getAssetFromHomeDomain } from "helpers/getAssetFromHomeDomain";
 import { log } from "helpers/log";
 
 interface GetUntrustedAssetProps {
   assetCode: string;
-  homeDomain: string;
+  homeDomain?: string;
+  issuerPublicKey?: string;
   accountBalances?: Types.BalanceMap;
+  networkUrl: string;
+}
+
+interface GetUntrustedAssetResponse {
+  assetCode: string;
+  assetIssuer: string;
+  homeDomain?: string;
 }
 
 export const getValidatedUntrustedAsset = async ({
   assetCode,
   homeDomain,
+  issuerPublicKey,
   accountBalances,
-}: GetUntrustedAssetProps) => {
+  networkUrl,
+}: GetUntrustedAssetProps): Promise<GetUntrustedAssetResponse> => {
   log.instruction({
     title: `Start validating untrusted asset ${assetCode}`,
   });
 
-  if (!assetCode && !homeDomain) {
-    log.error({ title: "REQUIRED: asset code AND home domain" });
-    throw new Error("REQUIRED: asset code AND home domain");
-  }
-
-  let asset;
-
-  try {
-    const homeDomainIssuer = await getIssuerFromDomain({
-      assetCode,
-      homeDomain,
-    });
-
-    asset = `${assetCode}:${homeDomainIssuer}`;
-  } catch (e) {
-    const errorMessage = getErrorMessage(e);
-
-    log.error({ title: "Issuer domain error: ", body: errorMessage });
-    throw new Error(errorMessage);
-  }
-
-  if (!asset) {
-    log.error({
-      title: `Something went wrong with the asset ${asset}. Make sure home domain or asset issuer is correct.`,
-    });
+  if (assetCode && !(homeDomain || issuerPublicKey)) {
     throw new Error(
-      `Something went wrong with the asset ${asset}. Make sure home domain or asset issuer is correct.`,
+      "Home domain OR issuer public key is required with asset code",
     );
   }
 
-  // Is asset already trusted
-  if (accountBalances?.[asset]) {
-    log.instruction({ title: `Asset ${asset} is already trusted.` });
-    throw new Error(`Asset ${asset} is already trusted`);
+  // Asset code and issuer public key (no home domain provided)
+  if (issuerPublicKey && !homeDomain) {
+    await checkAssetExists({
+      assetCode,
+      assetIssuer: issuerPublicKey,
+      networkUrl,
+      accountBalances,
+    });
+    return {
+      assetCode,
+      assetIssuer: issuerPublicKey,
+    };
   }
 
-  return asset;
+  // Asset code and home domain
+  if (homeDomain) {
+    try {
+      return await getAssetFromHomeDomain({
+        assetCode,
+        homeDomain,
+        issuerPublicKey,
+        networkUrl,
+        accountBalances,
+      });
+    } catch (e) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+
+  const errorMessage = "No asset was found matching provided information";
+
+  log.error({
+    title: errorMessage,
+    body: {
+      assetCode,
+      homeDomain,
+      issuerPublicKey,
+    },
+  });
+  throw new Error(errorMessage);
 };

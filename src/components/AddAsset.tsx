@@ -1,73 +1,107 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, Heading2, Input, Loader } from "@stellar/design-system";
+import {
+  Button,
+  Heading2,
+  InfoBlock,
+  InfoBlockVariant,
+  Input,
+  Loader,
+} from "@stellar/design-system";
 import { getErrorMessage } from "helpers/getErrorMessage";
-import { getUntrustedAssetsSearchParam } from "helpers/getUntrustedAssetsSearchParam";
+import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { getValidatedUntrustedAsset } from "helpers/getValidatedUntrustedAsset";
+import { searchParam } from "helpers/searchParam";
 import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, SearchParams } from "types/types.d";
 
 export const AddAsset = ({ onClose }: { onClose: () => void }) => {
-  const { account, untrustedAssets } = useRedux("account", "untrustedAssets");
+  const { account, settings, untrustedAssets } = useRedux(
+    "account",
+    "settings",
+    "untrustedAssets",
+  );
 
+  const [isValidating, setIsValidating] = useState(false);
   // Form data
   const [assetCode, setAssetCode] = useState("");
   const [homeDomain, setHomeDomain] = useState("");
+  const [issuerPublicKey, setIssuerPublicKey] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [localStatus, setLocalStatus] = useState<ActionStatus | undefined>();
 
   const history = useHistory();
 
   const resetState = () => {
     setAssetCode("");
     setHomeDomain("");
+    setIssuerPublicKey("");
     setErrorMessage("");
-    setLocalStatus(undefined);
+    setIsValidating(false);
   };
 
   useEffect(() => () => resetState(), []);
 
   useEffect(() => {
-    if (
-      localStatus === ActionStatus.SUCCESS &&
-      untrustedAssets.status === ActionStatus.SUCCESS
-    ) {
+    if (untrustedAssets.status === ActionStatus.SUCCESS) {
       onClose();
     }
-  }, [untrustedAssets.status, localStatus, onClose]);
+
+    if (untrustedAssets.errorString) {
+      setErrorMessage(untrustedAssets.errorString);
+    }
+  }, [untrustedAssets.status, untrustedAssets.errorString, onClose]);
 
   const handleSetUntrustedAsset = async () => {
-    // Reset local state
     setErrorMessage("");
-    setLocalStatus(ActionStatus.PENDING);
+
+    if (!(homeDomain || issuerPublicKey)) {
+      const errorMsg =
+        "Home domain OR issuer public key is required with asset code";
+
+      log.error({ title: errorMsg });
+      setErrorMessage(errorMsg);
+      return;
+    }
+
+    setIsValidating(true);
 
     try {
       const asset = await getValidatedUntrustedAsset({
         assetCode,
         homeDomain,
+        issuerPublicKey,
         accountBalances: account.data?.balances,
+        networkUrl: getNetworkConfig(settings.pubnet).url,
       });
 
-      history.push(
-        getUntrustedAssetsSearchParam({
-          location,
-          asset,
-        }),
+      let search = searchParam.update(
+        SearchParams.UNTRUSTED_ASSETS,
+        `${asset.assetCode}:${asset.assetIssuer}`,
       );
-      setLocalStatus(ActionStatus.SUCCESS);
+
+      if (asset.homeDomain) {
+        search = searchParam.updateKeyPair({
+          searchParam: SearchParams.ASSET_OVERRIDES,
+          itemId: `${asset.assetCode}:${asset.assetIssuer}`,
+          keyPairs: { homeDomain },
+          urlSearchParams: new URLSearchParams(search),
+        });
+      }
+
+      history.push(search);
+      setIsValidating(false);
     } catch (e) {
       const errorMsg = getErrorMessage(e);
 
       log.error({ title: errorMsg });
       setErrorMessage(errorMsg);
-      setLocalStatus(ActionStatus.ERROR);
+      setIsValidating(false);
     }
   };
 
   const isPending =
-    untrustedAssets.status === ActionStatus.PENDING ||
-    localStatus === ActionStatus.PENDING;
+    isValidating || untrustedAssets.status === ActionStatus.PENDING;
 
   return (
     <>
@@ -75,36 +109,55 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
       <Heading2 className="ModalHeading">Add asset</Heading2>
 
       <div className="ModalBody">
+        <p>Required: asset code AND (home domain OR issuer)</p>
+
         <Input
           id="aa-asset-code"
           label="Asset code"
-          onChange={(e) => setAssetCode(e.target.value)}
+          onChange={(e) => {
+            setErrorMessage("");
+            setAssetCode(e.target.value);
+          }}
           value={assetCode}
-          placeholder="ex. USD"
+          placeholder="ex: USDC, EURT, NGNT"
         />
 
         {/* TODO: add info icon and bubble to SDS */}
         <Input
           id="aa-home-domain"
           label="Anchor home domain"
-          onChange={(e) => setHomeDomain(e.target.value)}
+          onChange={(e) => {
+            setErrorMessage("");
+            setHomeDomain(e.target.value);
+          }}
           value={homeDomain}
-          placeholder="ex. example.com"
+          placeholder="ex: example.com"
         />
-      </div>
 
-      {errorMessage && localStatus && (
-        <div className="ModalMessage error">
-          <p>{errorMessage}</p>
-        </div>
-      )}
+        <Input
+          id="aa-public-key"
+          label="Issuer public key"
+          onChange={(e) => {
+            setErrorMessage("");
+            setIssuerPublicKey(e.target.value);
+          }}
+          value={issuerPublicKey}
+          placeholder="ex: GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B"
+        />
+
+        {errorMessage && (
+          <InfoBlock variant={InfoBlockVariant.error}>
+            <p>{errorMessage}</p>
+          </InfoBlock>
+        )}
+      </div>
 
       <div className="ModalButtonsFooter">
         {isPending && <Loader />}
 
         <Button
           onClick={handleSetUntrustedAsset}
-          disabled={!(assetCode && homeDomain) || isPending}
+          disabled={!assetCode || isPending}
         >
           Add
         </Button>

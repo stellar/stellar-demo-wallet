@@ -43,6 +43,7 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
             total: record.amount,
             sponsor: record.sponsor,
             lastModifiedLedger: record.last_modified_ledger,
+            isClaimableBalance: true,
             source: record,
           };
 

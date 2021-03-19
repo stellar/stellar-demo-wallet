@@ -2,6 +2,18 @@ import { ReactNode } from "react";
 import { Types } from "@stellar/wallet-sdk";
 import { Horizon } from "stellar-sdk";
 
+export enum SearchParams {
+  SECRET_KEY = "secretKey",
+  PUBNET = "pubnet",
+  UNTRUSTED_ASSETS = "untrustedAssets",
+  ASSET_OVERRIDES = "assetOverrides",
+}
+
+export enum AssetCategory {
+  TRUSTED = "trusted",
+  UNTRUSTED = "untrusted",
+}
+
 export interface Asset {
   assetString: string;
   assetCode: string;
@@ -11,7 +23,16 @@ export interface Asset {
   homeDomain?: string;
   supportedActions?: AssetSupportedActions;
   isUntrusted?: boolean;
+  isOverride?: boolean;
+  isClaimableBalance?: boolean;
+  notExist?: boolean;
   source: any;
+  category?: AssetCategory;
+}
+
+export interface SearchParamAsset {
+  assetString: string;
+  homeDomain?: string;
 }
 
 export interface AssetSupportedActions {
@@ -22,9 +43,7 @@ export interface AssetSupportedActions {
 
 export interface AccountInitialState {
   data: Types.AccountDetails | null;
-  assets: {
-    [key: string]: Asset;
-  };
+  assets: Asset[];
   errorString?: string;
   isAuthenticated: boolean;
   isUnfunded: boolean;
@@ -34,6 +53,18 @@ export interface AccountInitialState {
 
 export interface ActiveAssetInitialState {
   action: ActiveAssetAction | undefined;
+  status: ActionStatus | undefined;
+}
+
+export interface AllAssetsInitialState {
+  data: Asset[];
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
+
+export interface AssetOverridesInitialState {
+  data: Asset[];
+  errorString?: string;
   status: ActionStatus | undefined;
 }
 
@@ -76,6 +107,7 @@ export interface SendPaymentInitialState {
 }
 
 export interface SettingsInitialState {
+  assetOverrides: string;
   pubnet: boolean;
   secretKey: string;
   untrustedAssets: string;
@@ -89,6 +121,20 @@ export interface UntrustedAssetsInitialState {
 
 export interface AnyObject {
   [key: string]: any;
+}
+
+export interface AssetsObject {
+  [key: string]: Asset;
+}
+
+export interface StringObject {
+  [key: string]: string;
+}
+
+export interface NestedStringObject {
+  [key: string]: {
+    [key: string]: string;
+  };
 }
 
 export interface Sep31SendInitialState {
@@ -155,6 +201,8 @@ export interface LogItemProps {
 export interface Store {
   account: AccountInitialState;
   activeAsset: ActiveAssetInitialState;
+  allAssets: AllAssetsInitialState;
+  assetOverrides: AssetOverridesInitialState;
   claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
   logs: LogsInitialState;
@@ -219,6 +267,9 @@ export enum AssetActionId {
   SEP24_WITHDRAW = "sep24-withdraw",
   SEP31_SEND = "sep31-send",
   TRUST_ASSET = "trust-asset",
+  REMOVE_ASSET = "remove-asset",
+  ADD_ASSET_OVERRIDE = "add-asset-override",
+  REMOVE_ASSET_OVERRIDE = "remove-asset-override",
 }
 
 export enum AssetType {
