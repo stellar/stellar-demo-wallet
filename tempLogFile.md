@@ -18,3 +18,4 @@
 - Improve error messages
 - Code review fixes 1
 - Sign out confirmation
+- Assets update + home domain override
