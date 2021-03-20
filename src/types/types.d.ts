@@ -313,3 +313,8 @@ export enum MemoTypeString {
   ID = "id",
   HASH = "hash",
 }
+
+export enum CheckInfoType {
+  DEPOSIT = "deposit",
+  WITHDRAWAL = "withdraw",
+}
