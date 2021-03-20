@@ -37,10 +37,6 @@ export const checkInfo = async ({
     throw new Error("No `fields` object specified in /info");
   }
 
-  if (!asset.fields.transaction || isEmptyObject(asset.fields.transaction)) {
-    throw new Error("No transaction fields specified");
-  }
-
   let senderSep12Type;
   let receiverSep12Type;
 
