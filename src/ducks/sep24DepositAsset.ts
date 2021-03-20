@@ -11,26 +11,30 @@ import {
   sep10AuthSend,
 } from "methods/sep10Auth";
 import {
-  checkToml,
   checkInfo,
   interactiveDepositFlow,
   createPopup,
   pollDepositUntilComplete,
 } from "methods/sep24";
+import { checkTomlForSep } from "methods/checkTomlForSep";
 import { trustAsset } from "methods/trustAsset";
 import {
+  Asset,
   ActionStatus,
   Sep24DepositAssetInitialState,
   RejectMessage,
+  TomlFields,
 } from "types/types.d";
 
 export const depositAssetAction = createAsyncThunk<
   { currentStatus: string; trustedAssetAdded?: string },
-  { assetCode: string; assetIssuer: string },
+  Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep24DepositAsset/depositAssetAction",
-  async ({ assetCode, assetIssuer }, { rejectWithValue, getState }) => {
+  async (asset, { rejectWithValue, getState }) => {
+    const { assetCode, assetIssuer, homeDomain } = asset;
+
     const { data, secretKey } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
     const networkConfig = getNetworkConfig(pubnet);
@@ -41,9 +45,6 @@ export const depositAssetAction = createAsyncThunk<
     }
 
     log.instruction({ title: "Initiate a SEP-24 deposit" });
-
-    // TODO: get homeDomain
-    const homeDomain = undefined;
 
     const trustAssetCallback = async () => {
       const assetString = `${assetCode}:${assetIssuer}`;
@@ -64,8 +65,14 @@ export const depositAssetAction = createAsyncThunk<
 
     try {
       // Check toml
-      const tomlResponse = await checkToml({
+      const tomlResponse = await checkTomlForSep({
+        sepName: "SEP-24 deposit",
         assetIssuer,
+        requiredKeys: [
+          TomlFields.SIGNING_KEY,
+          TomlFields.TRANSFER_SERVER_SEP0024,
+          TomlFields.WEB_AUTH_ENDPOINT,
+        ],
         networkUrl: networkConfig.url,
         homeDomain,
       });

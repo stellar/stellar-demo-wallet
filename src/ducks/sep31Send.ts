@@ -12,7 +12,6 @@ import {
   sep10AuthSend,
 } from "methods/sep10Auth";
 import {
-  checkToml,
   checkInfo,
   getSep12Fields,
   putSep12Fields,
@@ -21,6 +20,7 @@ import {
   sendPayment,
   pollTransactionUntilComplete,
 } from "methods/sep31Send";
+import { checkTomlForSep } from "methods/checkTomlForSep";
 
 import {
   Asset,
@@ -28,6 +28,7 @@ import {
   AnyObject,
   Sep31SendInitialState,
   RejectMessage,
+  TomlFields,
 } from "types/types.d";
 
 interface FetchSendFieldsActionResponse {
@@ -62,16 +63,29 @@ export const fetchSendFieldsAction = createAsyncThunk<
 
       const { assetCode, assetIssuer, homeDomain } = asset;
 
+      // This is unlikely
       if (!homeDomain) {
-        // TODO: do settings/config modal to enter?
-        throw new Error("Home domain is required");
+        throw new Error("Something went wrong, home domain is not defined.");
       }
 
-      // Check toml
       log.instruction({ title: "Initiate a direct payment request" });
 
-      const tomlResponse = await checkToml({ homeDomain, pubnet });
-      const { authEndpoint, sendServer, kycServer } = tomlResponse;
+      // Check toml
+      const tomlResponse = await checkTomlForSep({
+        sepName: "SEP-31 send",
+        assetIssuer,
+        requiredKeys: [
+          TomlFields.WEB_AUTH_ENDPOINT,
+          TomlFields.DIRECT_PAYMENT_SERVER,
+          TomlFields.KYC_SERVER,
+        ],
+        networkUrl: networkConfig.url,
+        homeDomain,
+      });
+
+      const authEndpoint = tomlResponse.WEB_AUTH_ENDPOINT;
+      const sendServer = tomlResponse.DIRECT_PAYMENT_SERVER;
+      const kycServer = tomlResponse.KYC_SERVER;
 
       // Check info
       const infoResponse = await checkInfo({ assetCode, sendServer });

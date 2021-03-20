@@ -62,21 +62,11 @@ export const Balance = ({
   };
 
   const handleSep24Deposit = (asset: Asset) => {
-    dispatch(
-      depositAssetAction({
-        assetCode: asset.assetCode,
-        assetIssuer: asset.assetIssuer,
-      }),
-    );
+    dispatch(depositAssetAction(asset));
   };
 
   const handleSep24Withdraw = (asset: Asset) => {
-    dispatch(
-      withdrawAssetAction({
-        assetCode: asset.assetCode,
-        assetIssuer: asset.assetIssuer,
-      }),
-    );
+    dispatch(withdrawAssetAction(asset));
   };
 
   const handleSep31Send = (asset: Asset) => {

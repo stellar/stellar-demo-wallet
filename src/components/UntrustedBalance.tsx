@@ -64,13 +64,7 @@ export const UntrustedBalance = ({
   };
 
   const handleDepositAsset = (asset: Asset) => {
-    const { assetCode, assetIssuer } = asset;
-    dispatch(
-      depositAssetAction({
-        assetCode,
-        assetIssuer,
-      }),
-    );
+    dispatch(depositAssetAction(asset));
   };
 
   const handleRemoveAsset = (asset: Asset) => {
