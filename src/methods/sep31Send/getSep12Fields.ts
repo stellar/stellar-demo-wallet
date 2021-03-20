@@ -1,17 +1,16 @@
 import crypto from "crypto";
-import { Keypair } from "stellar-sdk";
 import { log } from "helpers/log";
 
 export const getSep12Fields = async ({
   kycServer,
   receiverSep12Type,
-  secretKey,
+  publicKey,
   senderSep12Type,
   token,
 }: {
   kycServer: string;
   receiverSep12Type: string;
-  secretKey: string;
+  publicKey: string;
   senderSep12Type: string;
   token: string;
 }) => {
@@ -34,7 +33,7 @@ export const getSep12Fields = async ({
     result.senderSep12Fields = await collectSep12Fields({
       type: senderSep12Type,
       memo,
-      secretKey,
+      publicKey,
       token,
       kycServer,
     });
@@ -48,7 +47,7 @@ export const getSep12Fields = async ({
     result.receiverSep12Fields = await collectSep12Fields({
       type: receiverSep12Type,
       memo,
-      secretKey,
+      publicKey,
       token,
       kycServer,
     });
@@ -62,17 +61,16 @@ export const getSep12Fields = async ({
 const collectSep12Fields = async ({
   kycServer,
   memo,
-  secretKey,
+  publicKey,
   token,
   type,
 }: {
   kycServer: string;
   memo: string;
-  secretKey: string;
+  publicKey: string;
   token: string;
   type: string;
 }) => {
-  const publicKey = Keypair.fromSecret(secretKey).publicKey();
   // The anchor needs a memo to disambiguate the sending and receiving clients
   // since the wallet uses the same 'account' for both.
   const params = {

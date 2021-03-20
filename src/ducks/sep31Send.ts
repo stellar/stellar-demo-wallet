@@ -58,7 +58,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
   async (asset, { rejectWithValue, getState }) => {
     try {
       const { pubnet } = settingsSelector(getState());
-      const { secretKey } = accountSelector(getState());
+      const { secretKey, data } = accountSelector(getState());
       const networkConfig = getNetworkConfig(pubnet);
 
       const { assetCode, assetIssuer, homeDomain } = asset;
@@ -112,7 +112,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
       // Get SEP-12 fields
       const sep12Fields = await getSep12Fields({
         kycServer,
-        secretKey,
+        publicKey: data!.id,
         token,
         senderSep12Type: infoResponse.senderSep12Type,
         receiverSep12Type: infoResponse.receiverSep12Type,
