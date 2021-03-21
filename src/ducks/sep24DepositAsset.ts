@@ -41,8 +41,14 @@ export const depositAssetAction = createAsyncThunk<
     const networkConfig = getNetworkConfig(pubnet);
     const publicKey = data?.id;
 
+    // This is unlikely
     if (!publicKey) {
       throw new Error("Something is wrong with Account, no public key.");
+    }
+
+    // This is unlikely
+    if (!homeDomain) {
+      throw new Error("Something went wrong, home domain is not defined.");
     }
 
     log.instruction({ title: "Initiate a SEP-24 deposit" });
@@ -93,7 +99,8 @@ export const depositAssetAction = createAsyncThunk<
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
-        secretKey,
+        publicKey,
+        homeDomain,
       });
 
       // SEP-10 sign

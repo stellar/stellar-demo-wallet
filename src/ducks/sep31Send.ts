@@ -60,8 +60,14 @@ export const fetchSendFieldsAction = createAsyncThunk<
       const { pubnet } = settingsSelector(getState());
       const { secretKey, data } = accountSelector(getState());
       const networkConfig = getNetworkConfig(pubnet);
+      const publicKey = data?.id;
 
       const { assetCode, assetIssuer, homeDomain } = asset;
+
+      // This is unlikely
+      if (!publicKey) {
+        throw new Error("Something is wrong with Account, no public key.");
+      }
 
       // This is unlikely
       if (!homeDomain) {
@@ -93,7 +99,8 @@ export const fetchSendFieldsAction = createAsyncThunk<
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint,
-        secretKey,
+        publicKey,
+        homeDomain,
       });
 
       // SEP-10 sign
