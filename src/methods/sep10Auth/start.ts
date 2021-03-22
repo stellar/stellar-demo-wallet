@@ -1,15 +1,18 @@
-import { Keypair, Transaction } from "stellar-sdk";
+import { Utils } from "stellar-sdk";
 import { log } from "helpers/log";
 
 export const start = async ({
   authEndpoint,
-  secretKey,
+  serverSigningKey,
+  publicKey,
+  homeDomain,
 }: {
   authEndpoint: string;
-  secretKey: string;
+  serverSigningKey: string;
+  publicKey: string;
+  homeDomain: string;
 }) => {
-  const publicKey = Keypair.fromSecret(secretKey).publicKey();
-  const params = { account: publicKey };
+  const params = { account: publicKey, homeDomain };
 
   log.instruction({
     title:
@@ -31,14 +34,13 @@ export const start = async ({
     throw new Error("The response didn't contain a transaction");
   }
 
-  const transactionObj = new Transaction(
+  const { tx } = Utils.readChallengeTx(
     resultJson.transaction,
+    serverSigningKey,
     resultJson.network_passphrase,
+    homeDomain,
+    authURL.host,
   );
 
-  if (Number.parseInt(transactionObj.sequence, 10) !== 0) {
-    throw new Error("Transaction sequence must be zero");
-  }
-
-  return resultJson.transaction;
+  return tx;
 };

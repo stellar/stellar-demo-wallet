@@ -11,39 +11,47 @@ import {
   sep10AuthSend,
 } from "methods/sep10Auth";
 import {
-  checkToml,
   checkInfo,
   interactiveDepositFlow,
   createPopup,
   pollDepositUntilComplete,
 } from "methods/sep24";
+import { checkTomlForFields } from "methods/checkTomlForFields";
 import { trustAsset } from "methods/trustAsset";
 import {
+  Asset,
   ActionStatus,
   Sep24DepositAssetInitialState,
   RejectMessage,
+  TomlFields,
+  CheckInfoType,
 } from "types/types.d";
 
 export const depositAssetAction = createAsyncThunk<
   { currentStatus: string; trustedAssetAdded?: string },
-  { assetCode: string; assetIssuer: string },
+  Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep24DepositAsset/depositAssetAction",
-  async ({ assetCode, assetIssuer }, { rejectWithValue, getState }) => {
+  async (asset, { rejectWithValue, getState }) => {
+    const { assetCode, assetIssuer, homeDomain } = asset;
+
     const { data, secretKey } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
     const networkConfig = getNetworkConfig(pubnet);
     const publicKey = data?.id;
 
+    // This is unlikely
     if (!publicKey) {
       throw new Error("Something is wrong with Account, no public key.");
     }
 
-    log.instruction({ title: "Initiate a SEP-24 deposit" });
+    // This is unlikely
+    if (!homeDomain) {
+      throw new Error("Something went wrong, home domain is not defined.");
+    }
 
-    // TODO: get homeDomain
-    const homeDomain = undefined;
+    log.instruction({ title: "Initiate a SEP-24 deposit" });
 
     const trustAssetCallback = async () => {
       const assetString = `${assetCode}:${assetIssuer}`;
@@ -64,14 +72,24 @@ export const depositAssetAction = createAsyncThunk<
 
     try {
       // Check toml
-      const tomlResponse = await checkToml({
+      const tomlResponse = await checkTomlForFields({
+        sepName: "SEP-24 deposit",
         assetIssuer,
+        requiredKeys: [
+          TomlFields.SIGNING_KEY,
+          TomlFields.TRANSFER_SERVER_SEP0024,
+          TomlFields.WEB_AUTH_ENDPOINT,
+        ],
         networkUrl: networkConfig.url,
         homeDomain,
       });
 
       // Check info
-      await checkInfo({ toml: tomlResponse, assetCode });
+      await checkInfo({
+        type: CheckInfoType.DEPOSIT,
+        toml: tomlResponse,
+        assetCode,
+      });
 
       log.instruction({
         title:
@@ -81,7 +99,9 @@ export const depositAssetAction = createAsyncThunk<
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
-        secretKey,
+        serverSigningKey: tomlResponse.SIGNING_KEY,
+        publicKey,
+        homeDomain,
       });
 
       // SEP-10 sign

@@ -1,17 +1,20 @@
 import { get } from "lodash";
 import { log } from "helpers/log";
+import { CheckInfoType } from "types/types.d";
 
 export const checkInfo = async ({
+  type,
   toml,
   assetCode,
 }: {
+  type: CheckInfoType;
   toml: any;
   assetCode: string;
 }) => {
-  // TODO: deposit hard coded
   log.instruction({
-    title:
-      "Check /info endpoint to ensure this currency is enabled for deposit",
+    title: `Check /info endpoint to ensure this currency is enabled for ${
+      type === CheckInfoType.DEPOSIT ? "deposit" : "withdrawal"
+    }`,
   });
   const infoURL = `${toml.TRANSFER_SERVER_SEP0024}/info`;
   log.request({ title: infoURL });
@@ -20,7 +23,7 @@ export const checkInfo = async ({
   const infoJson = await info.json();
   log.response({ title: infoURL, body: infoJson });
 
-  if (!get(infoJson, ["deposit", assetCode, "enabled"])) {
+  if (!get(infoJson, [type, assetCode, "enabled"])) {
     throw new Error("Asset is not enabled in the /info endpoint");
   }
 

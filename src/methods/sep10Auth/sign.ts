@@ -1,4 +1,4 @@
-import { Keypair, Transaction, xdr } from "stellar-sdk";
+import { Keypair, Transaction } from "stellar-sdk";
 import { log } from "helpers/log";
 
 export const sign = ({
@@ -6,7 +6,7 @@ export const sign = ({
   networkPassphrase,
   secretKey,
 }: {
-  challengeTransaction: any;
+  challengeTransaction: Transaction;
   networkPassphrase: string;
   secretKey: string;
 }) => {
@@ -15,10 +15,7 @@ export const sign = ({
       "We've received a challenge transaction from the server that we need the sending anchor to sign with their Stellar private key.",
   });
 
-  const envelope = xdr.TransactionEnvelope.fromXDR(
-    challengeTransaction,
-    "base64",
-  );
+  const envelope = challengeTransaction.toEnvelope().toXDR("base64");
   const transaction = new Transaction(envelope, networkPassphrase);
   transaction.sign(Keypair.fromSecret(secretKey));
 
