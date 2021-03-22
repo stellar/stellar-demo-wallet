@@ -1,16 +1,21 @@
-import { useState } from "react";
-import { Heading2, Loader, Button } from "@stellar/design-system";
+import { useHistory } from "react-router-dom";
+import { Heading2, Button } from "@stellar/design-system";
 import { Toggle } from "components/Toggle";
+import { searchParam } from "helpers/searchParam";
+import { useRedux } from "hooks/useRedux";
+import { SearchParams } from "types/types.d";
 
 export const ConfigurationModal = ({ onClose }: { onClose: () => void }) => {
-  const [isPending] = useState();
-  const [claimableBalanceSupported, setClaimableBalanceSupported] = useState(
-    false,
-  );
+  const { settings } = useRedux("settings");
+  const history = useHistory();
 
   const handleClaimableBalanceSupported = () => {
-    setClaimableBalanceSupported(!claimableBalanceSupported);
-    // TODO: save in store
+    history.push(
+      searchParam.update(
+        SearchParams.CLAIMABLE_BALANCE_SUPPORTED,
+        (!settings.claimableBalanceSupported).toString(),
+      ),
+    );
   };
 
   return (
@@ -24,18 +29,14 @@ export const ConfigurationModal = ({ onClose }: { onClose: () => void }) => {
           </label>
           <Toggle
             id="claimable-balance-supported"
-            checked={claimableBalanceSupported}
+            checked={settings.claimableBalanceSupported}
             onChange={handleClaimableBalanceSupported}
           />
         </div>
       </div>
 
       <div className="ModalButtonsFooter">
-        {isPending && <Loader />}
-
-        <Button onClick={onClose} disabled={isPending}>
-          Close
-        </Button>
+        <Button onClick={onClose}>Close</Button>
       </div>
     </>
   );

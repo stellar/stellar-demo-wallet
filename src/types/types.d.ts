@@ -7,6 +7,7 @@ export enum SearchParams {
   PUBNET = "pubnet",
   UNTRUSTED_ASSETS = "untrustedAssets",
   ASSET_OVERRIDES = "assetOverrides",
+  CLAIMABLE_BALANCE_SUPPORTED = "claimableBalanceSupported",
 }
 
 export enum AssetCategory {
@@ -111,6 +112,7 @@ export interface SettingsInitialState {
   pubnet: boolean;
   secretKey: string;
   untrustedAssets: string;
+  claimableBalanceSupported: boolean;
 }
 
 export interface UntrustedAssetsInitialState {

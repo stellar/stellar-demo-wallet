@@ -1,23 +1,27 @@
 import { each } from "lodash";
 import { log } from "helpers/log";
 
+type InteractiveDepositFlowProps = {
+  assetCode: string;
+  publicKey: string;
+  sep24TransferServerUrl: string;
+  token: string;
+  claimableBalanceSupported: boolean;
+};
+
 export const interactiveDepositFlow = async ({
   assetCode,
   publicKey,
   sep24TransferServerUrl,
   token,
-}: {
-  assetCode: string;
-  publicKey: string;
-  sep24TransferServerUrl: string;
-  token: string;
-}) => {
+  claimableBalanceSupported,
+}: InteractiveDepositFlowProps) => {
   const formData = new FormData();
   const postDepositParams = {
     asset_code: assetCode,
     account: publicKey,
     lang: "en",
-    claimable_balance_supported: "true",
+    claimable_balance_supported: claimableBalanceSupported.toString(),
   };
 
   each(postDepositParams, (value, key) => formData.append(key, value));

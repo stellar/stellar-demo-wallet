@@ -26,6 +26,9 @@ export const SettingsHandler = ({
   const secretKeyParam = queryParams.get(SearchParams.SECRET_KEY);
   const untrustedAssetsParam = queryParams.get(SearchParams.UNTRUSTED_ASSETS);
   const assetOverridesParam = queryParams.get(SearchParams.ASSET_OVERRIDES);
+  const claimableBalanceSupportedParam = queryParams.get(
+    SearchParams.CLAIMABLE_BALANCE_SUPPORTED,
+  );
 
   // Set network param (pubnet=true)
   useEffect(() => {
@@ -95,6 +98,16 @@ export const SettingsHandler = ({
       }),
     );
   }, [assetOverridesParam, dispatch]);
+
+  // Claimabable balance supported
+  useEffect(() => {
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.CLAIMABLE_BALANCE_SUPPORTED]:
+          claimableBalanceSupportedParam === "true",
+      }),
+    );
+  }, [claimableBalanceSupportedParam, dispatch]);
 
   // Go to /account page if fetching account was success
   useEffect(() => {
