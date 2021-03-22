@@ -72,6 +72,7 @@ p {
 
   .Inset {
     @include header-footer-inset;
+    justify-content: space-between;
 
     a:not(:last-child) {
       margin-right: 1.5rem;
