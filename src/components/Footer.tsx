@@ -1,4 +1,4 @@
-import { TextLink, TextLinkVariant } from "@stellar/design-system";
+import { TextLink, TextLinkVariant } from "components/TextLink";
 
 export const Footer = () => (
   <div className="Footer">
@@ -6,16 +6,14 @@ export const Footer = () => (
       <TextLink
         variant={TextLinkVariant.secondary}
         href="https://www.stellar.org/terms-of-service"
-        rel="noreferrer"
-        target="_blank"
+        isExternal
       >
         Terms of Service
       </TextLink>
       <TextLink
         variant={TextLinkVariant.secondary}
         href="https://www.stellar.org/privacy-policy"
-        rel="noreferrer"
-        target="_blank"
+        isExternal
       >
         Privacy Policy
       </TextLink>

@@ -1,0 +1,58 @@
+@mixin base-heading {
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text);
+  margin: 0 0 0.5em;
+  padding: 0;
+  position: relative;
+
+  // Tooltip
+  .InfoButton {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+  }
+
+  .InfoButtonTooltip {
+    right: 50%;
+    transform: translateX(50%);
+    margin-right: -1rem;
+    text-align: left;
+  }
+}
+
+// Base font size 16px
+// 32 / 40 (font size / line height)
+h1 {
+  @include base-heading;
+  font-size: 2rem;
+  line-height: 2.5rem;
+}
+
+// 24 / 32
+h2 {
+  @include base-heading;
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+// 20 / 30
+h3 {
+  @include base-heading;
+  font-size: 1.25rem;
+  line-height: 1.875rem;
+}
+
+// 16 / 24
+h4 {
+  @include base-heading;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: var(--font-weight-medium);
+}
+
+// 16 / 24
+h5 {
+  @include base-heading;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}

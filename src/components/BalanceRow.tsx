@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
-import { Select, TextLink } from "@stellar/design-system";
+import { Select } from "@stellar/design-system";
+import { TextLink } from "components/TextLink";
 import { HomeDomainOverrideButtons } from "components/HomeDomainOverrideButtons";
 import { shortenStellarKey } from "helpers/shortenStellarKey";
 import {
@@ -9,6 +10,7 @@ import {
   AssetType,
   ClaimableAsset,
 } from "types/types.d";
+import { InfoButtonWithTooltip } from "./InfoButtonWithTooltip";
 
 interface BalanceRowProps {
   activeAction: ActiveAssetAction | undefined;
@@ -49,23 +51,26 @@ export const BalanceRow = ({
             assetIssuer,
           )} does not exist`}</div>
         ) : (
-          <div className="BalanceAmount">{`${total || "0"} ${assetCode}`}</div>
+          <>
+            <div className="BalanceAmount">{`${
+              total || "0"
+            } ${assetCode}`}</div>
+            <div className="BalanceOptions Inline">
+              {homeDomain && (
+                <TextLink
+                  href={`//${homeDomain}/.well-known/stellar.toml`}
+                  isExternal
+                >
+                  {homeDomain}
+                </TextLink>
+              )}
+              {!asset.isClaimableBalance &&
+                asset.assetType !== AssetType.NATIVE && (
+                  <HomeDomainOverrideButtons asset={asset} />
+                )}
+            </div>
+          </>
         )}
-        <div className="BalanceOptions Inline">
-          {homeDomain && (
-            <TextLink
-              href={`//${homeDomain}/.well-known/stellar.toml`}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              {homeDomain}
-            </TextLink>
-          )}
-          {!asset.isClaimableBalance &&
-            asset.assetType !== AssetType.NATIVE && (
-              <HomeDomainOverrideButtons asset={asset} />
-            )}
-        </div>
       </div>
       <div className="BalanceCell BalanceActions">
         {children && <div className="CustomCell">{children}</div>}
@@ -97,6 +102,20 @@ export const BalanceRow = ({
                 <option value={AssetActionId.SEP31_SEND}>SEP-31 Send</option>
               )}
             </Select>
+
+            <InfoButtonWithTooltip>
+              <>
+                {
+                  "What you can do with an asset (deposit, withdraw, or send) depends on what transactions the anchor supports."
+                }{" "}
+                <TextLink
+                  href="https://developers.stellar.org/docs/anchoring-assets"
+                  isExternal
+                >
+                  Learn more
+                </TextLink>
+              </>
+            </InfoButtonWithTooltip>
           </div>
         )}
       </div>

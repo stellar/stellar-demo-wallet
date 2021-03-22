@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Heading2, Heading3, Input } from "@stellar/design-system";
+import { Button, Input } from "@stellar/design-system";
+import { Heading2, Heading3 } from "components/Heading";
+import { TextLink } from "components/TextLink";
 import { Modal } from "components/Modal";
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
@@ -76,13 +78,29 @@ export const Sep31Send = () => {
 
     return (
       <Modal visible={true} onClose={handleClose}>
-        <Heading2 className="ModalHeading">Collect Info</Heading2>
+        <Heading2
+          className="ModalHeading"
+          tooltipText={
+            <>
+              These are the fields the receiving anchor requires. The sending
+              client obtains them from the /customer endpoint.{" "}
+              <TextLink
+                href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
+                isExternal
+              >
+                Learn more
+              </TextLink>
+            </>
+          }
+        >
+          Sender and receiver info
+        </Heading2>
 
         <div className="ModalBody">
           {Object.entries(allFields).map(([sectionTitle, sectionItems]) => (
             <div className="vertical-spacing" key={sectionTitle}>
               <Heading3>{capitalizeString(sectionTitle)}</Heading3>
-              {Object.entries(sectionItems).map(([id, input]) => (
+              {Object.entries(sectionItems || {}).map(([id, input]) => (
                 // TODO: if input.choices, render Select
                 <Input
                   key={`${sectionTitle}#${id}`}

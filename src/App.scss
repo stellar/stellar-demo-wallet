@@ -160,8 +160,8 @@ p {
       vertical-align: middle;
 
       button {
-        padding: 0.1rem 0.5rem;
-        margin-left: -0.5rem;
+        padding-top: 0.1rem;
+        padding-bottom: 0.1rem;
         text-align: left;
       }
 
@@ -257,6 +257,15 @@ p {
     }
 
     &.BalanceActions {
+      .BalanceCellSelect {
+        display: flex;
+        align-items: center;
+
+        & > :first-child {
+          margin-right: 0.5rem;
+        }
+      }
+
       .CustomCell {
         display: flex;
         align-items: center;
@@ -264,7 +273,7 @@ p {
     }
   }
 
-  @media (min-width: 1020px) {
+  @media (min-width: 1260px) {
     .BalanceRow {
       padding-top: 0.7rem;
       padding-bottom: 0.7rem;
@@ -286,7 +295,7 @@ p {
         display: flex;
 
         .BalanceCellSelect {
-          width: 12rem;
+          width: 14rem;
           flex-grow: 0;
           flex-shrink: 0;
         }
@@ -351,6 +360,7 @@ p {
     justify-content: center;
     height: 100%;
     padding: 1rem;
+    color: var(--color-note);
   }
 
   .LogItem {
