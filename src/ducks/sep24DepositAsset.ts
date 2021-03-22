@@ -16,7 +16,7 @@ import {
   createPopup,
   pollDepositUntilComplete,
 } from "methods/sep24";
-import { checkTomlForSep } from "methods/checkTomlForSep";
+import { checkTomlForFields } from "methods/checkTomlForFields";
 import { trustAsset } from "methods/trustAsset";
 import {
   Asset,
@@ -72,7 +72,7 @@ export const depositAssetAction = createAsyncThunk<
 
     try {
       // Check toml
-      const tomlResponse = await checkTomlForSep({
+      const tomlResponse = await checkTomlForFields({
         sepName: "SEP-24 deposit",
         assetIssuer,
         requiredKeys: [
@@ -99,6 +99,7 @@ export const depositAssetAction = createAsyncThunk<
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
+        serverSigningKey: tomlResponse.SIGNING_KEY,
         publicKey,
         homeDomain,
       });

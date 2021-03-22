@@ -3,7 +3,7 @@ import { getHomeDomainFromAssetIssuer } from "methods/getHomeDomainFromAssetIssu
 import { getToml } from "methods/getToml";
 import { TomlFields, AnyObject } from "types/types.d";
 
-export const checkTomlForSep = async ({
+export const checkTomlForFields = async ({
   sepName,
   assetIssuer,
   requiredKeys,
@@ -23,10 +23,6 @@ export const checkTomlForSep = async ({
       assetIssuer,
       networkUrl,
     });
-  }
-
-  if (!homeDomainParam) {
-    throw new Error("Home domain was not found and is required");
   }
 
   log.instruction({

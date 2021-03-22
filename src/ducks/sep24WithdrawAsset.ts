@@ -16,7 +16,7 @@ import {
   createPopup,
   pollWithdrawUntilComplete,
 } from "methods/sep24";
-import { checkTomlForSep } from "methods/checkTomlForSep";
+import { checkTomlForFields } from "methods/checkTomlForFields";
 import {
   Asset,
   ActionStatus,
@@ -51,7 +51,7 @@ export const withdrawAssetAction = createAsyncThunk<
 
     try {
       // Check toml
-      const tomlResponse = await checkTomlForSep({
+      const tomlResponse = await checkTomlForFields({
         sepName: "SEP-24 withdrawal",
         assetIssuer,
         requiredKeys: [
@@ -73,6 +73,7 @@ export const withdrawAssetAction = createAsyncThunk<
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
+        serverSigningKey: tomlResponse.SIGNING_KEY,
         publicKey,
         homeDomain,
       });

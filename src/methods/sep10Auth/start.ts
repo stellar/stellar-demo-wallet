@@ -1,12 +1,14 @@
-import { Utils, Transaction } from "stellar-sdk";
+import { Utils } from "stellar-sdk";
 import { log } from "helpers/log";
 
 export const start = async ({
   authEndpoint,
+  serverSigningKey,
   publicKey,
   homeDomain,
 }: {
   authEndpoint: string;
+  serverSigningKey: string;
   publicKey: string;
   homeDomain: string;
 }) => {
@@ -32,14 +34,9 @@ export const start = async ({
     throw new Error("The response didn't contain a transaction");
   }
 
-  const transactionObj = new Transaction(
-    resultJson.transaction,
-    resultJson.network_passphrase,
-  );
-
   const { tx } = Utils.readChallengeTx(
     resultJson.transaction,
-    transactionObj.source,
+    serverSigningKey,
     resultJson.network_passphrase,
     homeDomain,
     authURL.host,

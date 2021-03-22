@@ -7,7 +7,7 @@ export const getHomeDomainFromAssetIssuer = async ({
 }: {
   assetIssuer: string;
   networkUrl: string;
-}) => {
+}): Promise<string> => {
   log.request({
     title: "Getting home domain from asset issuer",
     body: `Asset issuer ${assetIssuer}`,
@@ -15,18 +15,18 @@ export const getHomeDomainFromAssetIssuer = async ({
 
   const server = new StellarSdk.Server(networkUrl);
   const accountRecord = await server.loadAccount(assetIssuer);
-  const homeDomain = accountRecord.home_domain;
+  const homeDomain: string | undefined = accountRecord.home_domain;
 
-  if (homeDomain) {
-    log.response({
-      title: "Received home domain from asset issuer",
-      body: `Asset issuer ${assetIssuer}, home domain ${homeDomain}.`,
-    });
-  } else {
-    log.error({
-      title: `Asset issuer ${assetIssuer} does not have home domain configured`,
-    });
+  if (!homeDomain) {
+    throw new Error(
+      `Asset issuer ${assetIssuer} does not have home domain configured`,
+    );
   }
+
+  log.response({
+    title: "Received home domain from asset issuer",
+    body: `Asset issuer ${assetIssuer}, home domain ${homeDomain}.`,
+  });
 
   return homeDomain;
 };

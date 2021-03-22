@@ -20,7 +20,7 @@ import {
   sendPayment,
   pollTransactionUntilComplete,
 } from "methods/sep31Send";
-import { checkTomlForSep } from "methods/checkTomlForSep";
+import { checkTomlForFields } from "methods/checkTomlForFields";
 
 import {
   Asset,
@@ -77,11 +77,12 @@ export const fetchSendFieldsAction = createAsyncThunk<
       log.instruction({ title: "Initiate a direct payment request" });
 
       // Check toml
-      const tomlResponse = await checkTomlForSep({
+      const tomlResponse = await checkTomlForFields({
         sepName: "SEP-31 send",
         assetIssuer,
         requiredKeys: [
           TomlFields.WEB_AUTH_ENDPOINT,
+          TomlFields.SIGNING_KEY,
           TomlFields.DIRECT_PAYMENT_SERVER,
           TomlFields.KYC_SERVER,
         ],
@@ -90,6 +91,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
       });
 
       const authEndpoint = tomlResponse.WEB_AUTH_ENDPOINT;
+      const serverSigningKey = tomlResponse.SIGNING_KEY;
       const sendServer = tomlResponse.DIRECT_PAYMENT_SERVER;
       const kycServer = tomlResponse.KYC_SERVER;
 
@@ -99,6 +101,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint,
+        serverSigningKey,
         publicKey,
         homeDomain,
       });
