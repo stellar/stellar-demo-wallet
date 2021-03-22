@@ -19,3 +19,5 @@
 - Code review fixes 1
 - Sign out confirmation
 - Assets update + home domain override
+- Update text + add tooltip to some components
+- SEP tweaks (home domain, TOML, check info)
