@@ -1,14 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./styles.scss";
 
 interface ToggleProps extends React.InputHTMLAttributes<HTMLInputElement> {
   id: string;
-  // onChange: () => void
+  checked: boolean;
+  onChange: () => void;
 }
 
-export const Toggle = ({ id }: ToggleProps) => (
-  <label className="ToggleWrapper" htmlFor={id}>
-    <input className="ToggleInput" type="checkbox" id={id} />
-    <div className="Toggle" />
-  </label>
-);
+export const Toggle = ({ id, checked, onChange }: ToggleProps) => {
+  const [checkedValue, setCheckedValue] = useState(checked);
+
+  useEffect(() => {
+    setCheckedValue(checked);
+  }, [checked]);
+
+  return (
+    <label className="ToggleWrapper" htmlFor={id}>
+      <input
+        className="ToggleInput"
+        type="checkbox"
+        name={id}
+        id={id}
+        checked={checkedValue}
+        onChange={onChange}
+      />
+      <div className="Toggle" />
+    </label>
+  );
+};

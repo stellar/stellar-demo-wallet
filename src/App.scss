@@ -359,6 +359,13 @@ p {
   }
 }
 
+// Configuration
+.ConfigurationItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 // Old styles
 
 .Content {
