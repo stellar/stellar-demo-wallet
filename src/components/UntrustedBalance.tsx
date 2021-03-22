@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { TextButton } from "@stellar/design-system";
+import { TextButton } from "components/TextButton";
+import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
@@ -85,16 +86,6 @@ export const UntrustedBalance = ({
     dispatch(resetActiveAssetAction());
   };
 
-  const handleRemoveHomeDomainOverride = (asset: Asset) => {
-    history.push(
-      searchParam.removeKeyPair({
-        searchParam: SearchParams.ASSET_OVERRIDES,
-        itemId: asset.assetString,
-      }),
-    );
-    dispatch(resetActiveAssetAction());
-  };
-
   const handleAction = ({
     actionId,
     asset,
@@ -114,39 +105,37 @@ export const UntrustedBalance = ({
 
     switch (actionId) {
       case AssetActionId.SEP24_DEPOSIT:
-        // TODO: title + description
         props = {
           ...defaultProps,
-          title: `SEP-24 deposit ${asset.assetCode}`,
-          description: "Untrusted asset SEP-24 deposit description",
+          title: `SEP-24 deposit ${asset.assetCode} (with untrusted Asset)`,
+          description: `Start SEP-24 deposit of untrusted asset ${asset.assetCode}? A lumen is the only asset type that can be used on the Stellar network that doesn’t require an issuer or a trustline.`,
           callback: () => handleDepositAsset(asset),
         };
         break;
       case AssetActionId.TRUST_ASSET:
-        // TODO: title + description
         props = {
           ...defaultProps,
-          title: `Trust asset ${asset.assetCode}`,
-          description: "Trust asset description",
+          title: `Add Trustline “Trust Asset ${asset.assetCode}”?`,
+          description: (
+            <p>
+              {`You are about to create a trustline to asset ${asset.assetCode} from ${asset.assetIssuer}. This will allow you to hold this asset.`}{" "}
+              <TextLink
+                href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines"
+                isExternal
+              >
+                Learn more
+              </TextLink>
+            </p>
+          ),
           callback: () => handleTrustAsset(asset),
         };
         break;
       case AssetActionId.REMOVE_ASSET:
-        // TODO: title + description
         props = {
           ...defaultProps,
           title: `Remove asset ${asset.assetCode}`,
-          description: `Asset ${asset.assetCode}:${asset.assetIssuer} does not exist`,
+          description: `Asset ${asset.assetCode}:${asset.assetIssuer} does not exist, remove it?`,
           callback: () => handleRemoveAsset(asset),
-        };
-        break;
-      case AssetActionId.REMOVE_ASSET_OVERRIDE:
-        // TODO: title + description
-        props = {
-          ...defaultProps,
-          title: `Remove ${asset.assetCode} asset override`,
-          description: `Home domain will be remove`,
-          callback: () => handleRemoveHomeDomainOverride(asset),
         };
         break;
       default:
@@ -184,8 +173,21 @@ export const UntrustedBalance = ({
                 })
               }
               disabled={account.isUnfunded || disabledButton}
+              tooltipText={
+                <>
+                  Adding a trustline means you trust an issuer to redeem its
+                  credit. If you’re testing SEP-24 or SEP-6 you may not want to
+                  do this.{" "}
+                  <TextLink
+                    href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines"
+                    isExternal
+                  >
+                    Learn more
+                  </TextLink>
+                </>
+              }
             >
-              Trust asset
+              Add trustline
             </TextButton>
           </BalanceRow>
         ) : (

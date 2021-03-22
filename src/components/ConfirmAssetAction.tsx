@@ -16,7 +16,12 @@ export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
       <Heading2 className="ModalHeading">{title}</Heading2>
 
       <div className="ModalBody">
-        {description && <p>{description}</p>}
+        {description &&
+          (typeof description === "string" ? (
+            <p>{description}</p>
+          ) : (
+            description
+          ))}
         {options && <p>{options}</p>}
       </div>
 

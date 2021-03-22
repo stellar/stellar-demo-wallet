@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { Types } from "@stellar/wallet-sdk";
 import { Horizon } from "stellar-sdk";
 
@@ -254,7 +254,7 @@ export interface ClaimableAsset extends Asset {
 export interface ActiveAssetAction {
   assetString: string;
   title: string;
-  description?: string;
+  description?: string | React.ReactNode;
   callback: (args?: any) => void;
   options?: ReactNode;
 }

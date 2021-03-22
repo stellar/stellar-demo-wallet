@@ -1,4 +1,5 @@
 import { useDispatch } from "react-redux";
+import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { fetchSendFieldsAction } from "ducks/sep31Send";
@@ -101,44 +102,49 @@ export const Balance = ({
 
     switch (actionId) {
       case AssetActionId.SEND_PAYMENT:
-        // TODO: title + description
         props = {
           ...defaultProps,
-          title: `Send payment ${balance.assetCode}`,
-          description: "Send payment description",
+          title: `Send ${balance.assetCode}`,
+          description: (
+            <p>
+              {`Send ${balance.assetCode} on-chain to another account.`}{" "}
+              <TextLink
+                href="https://developers.stellar.org/docs/tutorials/send-and-receive-payments/"
+                isExternal
+              >
+                Learn more
+              </TextLink>
+            </p>
+          ),
           callback: onSend,
         };
         break;
       case AssetActionId.SEP24_DEPOSIT:
-        // TODO: title + description
         props = {
           ...defaultProps,
-          title: `SEP-24 deposit ${balance.assetCode}`,
-          description: "SEP-24 deposit description",
+          title: `SEP-24 deposit ${balance.assetCode} (with Trusted Asset)`,
+          description: `Start SEP-24 deposit of trusted asset ${balance.assetCode}?`,
           callback: () => handleSep24Deposit(balance),
         };
         break;
       case AssetActionId.SEP24_WITHDRAW:
-        // TODO: title + description
         props = {
           ...defaultProps,
           title: `SEP-24 withdrawal ${balance.assetCode}`,
-          description: "SEP-24 withdrawal description",
+          description: `Start SEP-24 withdrawal of ${balance.assetCode}?`,
           callback: () => handleSep24Withdraw(balance),
         };
         break;
       case AssetActionId.SEP31_SEND:
-        // TODO: title + description
         props = {
           ...defaultProps,
           title: `SEP-31 send ${balance.assetCode}`,
-          description: "SEP-31 send description",
+          description: `Start SEP-31 send to ${balance.assetCode}?`,
           callback: () => handleSep31Send(balance),
-          // TODO: add options
         };
         break;
       default:
-      // nothing
+      // do nothing
     }
 
     if (!props) {

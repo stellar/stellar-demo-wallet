@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { TextLink } from "@stellar/design-system";
+import { TextLink } from "components/TextLink";
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
 import { HomeDomainOverrideModal } from "components/HomeDomainOverrideModal";
 import { Modal } from "components/Modal";
@@ -23,7 +23,7 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
   const history = useHistory();
 
   enum ModalType {
-    CONFIRM_ACTION = "CONFIRM_ACTION",
+    REMOVE_ASSET_OVERRIDE = "REMOVE_ASSET_OVERRIDE",
     ASSET_OVERRIDE = "ASSET_OVERRIDE",
   }
 
@@ -34,17 +34,18 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
 
     switch (modalType) {
       case ModalType.ASSET_OVERRIDE:
+        // Modal text is set in HomeDomainOverrideModal component
         activeAsset = {
           assetString: asset.assetString,
           title: "",
           callback: () => {},
         };
         break;
-      case ModalType.CONFIRM_ACTION:
+      case ModalType.REMOVE_ASSET_OVERRIDE:
         activeAsset = {
           assetString: asset.assetString,
-          title: `Remove ${asset.assetCode} asset override`,
-          description: `Home domain will be remove`,
+          title: `Remove ${asset.assetCode} home domain override`,
+          description: `Asset ${asset.assetCode}’s home domain ${asset.homeDomain} override will be removed. Original home domain will be used, if it exists.`,
           callback: handleRemove,
         };
         break;
@@ -79,10 +80,7 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
           onClick={() => showModal(ModalType.ASSET_OVERRIDE)}
         />
       ) : (
-        <TextLink
-          onClick={() => showModal(ModalType.ASSET_OVERRIDE)}
-          target="_blank"
-        >
+        <TextLink onClick={() => showModal(ModalType.ASSET_OVERRIDE)}>
           Add home domain
         </TextLink>
       )}
@@ -91,14 +89,14 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
         <IconButton
           icon={<IconRemove />}
           altText="Remove home domain override"
-          onClick={() => showModal(ModalType.CONFIRM_ACTION)}
+          onClick={() => showModal(ModalType.REMOVE_ASSET_OVERRIDE)}
           color="var(--color-error)"
         />
       )}
 
       <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
         {/* Action confirmation */}
-        {activeModal === ModalType.CONFIRM_ACTION && (
+        {activeModal === ModalType.REMOVE_ASSET_OVERRIDE && (
           <ConfirmAssetAction onClose={handleCloseModal} />
         )}
 
