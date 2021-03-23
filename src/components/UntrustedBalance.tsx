@@ -4,7 +4,6 @@ import { useHistory } from "react-router-dom";
 import { TextButton } from "components/TextButton";
 import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
-import { TextCode } from "components/TextCode";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { trustAssetAction } from "ducks/trustAsset";
@@ -113,11 +112,9 @@ export const UntrustedBalance = ({
           title: `Add Trustline “Trust Asset ${asset.assetCode}”?`,
           description: (
             <p>
-              You are about to create a trustline to asset.{" "}
-              <TextCode
-                breakAnywhere
-              >{`${asset.assetCode}:${asset.assetIssuer}`}</TextCode>
-              . This will allow you to hold this asset.{" "}
+              You are about to create a trustline to asset{" "}
+              <code>{`${asset.assetCode}:${asset.assetIssuer}`}</code>. This
+              will allow you to hold this asset.{" "}
               <TextLink
                 href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines"
                 isExternal
@@ -135,10 +132,7 @@ export const UntrustedBalance = ({
           title: `Remove asset ${asset.assetCode}`,
           description: (
             <p>
-              Asset{" "}
-              <TextCode
-                breakAnywhere
-              >{`${asset.assetCode}:${asset.assetIssuer}`}</TextCode>{" "}
+              Asset <code>{`${asset.assetCode}:${asset.assetIssuer}`}</code>{" "}
               does not exist, remove it?
             </p>
           ),

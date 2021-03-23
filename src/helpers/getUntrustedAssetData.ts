@@ -30,11 +30,11 @@ export const getUntrustedAssetData = async ({
     const [assetCode, assetIssuer] = assetString.split(":");
 
     if (accountAssets?.[assetString]) {
-      log.instruction({ title: `Asset ${assetString} is already trusted` });
+      log.instruction({ title: `Asset \`${assetString}\` is already trusted` });
       break;
     }
 
-    log.request({ title: `Fetching asset ${assetString} record` });
+    log.request({ title: `Fetching asset \`${assetString}\` record` });
 
     const server = new Server(networkUrl);
 
@@ -47,7 +47,7 @@ export const getUntrustedAssetData = async ({
 
     if (!assetResponse.records.length) {
       log.error({
-        title: `Asset ${assetString} does not exist.`,
+        title: `Asset \`${assetString}\` does not exist`,
       });
 
       response = [
@@ -64,7 +64,7 @@ export const getUntrustedAssetData = async ({
       ];
     } else {
       log.response({
-        title: `Asset ${assetString} record fetched`,
+        title: `Asset \`${assetString}\` record fetched`,
         body: assetResponse.records[0],
       });
 
@@ -87,7 +87,7 @@ export const getUntrustedAssetData = async ({
       response = [...response, data];
 
       log.instruction({
-        title: `Asset ${assetString} added`,
+        title: `Asset \`${assetString}\` added`,
       });
     }
   }
