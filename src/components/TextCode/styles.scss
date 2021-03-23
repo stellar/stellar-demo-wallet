@@ -1,0 +1,13 @@
+.TextCode {
+  // TODO: color not in SDS
+  color: #490be3;
+  font-family: var(--font-family-monospace);
+  border-radius: 0.1875rem;
+  border: 0.5px solid var(--color-background-off);
+  background-color: var(--color-background-secondary);
+  padding: 0 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  display: inline;
+}
