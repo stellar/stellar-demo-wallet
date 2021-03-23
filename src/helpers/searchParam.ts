@@ -18,6 +18,13 @@ const update = (
         queryParams.delete(SearchParams.PUBNET);
       }
       break;
+    case SearchParams.CLAIMABLE_BALANCE_SUPPORTED:
+      if (value === "true") {
+        queryParams.set(SearchParams.CLAIMABLE_BALANCE_SUPPORTED, value);
+      } else {
+        queryParams.delete(SearchParams.CLAIMABLE_BALANCE_SUPPORTED);
+      }
+      break;
     case SearchParams.SECRET_KEY:
       queryParams.set(SearchParams.SECRET_KEY, value);
       break;

@@ -7,6 +7,7 @@ const initialState: SettingsInitialState = {
   pubnet: false,
   secretKey: "",
   untrustedAssets: "",
+  claimableBalanceSupported: false,
 };
 
 const settingsSlice = createSlice({

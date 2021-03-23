@@ -1,0 +1,45 @@
+.ToggleWrapper {
+  --toogle-width: 2.5rem;
+  --toggle-height: 1.5rem;
+  --toggle-circle-size: 1rem;
+
+  width: var(--toogle-width);
+  height: var(--toggle-height);
+  border-radius: var(--toggle-circle-size);
+
+  .Toggle {
+    width: var(--toogle-width);
+    height: var(--toggle-height);
+    border-radius: var(--toggle-circle-size);
+    border: 1px solid var(--color-accent);
+    cursor: pointer;
+    background-color: var(--color-background-main);
+    display: flex;
+    align-items: center;
+    padding: 0 0.25rem;
+    transition: background 0.5s;
+
+    &::after {
+      display: block;
+      content: "";
+      width: var(--toggle-circle-size);
+      height: var(--toggle-circle-size);
+      border-radius: var(--toggle-circle-size);
+      background-color: var(--color-accent);
+      transition: all 0.4s;
+    }
+  }
+
+  .ToggleInput {
+    display: none;
+
+    &:checked ~ .Toggle {
+      background-color: var(--color-accent);
+
+      &::after {
+        background-color: var(--color-background-main);
+        transform: translateX(0.8rem);
+      }
+    }
+  }
+}

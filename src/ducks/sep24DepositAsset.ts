@@ -37,7 +37,7 @@ export const depositAssetAction = createAsyncThunk<
     const { assetCode, assetIssuer, homeDomain } = asset;
 
     const { data, secretKey } = accountSelector(getState());
-    const { pubnet } = settingsSelector(getState());
+    const { pubnet, claimableBalanceSupported } = settingsSelector(getState());
     const networkConfig = getNetworkConfig(pubnet);
     const publicKey = data?.id;
 
@@ -123,6 +123,7 @@ export const depositAssetAction = createAsyncThunk<
         publicKey,
         sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
         token,
+        claimableBalanceSupported,
       });
 
       // Create popup

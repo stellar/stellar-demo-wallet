@@ -87,6 +87,7 @@ code {
 
   .Inset {
     @include header-footer-inset;
+    justify-content: space-between;
 
     a:not(:last-child) {
       margin-right: 1.5rem;
@@ -390,6 +391,13 @@ code {
 .SessionParamsWrapper {
   display: flex;
   margin-top: -0.5rem;
+}
+
+// Configuration
+.ConfigurationItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 // Old styles
