@@ -46,25 +46,15 @@ export const sendPayment = async ({
   );
 
   if (!accountBalance) {
-    log.instruction({
-      title: `Adding trustline to ${asset.getCode()} for sending anchor`,
-    });
-
-    const tx = new TransactionBuilder(account, {
-      fee: (Number(BASE_FEE) * 5).toString(),
-      networkPassphrase,
-    })
-      .addOperation(Operation.changeTrust({ asset }))
-      .setTimeout(30)
-      .build();
-
-    tx.sign(keypair);
-    submitTransaction({ tx, server });
+    throw new Error(
+      `${assetCode} is not a trusted asset, a trusline must be added`,
+    );
   }
 
-  // TODO: if balance is insufficient, add amount of requested asset
-  if (!(accountBalance && Number(accountBalance.balance) >= Number(amount))) {
-    throw new Error(`The sending anchor doesn't have enough ${assetCode}!`);
+  if (Number(accountBalance.balance) < Number(amount)) {
+    throw new Error(
+      `The sending anchor does not have enough ${assetCode} balance`,
+    );
   }
 
   let memo;

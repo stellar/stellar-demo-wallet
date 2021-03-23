@@ -1,4 +1,3 @@
-import { checkToml } from "./checkToml";
 import { checkInfo } from "./checkInfo";
 import { interactiveDepositFlow } from "./interactiveDepositFlow";
 import { interactiveWithdrawFlow } from "./interactiveWithdrawFlow";
@@ -7,7 +6,6 @@ import { pollDepositUntilComplete } from "./pollDepositUntilComplete";
 import { pollWithdrawUntilComplete } from "./pollWithdrawUntilComplete";
 
 export {
-  checkToml,
   checkInfo,
   interactiveDepositFlow,
   interactiveWithdrawFlow,

@@ -12,7 +12,6 @@ import {
   sep10AuthSend,
 } from "methods/sep10Auth";
 import {
-  checkToml,
   checkInfo,
   getSep12Fields,
   putSep12Fields,
@@ -21,6 +20,7 @@ import {
   sendPayment,
   pollTransactionUntilComplete,
 } from "methods/sep31Send";
+import { checkTomlForFields } from "methods/checkTomlForFields";
 
 import {
   Asset,
@@ -28,6 +28,7 @@ import {
   AnyObject,
   Sep31SendInitialState,
   RejectMessage,
+  TomlFields,
 } from "types/types.d";
 
 interface FetchSendFieldsActionResponse {
@@ -57,21 +58,42 @@ export const fetchSendFieldsAction = createAsyncThunk<
   async (asset, { rejectWithValue, getState }) => {
     try {
       const { pubnet } = settingsSelector(getState());
-      const { secretKey } = accountSelector(getState());
+      const { secretKey, data } = accountSelector(getState());
       const networkConfig = getNetworkConfig(pubnet);
+      const publicKey = data?.id;
 
       const { assetCode, assetIssuer, homeDomain } = asset;
 
-      if (!homeDomain) {
-        // TODO: do settings/config modal to enter?
-        throw new Error("Home domain is required");
+      // This is unlikely
+      if (!publicKey) {
+        throw new Error("Something is wrong with Account, no public key.");
       }
 
-      // Check toml
+      // This is unlikely
+      if (!homeDomain) {
+        throw new Error("Something went wrong, home domain is not defined.");
+      }
+
       log.instruction({ title: "Initiate a direct payment request" });
 
-      const tomlResponse = await checkToml({ homeDomain, pubnet });
-      const { authEndpoint, sendServer, kycServer } = tomlResponse;
+      // Check toml
+      const tomlResponse = await checkTomlForFields({
+        sepName: "SEP-31 send",
+        assetIssuer,
+        requiredKeys: [
+          TomlFields.WEB_AUTH_ENDPOINT,
+          TomlFields.SIGNING_KEY,
+          TomlFields.DIRECT_PAYMENT_SERVER,
+          TomlFields.KYC_SERVER,
+        ],
+        networkUrl: networkConfig.url,
+        homeDomain,
+      });
+
+      const authEndpoint = tomlResponse.WEB_AUTH_ENDPOINT;
+      const serverSigningKey = tomlResponse.SIGNING_KEY;
+      const sendServer = tomlResponse.DIRECT_PAYMENT_SERVER;
+      const kycServer = tomlResponse.KYC_SERVER;
 
       // Check info
       const infoResponse = await checkInfo({ assetCode, sendServer });
@@ -79,7 +101,9 @@ export const fetchSendFieldsAction = createAsyncThunk<
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint,
-        secretKey,
+        serverSigningKey,
+        publicKey,
+        homeDomain,
       });
 
       // SEP-10 sign
@@ -98,7 +122,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
       // Get SEP-12 fields
       const sep12Fields = await getSep12Fields({
         kycServer,
-        secretKey,
+        publicKey: data!.id,
         token,
         senderSep12Type: infoResponse.senderSep12Type,
         receiverSep12Type: infoResponse.receiverSep12Type,
