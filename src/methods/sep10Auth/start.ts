@@ -16,10 +16,10 @@ export const start = async ({
 
   log.instruction({
     title:
-      "Start the SEP-0010 flow to authenticate the sending anchor's Stellar account",
+      "Starting the SEP-10 flow to authenticate the sending anchor’s Stellar account",
   });
 
-  log.request({ title: "GET /auth", body: params });
+  log.request({ title: "GET `/auth`", body: params });
 
   const authURL = new URL(authEndpoint);
   Object.entries(params).forEach(([key, value]) => {
@@ -28,10 +28,10 @@ export const start = async ({
 
   const result = await fetch(authURL.toString());
   const resultJson = await result.json();
-  log.response({ title: "GET /auth", body: resultJson });
+  log.response({ title: "GET `/auth`", body: resultJson });
 
   if (!resultJson.transaction) {
-    throw new Error("The response didn't contain a transaction");
+    throw new Error("The response didn’t contain a transaction");
   }
 
   const { tx } = Utils.readChallengeTx(

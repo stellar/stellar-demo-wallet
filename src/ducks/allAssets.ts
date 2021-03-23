@@ -64,9 +64,10 @@ export const getAllAssetsAction = createAsyncThunk<
   try {
     return [...trusted, ...untrusted];
   } catch (error) {
-    log.error({ title: getErrorMessage(error) });
+    const errorMessage = getErrorMessage(error);
+    log.error({ title: errorMessage });
     return rejectWithValue({
-      errorString: getErrorMessage(error),
+      errorString: errorMessage,
     });
   }
 });

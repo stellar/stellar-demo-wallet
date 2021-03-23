@@ -31,7 +31,8 @@ export const getUntrustedAssetData = async ({
 
     if (accountAssets?.[assetString]) {
       log.instruction({ title: `Asset \`${assetString}\` is already trusted` });
-      break;
+      // eslint-disable-next-line no-continue
+      continue;
     }
 
     log.request({ title: `Fetching asset \`${assetString}\` record` });

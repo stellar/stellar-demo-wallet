@@ -37,6 +37,9 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
 
           const cleanedRecord = {
             id: record.id,
+            // assetString needs to be a record.id to have a unique ID for
+            // active asset, assetCode:assetIssuer would conflict with other
+            // assets
             assetString: record.id,
             assetCode,
             assetIssuer,
@@ -48,7 +51,7 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
           };
 
           log.response({
-            title: "Claimable Balances Available ",
+            title: `Claimable balance of ${record.amount} ${assetCode} available`,
             body: cleanedRecord,
           });
 
@@ -60,6 +63,8 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
         records: cleanedRecords,
       };
     } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      log.error({ title: errorMessage });
       return rejectWithValue({
         errorString: getErrorMessage(error),
       });

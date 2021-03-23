@@ -16,7 +16,10 @@ export const submitPaymentTransaction = async ({
 }) => {
   const server = new StellarSdk.Server(getNetworkConfig(isPubnet).url);
 
-  log.instruction({ title: "Starting send payment…" });
+  log.instruction({
+    title: `Sending payment of ${params.amount} ${params.assetCode}`,
+    body: `Destination: ${params.destination}`,
+  });
 
   let transaction;
 
@@ -28,11 +31,6 @@ export const submitPaymentTransaction = async ({
       server,
     });
   } catch (error) {
-    log.error({
-      title: "Failed to build transaction",
-      body: getErrorString(error),
-    });
-
     throw new Error(
       `Failed to build transaction, error: ${getErrorString(error)})}`,
     );
@@ -43,21 +41,23 @@ export const submitPaymentTransaction = async ({
     const keypair = Keypair.fromSecret(secretKey);
     await transaction.sign(keypair);
   } catch (error) {
-    log.error({
-      title: "Failed to sign transaction",
-      body: getErrorString(error),
-    });
-
     throw new Error(
       `Failed to sign transaction, error: ${getErrorString(error)}`,
     );
   }
 
   // Submit transaction
-  log.request({ title: "Sending payment", body: transaction });
+  log.request({
+    title: "Submitting send payment transaction",
+    body: transaction,
+  });
 
   const result = await server.submitTransaction(transaction);
-  log.response({ title: "Payment sent", body: result });
+  log.response({ title: "Submitted send payment transaction", body: result });
+  log.instruction({
+    title: `Payment of ${params.amount} ${params.assetCode} sent`,
+    body: `Destination: ${params.destination}`,
+  });
 
   return result;
 };
@@ -71,7 +71,7 @@ const buildPaymentTransaction = async ({
   params: PaymentTransactionParams;
   server: any;
 }) => {
-  log.instruction({ title: "Building send payment transaction…" });
+  log.instruction({ title: "Building send payment transaction" });
 
   let transaction;
   try {
@@ -101,7 +101,7 @@ const buildPaymentTransaction = async ({
     } else {
       log.instruction({
         title:
-          "Destination account does not exist, we are creating and funding it.",
+          "Destination account does not exist, we are creating and funding it",
       });
 
       // If destination account is not funded, create and fund it
