@@ -21,3 +21,5 @@
 - Assets update + home domain override
 - Update text + add tooltip to some components
 - SEP tweaks (home domain, TOML, check info)
+- Sign out prompt to save URL + code styling
+- Configuration modal + claimableBalanceSupported search param
