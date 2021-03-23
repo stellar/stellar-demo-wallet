@@ -242,6 +242,10 @@ p {
       .BalanceAmount {
         font-size: 1.1em;
         font-weight: var(--font-weight-medium);
+
+        &.error {
+          font-weight: var(--font-weight-normal);
+        }
       }
 
       .BalanceOptions {
@@ -366,6 +370,11 @@ p {
   .LogItem {
     margin-bottom: 1rem;
   }
+}
+
+.SessionParamsWrapper {
+  display: flex;
+  margin-top: -0.5rem;
 }
 
 // Old styles
