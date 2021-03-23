@@ -74,6 +74,13 @@
       // TODO: add color to SDS
       color: #fbfaf7;
     }
+
+    code {
+      color: var(--color-text-contrast);
+      // TODO: add color to SDS
+      background-color: #3e414f;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
   }
 
   // Instruction
