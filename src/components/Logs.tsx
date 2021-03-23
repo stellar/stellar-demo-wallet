@@ -38,8 +38,9 @@ export const Logs = () => {
   const logsToMarkdown = (logItems: LogItemProps[]) => {
     const heading = `# Stellar Demo Wallet logs\n\n`;
     const date = `${new Date()}\n\n`;
+    const url = `[URL](${window.location.toString()})\n\n`;
     const divider = `---\n\n`;
-    const contentHeader = `${heading}${date}${divider}`;
+    const contentHeader = `${heading}${date}${url}${divider}`;
 
     return logItems.reduce((result, log, index) => {
       const isLastItem = index === logItems.length - 1;

@@ -11,6 +11,21 @@ p {
   word-break: break-word;
 }
 
+code {
+  // TODO: color not in SDS
+  color: #490be3;
+  font-family: var(--font-family-monospace);
+  border-radius: 0.1875rem;
+  border: 0.5px solid var(--color-background-off);
+  background-color: var(--color-background-secondary);
+  padding: 0 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  display: inline;
+  line-break: anywhere;
+}
+
 @mixin header-footer-inset {
   height: 3rem;
   display: flex;
@@ -242,6 +257,10 @@ p {
       .BalanceAmount {
         font-size: 1.1em;
         font-weight: var(--font-weight-medium);
+
+        &.error {
+          font-weight: var(--font-weight-normal);
+        }
       }
 
       .BalanceOptions {
@@ -366,6 +385,11 @@ p {
   .LogItem {
     margin-bottom: 1rem;
   }
+}
+
+.SessionParamsWrapper {
+  display: flex;
+  margin-top: -0.5rem;
 }
 
 // Old styles

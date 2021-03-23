@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import ReactJson from "react-json-view";
+import marked from "marked";
 import { ReactComponent as IconArrowLeft } from "assets/icons/arrow-left.svg";
 import { ReactComponent as IconArrowRight } from "assets/icons/arrow-right.svg";
 import { ReactComponent as IconBubble } from "assets/icons/bubble.svg";
 import { ReactComponent as IconError } from "assets/icons/error.svg";
+import { sanitizeHtml } from "helpers/sanitizeHtml";
 import { LogType } from "types/types.d";
 import "./styles.scss";
 
@@ -75,7 +77,7 @@ export const LogItem = ({ title, variant, body }: LogItemProps) => {
     <div className={`LogItem ${variant} ${isFadeReady ? "open" : ""}`}>
       <div className="LogItemHeader">
         <div className="LogItemIcon">{LogItemIcon[variant]}</div>
-        <div className="LogItemTitle">{title}</div>
+        <div className="LogItemTitle">{sanitizeHtml(marked(title))}</div>
       </div>
       {bodyParsed && (
         <div className="LogItemBody">

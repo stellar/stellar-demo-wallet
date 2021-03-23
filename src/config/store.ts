@@ -27,8 +27,8 @@ const RESET_STORE_ACTION_TYPE = "RESET";
 export type RootState = ReturnType<typeof store.getState>;
 
 const isSerializable = (value: any) => {
-  // activeAsset has callback function
-  if (typeof value === "function") {
+  // activeAsset has callback function and description can be a component
+  if (typeof value === "function" || typeof value === "symbol") {
     return true;
   }
 

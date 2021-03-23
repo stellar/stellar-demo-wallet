@@ -112,7 +112,9 @@ export const UntrustedBalance = ({
           title: `Add Trustline “Trust Asset ${asset.assetCode}”?`,
           description: (
             <p>
-              {`You are about to create a trustline to asset ${asset.assetCode} from ${asset.assetIssuer}. This will allow you to hold this asset.`}{" "}
+              You are about to create a trustline to asset{" "}
+              <code>{`${asset.assetCode}:${asset.assetIssuer}`}</code>. This
+              will allow you to hold this asset.{" "}
               <TextLink
                 href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines"
                 isExternal
@@ -128,7 +130,12 @@ export const UntrustedBalance = ({
         props = {
           ...defaultProps,
           title: `Remove asset ${asset.assetCode}`,
-          description: `Asset ${asset.assetCode}:${asset.assetIssuer} does not exist, remove it?`,
+          description: (
+            <p>
+              Asset <code>{`${asset.assetCode}:${asset.assetIssuer}`}</code>{" "}
+              does not exist, remove it?
+            </p>
+          ),
           callback: () => handleRemoveAsset(asset),
         };
         break;
