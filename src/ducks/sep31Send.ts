@@ -147,9 +147,9 @@ export const fetchSendFieldsAction = createAsyncThunk<
         receiverSep12Type: infoResponse.receiverSep12Type,
         senderSep12Memo: sep12Fields.info.senderSep12Memo,
         receiverSep12Memo: sep12Fields.info.receiverSep12Memo,
-        authEndpoint: tomlResponse.authEndpoint,
-        sendServer: tomlResponse.sendServer,
-        kycServer: tomlResponse.kycServer,
+        authEndpoint,
+        sendServer,
+        kycServer,
       };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
