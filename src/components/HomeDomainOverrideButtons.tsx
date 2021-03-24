@@ -11,13 +11,17 @@ import {
   resetActiveAssetAction,
 } from "ducks/activeAsset";
 import { searchParam } from "helpers/searchParam";
-import { Asset, SearchParams } from "types/types.d";
+import { ActionStatus, Asset, SearchParams } from "types/types.d";
 
 import { ReactComponent as IconEdit } from "assets/icons/edit.svg";
 import { ReactComponent as IconRemove } from "assets/icons/error.svg";
+import { useRedux } from "hooks/useRedux";
+import { Loader } from "@stellar/design-system";
 
 export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
   const [activeModal, setActiveModal] = useState("");
+
+  const { assetOverrides } = useRedux("assetOverrides");
 
   const dispatch = useDispatch();
   const history = useHistory();
@@ -70,6 +74,10 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
     setActiveModal("");
     dispatch(resetActiveAssetAction());
   };
+
+  if (assetOverrides.status === ActionStatus.PENDING) {
+    return <Loader />;
+  }
 
   return (
     <>
