@@ -21,7 +21,7 @@ export const putSep12Fields = async ({
   kycServer,
 }: PutSep12FieldsProps) => {
   log.instruction({
-    title: "Make PUT /customer requests for sending and receiving user",
+    title: "Making PUT `/customer` requests for sending and receiving users",
   });
 
   const result = {
@@ -83,7 +83,7 @@ const putSEP12Fields = async ({
     ...fields,
   };
 
-  log.request({ title: "PUT /customer", body: data });
+  log.request({ title: "PUT `/customer`", body: data });
 
   const body = new FormData();
   Object.entries(data).forEach(([key, value]) => {
@@ -100,13 +100,13 @@ const putSEP12Fields = async ({
 
   const resultJson = await result.json();
   log.response({
-    title: `PUT /customer (${isSender ? "sender" : "receiver"})`,
+    title: `PUT \`/customer\` (${isSender ? "sender" : "receiver"})`,
     body: resultJson,
   });
 
   if (result.status !== 202) {
     throw new Error(
-      `Unexpected status for PUT /customer request: ${result.status}`,
+      `Unexpected status for PUT \`/customer\` request: ${result.status}`,
     );
   }
 

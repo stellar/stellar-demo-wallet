@@ -16,10 +16,8 @@ export const getUntrustedAssetData = async ({
   accountAssets,
   networkUrl,
 }: GetUntrustedAssetDataProps) => {
-  log.instruction({ title: "Start getting asset record" });
-
   if (!assetsToAdd.length) {
-    log.instruction({ title: `No assets to fetch.` });
+    log.instruction({ title: `No assets to fetch` });
   }
 
   let response: Asset[] = [];

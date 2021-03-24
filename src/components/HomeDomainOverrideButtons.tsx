@@ -10,6 +10,7 @@ import {
   setActiveAssetAction,
   resetActiveAssetAction,
 } from "ducks/activeAsset";
+import { log } from "helpers/log";
 import { searchParam } from "helpers/searchParam";
 import { Asset, SearchParams } from "types/types.d";
 
@@ -63,6 +64,9 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
         itemId: asset.assetString,
       }),
     );
+    log.instruction({
+      title: `Asset’s ${asset.assetCode} home domain override \`${asset.homeDomain}\` removed`,
+    });
     handleCloseModal();
   };
 

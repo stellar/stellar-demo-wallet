@@ -26,7 +26,7 @@ export const getValidatedUntrustedAsset = async ({
   networkUrl,
 }: GetUntrustedAssetProps): Promise<GetUntrustedAssetResponse> => {
   log.instruction({
-    title: `Start validating untrusted asset ${assetCode}`,
+    title: `Validating untrusted asset ${assetCode}`,
   });
 
   if (assetCode && !(homeDomain || issuerPublicKey)) {

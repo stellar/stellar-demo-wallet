@@ -35,7 +35,7 @@ const update = (
       );
       break;
     default:
-      throw new Error(`Search param ${searchParam} does not exist`);
+      throw new Error(`Search param \`${searchParam}\` does not exist`);
   }
 
   return `?${queryParams.toString()}`;
@@ -107,8 +107,7 @@ const updateKeyPair = ({
     const updatedValuesString = updatedValuesArray.reduce(
       (result: string[], asset) => [
         ...result,
-        // TODO: any type
-        `${asset.assetString}:${getKeyPairString(asset as any)}`,
+        `${asset.assetString}:${getKeyPairString(asset)}`,
       ],
       [],
     );
@@ -146,8 +145,7 @@ const removeKeyPair = ({
     const updatedValuesString = assetsToKeep.reduce(
       (result: string[], asset) => [
         ...result,
-        // TODO: any type
-        `${asset.assetString}:${getKeyPairString(asset as any)}`,
+        `${asset.assetString}:${getKeyPairString(asset)}`,
       ],
       [],
     );
@@ -185,7 +183,7 @@ const updateValue = ({ currentVal, newVal, removeVal }: UpdateValueProps) => {
   return currentVal;
 };
 
-const getKeyPairString = (keyPairs: StringObject) => {
+const getKeyPairString = (keyPairs: StringObject | SearchParamAsset) => {
   const arr = Object.entries(keyPairs).reduce(
     (result: string[], [key, value]) => {
       if (key !== "assetString") {

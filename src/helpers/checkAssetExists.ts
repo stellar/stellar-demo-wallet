@@ -17,7 +17,7 @@ export const checkAssetExists = async ({
   const asset = `${assetCode}:${assetIssuer}`;
 
   if (accountBalances && accountBalances?.[asset]) {
-    throw new Error(`Asset ${asset} is already trusted`);
+    throw new Error(`Asset \`${asset}\` is already trusted`);
   }
 
   const server = new Server(networkUrl);
@@ -28,6 +28,6 @@ export const checkAssetExists = async ({
     .call();
 
   if (!assetResponse.records.length) {
-    throw new Error(`Asset ${assetCode}:${assetIssuer} does not exist.`);
+    throw new Error(`Asset \`${asset}\` does not exist`);
   }
 };

@@ -74,7 +74,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
         throw new Error("Something went wrong, home domain is not defined.");
       }
 
-      log.instruction({ title: "Initiate a direct payment request" });
+      log.instruction({ title: "Initiating a SEP-31 direct payment" });
 
       // Check toml
       const tomlResponse = await checkTomlForFields({
@@ -131,7 +131,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
       // Show form to collect input data for fields
       log.instruction({
         title:
-          "To collect the required information we show a form with all the requested fields from /info",
+          "To collect the required information we show a form with all the requested fields from `/info`",
       });
 
       return {
@@ -153,11 +153,9 @@ export const fetchSendFieldsAction = createAsyncThunk<
       };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
-
       log.error({
         title: errorMessage,
       });
-
       return rejectWithValue({
         errorString: errorMessage,
       });
@@ -199,12 +197,6 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
       } = data;
 
       // Put SEP-12 fields
-      log.instruction({
-        title: "Make PUT /customer requests for sending and receiving user",
-      });
-
-      log.instruction({ title: "Form data", body: { sender, receiver } });
-
       const putSep12FieldsResponse = await putSep12Fields({
         fields,
         formData: { sender, receiver },
@@ -254,7 +246,7 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
       });
 
       log.instruction({
-        title: "Transaction complete",
+        title: "SEP-31 send payment completed",
       });
 
       return true;
