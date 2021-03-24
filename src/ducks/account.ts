@@ -42,8 +42,6 @@ export const fetchAccountAction = createAsyncThunk<
 >(
   "account/fetchAccountAction",
   async ({ publicKey, secretKey }, { rejectWithValue, getState }) => {
-    log.instruction({ title: "Getting account info" });
-
     const { pubnet } = settingsSelector(getState());
     const networkConfig = getNetworkConfig(pubnet);
 
@@ -71,18 +69,20 @@ export const fetchAccountAction = createAsyncThunk<
     } catch (error) {
       if (error.isUnfunded) {
         log.instruction({ title: `Account is not funded` });
+
         stellarAccount = {
           id: publicKey,
         } as UnfundedAccount;
+
         isUnfunded = true;
       } else {
+        const errorMessage = getErrorString(error);
         log.error({
-          title: `Fetching account ${publicKey} failure`,
-          body: getErrorString(error),
+          title: `Fetching account \`${publicKey}\` failed`,
+          body: errorMessage,
         });
-
         return rejectWithValue({
-          errorString: getErrorString(error),
+          errorString: errorMessage,
         });
       }
     }
@@ -125,7 +125,8 @@ export const fundTestnetAccount = createAsyncThunk<
   "account/fundTestnetAccount",
   async (publicKey, { rejectWithValue, getState }) => {
     log.instruction({
-      title: "The friendbot is starting to fund your testnet account",
+      title: "The friendbot is funding testnet account",
+      body: `Public key: ${publicKey}`,
     });
 
     const { pubnet } = settingsSelector(getState());
@@ -146,20 +147,20 @@ export const fundTestnetAccount = createAsyncThunk<
       });
 
       log.response({
-        title: "The friendbot funded your account",
+        title: "The friendbot funded account",
         body: stellarAccount,
       });
 
       return { data: stellarAccount, assets, isUnfunded: false };
     } catch (error) {
       log.error({
-        title: "The friendbot funding failed",
+        title: "The friendbot funding of the account failed",
         body: getErrorMessage(error),
       });
 
       return rejectWithValue({
         errorString:
-          "Something went wrong funding the account, please try again.",
+          "Something went wrong with funding the account, please try again.",
       });
     }
   },

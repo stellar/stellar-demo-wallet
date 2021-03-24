@@ -16,6 +16,8 @@ export const interactiveDepositFlow = async ({
   token,
   claimableBalanceSupported,
 }: InteractiveDepositFlowProps) => {
+  log.instruction({ title: "Starting SEP-24 interactive flow for deposit" });
+
   const formData = new FormData();
   const postDepositParams = {
     asset_code: assetCode,
@@ -27,7 +29,7 @@ export const interactiveDepositFlow = async ({
   each(postDepositParams, (value, key) => formData.append(key, value));
 
   log.request({
-    title: `POST ${sep24TransferServerUrl}/transactions/deposit/interactive`,
+    title: `POST \`${sep24TransferServerUrl}/transactions/deposit/interactive\``,
     body: postDepositParams,
   });
 
@@ -45,13 +47,13 @@ export const interactiveDepositFlow = async ({
   const interactiveJson = await response.json();
 
   log.response({
-    title: `${sep24TransferServerUrl}/transactions/deposit/interactive`,
+    title: `POST \`${sep24TransferServerUrl}/transactions/deposit/interactive\``,
     body: interactiveJson,
   });
 
   if (!interactiveJson.url) {
     throw new Error(
-      "No URL Returned from POST /transactions/deposit/interactive",
+      "No URL returned from POST `/transactions/deposit/interactive`",
     );
   }
 

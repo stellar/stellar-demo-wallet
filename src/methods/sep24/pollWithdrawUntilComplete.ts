@@ -39,7 +39,7 @@ export const pollWithdrawUntilComplete = async ({
     `${sep24TransferServerUrl}/transaction?id=${transactionId}`,
   );
   log.instruction({
-    title: `Polling for updates: ${transactionUrl.toString()}`,
+    title: `Polling for updates \`${transactionUrl.toString()}\``,
   });
 
   const endStatuses = [TransactionStatus.COMPLETED, TransactionStatus.ERROR];
@@ -56,8 +56,9 @@ export const pollWithdrawUntilComplete = async ({
       currentStatus = transactionJson.transaction.status;
       // eslint-disable-next-line no-param-reassign
       popup.location.href = transactionJson.transaction.more_info_url;
+
       log.instruction({
-        title: `Transaction ${transactionId} is in ${transactionJson.transaction.status} status`,
+        title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status`,
       });
 
       switch (currentStatus) {
@@ -114,8 +115,9 @@ export const pollWithdrawUntilComplete = async ({
 
           // eslint-disable-next-line no-await-in-loop
           const horizonResponse = await server.submitTransaction(txn);
+
           log.response({
-            title: "Submitting withdrawal transaction to Stellar",
+            title: "Submitted withdrawal transaction to Stellar",
             body: horizonResponse,
           });
           break;
@@ -160,7 +162,7 @@ export const pollWithdrawUntilComplete = async ({
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
-  log.instruction({ title: `Transaction status: ${currentStatus}` });
+  log.instruction({ title: `Transaction status \`${currentStatus}\`` });
 
   if (!endStatuses.includes(currentStatus) && popup.closed) {
     log.instruction({

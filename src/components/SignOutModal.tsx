@@ -33,10 +33,10 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
   };
 
   const getMessageText = () => {
-    // TODO: add claimable balance when merged
     const paramText: StringObject = {
       [SearchParams.ASSET_OVERRIDES]: "home domain overrides",
       [SearchParams.UNTRUSTED_ASSETS]: "untrusted assets",
+      [SearchParams.CLAIMABLE_BALANCE_SUPPORTED]: "claimable balance supported",
     };
 
     return sessionParams.map((s) => paramText[s]).join(", ");

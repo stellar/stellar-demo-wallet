@@ -12,13 +12,13 @@ export const pollTransactionUntilComplete = async ({
 }) => {
   log.instruction({
     title:
-      "Poll /transactions/:id endpoint until transaction status reaches end status",
+      "Polling `/transactions/:id` endpoint until transaction status reaches end status",
   });
 
   let currentStatus;
   let resultJson;
 
-  log.request({ title: `GET /transactions/${transactionId}` });
+  log.request({ title: `GET \`/transactions/${transactionId}\`` });
 
   while (
     ![
@@ -36,7 +36,7 @@ export const pollTransactionUntilComplete = async ({
 
     if (result.status !== 200) {
       throw new Error(
-        `GET /transactions/${transactionId} responded with status ${result.status}`,
+        `GET \`/transactions/${transactionId}\` responded with status \`${result.status}\``,
       );
     }
 
@@ -47,7 +47,7 @@ export const pollTransactionUntilComplete = async ({
       currentStatus = resultJson.transaction.status;
 
       log.instruction({
-        title: `Transaction ${transactionId} is in ${resultJson.transaction.status} status`,
+        title: `Transaction \`${transactionId}\` is in \`${resultJson.transaction.status}\` status`,
       });
 
       switch (currentStatus) {
@@ -94,7 +94,7 @@ export const pollTransactionUntilComplete = async ({
   }
 
   log.response({
-    title: `GET /transactions/${transactionId}`,
+    title: `GET \`/transactions/${transactionId}\``,
     body: resultJson,
   });
 };

@@ -26,14 +26,18 @@ export const claimAssetAction = createAsyncThunk<
     const { pubnet } = settingsSelector(getState());
 
     const networkConfig = getNetworkConfig(pubnet);
-    const { assetString, assetCode, assetIssuer } = balance;
+    const { assetCode, assetIssuer } = balance;
+    // Cannot use balance.assetString because it's an id
+    const assetString = `${assetCode}:${assetIssuer}`;
+
+    log.instruction({
+      title: `Claiming asset \`${assetString}\``,
+    });
 
     let trustedAssetAdded;
 
-    // TODO: add logs
-
     try {
-      if (data?.balances && !data?.balances[assetString]) {
+      if (!data?.balances[assetString]) {
         log.instruction({
           title: "Not a trusted asset, need to add a trustline",
         });
@@ -50,7 +54,7 @@ export const claimAssetAction = createAsyncThunk<
             },
           });
 
-          trustedAssetAdded = `${assetCode}:${assetIssuer}`;
+          trustedAssetAdded = `${assetString}`;
         } catch (error) {
           throw new Error(getErrorMessage(error));
         }
@@ -71,8 +75,10 @@ export const claimAssetAction = createAsyncThunk<
         throw new Error(getErrorMessage(error));
       }
     } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      log.error({ title: errorMessage });
       return rejectWithValue({
-        errorString: getErrorMessage(error),
+        errorString: errorMessage,
       });
     }
   },

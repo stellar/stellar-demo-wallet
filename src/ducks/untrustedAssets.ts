@@ -54,7 +54,7 @@ export const addUntrustedAssetAction = createAsyncThunk<
         return [];
       }
 
-      log.instruction({ title: "Start adding untrusted asset" });
+      log.instruction({ title: "Adding untrusted asset" });
 
       let response;
 

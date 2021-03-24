@@ -9,6 +9,10 @@ import { sanitizeHtml } from "helpers/sanitizeHtml";
 import { LogType } from "types/types.d";
 import "./styles.scss";
 
+marked.setOptions({
+  gfm: false,
+});
+
 const LogItemIcon = {
   instruction: <IconBubble />,
   error: <IconError />,

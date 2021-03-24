@@ -35,8 +35,8 @@ export const getAssetFromHomeDomain = async ({
   // No matching asset
   if (!matchingAssets.length) {
     throw new Error(
-      `Unable to find the ${assetCode} asset on ${homeDomain} TOML file.
-          Available assets: ${availableAssetsString}.`,
+      `Unable to find the ${assetCode} asset on \`${homeDomain}\` TOML file.
+      Available assets: ${availableAssetsString}.`,
     );
   }
 
@@ -66,8 +66,8 @@ export const getAssetFromHomeDomain = async ({
     }
 
     throw new Error(
-      `Unable to find the ${assetCode} asset from issuer ${issuerPublicKey} on ${homeDomain} TOML file.
-          Available issuers for ${assetCode}: ${availableIssuersString}.`,
+      `Unable to find the ${assetCode} asset from issuer \`${issuerPublicKey}\` on \`${homeDomain}\` TOML file.
+      Available issuers for ${assetCode}: ${availableIssuersString}.`,
     );
     // Home domain only (no issuer public key provided)
   } else {

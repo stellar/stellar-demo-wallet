@@ -20,7 +20,7 @@ export const postTransaction = async ({
   amount,
 }: PostTransactionProps) => {
   log.instruction({
-    title: "POST relevent field info to create a new payment",
+    title: "POST relevant field info to create a new payment",
   });
 
   const body = {
@@ -30,7 +30,7 @@ export const postTransaction = async ({
     asset_code: assetCode,
     amount,
   };
-  log.request({ title: "POST /transactions", body });
+  log.request({ title: "POST `/transactions`", body });
 
   const result = await fetch(`${sendServer}/transactions`, {
     method: "POST",
@@ -43,12 +43,12 @@ export const postTransaction = async ({
 
   if (![200, 201].includes(result.status)) {
     throw new Error(
-      `POST /transactions responded with status ${result.status}`,
+      `POST \`/transactions\` responded with status ${result.status}`,
     );
   }
 
   const resultJson = await result.json();
-  log.response({ title: "POST /transactions", body: resultJson });
+  log.response({ title: "POST `/transactions`", body: resultJson });
 
   const requiredProps = [
     "id",
@@ -59,7 +59,9 @@ export const postTransaction = async ({
 
   requiredProps.forEach((prop) => {
     if (!resultJson[prop]) {
-      throw new Error(`POST /transactions response missing property ${prop}`);
+      throw new Error(
+        `POST \`/transactions\` response missing property \`${prop}\``,
+      );
     }
   });
 

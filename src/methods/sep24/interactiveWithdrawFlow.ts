@@ -12,6 +12,8 @@ export const interactiveWithdrawFlow = async ({
   sep24TransferServerUrl: string;
   token: string;
 }) => {
+  log.instruction({ title: "Starting SEP-24 interactive flow for withdrawal" });
+
   const formData = new FormData();
   const postWithdrawParams = {
     asset_code: assetCode,
@@ -22,7 +24,7 @@ export const interactiveWithdrawFlow = async ({
   each(postWithdrawParams, (value, key) => formData.append(key, value));
 
   log.request({
-    title: `POST ${sep24TransferServerUrl}/transactions/withdraw/interactive`,
+    title: `POST \`${sep24TransferServerUrl}/transactions/withdraw/interactive\``,
     body: postWithdrawParams,
   });
 
@@ -40,13 +42,13 @@ export const interactiveWithdrawFlow = async ({
   const interactiveJson = await response.json();
 
   log.response({
-    title: `${sep24TransferServerUrl}/transactions/withdraw/interactive`,
+    title: `POST \`${sep24TransferServerUrl}/transactions/withdraw/interactive\``,
     body: interactiveJson,
   });
 
   if (!interactiveJson.url) {
     throw new Error(
-      "No URL Returned from POST /transactions/withdraw/interactive",
+      "No URL returned from POST `/transactions/withdraw/interactive`",
     );
   }
 

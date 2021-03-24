@@ -35,7 +35,7 @@ export const getAssetOverridesData = async ({
 
     if (!assetResponse.records.length) {
       log.error({
-        title: `Asset ${assetString} does not exist.`,
+        title: `Asset \`${assetString}\` does not exist.`,
       });
       break;
     }

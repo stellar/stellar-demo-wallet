@@ -2,9 +2,12 @@ import { useState } from "react";
 import { TextLink, TextLinkVariant, TextButton } from "@stellar/design-system";
 import { Modal } from "components/Modal";
 import { ConfigurationModal } from "components/ConfigurationModal";
+import { useRedux } from "hooks/useRedux";
 
 export const Footer = () => {
   const [configModalVisible, setConfigModalVisible] = useState(false);
+
+  const { account } = useRedux("account");
 
   const handleConfigModalClose = () => {
     setConfigModalVisible(false);
@@ -33,11 +36,13 @@ export const Footer = () => {
             </TextLink>
           </div>
 
-          <div>
-            <TextButton onClick={() => setConfigModalVisible(true)}>
-              Configuration
-            </TextButton>
-          </div>
+          {account.isAuthenticated && (
+            <div>
+              <TextButton onClick={() => setConfigModalVisible(true)}>
+                Configuration
+              </TextButton>
+            </div>
+          )}
         </div>
       </div>
 

@@ -9,24 +9,26 @@ export const checkInfo = async ({
   sendServer: string;
 }) => {
   log.instruction({
-    title: "Check /info endpoint to see if we need to authenticate",
+    title: "Checking `/info` endpoint to see if we need to authenticate",
   });
 
-  log.request({ title: "GET /info" });
+  log.request({ title: "GET `/info`" });
 
   const result = await fetch(`${sendServer}/info`);
   const resultJson = await result.json();
 
-  log.response({ title: "GET /info", body: resultJson });
+  log.response({ title: "GET `/info`", body: resultJson });
 
   if (!resultJson.receive) {
-    throw new Error("/info response needs a `receive` property");
+    throw new Error("`/info` response needs a `receive` property");
   }
 
   const asset = resultJson.receive[assetCode];
 
   if (!asset) {
-    throw new Error(`Could not find asset code ${assetCode} in /info response`);
+    throw new Error(
+      `Could not find asset code ${assetCode} in \`/info\` response`,
+    );
   }
 
   if (!asset.enabled) {
@@ -34,7 +36,7 @@ export const checkInfo = async ({
   }
 
   if (!asset.fields || isEmptyObject(asset.fields)) {
-    throw new Error("No `fields` object specified in /info");
+    throw new Error("No `fields` object specified in `/info`");
   }
 
   if (!asset.fields.transaction) {
@@ -50,13 +52,12 @@ export const checkInfo = async ({
       senderSep12Type = senderTypes[0];
 
       log.instruction({
-        title: `Found the following customer types for senders: ${senderTypes.join(
-          ", ",
-        )}`,
+        title: "Found the following customer types for senders",
+        body: `${senderTypes.join(", ")}`,
       });
 
       log.instruction({
-        title: `Using ${senderTypes[0]}: ${
+        title: `Using \`${senderTypes[0]}\` ${
           asset.sep12.sender.types[senderTypes[0]].description
         }`,
       });
@@ -67,13 +68,12 @@ export const checkInfo = async ({
       receiverSep12Type = receiverTypes[0];
 
       log.instruction({
-        title: `Found the following customer types for senders: ${receiverTypes.join(
-          ", ",
-        )}`,
+        title: "Found the following customer types for senders",
+        body: `${receiverTypes.join(", ")}`,
       });
 
       log.instruction({
-        title: `Using ${receiverTypes[0]}: ${
+        title: `Using \`${receiverTypes[0]}\` ${
           asset.sep12.receiver.types[receiverTypes[0]].description
         }`,
       });
@@ -84,7 +84,7 @@ export const checkInfo = async ({
 
     if (senderSep12Type) {
       log.instruction({
-        title: `Using ${senderSep12Type} type for sending customer`,
+        title: `Using \`${senderSep12Type}\` type for sending customers`,
       });
     }
   }

@@ -26,23 +26,23 @@ export const checkTomlForFields = async ({
   }
 
   log.instruction({
-    title: `Checking the stellar.toml to find the necessary information for the ${sepName} transaction`,
+    title: `Checking the \`stellar.toml\` to find the necessary information for the ${sepName} transaction`,
   });
 
   const tomlResponse = await getToml(homeDomainParam);
-  const missingKeys: TomlFields[] = [];
+  const missingKeys: string[] = [];
 
   const result = requiredKeys.reduce((res: AnyObject, key) => {
     if (tomlResponse[key]) {
       log.instruction({
-        title: `Received ${key} from TOML`,
+        title: `Received \`${key}\` from TOML`,
         body: tomlResponse[key],
       });
 
       return { ...res, [key]: tomlResponse[key].replace(/\/$/, "") };
     }
 
-    missingKeys.push(key);
+    missingKeys.push(`\`${key}\``);
     return res;
   }, {});
 

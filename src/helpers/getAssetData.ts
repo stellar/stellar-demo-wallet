@@ -3,7 +3,6 @@ import { getAssetSettingsFromToml } from "helpers/getAssetSettingsFromToml";
 import { normalizeAssetProps } from "helpers/normalizeAssetProps";
 import { Asset } from "types/types.d";
 
-// TODO: add logs
 export const getAssetData = async ({
   balances,
   networkUrl,

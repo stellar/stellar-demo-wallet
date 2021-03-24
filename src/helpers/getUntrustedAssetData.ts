@@ -16,10 +16,8 @@ export const getUntrustedAssetData = async ({
   accountAssets,
   networkUrl,
 }: GetUntrustedAssetDataProps) => {
-  log.instruction({ title: "Start getting asset record" });
-
   if (!assetsToAdd.length) {
-    log.instruction({ title: `No assets to fetch.` });
+    log.instruction({ title: `No assets to fetch` });
   }
 
   let response: Asset[] = [];
@@ -31,7 +29,8 @@ export const getUntrustedAssetData = async ({
 
     if (accountAssets?.[assetString]) {
       log.instruction({ title: `Asset \`${assetString}\` is already trusted` });
-      break;
+      // eslint-disable-next-line no-continue
+      continue;
     }
 
     log.request({ title: `Fetching asset \`${assetString}\` record` });

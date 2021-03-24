@@ -3,8 +3,6 @@ import {
   Button,
   Checkbox,
   Heading2,
-  InfoBlock,
-  InfoBlockVariant,
   Input,
   Loader,
 } from "@stellar/design-system";
@@ -34,12 +32,6 @@ export const ConnectAccount = () => {
       <Heading2 className="ModalHeading">Connect with a secret key</Heading2>
 
       <div className="ModalBody">
-        {/* TODO: update warning copy */}
-        <InfoBlock variant={InfoBlockVariant.error}>
-          ATTENTION: Entering a secret key on any website is not recommended.
-          [UPDATE COPY]
-        </InfoBlock>
-
         <Input
           id="secretKey"
           label="Your secret key"

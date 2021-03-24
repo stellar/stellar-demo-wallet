@@ -51,7 +51,7 @@ export const depositAssetAction = createAsyncThunk<
       throw new Error("Something went wrong, home domain is not defined.");
     }
 
-    log.instruction({ title: "Initiate a SEP-24 deposit" });
+    log.instruction({ title: "Initiating a SEP-24 deposit" });
 
     const trustAssetCallback = async () => {
       const assetString = `${assetCode}:${assetIssuer}`;
@@ -93,7 +93,7 @@ export const depositAssetAction = createAsyncThunk<
 
       log.instruction({
         title:
-          "Deposit is enabled, and requires authentication so we should go through SEP-0010",
+          "SEP-24 deposit is enabled, and requires authentication so we should go through SEP-10",
       });
 
       // SEP-10 start
@@ -149,7 +149,7 @@ export const depositAssetAction = createAsyncThunk<
       const errorMessage = getErrorMessage(error);
 
       log.error({
-        title: "Deposit failed",
+        title: "SEP-24 deposit failed",
         body: errorMessage,
       });
 

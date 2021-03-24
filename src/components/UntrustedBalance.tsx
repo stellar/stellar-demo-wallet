@@ -74,7 +74,7 @@ export const UntrustedBalance = ({
       searchParam.remove(SearchParams.UNTRUSTED_ASSETS, assetString),
     );
     dispatch(removeUntrustedAssetAction(assetString));
-    log.instruction({ title: `Untrusted asset ${assetString} removed` });
+    log.instruction({ title: `Untrusted asset \`${assetString}\` removed` });
 
     dispatch(resetUntrustedAssetStatusAction());
     dispatch(resetActiveAssetAction());

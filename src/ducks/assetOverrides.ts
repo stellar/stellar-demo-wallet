@@ -33,7 +33,6 @@ export const addAssetOverridesAction = createAsyncThunk<
       return response;
     } catch (error) {
       const errorMessage = getErrorMessage(error);
-
       log.error({ title: errorMessage });
       return rejectWithValue({
         errorString: errorMessage,

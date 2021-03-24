@@ -21,7 +21,9 @@ export const trustAsset = async ({
   networkPassphrase: string;
 }) => {
   try {
-    log.instruction({ title: "Adding trustline…" });
+    log.instruction({
+      title: `Adding \`${untrustedAsset.assetCode}:${untrustedAsset.assetIssuer}\` trustline`,
+    });
     const keypair = Keypair.fromSecret(secretKey);
     const server = new StellarSdk.Server(networkUrl);
 
@@ -31,7 +33,7 @@ export const trustAsset = async ({
     });
     const account = await server.loadAccount(keypair.publicKey());
 
-    log.instruction({ title: "Building add trustline transaction…" });
+    log.instruction({ title: "Building add trustline transaction" });
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase,
@@ -50,7 +52,7 @@ export const trustAsset = async ({
     transaction.sign(keypair);
 
     log.request({
-      title: "Submitting add trustline transaction…",
+      title: "Submitting add trustline transaction",
       body: transaction,
     });
     const result = await server.submitTransaction(transaction);
@@ -59,11 +61,13 @@ export const trustAsset = async ({
       title: "Submitted add trustline transaction",
       body: result,
     });
+    log.instruction({
+      title: `Asset \`${untrustedAsset.assetCode}:${untrustedAsset.assetIssuer}\` trustline added`,
+    });
 
     return result;
   } catch (error) {
     const errorMessage = getErrorMessage(error);
-
     log.error({
       title: "Add trustline transaction failed",
       body: errorMessage,

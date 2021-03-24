@@ -70,6 +70,11 @@ export const withdrawAssetAction = createAsyncThunk<
         assetCode,
       });
 
+      log.instruction({
+        title:
+          "SEP-24 withdrawal is enabled, and requires authentication so we should go through SEP-10",
+      });
+
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
@@ -122,7 +127,7 @@ export const withdrawAssetAction = createAsyncThunk<
       const errorMessage = getErrorMessage(error);
 
       log.error({
-        title: "Withdrawal failed",
+        title: "SEP-24 withdrawal failed",
         body: errorMessage,
       });
 

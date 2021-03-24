@@ -11,13 +11,13 @@ export const pollTransactionUntilReady = async ({
   token: string;
 }) => {
   log.instruction({
-    title: `Poll /transactions/:id endpoint until transaction status is ${TransactionStatus.PENDING_SENDER}`,
+    title: `Polling \`/transactions/:id\` endpoint until transaction status is \`${TransactionStatus.PENDING_SENDER}\``,
   });
 
   let transactionStatus;
 
   while (transactionStatus !== TransactionStatus.PENDING_SENDER) {
-    log.request({ title: `GET /transactions/${transactionId}` });
+    log.request({ title: `GET \`/transactions/${transactionId}\`` });
     // eslint-disable-next-line no-await-in-loop
     const result = await fetch(`${sendServer}/transactions/${transactionId}`, {
       headers: {
@@ -27,14 +27,14 @@ export const pollTransactionUntilReady = async ({
 
     if (result.status !== 200) {
       throw new Error(
-        `GET /transactions/${transactionId} responded with status ${result.status}`,
+        `GET \`/transactions/${transactionId}\` responded with status \`${result.status}\``,
       );
     }
 
     // eslint-disable-next-line no-await-in-loop
     const resultJson = await result.json();
     log.response({
-      title: `GET /transactions/${transactionId}`,
+      title: `GET \`/transactions/${transactionId}\``,
       body: resultJson,
     });
     transactionStatus = resultJson.transaction.status;

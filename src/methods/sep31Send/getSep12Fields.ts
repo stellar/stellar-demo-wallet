@@ -15,7 +15,7 @@ export const getSep12Fields = async ({
   token: string;
 }) => {
   log.instruction({
-    title: "Make GET /customer requests for sending and receiving user",
+    title: "Making GET `/customer` requests for sending and receiving users",
   });
 
   const result = {
@@ -80,7 +80,7 @@ const collectSep12Fields = async ({
     memo_type: "hash",
   };
 
-  log.request({ title: "GET /customer", body: params });
+  log.request({ title: "GET `/customer`", body: params });
 
   const urlParams = new URLSearchParams(params);
   const result = await fetch(`${kycServer}/customer?${urlParams.toString()}`, {
@@ -92,11 +92,18 @@ const collectSep12Fields = async ({
   });
   const resultJson = await result.json();
 
-  log.response({ title: "GET /customer", body: resultJson });
+  log.response({ title: "GET `/customer`", body: resultJson });
 
   if (resultJson.status !== "NEEDS_INFO") {
-    throw new Error(`Unexpected status for new customer: ${resultJson.status}`);
+    throw new Error(
+      `Unexpected status for new customer \`${resultJson.status}\``,
+    );
   }
+
+  log.instruction({
+    title: "Received the following fields",
+    body: resultJson.fields,
+  });
 
   return resultJson.fields;
 };

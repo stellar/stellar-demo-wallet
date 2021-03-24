@@ -25,14 +25,14 @@ export const getCurrenciesFromDomain = async (
 
     if (!toml.CURRENCIES) {
       throw new Error(
-        "The home domain specified does not have a CURRENCIES section on it's TOML file",
+        "The home domain specified does not have a `CURRENCIES` section on its TOML file",
       );
     }
 
     return toml.CURRENCIES;
   } catch (e) {
     throw new Error(
-      `${homeDomain} is not a valid home domain, TOML file was not found.`,
+      `\`${homeDomain}\` is not a valid home domain, TOML file was not found`,
     );
   }
 };

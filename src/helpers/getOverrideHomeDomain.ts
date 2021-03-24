@@ -18,10 +18,9 @@ export const getOverrideHomeDomain = async ({
 
   if (assetHomeDomain !== homeDomain) {
     log.instruction({
-      title:
-        "Asset home domain is different than the provided home domain. Provided home domain will override asset home domain.",
-      body: `Asset home domain: ${assetHomeDomain || "not configured"}.
-    Provided home domain: ${homeDomain}.`,
+      title: `Entered home domain \`${homeDomain}\` will override asset’s home domain \`${
+        assetHomeDomain || "not configured"
+      }\``,
     });
     return homeDomain;
   }

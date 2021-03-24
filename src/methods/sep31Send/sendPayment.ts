@@ -33,7 +33,7 @@ export const sendPayment = async ({
   sendMemoType,
   receiverAddress,
 }: SendPaymentProps) => {
-  log.instruction({ title: "Send stellar payment to receiving anchor" });
+  log.instruction({ title: "Sending Stellar payment to the receiving anchor" });
 
   const keypair = Keypair.fromSecret(secretKey);
   const server = new Server(networkUrl);
@@ -73,7 +73,7 @@ export const sendPayment = async ({
     }
   } catch (e) {
     throw new Error(
-      `The memo '${sendMemo}' could not be encoded to type ${sendMemoType}`,
+      `The memo \`${sendMemo}\` could not be encoded to type \`${sendMemoType}\``,
     );
   }
 
@@ -99,6 +99,8 @@ export const sendPayment = async ({
 const submitTransaction = async ({ tx, server }: { tx: any; server: any }) => {
   let result;
 
+  log.instruction({ title: "Submitting payment transaction" });
+
   try {
     result = await server.submitTransaction(tx);
   } catch (e) {
@@ -112,6 +114,8 @@ const submitTransaction = async ({ tx, server }: { tx: any; server: any }) => {
       `Sending transaction failed with error code ${status}: ${txStatus}, ${codesList}`,
     );
   }
+
+  log.instruction({ title: "Payment transaction submitted", body: result });
 
   return result;
 };
