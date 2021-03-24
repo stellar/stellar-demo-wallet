@@ -23,3 +23,4 @@
 - SEP tweaks (home domain, TOML, check info)
 - Sign out prompt to save URL + code styling
 - Configuration modal + claimableBalanceSupported search param
+- Improve UX with loaders + some fixes
