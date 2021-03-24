@@ -30,7 +30,7 @@ export const putSep12Fields = async ({
   };
 
   if (fields.sender) {
-    const resultJson = await putSEP12Fields({
+    const resultJson = await putSep12FieldsRequest({
       secretKey,
       fields: formData.sender,
       memo: senderSep12Memo,
@@ -43,7 +43,7 @@ export const putSep12Fields = async ({
   }
 
   if (fields.receiver) {
-    const resultJson = await putSEP12Fields({
+    const resultJson = await putSep12FieldsRequest({
       secretKey,
       fields: formData.receiver,
       memo: receiverSep12Memo,
@@ -58,7 +58,7 @@ export const putSep12Fields = async ({
   return result;
 };
 
-interface PutSEP12FieldsProps {
+interface PutSep12FieldsRequestProps {
   secretKey: string;
   fields: any;
   memo: string;
@@ -67,14 +67,14 @@ interface PutSEP12FieldsProps {
   isSender: boolean;
 }
 
-const putSEP12Fields = async ({
+const putSep12FieldsRequest = async ({
   secretKey,
   fields,
   memo,
   token,
   kycServer,
   isSender,
-}: PutSEP12FieldsProps) => {
+}: PutSep12FieldsRequestProps) => {
   const publicKey = Keypair.fromSecret(secretKey).publicKey();
   const data: { [key: string]: string } = {
     account: publicKey,
