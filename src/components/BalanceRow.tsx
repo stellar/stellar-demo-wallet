@@ -81,6 +81,7 @@ export const BalanceRow = ({
               id={`${assetString}-actions`}
               onChange={(e) => onAction(e.target.value, asset)}
               disabled={disabled}
+              value=""
             >
               <option value="">Select action</option>
               {!isUntrusted && (
