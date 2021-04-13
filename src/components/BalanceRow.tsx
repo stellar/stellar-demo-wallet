@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { Select } from "@stellar/design-system";
 import { TextLink } from "components/TextLink";
 import { HomeDomainOverrideButtons } from "components/HomeDomainOverrideButtons";
@@ -37,6 +37,22 @@ export const BalanceRow = ({
   } = asset;
   const isActive = activeAction?.assetString === assetString;
   const disabled = Boolean(activeAction);
+  const [selectValue, setSelectValue] = useState("");
+
+  useEffect(() => {
+    // reset value to default after modal close
+    if (!isActive) {
+      setSelectValue("");
+    }
+  }, [isActive]);
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectValue(value);
+    if (onAction) {
+      onAction(value, asset);
+    }
+  };
 
   return (
     <div
@@ -79,8 +95,9 @@ export const BalanceRow = ({
           <div className="BalanceCellSelect">
             <Select
               id={`${assetString}-actions`}
-              onChange={(e) => onAction(e.target.value, asset)}
+              onChange={handleSelectChange}
               disabled={disabled}
+              value={selectValue}
             >
               <option value="">Select action</option>
               {!isUntrusted && (
