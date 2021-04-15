@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Horizon } from "stellar-sdk";
+import { captureException as sentryCaptureException } from "@sentry/browser";
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getErrorString } from "helpers/getErrorString";
@@ -28,6 +29,7 @@ export const sendPaymentAction = createAsyncThunk<
         isPubnet: pubnet,
       });
     } catch (error) {
+      sentryCaptureException(error);
       return rejectWithValue({
         errorString: getErrorString(error),
       });
