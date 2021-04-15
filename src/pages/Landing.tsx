@@ -8,9 +8,11 @@ import {
   TextButtonVariant,
 } from "@stellar/design-system";
 
+import { METRIC_NAMES } from "constants/metricNames";
 import { createRandomAccount } from "ducks/account";
 import { ConnectAccount } from "components/ConnectAccount";
 import { Modal } from "components/Modal";
+import { emitMetric } from "helpers/metrics";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
@@ -25,6 +27,10 @@ export const Landing = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const history = useHistory();
+
+  useEffect(() => {
+    emitMetric(METRIC_NAMES.viewHome);
+  }, []);
 
   useEffect(() => {
     if (account.status === ActionStatus.SUCCESS && !account.isAuthenticated) {
