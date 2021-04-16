@@ -25,3 +25,4 @@
 - Configuration modal + claimableBalanceSupported search param
 - Improve UX with loaders + some fixes
 - Reset asset action dropdown after modal is dismissed
+- Add Amplitude and Sentry integrations
