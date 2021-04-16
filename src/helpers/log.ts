@@ -1,3 +1,4 @@
+import { captureMessage as sentryCaptureMessage } from "@sentry/browser";
 import { LOG_MESSAGE_EVENT } from "constants/settings";
 import { LogType, LogItemProps } from "types/types.d";
 
@@ -59,6 +60,7 @@ export const log = {
   },
 
   error: ({ title, body = "" }: { title: string; body?: string | object }) => {
+    sentryCaptureMessage(title);
     console.error(title, body);
     dispatchLog({
       timestamp: new Date().getTime(),

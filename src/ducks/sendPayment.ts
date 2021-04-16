@@ -3,6 +3,7 @@ import { Horizon } from "stellar-sdk";
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getErrorString } from "helpers/getErrorString";
+import { log } from "helpers/log";
 import { submitPaymentTransaction } from "methods/submitPaymentTransaction";
 import {
   ActionStatus,
@@ -28,8 +29,10 @@ export const sendPaymentAction = createAsyncThunk<
         isPubnet: pubnet,
       });
     } catch (error) {
+      const errorString = getErrorString(error);
+      log.error({ title: errorString });
       return rejectWithValue({
-        errorString: getErrorString(error),
+        errorString,
       });
     }
 
