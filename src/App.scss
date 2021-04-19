@@ -59,6 +59,14 @@ code {
   overflow: auto;
 }
 
+.Announcement {
+    background-color: var(--color-note);
+    color: var(--color-text-contrast);
+    text-align: center;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
 .Main {
   background-color: var(--color-background-main);
 }
