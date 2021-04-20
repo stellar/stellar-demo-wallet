@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 as build
+FROM ubuntu:20.04 as build
 
 MAINTAINER SDF Ops Team <ops@stellar.org>
 
