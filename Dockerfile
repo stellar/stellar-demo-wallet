@@ -3,7 +3,6 @@ FROM ubuntu:20.04 as build
 MAINTAINER SDF Ops Team <ops@stellar.org>
 
 RUN mkdir -p /app
-RUN apt-get update && apt-get install -y gnupg1
 
 WORKDIR /app
 
@@ -15,7 +14,7 @@ ARG REACT_APP_SENTRY_KEY
 
 ENV REACT_APP_SENTRY_KEY $REACT_APP_SENTRY_KEY
 
-RUN apt-get update && apt-get install -y curl git make apt-transport-https && \
+RUN apt-get update && apt-get install -y gnupg1 gnupg curl git make apt-transport-https && \
     curl -sSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
     echo "deb https://deb.nodesource.com/node_14.x xenial main" | tee /etc/apt/sources.list.d/nodesource.list && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
