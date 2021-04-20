@@ -59,6 +59,19 @@ code {
   overflow: auto;
 }
 
+.Announcement {
+  background-color: var(--color-note);
+  color: var(--color-text-contrast);
+  text-align: center;
+  width: 100%;
+  margin-bottom: 2rem;
+  padding: 1rem 0; //vertical padding
+  // change anchor text to reflect same color as the rest of the announcment
+  .TextLink {
+    color: inherit;
+  }
+}
+
 .Main {
   background-color: var(--color-background-main);
 }

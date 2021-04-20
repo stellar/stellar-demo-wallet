@@ -11,11 +11,11 @@ import { PageContent } from "components/PageContent";
 import { PrivateRoute } from "components/PrivateRoute";
 import { SettingsHandler } from "components/SettingsHandler";
 import { WarningBanner } from "components/WarningBanner";
+import { TextLink, TextLinkVariant } from "@stellar/design-system";
 
 import { Account } from "pages/Account";
 import { Landing } from "pages/Landing";
 import { NotFound } from "pages/NotFound";
-
 import "./App.scss";
 
 if (process.env.SENTRY_KEY) {
@@ -37,6 +37,23 @@ export const App = () => (
           <div className="SplitContainer Main">
             <div className="ContentWrapper">
               <Header />
+
+              <div className="Announcement">
+                <div className="Inset">
+                  <p>
+                    Welcome to the new and improved Stellar demo wallet! Please
+                    log bugs and feature requests at: &nbsp;
+                    <TextLink
+                      variant={TextLinkVariant.primary}
+                      href="https://github.com/stellar/stellar-demo-wallet/issues"
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      https://github.com/stellar/stellar-demo-wallet/issues
+                    </TextLink>
+                  </p>
+                </div>
+              </div>
 
               <div className="IntroText Inset">
                 <p>
