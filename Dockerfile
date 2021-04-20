@@ -3,7 +3,7 @@ FROM ubuntu:20.04 as build
 MAINTAINER SDF Ops Team <ops@stellar.org>
 
 RUN mkdir -p /app
-RUN apt-get update && apt-get install gnupg1
+RUN apt-get update && apt-get install -y gnupg1
 
 WORKDIR /app
 
