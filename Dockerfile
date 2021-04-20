@@ -5,6 +5,14 @@ MAINTAINER SDF Ops Team <ops@stellar.org>
 RUN mkdir -p /app
 WORKDIR /app
 
+ARG REACT_APP_AMPLITUDE_KEY
+
+ENV REACT_APP_AMPLITUDE_KEY $REACT_APP_AMPLITUDE_KEY
+
+ARG REACT_APP_SENTRY_KEY
+
+ENV REACT_APP_SENTRY_KEY $REACT_APP_SENTRY_KEY
+
 RUN apt-get update && apt-get install -y curl git make apt-transport-https && \
     curl -sSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
     echo "deb https://deb.nodesource.com/node_14.x xenial main" | tee /etc/apt/sources.list.d/nodesource.list && \
