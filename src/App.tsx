@@ -39,18 +39,20 @@ export const App = () => (
               <Header />
 
               <div className="Announcement">
-                <p>
-                  Welcome to the new and improved Stellar demo wallet! Please
-                  log bugs and feature requests at: &nbsp;
-                  <TextLink
-                    variant={TextLinkVariant.primary}
-                    href="https://github.com/stellar/stellar-demo-wallet/issues"
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    https://github.com/stellar/stellar-demo-wallet/issues
-                  </TextLink>
-                </p>
+                <div className="Inset">
+                  <p>
+                    Welcome to the new and improved Stellar demo wallet! Please
+                    log bugs and feature requests at: &nbsp;
+                    <TextLink
+                      variant={TextLinkVariant.primary}
+                      href="https://github.com/stellar/stellar-demo-wallet/issues"
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      https://github.com/stellar/stellar-demo-wallet/issues
+                    </TextLink>
+                  </p>
+                </div>
               </div>
 
               <div className="IntroText Inset">

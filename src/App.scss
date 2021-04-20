@@ -60,11 +60,16 @@ code {
 }
 
 .Announcement {
-    background-color: var(--color-note);
-    color: var(--color-text-contrast);
-    text-align: center;
-    width: 100%;
-    margin-bottom: 1rem;
+  background-color: var(--color-note);
+  color: var(--color-text-contrast);
+  text-align: center;
+  width: 100%;
+  margin-bottom: 2rem;
+  padding: 1rem 0; // We might add vertical padding to let the text breathe a bit
+  // change anchor text to reflect same color as the rest of the announcment
+  .TextLink {
+    color: inherit;
+  }
 }
 
 .Main {
