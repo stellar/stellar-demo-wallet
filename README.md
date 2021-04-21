@@ -46,7 +46,7 @@ yarn build
 - [ ] Implement SEP-31 support
 - [ ] Implement SEP-6 support
 
-### Helpful links:
+### Helpful links
 
 - [https://www.stellar.org/developers](https://www.stellar.org/developers)
 - [https://stellar.github.io/js-stellar-sdk/](https://stellar.github.io/js-stellar-sdk/)

@@ -1,3 +1,31 @@
+:root {
+  --size-min-window: 800px;
+  --size-max-window: 1296px;
+}
+
+body {
+  overflow-y: hidden;
+}
+
+p {
+  word-break: break-word;
+}
+
+code {
+  // TODO: color not in SDS
+  color: #490be3;
+  font-family: var(--font-family-monospace);
+  border-radius: 0.1875rem;
+  border: 0.5px solid var(--color-background-off);
+  background-color: var(--color-background-secondary);
+  padding: 0 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  display: inline;
+  line-break: anywhere;
+}
+
 @mixin header-footer-inset {
   height: 3rem;
   display: flex;
@@ -5,10 +33,47 @@
 }
 
 @mixin header-footer-vertical-padding {
-  @media (min-width: 700px) {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+  padding-top: 1rem;
+}
+
+.Wrapper {
+  min-width: var(--size-min-window);
+  display: flex;
+  flex-grow: 1;
+  position: relative;
+}
+
+.SplitContainer {
+  width: 50%;
+  position: relative;
+}
+
+.ContentWrapper {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
+}
+
+.Announcement {
+  background-color: var(--color-note);
+  color: var(--color-text-contrast);
+  text-align: center;
+  width: 100%;
+  margin-bottom: 2rem;
+  padding: 1rem 0; //vertical padding
+  // change anchor text to reflect same color as the rest of the announcment
+  .TextLink {
+    color: inherit;
   }
+}
+
+.Main {
+  background-color: var(--color-background-main);
 }
 
 .Inset {
@@ -17,16 +82,12 @@
   padding-left: 1rem;
   padding-right: 1rem;
   width: 100%;
-  max-width: 1296px;
-
-  @media (min-width: 420px) {
-    padding-left: 3rem;
-    padding-right: 3rem;
-  }
+  max-width: var(--size-max-window);
 }
 
 .Header {
   @include header-footer-vertical-padding;
+  padding-bottom: 1rem;
 
   .Inset {
     @include header-footer-inset;
@@ -39,12 +100,320 @@
 
   .Inset {
     @include header-footer-inset;
+    justify-content: space-between;
 
     a:not(:last-child) {
       margin-right: 1.5rem;
     }
   }
 }
+
+.IntroText {
+  margin-bottom: 3rem;
+}
+
+.LandingButtons {
+  button {
+    text-align: left;
+  }
+}
+
+.Inline {
+  display: flex;
+  align-items: center;
+  position: relative;
+
+  & > *:not(:last-child) {
+    margin-right: 1rem;
+  }
+}
+
+.LoadingBlock {
+  margin-bottom: 1rem;
+}
+
+.InfoButtonWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.Section {
+  margin-top: 3rem;
+}
+
+// Generic
+.error {
+  color: var(--color-error);
+}
+
+.success {
+  color: var(--color-success);
+}
+
+.vertical-spacing {
+  & > * {
+    margin-bottom: 1rem;
+  }
+}
+
+.horizontal-spacing {
+  & > *:not(:first-child),
+  & > *:not(:last-child) {
+    margin-right: 1.5rem;
+  }
+}
+
+// Account
+.Account {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+
+  .AccountInfo {
+    display: table;
+    max-width: 276px;
+
+    &:first-child {
+      margin-bottom: 1rem;
+      margin-right: 2rem;
+    }
+
+    .AccountInfoRow {
+      display: table-row;
+      height: 2rem;
+    }
+
+    .AccountInfoCell {
+      display: table-cell;
+      vertical-align: middle;
+
+      button {
+        padding-top: 0.1rem;
+        padding-bottom: 0.1rem;
+        text-align: left;
+      }
+
+      &.AccountLabel {
+        text-transform: uppercase;
+      }
+
+      &.CopyButton {
+        width: 3.75rem;
+      }
+
+      &:not(:last-child) {
+        padding-right: 1rem;
+      }
+    }
+  }
+
+  @media (min-width: 1020px) {
+    flex-direction: row;
+
+    .AccountInfo {
+      &:first-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.AccountDetails {
+  .AccountDetailsContent {
+    padding: 1rem;
+    font-weight: var(--font-weight-light);
+    font-family: var(--font-family-monospace);
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+    word-break: break-word;
+  }
+}
+
+.Balances {
+  border-top: 1px solid var(--color-border-main);
+
+  .BalanceRow {
+    border-bottom: 1px solid var(--color-border-main);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+
+    &.disabled {
+      background-color: var(--color-background-off);
+      cursor: not-allowed;
+
+      .BalanceCell.BalanceInfo {
+        opacity: 0.6;
+      }
+
+      a {
+        pointer-events: none;
+      }
+    }
+
+    &.active {
+      background-color: #dfd8ff;
+    }
+  }
+
+  .BalanceCell {
+    position: relative;
+
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+
+    & > :not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+
+    &.BalanceInfo {
+      .BalanceAmount {
+        font-size: 1.1em;
+        font-weight: var(--font-weight-medium);
+
+        &.error {
+          font-weight: var(--font-weight-normal);
+        }
+      }
+
+      .BalanceOptions {
+        margin-top: 0.3rem;
+        display: flex;
+        align-items: center;
+        position: relative;
+
+        & > *:not(:last-child) {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+
+    &.BalanceActions {
+      .BalanceCellSelect {
+        display: flex;
+        align-items: center;
+
+        & > :first-child {
+          margin-right: 0.5rem;
+        }
+      }
+
+      .CustomCell {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  @media (min-width: 1260px) {
+    .BalanceRow {
+      padding-top: 0.7rem;
+      padding-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .BalanceCell {
+      &:not(:last-child) {
+        margin-bottom: 0;
+      }
+
+      & > :not(:last-child) {
+        margin-bottom: 0;
+      }
+
+      &.BalanceActions {
+        display: flex;
+
+        .BalanceCellSelect {
+          width: 14rem;
+          flex-grow: 0;
+          flex-shrink: 0;
+        }
+
+        .CustomCell {
+          &:not(:last-child) {
+            margin-right: 1rem;
+          }
+
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+}
+
+.ClaimableBalances {
+  margin-top: 3rem;
+}
+
+.BalancesButtons {
+  margin-top: 1.5rem;
+}
+
+// Logs
+.Logs {
+  background-color: var(--color-background-off);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+
+  .LogsWrapper {
+    position: relative;
+    flex-grow: 1;
+  }
+
+  .ContentWrapper {
+    flex-direction: column-reverse;
+  }
+
+  .LogsFooter {
+    background-color: var(--color-background-main);
+    border: 1px solid var(--color-border-main);
+
+    .Inset {
+      @include header-footer-inset;
+
+      a:not(:last-child) {
+        margin-right: 1.5rem;
+      }
+    }
+  }
+
+  .LogsContent {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .EmptyLogsContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 1rem;
+    color: var(--color-note);
+  }
+
+  .LogItem {
+    margin-bottom: 1rem;
+  }
+}
+
+.SessionParamsWrapper {
+  display: flex;
+  margin-top: -0.5rem;
+}
+
+// Configuration
+.ConfigurationItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Old styles
 
 .Content {
   flex-grow: 1;
@@ -69,16 +438,4 @@
   & > * {
     margin-right: 1rem;
   }
-}
-
-.Inline {
-  display: flex;
-
-  & > * {
-    margin-right: 1rem;
-  }
-}
-
-.Error {
-  color: var(--color-error);
 }

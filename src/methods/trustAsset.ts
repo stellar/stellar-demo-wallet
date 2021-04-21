@@ -1,28 +1,39 @@
-import {
+import StellarSdk, {
   TransactionBuilder,
   BASE_FEE,
   Operation,
   Asset,
   Keypair,
 } from "stellar-sdk";
+import { getErrorMessage } from "helpers/getErrorMessage";
+import { log } from "helpers/log";
 import { TrustAssetParam } from "types/types.d";
 
 export const trustAsset = async ({
-  server,
   secretKey,
   untrustedAsset,
+  networkUrl,
   networkPassphrase,
 }: {
-  server: any;
   secretKey: string;
   untrustedAsset: TrustAssetParam;
+  networkUrl: string;
   networkPassphrase: string;
 }) => {
-  // TODO: add logs
   try {
-    console.log("trust asset started");
+    log.instruction({
+      title: `Adding \`${untrustedAsset.assetCode}:${untrustedAsset.assetIssuer}\` trustline`,
+    });
     const keypair = Keypair.fromSecret(secretKey);
+    const server = new StellarSdk.Server(networkUrl);
+
+    log.instruction({
+      title:
+        "Loading account to get a sequence number for add trustline transaction",
+    });
     const account = await server.loadAccount(keypair.publicKey());
+
+    log.instruction({ title: "Building add trustline transaction" });
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase,
@@ -40,8 +51,27 @@ export const trustAsset = async ({
 
     transaction.sign(keypair);
 
-    return await server.submitTransaction(transaction);
+    log.request({
+      title: "Submitting add trustline transaction",
+      body: transaction,
+    });
+    const result = await server.submitTransaction(transaction);
+
+    log.response({
+      title: "Submitted add trustline transaction",
+      body: result,
+    });
+    log.instruction({
+      title: `Asset \`${untrustedAsset.assetCode}:${untrustedAsset.assetIssuer}\` trustline added`,
+    });
+
+    return result;
   } catch (error) {
-    throw new Error(error);
+    const errorMessage = getErrorMessage(error);
+    log.error({
+      title: "Add trustline transaction failed",
+      body: errorMessage,
+    });
+    throw new Error(errorMessage);
   }
 };

@@ -1,17 +1,40 @@
-import { Heading2, TextButton } from "@stellar/design-system";
-import { Types } from "@stellar/wallet-sdk";
 import { useDispatch } from "react-redux";
-import { depositAssetAction } from "ducks/depositAsset";
+import { TextLink } from "components/TextLink";
+import { BalanceRow } from "components/BalanceRow";
+import { depositAssetAction } from "ducks/sep24DepositAsset";
+import { fetchSendFieldsAction } from "ducks/sep31Send";
+import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
+import {
+  Asset,
+  AssetActionItem,
+  AssetActionId,
+  AssetType,
+  AssetCategory,
+} from "types/types.d";
 
 interface SortedBalancesResult {
-  native: Types.NativeBalance[];
-  other: Types.AssetBalance[];
+  native: Asset[];
+  other: Asset[];
 }
 
-export const Balance = ({ onSend }: { onSend: () => void }) => {
-  const { account } = useRedux("account");
-  const allBalances = account?.data?.balances;
+export const Balance = ({
+  onAssetAction,
+  onSend,
+}: {
+  onAssetAction: ({
+    balance,
+    callback,
+    title,
+    description,
+    options,
+  }: AssetActionItem) => void;
+  onSend: (asset?: Asset) => void;
+}) => {
+  const { activeAsset, allAssets } = useRedux("activeAsset", "allAssets");
+  const allBalances = allAssets.data.filter(
+    (a) => a.category === AssetCategory.TRUSTED,
+  );
 
   const dispatch = useDispatch();
 
@@ -25,11 +48,11 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
       other: [],
     };
 
-    Object.values(allBalances).map((balance) => {
-      if (balance.token.type === "native") {
-        result.native = [...result.native, balance as Types.NativeBalance];
+    allBalances.map((balance) => {
+      if (balance.assetType === AssetType.NATIVE) {
+        result.native = [...result.native, balance];
       } else {
-        result.other = [...result.other, balance as Types.AssetBalance];
+        result.other = [...result.other, balance];
       }
 
       return result;
@@ -38,70 +61,120 @@ export const Balance = ({ onSend }: { onSend: () => void }) => {
     return result;
   };
 
-  const handleSend = () => {
-    onSend();
+  const handleSep24Deposit = (asset: Asset) => {
+    dispatch(depositAssetAction(asset));
   };
 
-  // TODO: update type
-  const handleDeposit = (asset: Types.AssetBalance) => {
-    // TODO: handle global errors on UI
-    dispatch(
-      depositAssetAction({
-        assetCode: asset.token.code,
-        assetIssuer: asset.token.issuer.key,
-      }),
-    );
+  const handleSep24Withdraw = (asset: Asset) => {
+    dispatch(withdrawAssetAction(asset));
   };
 
-  // TODO: update type
-  const handleWithdraw = (asset: Types.AssetBalance) => {
-    // TODO: handleWithdraw
-    console.log("asset: ", asset);
+  const handleSep31Send = (asset: Asset) => {
+    dispatch(fetchSendFieldsAction(asset));
   };
 
-  const renderBalances = () => {
-    const sortedBalances = groupBalances();
-
-    if (!sortedBalances) {
-      return null;
+  const handleAction = ({
+    actionId,
+    balance,
+  }: {
+    actionId: string;
+    balance: Asset;
+  }) => {
+    if (!actionId) {
+      return;
     }
 
-    return (
-      <>
-        {/* Native (XLM) balance */}
-        {sortedBalances.native.map((balance) => (
-          <div key={`${balance.token.code}:native`}>
-            <div>{`${balance.token.code}: ${balance.total || "0"}`}</div>
-            <div className="Inline">
-              <TextButton onClick={() => handleSend()}>Send</TextButton>
-            </div>
-          </div>
-        ))}
+    let props: AssetActionItem | undefined;
+    const defaultProps = {
+      assetString: balance.assetString,
+      balance,
+    };
 
-        {/* Other balances */}
-        {sortedBalances.other.map((balance) => (
-          <div key={`${balance.token.code}:${balance.token.issuer.key}`}>
-            <div>{`${balance.token.code}: ${balance.total || "0"}`}</div>
-            <div className="Inline">
-              <TextButton onClick={() => handleSend()}>Send</TextButton>
+    switch (actionId) {
+      case AssetActionId.SEND_PAYMENT:
+        props = {
+          ...defaultProps,
+          title: `Send ${balance.assetCode}`,
+          description: (
+            <p>
+              {`Send ${balance.assetCode} on-chain to another account.`}{" "}
+              <TextLink
+                href="https://developers.stellar.org/docs/tutorials/send-and-receive-payments/"
+                isExternal
+              >
+                Learn more
+              </TextLink>
+            </p>
+          ),
+          callback: onSend,
+        };
+        break;
+      case AssetActionId.SEP24_DEPOSIT:
+        props = {
+          ...defaultProps,
+          title: `SEP-24 deposit ${balance.assetCode} (with Trusted Asset)`,
+          description: `Start SEP-24 deposit of trusted asset ${balance.assetCode}?`,
+          callback: () => handleSep24Deposit(balance),
+        };
+        break;
+      case AssetActionId.SEP24_WITHDRAW:
+        props = {
+          ...defaultProps,
+          title: `SEP-24 withdrawal ${balance.assetCode}`,
+          description: `Start SEP-24 withdrawal of ${balance.assetCode}?`,
+          callback: () => handleSep24Withdraw(balance),
+        };
+        break;
+      case AssetActionId.SEP31_SEND:
+        props = {
+          ...defaultProps,
+          title: `SEP-31 send ${balance.assetCode}`,
+          description: `Start SEP-31 send to ${balance.assetCode}?`,
+          callback: () => handleSep31Send(balance),
+        };
+        break;
+      default:
+      // do nothing
+    }
 
-              <TextButton onClick={() => handleDeposit(balance)}>
-                Deposit
-              </TextButton>
-              <TextButton onClick={() => handleWithdraw(balance)}>
-                Withdraw
-              </TextButton>
-            </div>
-          </div>
-        ))}
-      </>
-    );
+    if (!props) {
+      return;
+    }
+
+    onAssetAction(props);
   };
 
+  const sortedBalances = groupBalances();
+
+  if (!sortedBalances) {
+    return null;
+  }
+
   return (
-    <div className="Block">
-      <Heading2>Balances</Heading2>
-      {renderBalances()}
-    </div>
+    <>
+      {/* Native (XLM) balance */}
+      {sortedBalances.native.map((balance) => (
+        <BalanceRow
+          key={balance.assetString}
+          activeAction={activeAsset.action}
+          asset={balance}
+          onAction={(actionId, asset) =>
+            handleAction({ actionId, balance: asset })
+          }
+        />
+      ))}
+
+      {/* Other balances */}
+      {sortedBalances.other.map((balance) => (
+        <BalanceRow
+          activeAction={activeAsset.action}
+          key={balance.assetString}
+          asset={balance}
+          onAction={(actionId, asset) =>
+            handleAction({ actionId, balance: asset })
+          }
+        />
+      ))}
+    </>
   );
 };

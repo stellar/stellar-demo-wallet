@@ -1,30 +1,41 @@
 import { useState, useEffect } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { TextButton } from "@stellar/design-system";
+import {
+  Heading1,
+  Loader,
+  TextButton,
+  TextButtonVariant,
+} from "@stellar/design-system";
 
-import { createRandomAccountAndFundIt } from "ducks/account";
-import { LoadAccount } from "components/LoadAccount";
-import { getNetworkSearchParam } from "helpers/getNetworkSearchParam";
-import { getSecretKeySearchParam } from "helpers/getSecretKeySearchParam";
+import { METRIC_NAMES } from "constants/metricNames";
+import { createRandomAccount } from "ducks/account";
+import { ConnectAccount } from "components/ConnectAccount";
+import { Modal } from "components/Modal";
+import { emitMetric } from "helpers/metrics";
+import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, SearchParams } from "types/types.d";
 
 export const Landing = () => {
-  const { settings, account } = useRedux("settings", "account");
-  const [isLoadAccountVisible, setIsLoadAccountVisible] = useState(false);
+  const { account } = useRedux("account");
+  const [
+    isConnectAccountModalVisible,
+    setIsConnectAccountModalVisible,
+  ] = useState(false);
 
   const dispatch = useDispatch();
   const location = useLocation();
   const history = useHistory();
 
   useEffect(() => {
+    emitMetric(METRIC_NAMES.viewHome);
+  }, []);
+
+  useEffect(() => {
     if (account.status === ActionStatus.SUCCESS && !account.isAuthenticated) {
       history.push(
-        getSecretKeySearchParam({
-          location,
-          secretKey: account.secretKey,
-        }),
+        searchParam.update(SearchParams.SECRET_KEY, account.secretKey),
       );
     }
   }, [
@@ -36,35 +47,44 @@ export const Landing = () => {
   ]);
 
   const handleCreateAccount = () => {
-    // TODO: handle loading state
-    dispatch(createRandomAccountAndFundIt());
-  };
-
-  const handleLoadAccount = () => {
-    setIsLoadAccountVisible(!isLoadAccountVisible);
-  };
-
-  const handleSwitchNetwork = () => {
-    history.push(
-      getNetworkSearchParam({
-        location,
-        pubnet: !settings.pubnet,
-      }),
-    );
+    // Make sure we are on testnet
+    history.push(searchParam.update(SearchParams.PUBNET, "false"));
+    dispatch(createRandomAccount());
   };
 
   return (
     <div className="Inset">
-      <div className="Block">
-        {!settings.pubnet && (
-          <TextButton onClick={handleCreateAccount}>Create Account</TextButton>
-        )}
-        <TextButton onClick={handleLoadAccount}>Load Account</TextButton>
-        {isLoadAccountVisible && <LoadAccount />}
-        <TextButton onClick={handleSwitchNetwork}>{`Use ${
-          settings.pubnet ? "Testnet" : "Pubnet"
-        }`}</TextButton>
+      <Heading1>Import or generate keypair</Heading1>
+
+      <div className="LandingButtons">
+        <TextButton
+          onClick={() => setIsConnectAccountModalVisible(true)}
+          variant={TextButtonVariant.secondary}
+          disabled={account.status === ActionStatus.PENDING}
+        >
+          Provide a secret key (testnet or mainnet)
+        </TextButton>
+
+        <div className="Inline">
+          <TextButton
+            onClick={handleCreateAccount}
+            variant={TextButtonVariant.secondary}
+            disabled={account.status === ActionStatus.PENDING}
+          >
+            Generate keypair for new account (testnet only)
+          </TextButton>
+
+          {!isConnectAccountModalVisible &&
+            account.status === ActionStatus.PENDING && <Loader />}
+        </div>
       </div>
+
+      <Modal
+        visible={isConnectAccountModalVisible}
+        onClose={() => setIsConnectAccountModalVisible(false)}
+      >
+        <ConnectAccount />
+      </Modal>
     </div>
   );
 };

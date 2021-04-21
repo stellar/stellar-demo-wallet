@@ -2,22 +2,29 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   Button,
-  ButtonVariant,
+  Heading2,
   InfoBlock,
   Input,
   Loader,
-  TextLink,
 } from "@stellar/design-system";
+import { TextLink } from "components/TextLink";
 import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
 import { fetchAccountAction } from "ducks/account";
+import { resetActiveAssetAction } from "ducks/activeAsset";
 import { sendPaymentAction, resetSendPaymentAction } from "ducks/sendPayment";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, Asset, AssetType } from "types/types.d";
 
-export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
+export const SendPayment = ({
+  asset,
+  onClose,
+}: {
+  asset?: Asset;
+  onClose: () => void;
+}) => {
   const { account, sendPayment, settings } = useRedux(
     "account",
     "sendPayment",
@@ -29,8 +36,8 @@ export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
   // Form data
   const [destination, setDestination] = useState("");
   const [amount, setAmount] = useState("");
-  const [assetCode, setAssetCode] = useState("");
-  const [assetIssuer, setAssetIssuer] = useState("");
+  const [assetCode, setAssetCode] = useState(asset?.assetCode);
+  const [assetIssuer, setAssetIssuer] = useState(asset?.assetIssuer || "");
   const [isDestinationFunded, setIsDestinationFunded] = useState(true);
 
   const resetFormState = () => {
@@ -50,9 +57,11 @@ export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
         }),
       );
       dispatch(resetSendPaymentAction());
+      dispatch(resetActiveAssetAction());
       resetFormState();
+      onClose();
     }
-  }, [sendPayment.status, secretKey, data?.id, dispatch]);
+  }, [sendPayment.status, secretKey, data?.id, dispatch, onClose]);
 
   const checkAndSetIsDestinationFunded = async () => {
     if (!destination || !StrKey.isValidEd25519PublicKey(destination)) {
@@ -60,9 +69,9 @@ export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
     }
 
     const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig(Boolean(settings.pubnet)).url,
+      serverUrl: getNetworkConfig(settings.pubnet).url,
       accountOrKey: destination,
-      networkPassphrase: getNetworkConfig(Boolean(settings.pubnet)).network,
+      networkPassphrase: getNetworkConfig(settings.pubnet).network,
     });
 
     setIsDestinationFunded(await dataProvider.isAccountFunded());
@@ -83,68 +92,72 @@ export const SendPayment = ({ onCancel }: { onCancel: () => void }) => {
     }
   };
 
-  // TODO: handle error
   return (
-    <div className="SendForm Block">
-      <Input
-        id="send-destination"
-        label="Destination"
-        value={destination}
-        onChange={(e) => setDestination(e.target.value)}
-        onBlur={() => {
-          checkAndSetIsDestinationFunded();
-        }}
-      />
-      <Input
-        id="send-amount"
-        label="Amount"
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
-      <Input
-        id="send-asset-code"
-        label="Asset code"
-        value={assetCode}
-        onChange={(e) => setAssetCode(e.target.value)}
-      />
-      <Input
-        id="send-asset-issuer"
-        label="Asset issuer"
-        value={assetIssuer}
-        onChange={(e) => setAssetIssuer(e.target.value)}
-      />
+    <>
+      <Heading2 className="ModalHeading">Send payment</Heading2>
 
-      {!isDestinationFunded && (
-        <InfoBlock>
-          The destination account doesn’t exist. A create account operation will
-          be used to create this account.{" "}
-          <TextLink
-            href="https://developers.stellar.org/docs/tutorials/create-account/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Learn more about account creation
-          </TextLink>
-        </InfoBlock>
+      <div className="ModalBody">
+        <Input
+          id="send-destination"
+          label="Destination"
+          value={destination}
+          onChange={(e) => setDestination(e.target.value)}
+          onBlur={() => {
+            checkAndSetIsDestinationFunded();
+          }}
+        />
+        <Input
+          id="send-amount"
+          label="Amount"
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
+        <Input
+          id="send-asset-code"
+          label="Asset code"
+          value={assetCode}
+          onChange={(e) => setAssetCode(e.target.value)}
+        />
+        {asset?.assetType !== AssetType.NATIVE && (
+          <Input
+            id="send-asset-issuer"
+            label="Asset issuer"
+            value={assetIssuer}
+            onChange={(e) => setAssetIssuer(e.target.value)}
+          />
+        )}
+
+        {!isDestinationFunded && (
+          <InfoBlock>
+            The destination account doesn’t exist. A create account operation
+            will be used to create this account.{" "}
+            <TextLink
+              href="https://developers.stellar.org/docs/tutorials/create-account/"
+              isExternal
+            >
+              Learn more about account creation
+            </TextLink>
+          </InfoBlock>
+        )}
+      </div>
+
+      {sendPayment.errorString && (
+        <div className="ModalMessage error">
+          <p>{sendPayment.errorString}</p>
+        </div>
       )}
 
-      <div className="SendFormButtons">
+      <div className="ModalButtonsFooter">
+        {sendPayment.status === ActionStatus.PENDING && <Loader />}
+
         <Button
           onClick={handleSubmit}
           disabled={sendPayment.status === ActionStatus.PENDING}
         >
           Submit
         </Button>
-        <Button
-          onClick={onCancel}
-          disabled={sendPayment.status === ActionStatus.PENDING}
-          variant={ButtonVariant.secondary}
-        >
-          Cancel
-        </Button>
-        {sendPayment.status === ActionStatus.PENDING && <Loader />}
       </div>
-    </div>
+    </>
   );
 };

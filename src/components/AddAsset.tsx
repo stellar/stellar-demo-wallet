@@ -1,113 +1,201 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, ButtonVariant, Input, Loader } from "@stellar/design-system";
-import { getIssuerFromDomain } from "helpers/getIssuerFromDomain";
-import { getUntrustedAssetsSearchParam } from "helpers/getUntrustedAssetsSearchParam";
+import {
+  Button,
+  Heading2,
+  InfoBlock,
+  InfoBlockVariant,
+  Loader,
+} from "@stellar/design-system";
+import { Input } from "components/Input";
+import { getErrorMessage } from "helpers/getErrorMessage";
+import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { getValidatedUntrustedAsset } from "helpers/getValidatedUntrustedAsset";
+import { searchParam } from "helpers/searchParam";
+import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, SearchParams } from "types/types.d";
+import { TextLink } from "./TextLink";
 
-export const AddAsset = ({ onCancel }: { onCancel: () => void }) => {
-  const { account, untrustedAssets } = useRedux("account", "untrustedAssets");
+export const AddAsset = ({ onClose }: { onClose: () => void }) => {
+  const { account, settings, untrustedAssets } = useRedux(
+    "account",
+    "settings",
+    "untrustedAssets",
+  );
 
+  const [isValidating, setIsValidating] = useState(false);
   // Form data
   const [assetCode, setAssetCode] = useState("");
   const [homeDomain, setHomeDomain] = useState("");
-  const [assetIssuer, setAssetIssuer] = useState("");
+  const [issuerPublicKey, setIssuerPublicKey] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const history = useHistory();
 
-  const resetFormState = () => {
+  const resetState = () => {
     setAssetCode("");
     setHomeDomain("");
-    setAssetIssuer("");
+    setIssuerPublicKey("");
     setErrorMessage("");
+    setIsValidating(false);
   };
+
+  useEffect(() => () => resetState(), []);
 
   useEffect(() => {
     if (untrustedAssets.status === ActionStatus.SUCCESS) {
-      resetFormState();
+      onClose();
     }
-  }, [untrustedAssets.status]);
+
+    if (untrustedAssets.errorString) {
+      setErrorMessage(untrustedAssets.errorString);
+    }
+  }, [untrustedAssets.status, untrustedAssets.errorString, onClose]);
 
   const handleSetUntrustedAsset = async () => {
     setErrorMessage("");
 
-    if (!assetCode && !(assetIssuer || homeDomain)) {
-      throw new Error("REQUIRED: asset code AND (home domain OR issuer)");
-    }
+    if (!(homeDomain || issuerPublicKey)) {
+      const errorMsg =
+        "Home domain OR issuer public key is required with asset code";
 
-    let asset;
-
-    if (assetIssuer) {
-      asset = `${assetCode}:${assetIssuer}`;
-    } else {
-      try {
-        const homeDomainIssuer = await getIssuerFromDomain({
-          assetCode,
-          homeDomain,
-        });
-
-        asset = `${assetCode}:${homeDomainIssuer}`;
-      } catch (e) {
-        console.log("Issuer domain error: ", e.toString());
-        setErrorMessage(e.toString());
-        return;
-      }
-    }
-
-    // Is asset already trusted
-    if (account.data?.balances[asset]) {
-      console.log(`Asset ${asset} is already trusted.`);
-      setErrorMessage(`Asset ${asset} is already trusted.`);
+      log.error({ title: errorMsg });
+      setErrorMessage(errorMsg);
       return;
     }
 
+    setIsValidating(true);
+
     try {
-      history.push(
-        getUntrustedAssetsSearchParam({
-          location,
-          asset,
-        }),
+      const asset = await getValidatedUntrustedAsset({
+        assetCode,
+        homeDomain,
+        issuerPublicKey,
+        accountBalances: account.data?.balances,
+        networkUrl: getNetworkConfig(settings.pubnet).url,
+      });
+
+      let search = searchParam.update(
+        SearchParams.UNTRUSTED_ASSETS,
+        `${asset.assetCode}:${asset.assetIssuer}`,
       );
+
+      if (asset.homeDomain) {
+        search = searchParam.updateKeyPair({
+          searchParam: SearchParams.ASSET_OVERRIDES,
+          itemId: `${asset.assetCode}:${asset.assetIssuer}`,
+          keyPairs: { homeDomain },
+          urlSearchParams: new URLSearchParams(search),
+        });
+      }
+
+      history.push(search);
+      setIsValidating(false);
     } catch (e) {
-      console.log("Add asset error: ", e.toString());
-      setErrorMessage(e.toString());
+      const errorMsg = getErrorMessage(e);
+
+      log.error({ title: errorMsg });
+      setErrorMessage(errorMsg);
+      setIsValidating(false);
     }
   };
 
-  return (
-    <div className="SendForm Block">
-      <Input
-        id="aa-asset-code"
-        label="Asset code"
-        onChange={(e) => setAssetCode(e.target.value)}
-        value={assetCode}
-        placeholder="ex. USD"
-      />
-      <Input
-        id="aa-home-domain"
-        label="Anchor home domain"
-        onChange={(e) => setHomeDomain(e.target.value)}
-        value={homeDomain}
-        placeholder="ex. example.com"
-      />
-      <Input
-        id="aa-asset-issuer"
-        label="Issuer public key"
-        onChange={(e) => setAssetIssuer(e.target.value)}
-        value={assetIssuer}
-      />
+  const isPending =
+    isValidating || untrustedAssets.status === ActionStatus.PENDING;
 
-      <div className="SendFormButtons">
-        <Button onClick={handleSetUntrustedAsset}>Submit</Button>
-        <Button onClick={onCancel} variant={ButtonVariant.secondary}>
-          Cancel
-        </Button>
-        {untrustedAssets.status === ActionStatus.PENDING && <Loader />}
+  return (
+    <>
+      {/* TODO: move to Modal component */}
+      <Heading2 className="ModalHeading">Add asset</Heading2>
+
+      <div className="ModalBody">
+        <p>Required: asset code AND (home domain OR issuer)</p>
+
+        <Input
+          id="aa-asset-code"
+          label="Asset code"
+          onChange={(e) => {
+            setErrorMessage("");
+            setAssetCode(e.target.value);
+          }}
+          value={assetCode}
+          placeholder="ex: USDC, EURT, NGNT"
+          tooltipText={
+            <>
+              Assets are identified by 1) their code and 2) either a home domain
+              or the public key of the issuing account.{" "}
+              <TextLink
+                href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/"
+                isExternal
+              >
+                Learn more
+              </TextLink>
+            </>
+          }
+        />
+
+        <Input
+          id="aa-home-domain"
+          label="Anchor home domain"
+          onChange={(e) => {
+            setErrorMessage("");
+            setHomeDomain(e.target.value);
+          }}
+          value={homeDomain}
+          placeholder="ex: example.com"
+          tooltipText={
+            <>
+              Domain where the well-known TOML file can be found for this asset.{" "}
+              <TextLink
+                href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/#what-is-a-stellartoml"
+                isExternal
+              >
+                Learn more
+              </TextLink>
+            </>
+          }
+        />
+
+        <Input
+          id="aa-public-key"
+          label="Issuer public key"
+          onChange={(e) => {
+            setErrorMessage("");
+            setIssuerPublicKey(e.target.value);
+          }}
+          value={issuerPublicKey}
+          placeholder="ex: GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B"
+          tooltipText={
+            <>
+              Public key for the Asset Issuer.{" "}
+              <TextLink
+                href="https://developers.stellar.org/docs/issuing-assets/how-to-issue-an-asset"
+                isExternal
+              >
+                Learn more
+              </TextLink>
+            </>
+          }
+        />
+
+        {errorMessage && (
+          <InfoBlock variant={InfoBlockVariant.error}>
+            <p>{errorMessage}</p>
+          </InfoBlock>
+        )}
       </div>
 
-      {errorMessage && <div className="Error">{errorMessage}</div>}
-    </div>
+      <div className="ModalButtonsFooter">
+        {isPending && <Loader />}
+
+        <Button
+          onClick={handleSetUntrustedAsset}
+          disabled={!assetCode || isPending}
+        >
+          Add
+        </Button>
+      </div>
+    </>
   );
 };

@@ -1,57 +1,24 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import StellarSdk from "stellar-sdk";
-
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
+import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
+import { getErrorMessage } from "helpers/getErrorMessage";
+import { getUntrustedAssetData } from "helpers/getUntrustedAssetData";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { log } from "helpers/log";
 import {
   ActionStatus,
   RejectMessage,
-  UntrustedAsset,
+  Asset,
   UntrustedAssetsInitialState,
 } from "types/types.d";
-
-const getAssetData = async (assets: string[], server: any) => {
-  let response: UntrustedAsset[] = [];
-
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < assets.length; i++) {
-    const assetString = assets[i];
-    const [assetCode, assetIssuer] = assetString.split(":");
-
-    // eslint-disable-next-line no-await-in-loop
-    const assetResponse = await server
-      .assets()
-      .forCode(assetCode)
-      .forIssuer(assetIssuer)
-      .call();
-
-    if (!assetResponse.records) {
-      console.log(`Asset ${assetString} does not exist.`);
-    } else {
-      response = [
-        ...response,
-        {
-          assetString,
-          assetCode,
-          assetIssuer,
-          balance: "0.0000000",
-          assetType: assetResponse.records[0].asset_type,
-          untrusted: true,
-        },
-      ];
-    }
-  }
-
-  return response;
-};
 
 const removeExistingAssets = ({
   assetsString,
   untrustedAssets,
 }: {
   assetsString: string;
-  untrustedAssets: UntrustedAsset[];
+  untrustedAssets: Asset[];
 }) => {
   const assetsArray = assetsString.split(",");
 
@@ -59,7 +26,6 @@ const removeExistingAssets = ({
     return assetsArray;
   }
 
-  // TODO: Log if already added
   const untrustedAssetsList = untrustedAssets.map((ua) => ua.assetString);
 
   return assetsArray.filter(
@@ -68,36 +34,64 @@ const removeExistingAssets = ({
 };
 
 export const addUntrustedAssetAction = createAsyncThunk<
-  UntrustedAsset[],
+  Asset[],
   string,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "untrustedAssets/addUntrustedAssetAction",
   async (assetsString, { rejectWithValue, getState }) => {
+    const { data: accountData } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
     const { data } = untrustedAssetsSelector(getState());
 
-    const assetsListToAdd = removeExistingAssets({
-      assetsString,
-      untrustedAssets: data,
-    });
+    try {
+      const assetsListToAdd = removeExistingAssets({
+        assetsString,
+        untrustedAssets: data,
+      });
 
-    if (!assetsListToAdd.length) {
-      rejectWithValue({
-        errorString: `No new assets to add.`,
+      if (!assetsListToAdd.length) {
+        return [];
+      }
+
+      log.instruction({ title: "Adding untrusted asset" });
+
+      let response;
+
+      try {
+        response = await getUntrustedAssetData({
+          assetsToAdd: assetsListToAdd,
+          accountAssets: accountData?.balances,
+          networkUrl: getNetworkConfig(pubnet).url,
+        });
+      } catch (error) {
+        throw new Error(error.message);
+      }
+
+      if (!response.length) {
+        log.instruction({ title: "No new assets to add" });
+        return [];
+      }
+
+      return response;
+    } catch (error) {
+      log.error({ title: error.toString() });
+      return rejectWithValue({
+        errorString: getErrorMessage(error),
       });
     }
+  },
+);
 
-    const server = new StellarSdk.Server(getNetworkConfig(Boolean(pubnet)).url);
-    const response = await getAssetData(assetsListToAdd, server);
-
-    if (!response.length) {
-      rejectWithValue({
-        errorString: `No new assets were added.`,
-      });
-    }
-
-    return response;
+export const removeUntrustedAssetAction = createAsyncThunk<
+  Asset[],
+  string,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "untrustedAssets/removeUntrustedAssetAction",
+  (removeAssetString, { getState }) => {
+    const { data } = untrustedAssetsSelector(getState());
+    return data.filter((ua) => ua.assetString !== removeAssetString);
   },
 );
 
@@ -111,8 +105,8 @@ const untrustedAssetsSlice = createSlice({
   name: "untrustedAssets",
   initialState,
   reducers: {
-    removeUntrustedAssetAction: (state, action: PayloadAction<string>) => {
-      state.data = state.data.filter((ua) => ua.assetString !== action.payload);
+    resetUntrustedAssetStatusAction: (state) => {
+      state.status = undefined;
     },
     resetUntrustedAssetsAction: () => initialState,
   },
@@ -128,6 +122,17 @@ const untrustedAssetsSlice = createSlice({
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
+    builder.addCase(
+      removeUntrustedAssetAction.pending,
+      (state = initialState) => {
+        state.status = ActionStatus.PENDING;
+      },
+    );
+    builder.addCase(removeUntrustedAssetAction.fulfilled, (state, action) => {
+      state.data = action.payload;
+      state.status = ActionStatus.SUCCESS;
+    });
   },
 });
 
@@ -136,6 +141,6 @@ export const untrustedAssetsSelector = (state: RootState) =>
 
 export const { reducer } = untrustedAssetsSlice;
 export const {
-  removeUntrustedAssetAction,
+  resetUntrustedAssetStatusAction,
   resetUntrustedAssetsAction,
 } = untrustedAssetsSlice.actions;
