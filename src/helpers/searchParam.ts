@@ -118,6 +118,8 @@ const updateKeyPair = ({
       [],
     );
 
+    // We're building URL string back together here. Example:
+    // SRT:GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B|homeDomain>testanchor.stellar.org|someKey>someValue
     queryParams.set(searchParam, updatedValuesString.join(","));
   } else {
     // Add new item
@@ -158,6 +160,8 @@ const removeKeyPair = ({
       [],
     );
 
+    // We're building URL string back together here. Example:
+    // SRT:GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B|homeDomain>testanchor.stellar.org|someKey>someValue
     queryParams.set(searchParam, updatedValuesString.join(","));
   } else {
     queryParams.delete(searchParam);
@@ -203,6 +207,7 @@ const getKeyPairString = (keyPairs: StringObject | SearchParamAsset) => {
     [],
   );
 
+  // Returns key>value|key1>value1
   return `${arr.join(URL_ITEM_SEPARATOR_CHAR)}`;
 };
 
