@@ -1,7 +1,7 @@
 # Stellar Demo Wallet
 
-This Stellar Demo Wallet app will soon be the defacto application to use when
-testing anchor services interactively. If you would live to automate testing of
+This Stellar Demo Wallet is our newly rebuilt application for
+interactively testing anchor services. If you would like to automate testing of
 your anchor service, check out the SDF's
 [anchor validation suite](https://github.com/stellar/transfer-server-validator)
 viewable at [anchor-validator.stellar.org](anchor-validator.stellar.org).
@@ -10,10 +10,29 @@ This project was originally created for the
 [Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/)
 tutorial series.
 ([That repo has since moved over here](https://github.com/stellar/docs-wallet)).
-If you want to use parts or all of the project to kickstart your own wallet,
-feel free to clone or copy any pieces which may be helpful.
 
-## Getting Started
+If you want to use parts or all of the project to kickstart your own wallet,
+feel free to clone or copy any pieces that may be helpful.
+
+## Getting A Test Account Up and Running
+
+You can use the demo wallet to test Hosted Deposit and Withdrawal (SEP-24) and Cross-Border Payments (SEP-31) with any home domain that has a Stellar Info File (also known as SEP-1, or a stellar.toml file). The instructions below are for demo-ing standard integrations supported by Stellar test server, testanchor.stellar.org. For both integrations, the logs to the right of the screen will show every network call. 
+
+### Demo-ing a Deposit on Testnet with Hosted Deposit and Withdrawal (SEP-24)
+1. Click "Generate keypair", and then click "Create account" - this will create a balance of 10,000 XLM.
+2. Click “Add asset” and add `SRT` (this stands for Stellar Reference Token, it’s our representation of XLM for the test server) with the anchor home domain `testanchor.stellar.org`.
+3. Click “Add trustline” - this will allow you to hold SRT.
+4. Select “SEP-24 deposit” from the dropdown for your SRT asset and click "Start" in the modal.
+5. You’ll be asked for some KYC info during this - it doesn’t have to be real, but the interface will want a valid email.
+6. Click “Skip confirmation” - skipping it won't be possible in live integrations but helps the process move ahead in the demo.
+7. Enter a number into the amount and click "Submit". 
+8. Leave the window open while you wait to see the deposit of SRT go through - you can close when you see “Status” is complete and you have SRT.
+
+### Demo-ing Cross-Border Payments (SEP-31) on Testnet
+1. Follow the steps above in order to establish an amount of SRT to send.
+2. Select “SEP-31 Send” from the dropdown for your SRT asset and click "Start" in the modal.
+
+## Getting Started Building A Wallet From This Demo
 
 To start building with this project clone this repo and install the deps:
 
