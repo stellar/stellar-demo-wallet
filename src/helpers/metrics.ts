@@ -15,7 +15,7 @@ let cache: event[] = [];
 const uploadMetrics = throttle(() => {
   const toUpload = cache;
   cache = [];
-  if (!process.env.AMPLITUDE_KEY) {
+  if (!process.env.REACT_APP_AMPLITUDE_KEY) {
     // eslint-disable-next-line no-console
     console.log("Not uploading metrics", toUpload);
     return;
@@ -26,7 +26,7 @@ const uploadMetrics = throttle(() => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      api_key: process.env.AMPLITUDE_KEY,
+      api_key: process.env.REACT_APP_AMPLITUDE_KEY,
       events: toUpload,
     }),
   });

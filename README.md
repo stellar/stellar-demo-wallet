@@ -41,9 +41,9 @@ yarn build
 - [x] Add config-by-url support
 - [x] Implement Claimable Balance support
 - [x] Add Pubnet Support
-- [ ] Improve UX
+- [x] Improve UX
 - [ ] Forward sep24.stellar.org traffic to demo-wallet.stellar.org
-- [ ] Implement SEP-31 support
+- [x] Implement SEP-31 support
 - [ ] Implement SEP-6 support
 
 ### Helpful links
