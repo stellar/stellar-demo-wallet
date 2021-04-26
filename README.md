@@ -32,7 +32,7 @@ You can use the demo wallet to test Hosted Deposit and Withdrawal (SEP-24) and C
 ### Demo-ing Cross-Border Payments (SEP-31) on Testnet
 1. Follow the steps above in order to establish an amount of SRT to send.
 2. Select “SEP-31 Send” from the dropdown for your SRT asset and click "Start" in the modal.
-3. Enter the requested information (none of it has to be real, this is only to show the fields that the sending anchor requires).
+3. Enter the requested information in the pop-up - none of the info has to be real for this testanchor.stellar.org demo, this is only to show the fields required. When testing another anchor you may need to adhere to their validation requirements.
 4. If the payment has been successfully sent you'll see "SEP-31 send payment completed" in the logs.
 
 ## Getting Started Building A Wallet From This Demo
