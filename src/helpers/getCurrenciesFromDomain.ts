@@ -1,16 +1,13 @@
 import { Asset, StellarTomlResolver } from "stellar-sdk";
+import { normalizeHomeDomainUrl } from "helpers/normalizeHomeDomainUrl";
 
 export const getCurrenciesFromDomain = async (
   homeDomain: string,
 ): Promise<Asset[]> => {
-  let domain = homeDomain;
-
-  domain = domain.startsWith("http") ? domain : `https://${domain}`;
-  domain = domain.replace(/\/$/, "");
-
   let domainURL;
+
   try {
-    domainURL = new URL(domain);
+    domainURL = normalizeHomeDomainUrl(homeDomain);
   } catch (e) {
     throw new Error("Anchor home domain is not a valid URL using HTTPS");
   }

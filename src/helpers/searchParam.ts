@@ -1,3 +1,7 @@
+import {
+  URL_ITEM_SEPARATOR_CHAR,
+  URL_KEY_PAIR_SEPARATOR_CHAR,
+} from "constants/settings";
 import { searchKeyPairStringToArray } from "helpers/searchKeyPairStringToArray";
 import { SearchParams, SearchParamAsset, StringObject } from "types/types.d";
 
@@ -107,17 +111,21 @@ const updateKeyPair = ({
     const updatedValuesString = updatedValuesArray.reduce(
       (result: string[], asset) => [
         ...result,
-        `${asset.assetString}:${getKeyPairString(asset)}`,
+        `${asset.assetString}${URL_ITEM_SEPARATOR_CHAR}${getKeyPairString(
+          asset,
+        )}`,
       ],
       [],
     );
 
+    // We're building URL string back together here. Example:
+    // SRT:GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B|homeDomain>testanchor.stellar.org|someKey>someValue
     queryParams.set(searchParam, updatedValuesString.join(","));
   } else {
     // Add new item
     const updatedValue = [
       ...valuesArray,
-      `${itemId}|${getKeyPairString(keyPairs)}`,
+      `${itemId}${URL_ITEM_SEPARATOR_CHAR}${getKeyPairString(keyPairs)}`,
     ].join(",");
 
     queryParams.set(searchParam, updatedValue);
@@ -145,11 +153,15 @@ const removeKeyPair = ({
     const updatedValuesString = assetsToKeep.reduce(
       (result: string[], asset) => [
         ...result,
-        `${asset.assetString}:${getKeyPairString(asset)}`,
+        `${asset.assetString}${URL_ITEM_SEPARATOR_CHAR}${getKeyPairString(
+          asset,
+        )}`,
       ],
       [],
     );
 
+    // We're building URL string back together here. Example:
+    // SRT:GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B|homeDomain>testanchor.stellar.org|someKey>someValue
     queryParams.set(searchParam, updatedValuesString.join(","));
   } else {
     queryParams.delete(searchParam);
@@ -187,7 +199,7 @@ const getKeyPairString = (keyPairs: StringObject | SearchParamAsset) => {
   const arr = Object.entries(keyPairs).reduce(
     (result: string[], [key, value]) => {
       if (key !== "assetString") {
-        return [...result, `${key}:${value}`];
+        return [...result, `${key}${URL_KEY_PAIR_SEPARATOR_CHAR}${value}`];
       }
 
       return result;
@@ -195,7 +207,8 @@ const getKeyPairString = (keyPairs: StringObject | SearchParamAsset) => {
     [],
   );
 
-  return `${arr.join("|")}`;
+  // Returns key>value|key1>value1
+  return `${arr.join(URL_ITEM_SEPARATOR_CHAR)}`;
 };
 
 export const searchParam = {

@@ -1,15 +1,8 @@
 import { StellarTomlResolver } from "stellar-sdk";
+import { normalizeHomeDomainUrl } from "helpers/normalizeHomeDomainUrl";
 
 export const getToml = async (homeDomain: string) => {
-  let homeDomainParam = homeDomain;
-
-  if (!homeDomainParam.startsWith("http")) {
-    homeDomainParam = `https://${homeDomainParam}`;
-  }
-
-  homeDomainParam = homeDomainParam.replace(/\/$/, "");
-
-  const tomlURL = new URL(homeDomainParam);
+  const tomlURL = normalizeHomeDomainUrl(homeDomain);
   tomlURL.pathname = "/.well-known/stellar.toml";
 
   const tomlResponse =
