@@ -9,6 +9,8 @@ import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep31SendAction,
   submitSep31SendTransactionAction,
+  setCustomerTypesAction,
+  fetchSendFieldsAction,
 } from "ducks/sep31Send";
 import { capitalizeString } from "helpers/capitalizeString";
 import { useRedux } from "hooks/useRedux";
@@ -17,10 +19,23 @@ import { ActionStatus } from "types/types.d";
 export const Sep31Send = () => {
   const { account, sep31Send } = useRedux("account", "sep31Send");
   const [formData, setFormData] = useState<any>({});
+  const [customerTypes, setCustomerTypes] = useState<{
+    sender: string;
+    receiver: string;
+  }>({
+    sender: "",
+    receiver: "",
+  });
 
   const dispatch = useDispatch();
 
   useEffect(() => {
+    if (sep31Send.status === ActionStatus.CAN_PROCEED) {
+      if (sep31Send.data.isTypeSelected) {
+        dispatch(fetchSendFieldsAction());
+      }
+    }
+
     if (sep31Send.status === ActionStatus.SUCCESS) {
       if (account.data?.id) {
         dispatch(
@@ -32,7 +47,13 @@ export const Sep31Send = () => {
         dispatch(resetSep31SendAction());
       }
     }
-  }, [sep31Send.status, account.data?.id, account.secretKey, dispatch]);
+  }, [
+    sep31Send.status,
+    sep31Send.data.isTypeSelected,
+    account.data?.id,
+    account.secretKey,
+    dispatch,
+  ]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
@@ -49,11 +70,31 @@ export const Sep31Send = () => {
     setFormData(updatedState);
   };
 
+  const handleTypeChange = (type: "sender" | "receiver", typeId: string) => {
+    const updatedTypes = {
+      ...customerTypes,
+      [type]: typeId,
+    };
+
+    setCustomerTypes(updatedTypes);
+  };
+
   const handleSubmit = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     event.preventDefault();
     dispatch(submitSep31SendTransactionAction({ ...formData }));
+  };
+
+  const handleSelectTypes = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    const { sender, receiver } = customerTypes;
+
+    event.preventDefault();
+    dispatch(
+      setCustomerTypesAction({ senderType: sender, receiverType: receiver }),
+    );
   };
 
   const handleClose = () => {
@@ -63,62 +104,103 @@ export const Sep31Send = () => {
 
   if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
     const { data } = sep31Send;
-    const { transaction, sender, receiver } = data.fields;
 
-    const allFields = {
-      amount: {
-        amount: {
-          description: "amount to send",
-        },
-      },
-      ...(sender ? { sender } : {}),
-      ...(receiver ? { receiver } : {}),
-      ...(transaction ? { transaction } : {}),
-    };
-
-    return (
+    // Select customer types
+    if (!data.isTypeSelected) {
       <Modal visible={true} onClose={handleClose}>
-        <Heading2
-          className="ModalHeading"
-          tooltipText={
-            <>
-              These are the fields the receiving anchor requires. The sending
-              client obtains them from the /customer endpoint.{" "}
-              <TextLink
-                href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
-                isExternal
-              >
-                Learn more
-              </TextLink>
-            </>
-          }
-        >
-          Sender and receiver info
-        </Heading2>
+        <Heading2 className="ModalHeading">Sender and receiver types</Heading2>
 
         <div className="ModalBody">
-          {Object.entries(allFields).map(([sectionTitle, sectionItems]) => (
-            <div className="vertical-spacing" key={sectionTitle}>
-              <Heading3>{capitalizeString(sectionTitle)}</Heading3>
-              {Object.entries(sectionItems || {}).map(([id, input]) => (
-                // TODO: if input.choices, render Select
-                <Input
-                  key={`${sectionTitle}#${id}`}
-                  id={`${sectionTitle}#${id}`}
-                  label={input.description}
-                  required={!input.optional}
-                  onChange={handleChange}
-                />
-              ))}
-            </div>
-          ))}
+          <div className="vertical-spacing">
+            <Heading3>Sender</Heading3>
+            {data.multipleSenderTypes?.map((sender) => (
+              <div
+                key={sender.type}
+                onClick={() => handleTypeChange("sender", sender.type)}
+              >
+                {sender.type}: {sender.description}
+              </div>
+            ))}
+          </div>
+
+          <div className="vertical-spacing">
+            <Heading3>Receiver</Heading3>
+            {data.multipleReceiverTypes?.map((receiver) => (
+              <div
+                key={receiver.type}
+                onClick={() => handleTypeChange("receiver", receiver.type)}
+              >
+                {receiver.type}: {receiver.description}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="ModalButtonsFooter">
-          <Button onClick={handleSubmit}>Submit</Button>
+          <Button onClick={handleSelectTypes}>Submit</Button>
         </div>
-      </Modal>
-    );
+      </Modal>;
+    }
+
+    // Data fields
+    if (data.isTypeSelected) {
+      const { transaction, sender, receiver } = data.fields;
+
+      const allFields = {
+        amount: {
+          amount: {
+            description: "amount to send",
+          },
+        },
+        ...(sender ? { sender } : {}),
+        ...(receiver ? { receiver } : {}),
+        ...(transaction ? { transaction } : {}),
+      };
+
+      return (
+        <Modal visible={true} onClose={handleClose}>
+          <Heading2
+            className="ModalHeading"
+            tooltipText={
+              <>
+                These are the fields the receiving anchor requires. The sending
+                client obtains them from the /customer endpoint.{" "}
+                <TextLink
+                  href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
+                  isExternal
+                >
+                  Learn more
+                </TextLink>
+              </>
+            }
+          >
+            Sender and receiver info
+          </Heading2>
+
+          <div className="ModalBody">
+            {Object.entries(allFields).map(([sectionTitle, sectionItems]) => (
+              <div className="vertical-spacing" key={sectionTitle}>
+                <Heading3>{capitalizeString(sectionTitle)}</Heading3>
+                {Object.entries(sectionItems || {}).map(([id, input]) => (
+                  // TODO: if input.choices, render Select
+                  <Input
+                    key={`${sectionTitle}#${id}`}
+                    id={`${sectionTitle}#${id}`}
+                    label={input.description}
+                    required={!input.optional}
+                    onChange={handleChange}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+
+          <div className="ModalButtonsFooter">
+            <Button onClick={handleSubmit}>Submit</Button>
+          </div>
+        </Modal>
+      );
+    }
   }
 
   return null;

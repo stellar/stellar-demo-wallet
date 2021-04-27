@@ -4,8 +4,8 @@ import { log } from "helpers/log";
 interface PutSep12FieldsProps {
   formData: any;
   secretKey: string;
-  senderSep12Memo: string;
-  receiverSep12Memo: string;
+  senderMemo: string;
+  receiverMemo: string;
   fields: any;
   token: string;
   kycServer: string;
@@ -14,8 +14,8 @@ interface PutSep12FieldsProps {
 export const putSep12Fields = async ({
   formData,
   secretKey,
-  senderSep12Memo,
-  receiverSep12Memo,
+  senderMemo,
+  receiverMemo,
   fields,
   token,
   kycServer,
@@ -33,7 +33,7 @@ export const putSep12Fields = async ({
     const resultJson = await putSep12FieldsRequest({
       secretKey,
       fields: formData.sender,
-      memo: senderSep12Memo,
+      memo: senderMemo,
       token,
       kycServer,
       isSender: true,
@@ -46,7 +46,7 @@ export const putSep12Fields = async ({
     const resultJson = await putSep12FieldsRequest({
       secretKey,
       fields: formData.receiver,
-      memo: receiverSep12Memo,
+      memo: receiverMemo,
       token,
       kycServer,
       isSender: false,

@@ -26,39 +26,43 @@ import {
   Asset,
   ActionStatus,
   AnyObject,
+  CustomerType,
   Sep31SendInitialState,
   RejectMessage,
   TomlFields,
 } from "types/types.d";
 
-interface FetchSendFieldsActionResponse {
+interface InitiateSendActionResponse {
+  publicKey: string;
+  homeDomain: string;
   assetCode: string;
   assetIssuer: string;
-  token: string;
   fields: {
-    transaction: any;
-    sender: any;
-    receiver: any;
+    transaction: AnyObject;
+    sender: {};
+    receiver: {};
   };
-  senderSep12Type: string;
-  receiverSep12Type: string;
-  senderSep12Memo: string;
-  receiverSep12Memo: string;
+  senderType: string | undefined;
+  receiverType: string | undefined;
+  multipleSenderTypes: CustomerType[] | undefined;
+  multipleReceiverTypes: CustomerType[] | undefined;
   authEndpoint: string;
   sendServer: string;
   kycServer: string;
+  serverSigningKey: string;
+  isTypeSelected: boolean;
 }
 
-export const fetchSendFieldsAction = createAsyncThunk<
-  FetchSendFieldsActionResponse,
+export const initiateSendAction = createAsyncThunk<
+  InitiateSendActionResponse,
   Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep31Send/fetchSendFieldsAction",
+  "sep31Send/initiateSendAction",
   async (asset, { rejectWithValue, getState }) => {
     try {
       const { pubnet } = settingsSelector(getState());
-      const { secretKey, data } = accountSelector(getState());
+      const { data } = accountSelector(getState());
       const networkConfig = getNetworkConfig(pubnet);
       const publicKey = data?.id;
 
@@ -98,6 +102,109 @@ export const fetchSendFieldsAction = createAsyncThunk<
       // Check info
       const infoResponse = await checkInfo({ assetCode, sendServer });
 
+      // If there are multiple sender or receiver types the status will be
+      // returned NEEDS_INPUT, which will show modal for user to select types.
+
+      return {
+        publicKey,
+        homeDomain,
+        assetCode,
+        assetIssuer,
+        fields: {
+          transaction: infoResponse.fields.transaction,
+          sender: {},
+          receiver: {},
+        },
+        senderType: infoResponse.senderType,
+        receiverType: infoResponse.receiverType,
+        multipleSenderTypes: infoResponse.multipleSenderTypes,
+        multipleReceiverTypes: infoResponse.multipleReceiverTypes,
+        authEndpoint,
+        sendServer,
+        kycServer,
+        serverSigningKey,
+        isTypeSelected: Boolean(
+          !infoResponse.multipleSenderTypes &&
+            !infoResponse.multipleReceiverTypes,
+        ),
+      };
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      log.error({
+        title: errorMessage,
+      });
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
+interface SetCustomerTypesActionResponse {
+  senderType: string | undefined;
+  receiverType: string | undefined;
+  isTypeSelected: boolean;
+}
+
+export const setCustomerTypesAction = createAsyncThunk<
+  SetCustomerTypesActionResponse,
+  { senderType: string; receiverType: string },
+  { rejectValue: RejectMessage; state: RootState }
+>("sep31Send/setCustomerTypesAction", ({ senderType, receiverType }) => {
+  if (senderType) {
+    log.instruction({
+      title: `Using \`${senderType}\` type for sending customers`,
+    });
+  }
+
+  if (receiverType) {
+    log.instruction({
+      title: `Using \`${receiverType}\` type for receiving customers`,
+    });
+  }
+
+  return {
+    senderType,
+    receiverType,
+    isTypeSelected: true,
+  };
+});
+
+interface FetchSendFieldsActionResponse {
+  token: string;
+  fields: {
+    transaction: AnyObject;
+    sender: AnyObject;
+    receiver: AnyObject;
+  };
+  senderMemo: string;
+  receiverMemo: string;
+}
+
+export const fetchSendFieldsAction = createAsyncThunk<
+  FetchSendFieldsActionResponse,
+  undefined,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep31Send/fetchSendFieldsAction",
+  async (_, { rejectWithValue, getState }) => {
+    try {
+      const { pubnet } = settingsSelector(getState());
+      const { secretKey } = accountSelector(getState());
+      const { data } = sep31SendSelector(getState());
+      const networkConfig = getNetworkConfig(pubnet);
+
+      const {
+        authEndpoint,
+        serverSigningKey,
+        publicKey,
+        homeDomain,
+        kycServer,
+        senderType,
+        receiverType,
+        fields,
+      } = data;
+
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint,
@@ -122,10 +229,10 @@ export const fetchSendFieldsAction = createAsyncThunk<
       // Get SEP-12 fields
       const sep12Fields = await getSep12Fields({
         kycServer,
-        publicKey: data!.id,
+        publicKey,
         token,
-        senderSep12Type: infoResponse.senderSep12Type,
-        receiverSep12Type: infoResponse.receiverSep12Type,
+        senderType,
+        receiverType,
       });
 
       // Show form to collect input data for fields
@@ -135,21 +242,14 @@ export const fetchSendFieldsAction = createAsyncThunk<
       });
 
       return {
-        assetCode,
-        assetIssuer,
         token,
         fields: {
-          transaction: infoResponse.fields.transaction,
-          sender: sep12Fields.senderSep12Fields,
-          receiver: sep12Fields.receiverSep12Fields,
+          transaction: fields.transaction,
+          sender: sep12Fields.senderSep12Fields || {},
+          receiver: sep12Fields.receiverSep12Fields || {},
         },
-        senderSep12Type: infoResponse.senderSep12Type,
-        receiverSep12Type: infoResponse.receiverSep12Type,
-        senderSep12Memo: sep12Fields.info.senderSep12Memo,
-        receiverSep12Memo: sep12Fields.info.receiverSep12Memo,
-        authEndpoint,
-        sendServer,
-        kycServer,
+        senderMemo: sep12Fields.info.senderSep12Memo,
+        receiverMemo: sep12Fields.info.receiverSep12Memo,
       };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
@@ -191,8 +291,8 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
         assetIssuer,
         kycServer,
         sendServer,
-        senderSep12Memo,
-        receiverSep12Memo,
+        senderMemo,
+        receiverMemo,
         fields,
       } = data;
 
@@ -201,8 +301,8 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
         fields,
         formData: { sender, receiver },
         secretKey,
-        senderSep12Memo,
-        receiverSep12Memo,
+        senderMemo,
+        receiverMemo,
         kycServer,
         token,
       });
@@ -266,6 +366,8 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
 
 const initialState: Sep31SendInitialState = {
   data: {
+    publicKey: "",
+    homeDomain: "",
     assetCode: "",
     assetIssuer: "",
     token: "",
@@ -274,13 +376,17 @@ const initialState: Sep31SendInitialState = {
       sender: {},
       receiver: {},
     },
-    senderSep12Type: "",
-    receiverSep12Type: "",
-    senderSep12Memo: "",
-    receiverSep12Memo: "",
+    isTypeSelected: false,
+    senderType: undefined,
+    receiverType: undefined,
+    senderMemo: "",
+    receiverMemo: "",
+    multipleSenderTypes: undefined,
+    multipleReceiverTypes: undefined,
     authEndpoint: "",
     sendServer: "",
     kycServer: "",
+    serverSigningKey: "",
   },
   errorString: undefined,
   status: undefined,
@@ -293,11 +399,35 @@ const sep31SendSlice = createSlice({
     resetSep31SendAction: () => initialState,
   },
   extraReducers: (builder) => {
+    builder.addCase(initiateSendAction.pending, (state = initialState) => {
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(initiateSendAction.fulfilled, (state, action) => {
+      state.data = { ...state.data, ...action.payload };
+      state.status =
+        action.payload.multipleSenderTypes ||
+        action.payload.multipleReceiverTypes
+          ? ActionStatus.NEEDS_INPUT
+          : ActionStatus.CAN_PROCEED;
+    });
+    builder.addCase(initiateSendAction.rejected, (state, action) => {
+      state.errorString = action.payload?.errorString;
+      state.status = ActionStatus.ERROR;
+    });
+
+    builder.addCase(setCustomerTypesAction.pending, (state = initialState) => {
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(setCustomerTypesAction.fulfilled, (state, action) => {
+      state.data = { ...state.data, ...action.payload };
+      state.status = ActionStatus.CAN_PROCEED;
+    });
+
     builder.addCase(fetchSendFieldsAction.pending, (state = initialState) => {
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(fetchSendFieldsAction.fulfilled, (state, action) => {
-      state.data = action.payload;
+      state.data = { ...state.data, ...action.payload };
       state.status = ActionStatus.NEEDS_INPUT;
     });
     builder.addCase(fetchSendFieldsAction.rejected, (state, action) => {
