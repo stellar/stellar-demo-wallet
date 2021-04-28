@@ -26,7 +26,7 @@ import {
   Asset,
   ActionStatus,
   AnyObject,
-  CustomerType,
+  CustomerTypeItem,
   Sep31SendInitialState,
   RejectMessage,
   TomlFields,
@@ -44,8 +44,8 @@ interface InitiateSendActionResponse {
   };
   senderType: string | undefined;
   receiverType: string | undefined;
-  multipleSenderTypes: CustomerType[] | undefined;
-  multipleReceiverTypes: CustomerType[] | undefined;
+  multipleSenderTypes: CustomerTypeItem[] | undefined;
+  multipleReceiverTypes: CustomerTypeItem[] | undefined;
   authEndpoint: string;
   sendServer: string;
   kycServer: string;

@@ -17,6 +17,11 @@ import { capitalizeString } from "helpers/capitalizeString";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
+enum CustomerType {
+  SENDER = "sender",
+  RECEIVER = "receiver",
+}
+
 export const Sep31Send = () => {
   const { account, sep31Send } = useRedux("account", "sep31Send");
   const [formData, setFormData] = useState<any>({});
@@ -79,7 +84,7 @@ export const Sep31Send = () => {
     setFormData(updatedState);
   };
 
-  const handleTypeChange = (type: "sender" | "receiver", typeId: string) => {
+  const handleTypeChange = (type: CustomerType, typeId: string) => {
     const updatedTypes = {
       ...customerTypes,
       [type]: typeId,
@@ -134,7 +139,9 @@ export const Sep31Send = () => {
               <Heading3>Sender</Heading3>
               {data.multipleSenderTypes?.map((sender) => (
                 <RadioButton
-                  onChange={() => handleTypeChange("sender", sender.type)}
+                  onChange={() =>
+                    handleTypeChange(CustomerType.SENDER, sender.type)
+                  }
                   key={sender.type}
                   id={sender.type}
                   value={sender.type}
@@ -152,7 +159,9 @@ export const Sep31Send = () => {
               <Heading3>Receiver</Heading3>
               {data.multipleReceiverTypes?.map((receiver) => (
                 <RadioButton
-                  onChange={() => handleTypeChange("receiver", receiver.type)}
+                  onChange={() =>
+                    handleTypeChange(CustomerType.RECEIVER, receiver.type)
+                  }
                   key={receiver.type}
                   id={receiver.type}
                   value={receiver.type}

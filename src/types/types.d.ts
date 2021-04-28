@@ -155,7 +155,7 @@ export interface NestedStringObject {
   };
 }
 
-export interface CustomerType {
+export interface CustomerTypeItem {
   type: string;
   description: string;
 }
@@ -177,8 +177,8 @@ export interface Sep31SendInitialState {
     receiverType: string | undefined;
     senderMemo: string;
     receiverMemo: string;
-    multipleSenderTypes: CustomerType[] | undefined;
-    multipleReceiverTypes: CustomerType[] | undefined;
+    multipleSenderTypes: CustomerTypeItem[] | undefined;
+    multipleReceiverTypes: CustomerTypeItem[] | undefined;
     authEndpoint: string;
     sendServer: string;
     kycServer: string;
