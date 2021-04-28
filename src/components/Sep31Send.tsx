@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Input } from "@stellar/design-system";
 import { Heading2, Heading3 } from "components/Heading";
-import { TextLink } from "components/TextLink";
 import { Modal } from "components/Modal";
+import { RadioButton } from "components/RadioButton";
+import { TextLink } from "components/TextLink";
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -19,6 +20,7 @@ import { ActionStatus } from "types/types.d";
 export const Sep31Send = () => {
   const { account, sep31Send } = useRedux("account", "sep31Send");
   const [formData, setFormData] = useState<any>({});
+  const [errorMessage, setErrorMessage] = useState("");
   const [customerTypes, setCustomerTypes] = useState<{
     sender: string;
     receiver: string;
@@ -38,6 +40,7 @@ export const Sep31Send = () => {
 
     if (sep31Send.status === ActionStatus.SUCCESS) {
       if (account.data?.id) {
+        resetLocalState();
         dispatch(
           fetchAccountAction({
             publicKey: account.data.id,
@@ -54,6 +57,12 @@ export const Sep31Send = () => {
     account.secretKey,
     dispatch,
   ]);
+
+  const resetLocalState = () => {
+    setErrorMessage("");
+    setCustomerTypesAction({ senderType: "", receiverType: "" });
+    setFormData({});
+  };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
@@ -89,15 +98,22 @@ export const Sep31Send = () => {
   const handleSelectTypes = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
+    setErrorMessage("");
     const { sender, receiver } = customerTypes;
-
     event.preventDefault();
+
+    if (!sender || !receiver) {
+      setErrorMessage("Sender and receiver types are required");
+      return;
+    }
+
     dispatch(
       setCustomerTypesAction({ senderType: sender, receiverType: receiver }),
     );
   };
 
   const handleClose = () => {
+    resetLocalState();
     dispatch(resetSep31SendAction());
     dispatch(resetActiveAssetAction());
   };
@@ -107,39 +123,57 @@ export const Sep31Send = () => {
 
     // Select customer types
     if (!data.isTypeSelected) {
-      <Modal visible={true} onClose={handleClose}>
-        <Heading2 className="ModalHeading">Sender and receiver types</Heading2>
+      return (
+        <Modal visible={true} onClose={handleClose}>
+          <Heading2 className="ModalHeading">
+            Sender and receiver types
+          </Heading2>
 
-        <div className="ModalBody">
-          <div className="vertical-spacing">
-            <Heading3>Sender</Heading3>
-            {data.multipleSenderTypes?.map((sender) => (
-              <div
-                key={sender.type}
-                onClick={() => handleTypeChange("sender", sender.type)}
-              >
-                {sender.type}: {sender.description}
-              </div>
-            ))}
+          <div className="ModalBody">
+            <div>
+              <Heading3>Sender</Heading3>
+              {data.multipleSenderTypes?.map((sender) => (
+                <RadioButton
+                  onChange={() => handleTypeChange("sender", sender.type)}
+                  key={sender.type}
+                  id={sender.type}
+                  value={sender.type}
+                  name="customer-sender"
+                  label={
+                    <span className="inline-block">
+                      <code>{sender.type}</code> {sender.description}
+                    </span>
+                  }
+                />
+              ))}
+            </div>
+
+            <div>
+              <Heading3>Receiver</Heading3>
+              {data.multipleReceiverTypes?.map((receiver) => (
+                <RadioButton
+                  onChange={() => handleTypeChange("receiver", receiver.type)}
+                  key={receiver.type}
+                  id={receiver.type}
+                  value={receiver.type}
+                  name="customer-receiver"
+                  label={
+                    <span className="inline-block">
+                      <code>{receiver.type}</code> {receiver.description}
+                    </span>
+                  }
+                />
+              ))}
+            </div>
+
+            {errorMessage && <p className="error">{errorMessage}</p>}
           </div>
 
-          <div className="vertical-spacing">
-            <Heading3>Receiver</Heading3>
-            {data.multipleReceiverTypes?.map((receiver) => (
-              <div
-                key={receiver.type}
-                onClick={() => handleTypeChange("receiver", receiver.type)}
-              >
-                {receiver.type}: {receiver.description}
-              </div>
-            ))}
+          <div className="ModalButtonsFooter">
+            <Button onClick={handleSelectTypes}>Submit</Button>
           </div>
-        </div>
-
-        <div className="ModalButtonsFooter">
-          <Button onClick={handleSelectTypes}>Submit</Button>
-        </div>
-      </Modal>;
+        </Modal>
+      );
     }
 
     // Data fields

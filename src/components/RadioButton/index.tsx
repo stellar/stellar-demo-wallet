@@ -3,7 +3,7 @@ import "./styles.scss";
 
 interface RadioButtonProps extends React.InputHTMLAttributes<HTMLInputElement> {
   id: string;
-  label: string;
+  label: string | React.ReactNode;
 }
 
 export const RadioButton = ({ id, label, ...props }: RadioButtonProps) => (
