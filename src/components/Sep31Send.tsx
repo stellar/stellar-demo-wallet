@@ -130,11 +130,18 @@ export const Sep31Send = () => {
     if (!data.isTypeSelected) {
       return (
         <Modal visible={true} onClose={handleClose}>
-          <Heading2 className="ModalHeading">
-            Sender and receiver types
-          </Heading2>
+          <Heading2>Customer Types</Heading2>
 
           <div className="ModalBody">
+            <p>
+              Receiving anchors are required to collect Know Your Customer (KYC)
+              information on the customers involved in a transaction. Each type
+              described below corresponds to a different set of KYC values the
+              anchor will request the sending anchor to provide. This demo
+              wallet, which acts as a sending anchor, will provide you a form to
+              enter the fields corresponding to the type selected.
+            </p>
+
             <div>
               <Heading3>Sender</Heading3>
               {data.multipleSenderTypes?.map((sender) => (
@@ -153,6 +160,12 @@ export const Sep31Send = () => {
                   }
                 />
               ))}
+
+              {data.senderType && (
+                <p>
+                  <code>{data.senderType}</code> was automatically selected
+                </p>
+              )}
             </div>
 
             <div>
@@ -173,6 +186,12 @@ export const Sep31Send = () => {
                   }
                 />
               ))}
+
+              {data.receiverType && (
+                <p>
+                  <code>{data.receiverType}</code> was automatically selected
+                </p>
+              )}
             </div>
 
             {errorMessage && <p className="error">{errorMessage}</p>}
