@@ -34,6 +34,7 @@ export const Sep31Send = () => {
     receiver: "",
   });
 
+  const { data } = sep31Send;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -107,8 +108,11 @@ export const Sep31Send = () => {
     const { sender, receiver } = customerTypes;
     event.preventDefault();
 
-    if (!sender || !receiver) {
-      setErrorMessage("Sender and receiver types are required");
+    if (
+      (data.multipleSenderTypes?.length && !sender) ||
+      (data.multipleReceiverTypes?.length && !receiver)
+    ) {
+      setErrorMessage("Please select sender/receiver type");
       return;
     }
 
@@ -123,9 +127,71 @@ export const Sep31Send = () => {
     dispatch(resetActiveAssetAction());
   };
 
-  if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
-    const { data } = sep31Send;
+  const renderSenderOptions = () => {
+    // Sender type pre-selected
+    if (data.senderType) {
+      return (
+        <p>
+          <code>{data.senderType}</code> was automatically selected
+        </p>
+      );
+    }
 
+    // No sender type required
+    if (!data.senderType && !data.multipleSenderTypes?.length) {
+      return <p>Sender type is not required</p>;
+    }
+
+    // Multiple sender types
+    return data.multipleSenderTypes?.map((sender) => (
+      <RadioButton
+        onChange={() => handleTypeChange(CustomerType.SENDER, sender.type)}
+        key={sender.type}
+        id={sender.type}
+        value={sender.type}
+        name="customer-sender"
+        label={
+          <span className="inline-block">
+            <code>{sender.type}</code> {sender.description}
+          </span>
+        }
+      />
+    ));
+  };
+
+  const renderReceiverOptions = () => {
+    // Receiver type pre-selected
+    if (data.receiverType) {
+      return (
+        <p>
+          <code>{data.receiverType}</code> was automatically selected
+        </p>
+      );
+    }
+
+    // No receiver type required
+    if (!data.receiverType && !data.multipleReceiverTypes?.length) {
+      return <p>Receiver type is not required</p>;
+    }
+
+    // Multiple receiver types
+    return data.multipleReceiverTypes?.map((receiver) => (
+      <RadioButton
+        onChange={() => handleTypeChange(CustomerType.RECEIVER, receiver.type)}
+        key={receiver.type}
+        id={receiver.type}
+        value={receiver.type}
+        name="customer-receiver"
+        label={
+          <span className="inline-block">
+            <code>{receiver.type}</code> {receiver.description}
+          </span>
+        }
+      />
+    ));
+  };
+
+  if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
     // Select customer types
     if (!data.isTypeSelected) {
       return (
@@ -144,54 +210,12 @@ export const Sep31Send = () => {
 
             <div>
               <Heading3>Sender</Heading3>
-              {data.multipleSenderTypes?.map((sender) => (
-                <RadioButton
-                  onChange={() =>
-                    handleTypeChange(CustomerType.SENDER, sender.type)
-                  }
-                  key={sender.type}
-                  id={sender.type}
-                  value={sender.type}
-                  name="customer-sender"
-                  label={
-                    <span className="inline-block">
-                      <code>{sender.type}</code> {sender.description}
-                    </span>
-                  }
-                />
-              ))}
-
-              {data.senderType && (
-                <p>
-                  <code>{data.senderType}</code> was automatically selected
-                </p>
-              )}
+              {renderSenderOptions()}
             </div>
 
             <div>
               <Heading3>Receiver</Heading3>
-              {data.multipleReceiverTypes?.map((receiver) => (
-                <RadioButton
-                  onChange={() =>
-                    handleTypeChange(CustomerType.RECEIVER, receiver.type)
-                  }
-                  key={receiver.type}
-                  id={receiver.type}
-                  value={receiver.type}
-                  name="customer-receiver"
-                  label={
-                    <span className="inline-block">
-                      <code>{receiver.type}</code> {receiver.description}
-                    </span>
-                  }
-                />
-              ))}
-
-              {data.receiverType && (
-                <p>
-                  <code>{data.receiverType}</code> was automatically selected
-                </p>
-              )}
+              {renderReceiverOptions()}
             </div>
 
             {errorMessage && <p className="error">{errorMessage}</p>}
