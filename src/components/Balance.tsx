@@ -2,7 +2,7 @@ import { useDispatch } from "react-redux";
 import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
-import { fetchSendFieldsAction } from "ducks/sep31Send";
+import { initiateSendAction } from "ducks/sep31Send";
 import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
 import {
@@ -70,7 +70,7 @@ export const Balance = ({
   };
 
   const handleSep31Send = (asset: Asset) => {
-    dispatch(fetchSendFieldsAction(asset));
+    dispatch(initiateSendAction(asset));
   };
 
   const handleAction = ({

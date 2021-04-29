@@ -3,15 +3,15 @@ import { log } from "helpers/log";
 
 export const getSep12Fields = async ({
   kycServer,
-  receiverSep12Type,
+  receiverType,
   publicKey,
-  senderSep12Type,
+  senderType,
   token,
 }: {
   kycServer: string;
-  receiverSep12Type: string;
+  receiverType: string | undefined;
   publicKey: string;
-  senderSep12Type: string;
+  senderType: string | undefined;
   token: string;
 }) => {
   log.instruction({
@@ -27,11 +27,11 @@ export const getSep12Fields = async ({
     },
   };
 
-  if (senderSep12Type) {
+  if (senderType) {
     const memo = crypto.randomBytes(32).toString("base64");
 
     result.senderSep12Fields = await collectSep12Fields({
-      type: senderSep12Type,
+      type: senderType,
       memo,
       publicKey,
       token,
@@ -41,11 +41,11 @@ export const getSep12Fields = async ({
     result.info.senderSep12Memo = memo;
   }
 
-  if (receiverSep12Type) {
+  if (receiverType) {
     const memo = crypto.randomBytes(32).toString("base64");
 
     result.receiverSep12Fields = await collectSep12Fields({
-      type: receiverSep12Type,
+      type: receiverType,
       memo,
       publicKey,
       token,

@@ -155,8 +155,15 @@ export interface NestedStringObject {
   };
 }
 
+export interface CustomerTypeItem {
+  type: string;
+  description: string;
+}
+
 export interface Sep31SendInitialState {
   data: {
+    publicKey: string;
+    homeDomain: string;
     assetCode: string;
     assetIssuer: string;
     token: string;
@@ -165,13 +172,17 @@ export interface Sep31SendInitialState {
       sender: AnyObject;
       receiver: AnyObject;
     };
-    senderSep12Type: string;
-    receiverSep12Type: string;
-    senderSep12Memo: string;
-    receiverSep12Memo: string;
+    isTypeSelected: boolean;
+    senderType: string | undefined;
+    receiverType: string | undefined;
+    senderMemo: string;
+    receiverMemo: string;
+    multipleSenderTypes: CustomerTypeItem[] | undefined;
+    multipleReceiverTypes: CustomerTypeItem[] | undefined;
     authEndpoint: string;
     sendServer: string;
     kycServer: string;
+    serverSigningKey: string;
   };
   errorString?: string;
   status: ActionStatus | undefined;
@@ -245,6 +256,7 @@ export enum ActionStatus {
   PENDING = "PENDING",
   SUCCESS = "SUCCESS",
   NEEDS_INPUT = "NEEDS_INPUT",
+  CAN_PROCEED = "CAN_PROCEED",
 }
 
 export interface RejectMessage {

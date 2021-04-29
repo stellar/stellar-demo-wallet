@@ -43,59 +43,82 @@ export const checkInfo = async ({
     throw new Error("No `transaction` object specified in `fields`");
   }
 
-  let senderSep12Type;
-  let receiverSep12Type;
+  let senderType;
+  let receiverType;
+  let multipleSenderTypes;
+  let multipleReceiverTypes;
 
   if (asset.sep12) {
-    if (asset.sep12.sender.types) {
-      const senderTypes = Object.keys(asset.sep12.sender.types);
-      senderSep12Type = senderTypes[0];
+    // Sender
+    if (asset.sep12.sender?.types) {
+      const _senderTypes = Object.keys(asset.sep12.sender.types);
 
-      log.instruction({
-        title: "Found the following customer types for senders",
-        body: `${senderTypes.join(", ")}`,
-      });
+      if (_senderTypes.length === 1) {
+        senderType = _senderTypes[0];
 
-      log.instruction({
-        title: `Using \`${senderTypes[0]}\` ${
-          asset.sep12.sender.types[senderTypes[0]].description
-        }`,
-      });
+        log.instruction({
+          title: `Using \`${senderType}\` ${asset.sep12.sender.types[senderType].description}`,
+        });
+      } else if (_senderTypes.length) {
+        multipleSenderTypes = _senderTypes.map((s) => ({
+          type: s,
+          description: asset.sep12.sender.types[s].description,
+        }));
+
+        log.instruction({
+          title: "Found multiple customer types for senders",
+          body: `${_senderTypes.join(", ")}`,
+        });
+      }
     }
 
-    if (asset.sep12.receiver.types) {
-      const receiverTypes = Object.keys(asset.sep12.receiver.types);
-      receiverSep12Type = receiverTypes[0];
+    // Receiver
+    if (asset.sep12.receiver?.types) {
+      const _receiverTypes = Object.keys(asset.sep12.receiver.types);
 
-      log.instruction({
-        title: "Found the following customer types for senders",
-        body: `${receiverTypes.join(", ")}`,
-      });
+      if (_receiverTypes.length === 1) {
+        receiverType = _receiverTypes[0];
 
-      log.instruction({
-        title: `Using \`${receiverTypes[0]}\` ${
-          asset.sep12.receiver.types[receiverTypes[0]].description
-        }`,
-      });
+        log.instruction({
+          title: `Using \`${receiverType}\` ${asset.sep12.receiver.types[receiverType].description}`,
+        });
+      } else if (_receiverTypes.length) {
+        multipleReceiverTypes = _receiverTypes.map((r) => ({
+          type: r,
+          description: asset.sep12.receiver.types[r].description,
+        }));
+
+        log.instruction({
+          title: "Found multiple customer types for receivers",
+          body: `${_receiverTypes.join(", ")}`,
+        });
+      }
     }
   } else {
-    senderSep12Type = asset.sender_sep12_type;
-    receiverSep12Type = asset.receiver_sep12_type;
+    if (asset.sender_sep12_type) {
+      senderType = asset.sender_sep12_type;
 
-    if (senderSep12Type) {
       log.instruction({
-        title: `Using \`${senderSep12Type}\` type for sending customers`,
+        title: `Using \`${senderType}\` type for sending customers`,
+      });
+    }
+
+    if (asset.receiver_sep12_type) {
+      receiverType = asset.receiver_sep12_type;
+
+      log.instruction({
+        title: `Using \`${receiverType}\` type for receiving customers`,
       });
     }
   }
 
-  if (!senderSep12Type) {
+  if (!senderType && !multipleSenderTypes) {
     log.instruction({
       title: "The anchor does not require KYC for sending customers",
     });
   }
 
-  if (!receiverSep12Type) {
+  if (!receiverType && !multipleReceiverTypes) {
     log.instruction({
       title: "The anchor does not require KYC for receiving customers",
     });
@@ -109,7 +132,9 @@ export const checkInfo = async ({
 
   return {
     fields: asset.fields,
-    senderSep12Type,
-    receiverSep12Type,
+    senderType,
+    receiverType,
+    multipleSenderTypes,
+    multipleReceiverTypes,
   };
 };
