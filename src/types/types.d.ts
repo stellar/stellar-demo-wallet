@@ -54,6 +54,7 @@ export interface SearchParamAsset {
 
 export interface AssetSupportedActions {
   sep6?: boolean;
+  sep8?: boolean;
   sep24?: boolean;
   sep31?: boolean;
 }
