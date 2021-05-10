@@ -47,7 +47,7 @@ export const getAssetSettingsFromToml = async ({
 
     supportedActions = {
       sep6: Boolean(TRANSFER_SERVER),
-      sep8: isSEP8Asset({ assetId, currencies: CURRENCIES }),
+      sep8: isSep8Asset({ assetId, currencies: CURRENCIES }),
       sep24: Boolean(TRANSFER_SERVER_SEP0024),
       sep31: Boolean(DIRECT_PAYMENT_SERVER),
     };
@@ -59,7 +59,7 @@ export const getAssetSettingsFromToml = async ({
   };
 };
 
-const isSEP8Asset = ({
+const isSep8Asset = ({
   currencies,
   assetId,
 }: {
