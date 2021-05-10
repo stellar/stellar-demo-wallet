@@ -254,6 +254,18 @@ code {
     &.active {
       background-color: #dfd8ff;
     }
+
+    .RegulatedInfo {
+      display: flex;
+      align-items: center;
+      position: relative;
+
+      .InfoButtonTooltip {
+        right: 50%;
+        transform: translateX(50%);
+        text-align: left;
+      }
+    }
   }
 
   .BalanceCell {

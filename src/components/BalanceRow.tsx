@@ -10,7 +10,7 @@ import {
   AssetType,
   ClaimableAsset,
 } from "types/types.d";
-import { InfoButtonWithTooltip } from "./InfoButtonWithTooltip";
+import { InfoButtonWithTooltip } from "components/InfoButtonWithTooltip";
 
 interface BalanceRowProps {
   activeAction: ActiveAssetAction | undefined;
@@ -88,6 +88,25 @@ export const BalanceRow = ({
           </>
         )}
       </div>
+
+      {supportedActions?.sep8 && (
+        <div className="RegulatedInfo">
+          <span>Regulated</span>
+          <InfoButtonWithTooltip>
+            {
+              "Payments with regulated assets need to be approved by the asset issuer. For more information please refer to "
+            }
+            <TextLink
+              href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md"
+              isExternal
+            >
+              SEP-8
+            </TextLink>
+            {"."}
+          </InfoButtonWithTooltip>
+        </div>
+      )}
+
       <div className="BalanceCell BalanceActions">
         {children && <div className="CustomCell">{children}</div>}
 
