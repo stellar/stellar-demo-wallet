@@ -1,6 +1,7 @@
 import { useDispatch } from "react-redux";
 import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
+import { initiateSep8SendAction } from "ducks/sep8Send";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { initiateSendAction } from "ducks/sep31Send";
 import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
@@ -61,6 +62,11 @@ export const Balance = ({
     return result;
   };
 
+  const handleSep8Send = (asset: Asset) => {
+    console.log("Handle sep8 send for asset:", asset);
+    dispatch(initiateSep8SendAction(asset));
+  };
+
   const handleSep24Deposit = (asset: Asset) => {
     dispatch(depositAssetAction(asset));
   };
@@ -107,6 +113,25 @@ export const Balance = ({
             </p>
           ),
           callback: onSend,
+        };
+        break;
+      case AssetActionId.SEP8_SEND_PAYMENT:
+        props = {
+          ...defaultProps,
+          title: `SEP-8 send ${balance.assetCode}`,
+          description: (
+            <p>
+              {`Payments with regulated assets need to be approved by the asset issuer. For more information please refer to`}{" "}
+              <TextLink
+                href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md"
+                isExternal
+              >
+                SEP-8
+              </TextLink>
+              {"."}
+            </p>
+          ),
+          callback: () => handleSep8Send(balance),
         };
         break;
       case AssetActionId.SEP24_DEPOSIT:

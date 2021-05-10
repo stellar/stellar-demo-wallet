@@ -161,6 +161,18 @@ export interface CustomerTypeItem {
   description: string;
 }
 
+export interface Sep8SendInitialState {
+  data: {
+    approvalCriteria: string;
+    approvalServer: string;
+    assetCode: string;
+    assetIssuer: string;
+    homeDomain: string;
+    isRegulated: boolean;
+  };
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
 export interface Sep31SendInitialState {
   data: {
     publicKey: string;
@@ -237,6 +249,7 @@ export interface Store {
   claimableBalances: ClaimableBalancesInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
+  sep8Send: Sep8SendInitialState;
   sep31Send: Sep31SendInitialState;
   sep24DepositAsset: Sep24DepositAssetInitialState;
   sep24WithdrawAsset: Sep24WithdrawAssetInitialState;
@@ -294,6 +307,7 @@ export interface AssetActionItem extends ActiveAssetAction {
 
 export enum AssetActionId {
   SEND_PAYMENT = "send-payment",
+  SEP8_SEND_PAYMENT = "sep8-send-payment",
   SEP24_DEPOSIT = "sep24-deposit",
   SEP24_WITHDRAW = "sep24-withdraw",
   SEP31_SEND = "sep31-send",
