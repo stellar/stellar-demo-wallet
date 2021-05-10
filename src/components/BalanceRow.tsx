@@ -10,7 +10,7 @@ import {
   AssetType,
   ClaimableAsset,
 } from "types/types.d";
-import { InfoButtonWithTooltip } from "./InfoButtonWithTooltip";
+import { InfoButtonWithTooltip } from "components/InfoButtonWithTooltip";
 
 interface BalanceRowProps {
   activeAction: ActiveAssetAction | undefined;
