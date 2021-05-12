@@ -62,7 +62,7 @@ export const submitPaymentTransaction = async ({
   return result;
 };
 
-const buildPaymentTransaction = async ({
+export const buildPaymentTransaction = async ({
   isPubnet,
   params,
   server,

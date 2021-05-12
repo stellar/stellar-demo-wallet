@@ -102,7 +102,7 @@ export const BalanceRow = ({
             >
               SEP-8
             </TextLink>
-            {"."}
+            "."
           </InfoButtonWithTooltip>
         </div>
       )}
@@ -119,9 +119,16 @@ export const BalanceRow = ({
               value={selectValue}
             >
               <option value="">Select action</option>
-              {!isUntrusted && (
+              {!isUntrusted && !asset.supportedActions?.sep8 && (
                 <option value={AssetActionId.SEND_PAYMENT}>Send payment</option>
               )}
+
+              {asset.supportedActions?.sep8 && (
+                <option value={AssetActionId.SEP8_SEND_PAYMENT}>
+                  SEP-8 Send
+                </option>
+              )}
+
               {supportedActions?.sep24 && (
                 <>
                   <option value={AssetActionId.SEP24_DEPOSIT}>
