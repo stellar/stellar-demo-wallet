@@ -68,12 +68,9 @@ const isSep8Asset = ({
 }): Boolean => {
   const [assetCode, assetIssuer] = assetId.split(":");
 
-  for (let i = 0; i < currencies.length; i += 1) {
-    const currency = currencies[i] as any;
-    if (currency.code === assetCode && currency.issuer === assetIssuer) {
-      return currency.regulated;
-    }
-  }
+  const currency = (currencies as any[]).find(
+    (c) => c.code === assetCode && c.issuer === assetIssuer,
+  );
 
-  return false;
+  return Boolean(currency?.regulated);
 };
