@@ -149,7 +149,6 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(sep8SendPaymentAction.fulfilled, (state) => {
-      // state.data = action.payload;
       state.status = ActionStatus.SUCCESS;
     });
     builder.addCase(sep8SendPaymentAction.rejected, (state, action) => {
