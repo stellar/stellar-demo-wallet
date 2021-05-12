@@ -13,7 +13,7 @@ import {
   Sep8PaymentTransactionParams,
 } from "types/types.d";
 
-export const submitSEP8PaymentTransaction = async ({
+export const approveAndSubmitPaymentTransaction = async ({
   isPubnet,
   params,
   secretKey,

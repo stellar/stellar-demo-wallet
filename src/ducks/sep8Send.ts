@@ -6,7 +6,7 @@ import { getErrorMessage } from "helpers/getErrorMessage";
 import { getErrorString } from "helpers/getErrorString";
 import { log } from "helpers/log";
 import { getToml } from "methods/getToml";
-import { submitSEP8PaymentTransaction } from "methods/sep8Send/submitSEP8PaymentTransaction";
+import { approveAndSubmitPaymentTransaction } from "methods/sep8Send/approveAndSubmitPaymentTransaction";
 import {
   ActionStatus,
   Asset,
@@ -98,7 +98,7 @@ export const sep8SendPaymentAction = createAsyncThunk<
     const { pubnet: isPubnet, secretKey } = settingsSelector(getState());
 
     try {
-      const result = await submitSEP8PaymentTransaction({
+      const result = await approveAndSubmitPaymentTransaction({
         params,
         secretKey,
         isPubnet,
