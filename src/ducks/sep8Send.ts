@@ -37,48 +37,48 @@ export const initiateSep8SendAction = createAsyncThunk<
     }
 
     const tomlResponse = await getToml(homeDomain);
-
-    for (let i = 0; i < tomlResponse.CURRENCIES?.length; i += 1) {
-      const currency = tomlResponse.CURRENCIES[i] as any;
-
-      if (currency.code === assetCode && currency.issuer === assetIssuer) {
-        const {
-          approval_criteria: approvalCriteria,
-          approval_server: approvalServer,
-          regulated: isRegulated,
-        } = currency;
-
-        if (!approvalCriteria) {
-          throw new Error(
-            "The anchor toml file does not contain an approval criteria.",
-          );
-        }
-
-        if (!approvalServer) {
-          throw new Error(
-            "The anchor toml file does not contain an approval server.",
-          );
-        }
-
-        // this is unlikely
-        if (!isRegulated) {
-          throw new Error(
-            'The anchor toml file does not specify this asset as "regulated".',
-          );
-        }
-
-        return {
-          approvalCriteria,
-          approvalServer,
-          assetCode,
-          assetIssuer,
-          homeDomain,
-          isRegulated,
-        };
-      }
+    const currency = (tomlResponse.CURRENCIES as any[]).find(
+      (c) => c.code === assetCode && c.issuer === assetIssuer,
+    );
+    if (!currency) {
+      throw new Error(
+        "Couldn't find the desired asset in the anchor toml file.",
+      );
     }
 
-    throw new Error("Couldn't find the desired asset in the anchor toml file.");
+    const {
+      approval_criteria: approvalCriteria,
+      approval_server: approvalServer,
+      regulated: isRegulated,
+    } = currency;
+
+    if (!approvalCriteria) {
+      throw new Error(
+        "The anchor toml file does not contain an approval criteria.",
+      );
+    }
+
+    if (!approvalServer) {
+      throw new Error(
+        "The anchor toml file does not contain an approval server.",
+      );
+    }
+
+    // this is unlikely
+    if (!isRegulated) {
+      throw new Error(
+        'The anchor toml file does not specify this asset as "regulated".',
+      );
+    }
+
+    return {
+      approvalCriteria,
+      approvalServer,
+      assetCode,
+      assetIssuer,
+      homeDomain,
+      isRegulated,
+    };
   } catch (error) {
     const errorString = getErrorMessage(error);
     log.error({
