@@ -16,6 +16,7 @@ import { resetSep8SendAction, sep8SendPaymentAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
+import { fetchAccountAction } from "ducks/account";
 
 export const Sep8Send = () => {
   const { account, sep8Send, settings } = useRedux(
@@ -51,12 +52,21 @@ export const Sep8Send = () => {
       setSep8PaymentModalVisible(true);
     }
 
-    return resetFormState();
-  }, [sep8Send]);
+    if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
+      dispatch(
+        fetchAccountAction({
+          publicKey: account.data.id,
+          secretKey: account.secretKey,
+        }),
+      );
+      handleCloseModal();
+    }
+  }, [sep8Send.status]);
 
   // user interaction handlers
   const handleCloseModal = () => {
     setSep8PaymentModalVisible(false);
+    resetFormState();
     dispatch(resetActiveAssetAction());
     dispatch(resetSep8SendAction());
   };
@@ -94,7 +104,7 @@ export const Sep8Send = () => {
 
   const renderSendPayment = () => (
     <>
-      <Heading2 className="ModalHeading">Send payment</Heading2>
+      <Heading2 className="ModalHeading">Send SEP-8 Payment</Heading2>
 
       <div className="ModalBody">
         <Input
