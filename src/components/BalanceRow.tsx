@@ -102,7 +102,7 @@ export const BalanceRow = ({
             >
               SEP-8
             </TextLink>
-            {"."}
+            "."
           </InfoButtonWithTooltip>
         </div>
       )}

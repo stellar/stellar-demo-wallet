@@ -60,7 +60,7 @@ export const initiateSep8SendAction = createAsyncThunk<
           );
         }
 
-        // This is unlikely
+        // this is unlikely
         if (!isRegulated) {
           throw new Error(
             'The anchor toml file does not specify this asset as "regulated".',
@@ -80,13 +80,11 @@ export const initiateSep8SendAction = createAsyncThunk<
 
     throw new Error("Couldn't find the desired asset in the anchor toml file.");
   } catch (error) {
-    const errorMessage = getErrorMessage(error);
+    const errorString = getErrorMessage(error);
     log.error({
-      title: errorMessage,
+      title: errorString,
     });
-    return rejectWithValue({
-      errorString: errorMessage,
-    });
+    return rejectWithValue({ errorString });
   }
 });
 
@@ -109,9 +107,7 @@ export const sep8SendPaymentAction = createAsyncThunk<
     } catch (error) {
       const errorString = getErrorString(error);
       log.error({ title: errorString });
-      return rejectWithValue({
-        errorString,
-      });
+      return rejectWithValue({ errorString });
     }
   },
 );

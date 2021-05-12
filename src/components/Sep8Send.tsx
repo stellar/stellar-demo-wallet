@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StrKey } from "stellar-sdk";
 import {
@@ -11,12 +11,12 @@ import {
 import { DataProvider } from "@stellar/wallet-sdk";
 import { Modal } from "components/Modal";
 import { TextLink } from "components/TextLink";
+import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { resetSep8SendAction, sep8SendPaymentAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
-import { fetchAccountAction } from "ducks/account";
 
 export const Sep8Send = () => {
   const { account, sep8Send, settings } = useRedux(
@@ -27,12 +27,18 @@ export const Sep8Send = () => {
   const [sep8PaymentModalVisible, setSep8PaymentModalVisible] = useState(false);
   const dispatch = useDispatch();
 
-  // Form data
+  // form data
   const [amount, setAmount] = useState("");
   const [destination, setDestination] = useState("");
   const [isDestinationFunded, setIsDestinationFunded] = useState(true);
 
-  // Destructure sep8 data
+  const resetFormState = () => {
+    setDestination("");
+    setAmount("");
+    setIsDestinationFunded(true);
+  };
+
+  // destructure sep8 data
   const {
     approvalCriteria,
     approvalServer,
@@ -40,37 +46,7 @@ export const Sep8Send = () => {
     assetIssuer,
   } = sep8Send.data;
 
-  // Use effect
-  const resetFormState = () => {
-    setDestination("");
-    setAmount("");
-    setIsDestinationFunded(true);
-  };
-
-  useEffect(() => {
-    if (sep8Send.status === ActionStatus.CAN_PROCEED) {
-      setSep8PaymentModalVisible(true);
-    }
-
-    if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
-      dispatch(
-        fetchAccountAction({
-          publicKey: account.data.id,
-          secretKey: account.secretKey,
-        }),
-      );
-      handleCloseModal();
-    }
-  }, [sep8Send.status]);
-
   // user interaction handlers
-  const handleCloseModal = () => {
-    setSep8PaymentModalVisible(false);
-    resetFormState();
-    dispatch(resetActiveAssetAction());
-    dispatch(resetSep8SendAction());
-  };
-
   const handleSubmitPayment = () => {
     if (account.data?.id) {
       const params = {
@@ -86,6 +62,36 @@ export const Sep8Send = () => {
       dispatch(sep8SendPaymentAction(params));
     }
   };
+
+  const handleCloseModal = useCallback(() => {
+    setSep8PaymentModalVisible(false);
+    resetFormState();
+    dispatch(resetActiveAssetAction());
+    dispatch(resetSep8SendAction());
+  }, [dispatch]);
+
+  // use effect
+  useEffect(() => {
+    if (sep8Send.status === ActionStatus.CAN_PROCEED) {
+      setSep8PaymentModalVisible(true);
+    }
+
+    if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
+      dispatch(
+        fetchAccountAction({
+          publicKey: account.data.id,
+          secretKey: account.secretKey,
+        }),
+      );
+      handleCloseModal();
+    }
+  }, [
+    account.data?.id,
+    account.secretKey,
+    sep8Send.status,
+    dispatch,
+    handleCloseModal,
+  ]);
 
   // helper function(s)
   const checkAndSetIsDestinationFunded = async () => {

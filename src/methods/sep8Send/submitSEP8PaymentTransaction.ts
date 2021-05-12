@@ -26,7 +26,7 @@ export const submitSEP8PaymentTransaction = async ({
   const networkPassphrase = getNetworkConfig(isPubnet).network;
   const { approvalServer } = params;
 
-  // Build transaction
+  // build transaction
   let transaction: Transaction;
   try {
     transaction = await buildPaymentTransaction({
@@ -40,11 +40,11 @@ export const submitSEP8PaymentTransaction = async ({
     );
   }
 
+  // send transaction to SEP-8 approval server
   log.request({
     title: `Authorizing SEP-8 payment of ${params.amount} ${params.assetCode}`,
     body: `Destination: ${params.destination}`,
   });
-  // Send transaction to SEP-8 approval server
   const sep8ApprovalResult = await fetch(approvalServer, {
     method: "POST",
     headers: {
@@ -55,7 +55,7 @@ export const submitSEP8PaymentTransaction = async ({
     }),
   });
 
-  // Parse SEP-8 response
+  // parse SEP-8 response
   const sep8ApprovalResultJson = await sep8ApprovalResult.json();
 
   if (sep8ApprovalResultJson.status === Sep8ApprovalStatus.REJECTED) {
@@ -78,17 +78,17 @@ export const submitSEP8PaymentTransaction = async ({
     networkPassphrase,
   ) as Transaction;
 
-  // Sign transaction
+  // sign transaction
   try {
     const keypair = Keypair.fromSecret(secretKey);
-    await transaction.sign(keypair);
+    transaction.sign(keypair);
   } catch (error) {
     throw new Error(
       `Failed to sign transaction, error: ${getErrorString(error)}`,
     );
   }
 
-  // Submit transaction
+  // submit transaction
   log.request({
     title: "Submitting send payment transaction",
     body: transaction,

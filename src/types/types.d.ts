@@ -161,27 +161,6 @@ export interface CustomerTypeItem {
   description: string;
 }
 
-export interface Sep8SendInitialState {
-  data: {
-    approvalCriteria: string;
-    approvalServer: string;
-    assetCode: string;
-    assetIssuer: string;
-    homeDomain: string;
-    isRegulated: boolean;
-  };
-  errorString?: string;
-  status: ActionStatus | undefined;
-}
-
-export enum Sep8ApprovalStatus {
-  REJECTED = "rejected",
-  REVISED = "revised",
-  SUCCESS = "success",
-  PENDING = "pending",
-  ACTION_REQUIRED = "action_required",
-}
-
 export interface Sep31SendInitialState {
   data: {
     publicKey: string;
@@ -295,12 +274,6 @@ export interface PaymentTransactionParams {
   publicKey: string;
 }
 
-export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
-  assetCode: string;
-  assetIssuer: string;
-  approvalServer: string;
-}
-
 export interface ClaimableAsset extends Asset {
   id: string;
   sponsor: string;
@@ -361,4 +334,31 @@ export enum MemoTypeString {
 export enum CheckInfoType {
   DEPOSIT = "deposit",
   WITHDRAWAL = "withdraw",
+}
+
+export enum Sep8ApprovalStatus {
+  ACTION_REQUIRED = "action_required",
+  PENDING = "pending",
+  REJECTED = "rejected",
+  REVISED = "revised",
+  SUCCESS = "success",
+}
+
+export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
+  approvalServer: string;
+  assetCode: string;
+  assetIssuer: string;
+}
+
+export interface Sep8SendInitialState {
+  data: {
+    approvalCriteria: string;
+    approvalServer: string;
+    assetCode: string;
+    assetIssuer: string;
+    homeDomain: string;
+    isRegulated: boolean;
+  };
+  errorString?: string;
+  status?: ActionStatus;
 }
