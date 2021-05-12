@@ -63,7 +63,6 @@ export const Balance = ({
   };
 
   const handleSep8Send = (asset: Asset) => {
-    console.log("Handle sep8 send for asset:", asset);
     dispatch(initiateSep8SendAction(asset));
   };
 
@@ -128,7 +127,7 @@ export const Balance = ({
               >
                 SEP-8
               </TextLink>
-              {"."}
+              .
             </p>
           ),
           callback: () => handleSep8Send(balance),

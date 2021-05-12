@@ -173,6 +173,15 @@ export interface Sep8SendInitialState {
   errorString?: string;
   status: ActionStatus | undefined;
 }
+
+export enum Sep8ApprovalStatus {
+  REJECTED = "rejected",
+  REVISED = "revised",
+  SUCCESS = "success",
+  PENDING = "pending",
+  ACTION_REQUIRED = "action_required",
+}
+
 export interface Sep31SendInitialState {
   data: {
     publicKey: string;
@@ -284,6 +293,12 @@ export interface PaymentTransactionParams {
   destination: string;
   isDestinationFunded: boolean;
   publicKey: string;
+}
+
+export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
+  assetCode: string;
+  assetIssuer: string;
+  approvalServer: string;
 }
 
 export interface ClaimableAsset extends Asset {

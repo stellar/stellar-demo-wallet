@@ -1,14 +1,19 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { Horizon } from "stellar-sdk";
 import { RootState } from "config/store";
+import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "helpers/getErrorMessage";
+import { getErrorString } from "helpers/getErrorString";
+import { log } from "helpers/log";
 import { getToml } from "methods/getToml";
+import { submitSEP8PaymentTransaction } from "methods/sep8Send/submitSEP8PaymentTransaction";
 import {
   ActionStatus,
   Asset,
   RejectMessage,
+  Sep8PaymentTransactionParams,
   Sep8SendInitialState,
 } from "types/types.d";
-import { log } from "helpers/log";
 
 interface InitiateSep8SendActionResponse {
   approvalCriteria: string;
@@ -85,6 +90,32 @@ export const initiateSep8SendAction = createAsyncThunk<
   }
 });
 
+export const sep8SendPaymentAction = createAsyncThunk<
+  Horizon.TransactionResponse,
+  Sep8PaymentTransactionParams,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep8Send/sep8SendPaymentAction",
+  async (params, { rejectWithValue, getState }) => {
+    const { pubnet: isPubnet, secretKey } = settingsSelector(getState());
+
+    try {
+      const result = await submitSEP8PaymentTransaction({
+        params,
+        secretKey,
+        isPubnet,
+      });
+      return result;
+    } catch (error) {
+      const errorString = getErrorString(error);
+      log.error({ title: errorString });
+      return rejectWithValue({
+        errorString,
+      });
+    }
+  },
+);
+
 const initialState: Sep8SendInitialState = {
   data: {
     approvalCriteria: "",
@@ -113,6 +144,19 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.CAN_PROCEED;
     });
     builder.addCase(initiateSep8SendAction.rejected, (state, action) => {
+      state.errorString = action.payload?.errorString;
+      state.status = ActionStatus.ERROR;
+    });
+
+    builder.addCase(sep8SendPaymentAction.pending, (state) => {
+      state.errorString = undefined;
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(sep8SendPaymentAction.fulfilled, (state) => {
+      // state.data = action.payload;
+      state.status = ActionStatus.SUCCESS;
+    });
+    builder.addCase(sep8SendPaymentAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
