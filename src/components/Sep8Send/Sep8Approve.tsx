@@ -11,20 +11,17 @@ import {
 import { DataProvider } from "@stellar/wallet-sdk";
 import { Modal } from "components/Modal";
 import { TextLink } from "components/TextLink";
-import { fetchAccountAction } from "ducks/account";
-import { resetActiveAssetAction } from "ducks/activeAsset";
-import { resetSep8SendAction, sep8SendPaymentAction } from "ducks/sep8Send";
+import { sep8ReviseTransaction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
-export const Sep8Send = () => {
+export const Sep8Approve = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send, settings } = useRedux(
     "account",
     "sep8Send",
     "settings",
   );
-  const [sep8PaymentModalVisible, setSep8PaymentModalVisible] = useState(false);
   const dispatch = useDispatch();
 
   // form data
@@ -59,39 +56,24 @@ export const Sep8Send = () => {
         approvalServer,
       };
 
-      dispatch(sep8SendPaymentAction(params));
+      dispatch(sep8ReviseTransaction(params));
     }
   };
 
   const handleCloseModal = useCallback(() => {
-    setSep8PaymentModalVisible(false);
     resetFormState();
-    dispatch(resetActiveAssetAction());
-    dispatch(resetSep8SendAction());
-  }, [dispatch]);
+    onClose();
+  }, [onClose]);
 
   // use effect
   useEffect(() => {
-    if (sep8Send.status === ActionStatus.CAN_PROCEED) {
-      setSep8PaymentModalVisible(true);
+    if (
+      sep8Send.status === ActionStatus.CAN_PROCEED &&
+      sep8Send.data.reviseTransaction.revisedTxXdr
+    ) {
+      resetFormState();
     }
-
-    if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
-      dispatch(
-        fetchAccountAction({
-          publicKey: account.data.id,
-          secretKey: account.secretKey,
-        }),
-      );
-      handleCloseModal();
-    }
-  }, [
-    account.data?.id,
-    account.secretKey,
-    sep8Send.status,
-    dispatch,
-    handleCloseModal,
-  ]);
+  }, [sep8Send.status, sep8Send.data.reviseTransaction.revisedTxXdr]);
 
   // helper function(s)
   const checkAndSetIsDestinationFunded = async () => {
@@ -108,7 +90,7 @@ export const Sep8Send = () => {
     setIsDestinationFunded(await dataProvider.isAccountFunded());
   };
 
-  const renderSendPayment = () => (
+  const renderApprovePayment = () => (
     <>
       <Heading2 className="ModalHeading">Send SEP-8 Payment</Heading2>
 
@@ -184,9 +166,9 @@ export const Sep8Send = () => {
   );
 
   return (
-    <Modal visible={sep8PaymentModalVisible} onClose={handleCloseModal}>
+    <Modal onClose={handleCloseModal} visible>
       {/* Send payment */}
-      {renderSendPayment()}
+      {renderApprovePayment()}
     </Modal>
   );
 };

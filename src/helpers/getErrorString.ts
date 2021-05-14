@@ -24,6 +24,7 @@ export const TX_ERROR_TEXT: ErrorTextObject = {
   tx_bad_auth: "Something went wrong while signing a transaction.",
   tx_bad_seq:
     "The app has gotten out of sync with the network. Please try again later.",
+  tx_too_late: "This transaction has expired.",
 };
 
 /**
