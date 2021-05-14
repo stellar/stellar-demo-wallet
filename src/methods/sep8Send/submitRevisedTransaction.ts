@@ -8,7 +8,7 @@ import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 
-export const submitApprovedTransaction = async ({
+export const submitRevisedTransaction = async ({
   revisedTxXdr,
   isPubnet,
   secretKey,

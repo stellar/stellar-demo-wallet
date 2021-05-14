@@ -5,8 +5,8 @@ import { getErrorMessage } from "helpers/getErrorMessage";
 import { getErrorString } from "helpers/getErrorString";
 import { log } from "helpers/log";
 import { getToml } from "methods/getToml";
-import { approvePaymentTransaction } from "methods/sep8Send/approvePaymentTransaction";
-import { submitApprovedTransaction } from "methods/sep8Send/submitApprovedTransaction";
+import { revisePaymentTransaction } from "methods/sep8Send/revisePaymentTransaction";
+import { submitRevisedTransaction } from "methods/sep8Send/submitRevisedTransaction";
 import { Horizon } from "stellar-sdk";
 import {
   ActionStatus,
@@ -90,17 +90,17 @@ export const initiateSep8SendAction = createAsyncThunk<
   }
 });
 
-export const sep8ReviseTransaction = createAsyncThunk<
+export const sep8ReviseTransactionAction = createAsyncThunk<
   ReviseTransaction,
   Sep8PaymentTransactionParams,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep8Send/sep8ReviseTransaction",
+  "sep8Send/sep8ReviseTransactionAction",
   async (params, { rejectWithValue, getState }) => {
     const { pubnet: isPubnet } = settingsSelector(getState());
 
     try {
-      const result = await approvePaymentTransaction({
+      const result = await revisePaymentTransaction({
         params,
         isPubnet,
       });
@@ -113,19 +113,16 @@ export const sep8ReviseTransaction = createAsyncThunk<
   },
 );
 
-export const sep8SubmitRevisedTransaction = createAsyncThunk<
+export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
   Horizon.TransactionResponse,
   undefined,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep8Send/sep8SubmitRevisedTransaction",
+  "sep8Send/sep8SubmitRevisedTransactionAction",
   async (_, { rejectWithValue, getState }) => {
     const { pubnet: isPubnet, secretKey } = settingsSelector(getState());
-    const {
-      data: {
-        reviseTransaction: { revisedTxXdr },
-      },
-    } = sep8SendSelector(getState());
+    const { data } = sep8SendSelector(getState());
+    const revisedTxXdr = data.reviseTransaction.revisedTxXdr;
     if (!revisedTxXdr) {
       throw new Error(
         "Unexpectedly found a null value for revised transaction.",
@@ -133,7 +130,7 @@ export const sep8SubmitRevisedTransaction = createAsyncThunk<
     }
 
     try {
-      const result = await submitApprovedTransaction({
+      const result = await submitRevisedTransaction({
         revisedTxXdr,
         isPubnet,
         secretKey,
@@ -183,30 +180,33 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(sep8ReviseTransaction.pending, (state) => {
+    builder.addCase(sep8ReviseTransactionAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(sep8ReviseTransaction.fulfilled, (state, action) => {
+    builder.addCase(sep8ReviseTransactionAction.fulfilled, (state, action) => {
       state.status = ActionStatus.CAN_PROCEED;
       state.data.reviseTransaction = action.payload;
     });
-    builder.addCase(sep8ReviseTransaction.rejected, (state, action) => {
+    builder.addCase(sep8ReviseTransactionAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(sep8SubmitRevisedTransaction.pending, (state) => {
+    builder.addCase(sep8SubmitRevisedTransactionAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(sep8SubmitRevisedTransaction.fulfilled, (state) => {
+    builder.addCase(sep8SubmitRevisedTransactionAction.fulfilled, (state) => {
       state.status = ActionStatus.SUCCESS;
     });
-    builder.addCase(sep8SubmitRevisedTransaction.rejected, (state, action) => {
-      state.errorString = action.payload?.errorString;
-      state.status = ActionStatus.ERROR;
-    });
+    builder.addCase(
+      sep8SubmitRevisedTransactionAction.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
   },
 });
 

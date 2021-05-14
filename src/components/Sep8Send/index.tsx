@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Sep8Approve } from "components/Sep8Send/Sep8Approve";
 import { Sep8Review } from "components/Sep8Send/Sep8Review";
@@ -15,35 +15,27 @@ export const Sep8Send = () => {
   const [sep8ReviewModalVisible, setSep8ReviewModalVisible] = useState(false);
   const dispatch = useDispatch();
 
-  const onClose = useCallback(() => {
+  const onClose = () => {
     setSep8ApprovalModalVisible(false);
     dispatch(resetActiveAssetAction());
     dispatch(resetSep8SendAction());
-  }, [dispatch]);
+  };
 
   // use effect
   useEffect(() => {
-    console.log("sep8Send.status", sep8Send.status);
-    console.log(
-      "sep8Send.data.reviseTransaction",
-      sep8Send.data.reviseTransaction,
-    );
     if (!sep8Send.status) {
       setSep8ReviewModalVisible(false);
       setSep8ApprovalModalVisible(false);
       return;
     }
+
     if (sep8Send.status !== ActionStatus.CAN_PROCEED) {
       return;
     }
 
-    if (!sep8Send.data.reviseTransaction.revisedTxXdr) {
-      setSep8ApprovalModalVisible(true);
-      setSep8ReviewModalVisible(false);
-    } else {
-      setSep8ApprovalModalVisible(false);
-      setSep8ReviewModalVisible(true);
-    }
+    const hasTxToRevise = Boolean(sep8Send.data.reviseTransaction.revisedTxXdr);
+    setSep8ApprovalModalVisible(!hasTxToRevise);
+    setSep8ReviewModalVisible(hasTxToRevise);
   }, [sep8Send.status, sep8Send.data.reviseTransaction.revisedTxXdr]);
 
   if (sep8ApprovalModalVisible) {

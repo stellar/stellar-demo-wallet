@@ -9,7 +9,7 @@ import {
   Sep8PaymentTransactionParams,
 } from "types/types.d";
 
-export const approvePaymentTransaction = async ({
+export const revisePaymentTransaction = async ({
   isPubnet,
   params,
 }: {
@@ -33,13 +33,12 @@ export const approvePaymentTransaction = async ({
     );
   }
 
-  const submittedTxXdr = transaction.toEnvelope().toXDR("base64");
-
   // send transaction to SEP-8 approval server
   log.request({
     title: `Authorizing SEP-8 payment of ${params.amount} ${params.assetCode}`,
     body: `Destination: ${params.destination}`,
   });
+  const submittedTxXdr = transaction.toEnvelope().toXDR("base64");
   const sep8ApprovalResult = await fetch(approvalServer, {
     method: "POST",
     headers: {
@@ -52,7 +51,6 @@ export const approvePaymentTransaction = async ({
 
   // parse SEP-8 response
   const sep8ApprovalResultJson = await sep8ApprovalResult.json();
-
   switch (sep8ApprovalResultJson.status) {
     case Sep8ApprovalStatus.REJECTED:
       throw new Error(sep8ApprovalResultJson.error);

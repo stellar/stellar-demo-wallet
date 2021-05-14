@@ -359,8 +359,8 @@ export interface Sep8SendInitialState {
     homeDomain: string;
     isRegulated: boolean;
     reviseTransaction: {
-      submittedTxXdr?: string;
       revisedTxXdr?: string;
+      submittedTxXdr?: string;
     };
   };
   errorString?: string;
@@ -368,6 +368,6 @@ export interface Sep8SendInitialState {
 }
 
 export interface ReviseTransaction {
-  submittedTxXdr: string;
   revisedTxXdr: string;
+  submittedTxXdr: string;
 }

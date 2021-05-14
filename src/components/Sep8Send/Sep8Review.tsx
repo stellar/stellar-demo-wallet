@@ -4,12 +4,12 @@ import { Transaction, TransactionBuilder } from "stellar-sdk";
 import { Button, Heading2, Loader } from "@stellar/design-system";
 import { Json } from "components/Json";
 import { Modal } from "components/Modal";
+import { Toggle } from "components/Toggle";
 import { fetchAccountAction } from "ducks/account";
-import { sep8SubmitRevisedTransaction } from "ducks/sep8Send";
+import { sep8SubmitRevisedTransactionAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
-import { Toggle } from "components/Toggle";
 
 export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send, settings } = useRedux(
@@ -25,13 +25,25 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   // user interaction handlers
   const handleSubmitPayment = () => {
     if (account.data?.id) {
-      dispatch(sep8SubmitRevisedTransaction());
+      dispatch(sep8SubmitRevisedTransactionAction());
     }
   };
 
-  // destructure sep8 data
-  const { revisedTxXdr, submittedTxXdr } = sep8Send.data.reviseTransaction;
   // use effect
+  useEffect(() => {
+    if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
+      dispatch(
+        fetchAccountAction({
+          publicKey: account.data.id,
+          secretKey: account.secretKey,
+        }),
+      );
+      onClose();
+    }
+  }, [account.data?.id, account.secretKey, sep8Send.status, dispatch, onClose]);
+
+  // use effect
+  const { revisedTxXdr, submittedTxXdr } = sep8Send.data.reviseTransaction;
   useEffect(() => {
     if (submittedTxXdr) {
       const networkPassphrase = getNetworkConfig(settings.pubnet).network;
@@ -50,20 +62,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
       ) as Transaction;
       setRevisedTx(tx);
     }
-  }, [revisedTxXdr, submittedTxXdr]);
-
-  // use effect
-  useEffect(() => {
-    if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
-      dispatch(
-        fetchAccountAction({
-          publicKey: account.data.id,
-          secretKey: account.secretKey,
-        }),
-      );
-      onClose();
-    }
-  }, [account.data?.id, account.secretKey, sep8Send.status, dispatch, onClose]);
+  }, [revisedTxXdr, submittedTxXdr, settings.pubnet]);
 
   const renderSendPayment = () => (
     <>
@@ -100,7 +99,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
       <div className="ConfigurationItem ModalLabel">
         <label htmlFor="claimable-balance-supported">
-          I authorize sending this revised transaction.
+          I approve executing these operations.
         </label>
         <Toggle
           id="claimable-balance-supported"
@@ -126,7 +125,6 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <Modal onClose={onClose} visible>
-      {/* Send payment */}
       {renderSendPayment()}
     </Modal>
   );

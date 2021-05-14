@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StrKey } from "stellar-sdk";
 import {
@@ -11,7 +11,7 @@ import {
 import { DataProvider } from "@stellar/wallet-sdk";
 import { Modal } from "components/Modal";
 import { TextLink } from "components/TextLink";
-import { sep8ReviseTransaction } from "ducks/sep8Send";
+import { sep8ReviseTransactionAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
@@ -56,14 +56,14 @@ export const Sep8Approve = ({ onClose }: { onClose: () => void }) => {
         approvalServer,
       };
 
-      dispatch(sep8ReviseTransaction(params));
+      dispatch(sep8ReviseTransactionAction(params));
     }
   };
 
-  const handleCloseModal = useCallback(() => {
+  const handleCloseModal = () => {
     resetFormState();
     onClose();
-  }, [onClose]);
+  };
 
   // use effect
   useEffect(() => {
@@ -167,7 +167,6 @@ export const Sep8Approve = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <Modal onClose={handleCloseModal} visible>
-      {/* Send payment */}
       {renderApprovePayment()}
     </Modal>
   );
