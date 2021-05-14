@@ -12,7 +12,7 @@ import {
   ActionStatus,
   Asset,
   RejectMessage,
-  ReviseTransaction,
+  Sep8RevisedTransactionInfo,
   Sep8PaymentTransactionParams,
   Sep8SendInitialState,
 } from "types/types.d";
@@ -91,7 +91,7 @@ export const initiateSep8SendAction = createAsyncThunk<
 });
 
 export const sep8ReviseTransactionAction = createAsyncThunk<
-  ReviseTransaction,
+  Sep8RevisedTransactionInfo,
   Sep8PaymentTransactionParams,
   { rejectValue: RejectMessage; state: RootState }
 >(
@@ -122,15 +122,13 @@ export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
   async (_, { rejectWithValue, getState }) => {
     const { pubnet: isPubnet, secretKey } = settingsSelector(getState());
     const { data } = sep8SendSelector(getState());
-    const revisedTxXdr = data.reviseTransaction.revisedTxXdr;
-    if (!revisedTxXdr) {
-      throw new Error(
-        "Unexpectedly found a null value for revised transaction.",
-      );
-    }
+    const { amount, destination, revisedTxXdr } = data.reviseTransaction;
 
     try {
       const result = await submitRevisedTransaction({
+        amount,
+        destination,
+        assetCode: data.assetCode,
         revisedTxXdr,
         isPubnet,
         secretKey,
@@ -153,8 +151,10 @@ const initialState: Sep8SendInitialState = {
     homeDomain: "",
     isRegulated: false,
     reviseTransaction: {
-      submittedTxXdr: undefined,
-      revisedTxXdr: undefined,
+      amount: "",
+      destination: "",
+      submittedTxXdr: "",
+      revisedTxXdr: "",
     },
   },
   errorString: undefined,

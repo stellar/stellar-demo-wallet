@@ -4,7 +4,7 @@ import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import { buildPaymentTransaction } from "methods/submitPaymentTransaction";
 import {
-  ReviseTransaction,
+  Sep8RevisedTransactionInfo,
   Sep8ApprovalStatus,
   Sep8PaymentTransactionParams,
 } from "types/types.d";
@@ -15,7 +15,7 @@ export const revisePaymentTransaction = async ({
 }: {
   isPubnet: boolean;
   params: Sep8PaymentTransactionParams;
-}): Promise<ReviseTransaction> => {
+}): Promise<Sep8RevisedTransactionInfo> => {
   const server = new StellarSdk.Server(getNetworkConfig(isPubnet).url);
   const { approvalServer } = params;
 
@@ -60,7 +60,9 @@ export const revisePaymentTransaction = async ({
         title: `Payment transaction revised and authorized 🎉.`,
       });
 
-      const revisedData: ReviseTransaction = {
+      const revisedData: Sep8RevisedTransactionInfo = {
+        amount: params.amount,
+        destination: params.destination,
         submittedTxXdr,
         revisedTxXdr: sep8ApprovalResultJson.tx,
       };

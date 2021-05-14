@@ -107,6 +107,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
           onChange={() => {
             setIsApproved(!isApproved);
           }}
+          disabled={sep8Send.status === ActionStatus.PENDING}
         />
       </div>
 

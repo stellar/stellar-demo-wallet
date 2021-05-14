@@ -7,7 +7,7 @@ interface ToggleProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChange: () => void;
 }
 
-export const Toggle = ({ id, checked, onChange }: ToggleProps) => {
+export const Toggle = ({ id, checked, disabled, onChange }: ToggleProps) => {
   const [checkedValue, setCheckedValue] = useState(checked);
 
   useEffect(() => {
@@ -23,6 +23,7 @@ export const Toggle = ({ id, checked, onChange }: ToggleProps) => {
         id={id}
         checked={checkedValue}
         onChange={onChange}
+        disabled={disabled}
       />
       <div className="Toggle" />
     </label>

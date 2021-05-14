@@ -359,15 +359,19 @@ export interface Sep8SendInitialState {
     homeDomain: string;
     isRegulated: boolean;
     reviseTransaction: {
-      revisedTxXdr?: string;
-      submittedTxXdr?: string;
+      amount: string;
+      destination: string;
+      revisedTxXdr: string;
+      submittedTxXdr: string;
     };
   };
   errorString?: string;
   status?: ActionStatus;
 }
 
-export interface ReviseTransaction {
+export interface Sep8RevisedTransactionInfo {
+  amount: string;
+  destination: string;
   revisedTxXdr: string;
   submittedTxXdr: string;
 }

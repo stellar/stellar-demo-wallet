@@ -9,12 +9,18 @@ import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 
 export const submitRevisedTransaction = async ({
-  revisedTxXdr,
+  amount,
+  assetCode,
+  destination,
   isPubnet,
+  revisedTxXdr,
   secretKey,
 }: {
-  revisedTxXdr: string;
+  amount: string;
+  assetCode: string;
+  destination: string;
   isPubnet: boolean;
+  revisedTxXdr: string;
   secretKey: string;
 }) => {
   const networkConfig = getNetworkConfig(isPubnet);
@@ -44,11 +50,8 @@ export const submitRevisedTransaction = async ({
   );
   log.response({ title: "Submitted send payment transaction", body: result });
   log.instruction({
-    title: `Payment sent 🎉`,
+    title: `Payment of ${amount} ${assetCode} sent 🎉`,
+    body: `Destination: ${destination}`,
   });
-  // log.instruction({
-  //   title: `Payment of ${params.amount} ${params.assetCode} sent`,
-  //   body: `Destination: ${params.destination}`,
-  // });
   return result;
 };
