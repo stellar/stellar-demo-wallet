@@ -21,10 +21,11 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   const [revisedTx, setRevisedTx] = useState<Transaction | undefined>();
   const [isApproved, setIsApproved] = useState(false);
   const dispatch = useDispatch();
+  const { revisedTxXdr, submittedTxXdr } = sep8Send.data.revisedTransaction;
 
   // user interaction handlers
   const handleSubmitPayment = () => {
-    if (sep8Send.data.revisedTransaction.revisedTxXdr && isApproved) {
+    if (revisedTxXdr && isApproved) {
       dispatch(sep8SubmitRevisedTransactionAction());
     }
   };
@@ -43,7 +44,6 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   }, [account.data?.id, account.secretKey, sep8Send.status, dispatch, onClose]);
 
   // use effect: parse transaction XDRs
-  const { revisedTxXdr, submittedTxXdr } = sep8Send.data.revisedTransaction;
   useEffect(() => {
     const networkPassphrase = getNetworkConfig(settings.pubnet).network;
 
