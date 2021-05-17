@@ -16,7 +16,7 @@ import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
-export const Sep8Approve = ({ onClose }: { onClose: () => void }) => {
+export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send, settings } = useRedux(
     "account",
     "sep8Send",
@@ -35,7 +35,6 @@ export const Sep8Approve = ({ onClose }: { onClose: () => void }) => {
     setIsDestinationFunded(true);
   };
 
-  // destructure sep8 data
   const {
     approvalCriteria,
     approvalServer,
@@ -69,11 +68,11 @@ export const Sep8Approve = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     if (
       sep8Send.status === ActionStatus.CAN_PROCEED &&
-      sep8Send.data.reviseTransaction.revisedTxXdr
+      sep8Send.data.revisedTransaction.revisedTxXdr
     ) {
       resetFormState();
     }
-  }, [sep8Send.status, sep8Send.data.reviseTransaction.revisedTxXdr]);
+  }, [sep8Send.status, sep8Send.data.revisedTransaction.revisedTxXdr]);
 
   // helper function(s)
   const checkAndSetIsDestinationFunded = async () => {

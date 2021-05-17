@@ -22,8 +22,8 @@ export const Toggle = ({ id, checked, disabled, onChange }: ToggleProps) => {
         name={id}
         id={id}
         checked={checkedValue}
-        onChange={onChange}
         disabled={disabled}
+        onChange={onChange}
       />
       <div className="Toggle" />
     </label>

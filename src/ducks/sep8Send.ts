@@ -1,3 +1,4 @@
+import { Horizon } from "stellar-sdk";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
@@ -7,7 +8,6 @@ import { log } from "helpers/log";
 import { getToml } from "methods/getToml";
 import { revisePaymentTransaction } from "methods/sep8Send/revisePaymentTransaction";
 import { submitRevisedTransaction } from "methods/sep8Send/submitRevisedTransaction";
-import { Horizon } from "stellar-sdk";
 import {
   ActionStatus,
   Asset,
@@ -122,7 +122,7 @@ export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
   async (_, { rejectWithValue, getState }) => {
     const { pubnet: isPubnet, secretKey } = settingsSelector(getState());
     const { data } = sep8SendSelector(getState());
-    const { amount, destination, revisedTxXdr } = data.reviseTransaction;
+    const { amount, destination, revisedTxXdr } = data.revisedTransaction;
 
     try {
       const result = await submitRevisedTransaction({
@@ -150,7 +150,7 @@ const initialState: Sep8SendInitialState = {
     assetIssuer: "",
     homeDomain: "",
     isRegulated: false,
-    reviseTransaction: {
+    revisedTransaction: {
       amount: "",
       destination: "",
       submittedTxXdr: "",
@@ -186,7 +186,7 @@ const sep8SendSlice = createSlice({
     });
     builder.addCase(sep8ReviseTransactionAction.fulfilled, (state, action) => {
       state.status = ActionStatus.CAN_PROCEED;
-      state.data.reviseTransaction = action.payload;
+      state.data.revisedTransaction = action.payload;
     });
     builder.addCase(sep8ReviseTransactionAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;

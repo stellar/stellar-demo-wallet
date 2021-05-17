@@ -24,12 +24,12 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
   // user interaction handlers
   const handleSubmitPayment = () => {
-    if (account.data?.id) {
+    if (sep8Send.data.revisedTransaction.revisedTxXdr && isApproved) {
       dispatch(sep8SubmitRevisedTransactionAction());
     }
   };
 
-  // use effect
+  // use effect: complete action, close modal and refresh account balances
   useEffect(() => {
     if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
       dispatch(
@@ -42,11 +42,12 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
     }
   }, [account.data?.id, account.secretKey, sep8Send.status, dispatch, onClose]);
 
-  // use effect
-  const { revisedTxXdr, submittedTxXdr } = sep8Send.data.reviseTransaction;
+  // use effect: parse transaction XDRs
+  const { revisedTxXdr, submittedTxXdr } = sep8Send.data.revisedTransaction;
   useEffect(() => {
+    const networkPassphrase = getNetworkConfig(settings.pubnet).network;
+
     if (submittedTxXdr) {
-      const networkPassphrase = getNetworkConfig(settings.pubnet).network;
       const tx = TransactionBuilder.fromXDR(
         submittedTxXdr,
         networkPassphrase,
@@ -55,7 +56,6 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
     }
 
     if (revisedTxXdr) {
-      const networkPassphrase = getNetworkConfig(settings.pubnet).network;
       const tx = TransactionBuilder.fromXDR(
         revisedTxXdr,
         networkPassphrase,
@@ -79,7 +79,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
       {submittedTx?.operations && (
         <>
-          <label className="ModalLabel">Submitted transaction operations</label>
+          <label className="ModalLabel">Original transaction operations</label>
           <Json src={submittedTx.operations} />
         </>
       )}

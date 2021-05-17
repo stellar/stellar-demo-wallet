@@ -358,7 +358,7 @@ export interface Sep8SendInitialState {
     assetIssuer: string;
     homeDomain: string;
     isRegulated: boolean;
-    reviseTransaction: {
+    revisedTransaction: {
       amount: string;
       destination: string;
       revisedTxXdr: string;
