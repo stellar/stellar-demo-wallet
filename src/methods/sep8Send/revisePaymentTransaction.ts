@@ -55,7 +55,8 @@ export const revisePaymentTransaction = async ({
     case Sep8ApprovalStatus.REJECTED:
       throw new Error(sep8ApprovalResultJson.error);
 
-    case Sep8ApprovalStatus.REVISED: {
+    case Sep8ApprovalStatus.REVISED:
+    case Sep8ApprovalStatus.SUCCESS: {
       log.response({
         title: `Payment transaction revised and authorized 🎉.`,
       });
