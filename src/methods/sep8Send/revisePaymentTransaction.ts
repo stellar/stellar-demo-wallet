@@ -15,7 +15,7 @@ export const revisePaymentTransaction = async ({
 }: {
   isPubnet: boolean;
   params: Sep8PaymentTransactionParams;
-}): Promise<Sep8RevisedTransactionInfo> => {
+}): Promise<undefined | Sep8RevisedTransactionInfo> => {
   const server = new StellarSdk.Server(getNetworkConfig(isPubnet).url);
   const { approvalServer } = params;
 
@@ -52,6 +52,18 @@ export const revisePaymentTransaction = async ({
   // parse SEP-8 response
   const sep8ApprovalResultJson = await sep8ApprovalResult.json();
   switch (sep8ApprovalResultJson.status) {
+    case Sep8ApprovalStatus.PENDING: {
+      const dateStr = new Date(sep8ApprovalResultJson.timeout).toLocaleString();
+      log.response({
+        title: "Authorization pending",
+        body: `The issuer could not determine whether to approve the transaction at this time. You can re-submit the same transaction on ${dateStr}.`,
+      });
+      if (sep8ApprovalResultJson.message) {
+        log.instruction({ title: sep8ApprovalResultJson.message });
+      }
+      return undefined;
+    }
+
     case Sep8ApprovalStatus.REJECTED:
       throw new Error(sep8ApprovalResultJson.error);
 
