@@ -166,6 +166,7 @@ const sep8SendSlice = createSlice({
   initialState,
   reducers: {
     resetSep8SendAction: () => initialState,
+    sep8ClearErrorAction: (state) => ({ ...state, errorString: undefined }),
   },
   extraReducers: (builder) => {
     builder.addCase(initiateSep8SendAction.pending, (state = initialState) => {
@@ -213,4 +214,7 @@ const sep8SendSlice = createSlice({
 export const sep8SendSelector = (state: RootState) => state.sep8Send;
 
 export const { reducer } = sep8SendSlice;
-export const { resetSep8SendAction } = sep8SendSlice.actions;
+export const {
+  resetSep8SendAction,
+  sep8ClearErrorAction,
+} = sep8SendSlice.actions;

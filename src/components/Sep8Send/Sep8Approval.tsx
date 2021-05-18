@@ -11,7 +11,10 @@ import {
 import { DataProvider } from "@stellar/wallet-sdk";
 import { Modal } from "components/Modal";
 import { TextLink } from "components/TextLink";
-import { sep8ReviseTransactionAction } from "ducks/sep8Send";
+import {
+  sep8ClearErrorAction,
+  sep8ReviseTransactionAction,
+} from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
@@ -98,10 +101,11 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
           id="send-destination"
           label="Destination"
           value={destination}
-          onChange={(e) => setDestination(e.target.value)}
-          onBlur={() => {
-            checkAndSetIsDestinationFunded();
+          onChange={(e) => {
+            setDestination(e.target.value);
+            dispatch(sep8ClearErrorAction());
           }}
+          onBlur={checkAndSetIsDestinationFunded}
         />
 
         <Input
@@ -109,7 +113,10 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
           label="Amount"
           type="number"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => {
+            setAmount(e.target.value);
+            dispatch(sep8ClearErrorAction());
+          }}
         />
 
         <Input
