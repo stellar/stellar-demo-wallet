@@ -3,9 +3,9 @@ import { useDispatch } from "react-redux";
 import { Heading2, Loader } from "@stellar/design-system";
 import { TextButton } from "components/TextButton";
 import { TextLink } from "components/TextLink";
-import ReactJson from "react-json-view";
 
 import { CopyWithText } from "components/CopyWithText";
+import { Json } from "components/Json";
 import { ToastBanner } from "components/ToastBanner";
 
 import { fetchAccountAction, fundTestnetAccount } from "ducks/account";
@@ -130,30 +130,7 @@ export const AccountInfo = () => {
         <div className="AccountDetails Section">
           <Heading2>Account details</Heading2>
           <div className="AccountDetailsContent">
-            <ReactJson
-              src={account.data}
-              collapseStringsAfterLength={15}
-              displayDataTypes={false}
-              collapsed={1}
-              theme={{
-                base00: "#fff",
-                base01: "#fff",
-                base02: "#fff",
-                base03: "#000",
-                base04: "#3e1bdb",
-                base05: "#000",
-                base06: "#000",
-                base07: "#000",
-                base08: "#000",
-                base09: "#000",
-                base0A: "#000",
-                base0B: "#000",
-                base0C: "#000",
-                base0D: "#3e1bdb",
-                base0E: "#3e1bdb",
-                base0F: "#3e1bdb",
-              }}
-            />
+            <Json src={account.data} />
           </div>
         </div>
       )}

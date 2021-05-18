@@ -1,16 +1,18 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Horizon } from "stellar-sdk";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getErrorString } from "helpers/getErrorString";
 import { log } from "helpers/log";
 import { getToml } from "methods/getToml";
-import { approveAndSubmitPaymentTransaction } from "methods/sep8Send/approveAndSubmitPaymentTransaction";
+import { revisePaymentTransaction } from "methods/sep8Send/revisePaymentTransaction";
+import { submitRevisedTransaction } from "methods/sep8Send/submitRevisedTransaction";
 import {
   ActionStatus,
   Asset,
   RejectMessage,
+  Sep8RevisedTransactionInfo,
   Sep8PaymentTransactionParams,
   Sep8SendInitialState,
 } from "types/types.d";
@@ -88,20 +90,48 @@ export const initiateSep8SendAction = createAsyncThunk<
   }
 });
 
-export const sep8SendPaymentAction = createAsyncThunk<
-  Horizon.TransactionResponse,
+export const sep8ReviseTransactionAction = createAsyncThunk<
+  Sep8RevisedTransactionInfo,
   Sep8PaymentTransactionParams,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep8Send/sep8SendPaymentAction",
+  "sep8Send/sep8ReviseTransactionAction",
   async (params, { rejectWithValue, getState }) => {
-    const { pubnet: isPubnet, secretKey } = settingsSelector(getState());
+    const { pubnet: isPubnet } = settingsSelector(getState());
 
     try {
-      const result = await approveAndSubmitPaymentTransaction({
+      const result = await revisePaymentTransaction({
         params,
-        secretKey,
         isPubnet,
+      });
+      return result;
+    } catch (error) {
+      const errorString = getErrorString(error);
+      log.error({ title: errorString });
+      return rejectWithValue({ errorString });
+    }
+  },
+);
+
+export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
+  Horizon.TransactionResponse,
+  undefined,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep8Send/sep8SubmitRevisedTransactionAction",
+  async (_, { rejectWithValue, getState }) => {
+    const { pubnet: isPubnet, secretKey } = settingsSelector(getState());
+    const { data } = sep8SendSelector(getState());
+    const { amount, destination, revisedTxXdr } = data.revisedTransaction;
+
+    try {
+      const result = await submitRevisedTransaction({
+        amount,
+        destination,
+        assetCode: data.assetCode,
+        revisedTxXdr,
+        isPubnet,
+        secretKey,
       });
       return result;
     } catch (error) {
@@ -120,6 +150,12 @@ const initialState: Sep8SendInitialState = {
     assetIssuer: "",
     homeDomain: "",
     isRegulated: false,
+    revisedTransaction: {
+      amount: "",
+      destination: "",
+      submittedTxXdr: "",
+      revisedTxXdr: "",
+    },
   },
   errorString: undefined,
   status: undefined,
@@ -130,6 +166,7 @@ const sep8SendSlice = createSlice({
   initialState,
   reducers: {
     resetSep8SendAction: () => initialState,
+    sep8ClearErrorAction: (state) => ({ ...state, errorString: undefined }),
   },
   extraReducers: (builder) => {
     builder.addCase(initiateSep8SendAction.pending, (state = initialState) => {
@@ -144,21 +181,40 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(sep8SendPaymentAction.pending, (state) => {
+    builder.addCase(sep8ReviseTransactionAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(sep8SendPaymentAction.fulfilled, (state) => {
-      state.status = ActionStatus.SUCCESS;
+    builder.addCase(sep8ReviseTransactionAction.fulfilled, (state, action) => {
+      state.status = ActionStatus.CAN_PROCEED;
+      state.data.revisedTransaction = action.payload;
     });
-    builder.addCase(sep8SendPaymentAction.rejected, (state, action) => {
+    builder.addCase(sep8ReviseTransactionAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
+    builder.addCase(sep8SubmitRevisedTransactionAction.pending, (state) => {
+      state.errorString = undefined;
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(sep8SubmitRevisedTransactionAction.fulfilled, (state) => {
+      state.status = ActionStatus.SUCCESS;
+    });
+    builder.addCase(
+      sep8SubmitRevisedTransactionAction.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
   },
 });
 
 export const sep8SendSelector = (state: RootState) => state.sep8Send;
 
 export const { reducer } = sep8SendSlice;
-export const { resetSep8SendAction } = sep8SendSlice.actions;
+export const {
+  resetSep8SendAction,
+  sep8ClearErrorAction,
+} = sep8SendSlice.actions;
