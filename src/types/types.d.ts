@@ -375,3 +375,8 @@ export interface Sep8RevisedTransactionInfo {
   revisedTxXdr: string;
   submittedTxXdr: string;
 }
+
+export interface Sep8ApprovalResponse {
+  status: Sep8ApprovalStatus;
+  revisedTransaction?: Sep8RevisedTransactionInfo;
+}

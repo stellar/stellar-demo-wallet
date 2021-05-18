@@ -12,7 +12,8 @@ import {
   ActionStatus,
   Asset,
   RejectMessage,
-  Sep8RevisedTransactionInfo,
+  Sep8ApprovalResponse,
+  Sep8ApprovalStatus,
   Sep8PaymentTransactionParams,
   Sep8SendInitialState,
 } from "types/types.d";
@@ -91,7 +92,7 @@ export const initiateSep8SendAction = createAsyncThunk<
 });
 
 export const sep8ReviseTransactionAction = createAsyncThunk<
-  Sep8RevisedTransactionInfo | undefined,
+  Sep8ApprovalResponse,
   Sep8PaymentTransactionParams,
   { rejectValue: RejectMessage; state: RootState }
 >(
@@ -186,12 +187,22 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(sep8ReviseTransactionAction.fulfilled, (state, action) => {
-      if (!action.payload) {
-        state.status = ActionStatus.NEEDS_INPUT;
-        return;
+      switch (action.payload.status) {
+        case Sep8ApprovalStatus.PENDING:
+          state.status = ActionStatus.NEEDS_INPUT;
+          break;
+
+        case Sep8ApprovalStatus.REVISED:
+        case Sep8ApprovalStatus.SUCCESS:
+          state.status = ActionStatus.CAN_PROCEED;
+          if (action.payload.revisedTransaction) {
+            state.data.revisedTransaction = action.payload.revisedTransaction;
+          }
+          break;
+
+        default:
+          state.errorString = `The SEP-8 flow for "${action.payload.status}" status is not implemented yet.`;
       }
-      state.status = ActionStatus.CAN_PROCEED;
-      state.data.revisedTransaction = action.payload;
     });
     builder.addCase(sep8ReviseTransactionAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
