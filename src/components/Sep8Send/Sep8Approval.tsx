@@ -103,7 +103,9 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
           value={destination}
           onChange={(e) => {
             setDestination(e.target.value);
-            dispatch(sep8ClearErrorAction());
+            if (sep8Send.errorString) {
+              dispatch(sep8ClearErrorAction());
+            }
           }}
           onBlur={checkAndSetIsDestinationFunded}
         />
@@ -115,7 +117,9 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
           value={amount}
           onChange={(e) => {
             setAmount(e.target.value);
-            dispatch(sep8ClearErrorAction());
+            if (sep8Send.errorString) {
+              dispatch(sep8ClearErrorAction());
+            }
           }}
         />
 
