@@ -4,7 +4,7 @@ import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import { buildPaymentTransaction } from "methods/submitPaymentTransaction";
 import {
-  Sep8RevisedTransactionInfo,
+  Sep8ApprovalResponse,
   Sep8ApprovalStatus,
   Sep8PaymentTransactionParams,
 } from "types/types.d";
@@ -15,7 +15,7 @@ export const revisePaymentTransaction = async ({
 }: {
   isPubnet: boolean;
   params: Sep8PaymentTransactionParams;
-}): Promise<Sep8RevisedTransactionInfo> => {
+}): Promise<Sep8ApprovalResponse> => {
   const server = new StellarSdk.Server(getNetworkConfig(isPubnet).url);
   const { approvalServer } = params;
 
@@ -52,27 +52,40 @@ export const revisePaymentTransaction = async ({
   // parse SEP-8 response
   const sep8ApprovalResultJson = await sep8ApprovalResult.json();
   switch (sep8ApprovalResultJson.status) {
+    case Sep8ApprovalStatus.PENDING: {
+      const dateStr = new Date(sep8ApprovalResultJson.timeout).toLocaleString();
+      log.response({
+        title: "Authorization pending",
+        body: `The issuer could not determine whether to approve the transaction at this time. You can re-submit the same transaction on ${dateStr}.`,
+      });
+      if (sep8ApprovalResultJson.message) {
+        log.instruction({ title: sep8ApprovalResultJson.message });
+      }
+      return { status: sep8ApprovalResultJson.status };
+    }
+
     case Sep8ApprovalStatus.REJECTED:
       throw new Error(sep8ApprovalResultJson.error);
 
     case Sep8ApprovalStatus.REVISED:
-    case Sep8ApprovalStatus.SUCCESS: {
+    case Sep8ApprovalStatus.SUCCESS:
       log.response({
         title: `Payment transaction revised and authorized 🎉.`,
       });
 
-      const revisedData: Sep8RevisedTransactionInfo = {
-        amount: params.amount,
-        destination: params.destination,
-        submittedTxXdr,
-        revisedTxXdr: sep8ApprovalResultJson.tx,
+      return {
+        status: sep8ApprovalResultJson.status,
+        revisedTransaction: {
+          amount: params.amount,
+          destination: params.destination,
+          submittedTxXdr,
+          revisedTxXdr: sep8ApprovalResultJson.tx,
+        },
       };
-      return revisedData;
-    }
 
     default:
       throw new Error(
-        `The SEP-8 flow for "${sep8ApprovalResultJson.status}" status is not implemented yet.`,
+        `The SEP-8 flow for "${sep8ApprovalResultJson.status}" status is not supported yet.`,
       );
   }
 };
