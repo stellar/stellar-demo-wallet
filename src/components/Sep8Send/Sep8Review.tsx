@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Transaction, TransactionBuilder } from "stellar-sdk";
-import { Button, Heading2, Loader } from "@stellar/design-system";
+import { Button, Checkbox, Loader } from "@stellar/design-system";
+import { Heading2, Heading3 } from "components/Heading";
 import { Json } from "components/Json";
 import { Modal } from "components/Modal";
-import { Toggle } from "components/Toggle";
 import { fetchAccountAction } from "ducks/account";
 import { sep8SubmitRevisedTransactionAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -70,45 +70,45 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
         Review & Submit SEP-8 Transaction
       </Heading2>
 
-      <div className="ModalMessage">
-        <p>
-          Please review the updated operations before submitting your SEP-8
-          payment.
-        </p>
-      </div>
-
-      {submittedTx?.operations && (
-        <>
-          <label className="ModalLabel">Original transaction operations</label>
-          <Json src={submittedTx.operations} />
-        </>
-      )}
-
-      {revisedTx?.operations && (
-        <>
-          <label className="ModalLabel">Revised transaction operations</label>
-          <Json src={revisedTx.operations} />
-        </>
-      )}
-
-      {sep8Send.errorString && (
-        <div className="ModalMessage error">
-          <p>{sep8Send.errorString}</p>
+      <div className="ModalBody">
+        <div className="ModalMessage">
+          <p>
+            Please review the updated operations before submitting your SEP-8
+            payment.
+          </p>
         </div>
-      )}
 
-      <div className="ConfigurationItem ModalLabel">
-        <label htmlFor="claimable-balance-supported">
-          I approve executing these operations.
-        </label>
-        <Toggle
-          id="claimable-balance-supported"
-          checked={isApproved}
-          onChange={() => {
-            setIsApproved(!isApproved);
-          }}
-          disabled={sep8Send.status === ActionStatus.PENDING}
-        />
+        {submittedTx?.operations && (
+          <>
+            <Heading3>Original transaction operations</Heading3>
+            <Json src={submittedTx.operations} />
+          </>
+        )}
+
+        {revisedTx?.operations && (
+          <>
+            <Heading3>Revised transaction operations</Heading3>
+            <Json src={revisedTx.operations} />
+          </>
+        )}
+
+        {sep8Send.errorString && (
+          <div className="ModalMessage error">
+            <p>{sep8Send.errorString}</p>
+          </div>
+        )}
+
+        <div className="CheckboxWrapper">
+          <Checkbox
+            id="sep8-send-approve"
+            label="I approve executing these operations."
+            checked={isApproved}
+            onChange={() => {
+              setIsApproved(!isApproved);
+            }}
+            disabled={sep8Send.status === ActionStatus.PENDING}
+          />
+        </div>
       </div>
 
       <div className="ModalButtonsFooter">
