@@ -201,7 +201,8 @@ const sep8SendSlice = createSlice({
           break;
 
         default:
-          state.errorString = `The SEP-8 flow for "${action.payload.status}" status is not implemented yet.`;
+          state.errorString = `The SEP-8 flow for "${action.payload.status}" status is not supported yet.`;
+          break;
       }
     });
     builder.addCase(sep8ReviseTransactionAction.rejected, (state, action) => {

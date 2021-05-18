@@ -85,7 +85,7 @@ export const revisePaymentTransaction = async ({
 
     default:
       throw new Error(
-        `The SEP-8 flow for "${sep8ApprovalResultJson.status}" status is not implemented yet.`,
+        `The SEP-8 flow for "${sep8ApprovalResultJson.status}" status is not supported yet.`,
       );
   }
 };
