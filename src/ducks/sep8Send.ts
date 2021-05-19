@@ -157,6 +157,12 @@ const initialState: Sep8SendInitialState = {
       submittedTxXdr: "",
       revisedTxXdr: "",
     },
+    actionRequired: {
+      actionFields: [],
+      actionMethod: "",
+      actionUrl: "",
+      message: "",
+    },
   },
   errorString: undefined,
   status: undefined,
@@ -188,6 +194,13 @@ const sep8SendSlice = createSlice({
     });
     builder.addCase(sep8ReviseTransactionAction.fulfilled, (state, action) => {
       switch (action.payload.status) {
+        case Sep8ApprovalStatus.ACTION_REQUIRED:
+          state.status = ActionStatus.CAN_PROCEED;
+          if (action.payload.actionRequired) {
+            state.data.actionRequired = action.payload.actionRequired;
+          }
+          break;
+
         case Sep8ApprovalStatus.PENDING:
           state.status = ActionStatus.NEEDS_INPUT;
           break;
