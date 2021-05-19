@@ -6,11 +6,15 @@ import { resetActiveAssetAction } from "ducks/activeAsset";
 import { resetSep8SendAction } from "ducks/sep8Send";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
+import { Sep8ActionRequiredForm } from "./Sep8ActionRequiredForm";
 
 export const Sep8Send = () => {
   const { sep8Send } = useRedux("sep8Send");
   const [approvalModalVisible, setApprovalModalVisible] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [actionRequiredModalVisible, setActionRequiredModalVisible] = useState(
+    false,
+  );
   const dispatch = useDispatch();
 
   const onClose = () => {
@@ -24,6 +28,7 @@ export const Sep8Send = () => {
     if (!sep8Send.status) {
       setReviewModalVisible(false);
       setApprovalModalVisible(false);
+      setActionRequiredModalVisible(false);
       return;
     }
 
@@ -34,15 +39,27 @@ export const Sep8Send = () => {
     const hasTxToRevise = Boolean(
       sep8Send.data.revisedTransaction.revisedTxXdr,
     );
-    setApprovalModalVisible(!hasTxToRevise);
+    const hasPendingActionRequired = Boolean(
+      sep8Send.data.actionRequired.actionFields.length,
+    );
+    setApprovalModalVisible(!hasTxToRevise && !hasPendingActionRequired);
     setReviewModalVisible(hasTxToRevise);
-  }, [sep8Send.status, sep8Send.data.revisedTransaction.revisedTxXdr]);
+    setActionRequiredModalVisible(hasPendingActionRequired && !hasTxToRevise);
+  }, [
+    sep8Send.status,
+    sep8Send.data.revisedTransaction.revisedTxXdr,
+    sep8Send.data.actionRequired.actionFields,
+  ]);
 
   return (
     <>
       {approvalModalVisible && <Sep8Approval onClose={onClose} />}
 
       {reviewModalVisible && <Sep8Review onClose={onClose} />}
+
+      {actionRequiredModalVisible && (
+        <Sep8ActionRequiredForm onClose={onClose} />
+      )}
     </>
   );
 };
