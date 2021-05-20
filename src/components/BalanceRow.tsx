@@ -123,7 +123,20 @@ export const BalanceRow = ({
                 <option value={AssetActionId.SEND_PAYMENT}>Send payment</option>
               )}
 
-              {asset.supportedActions?.sep8 && (
+              {supportedActions?.sep6 && (
+                <>
+                  <option value={AssetActionId.SEP6_DEPOSIT}>
+                    SEP-6 Deposit
+                  </option>
+                  {!isUntrusted && (
+                    <option value={AssetActionId.SEP6_WITHDRAW}>
+                      SEP-6 Withdraw
+                    </option>
+                  )}
+                </>
+              )}
+
+              {supportedActions?.sep8 && (
                 <option value={AssetActionId.SEP8_SEND_PAYMENT}>
                   SEP-8 Send
                 </option>

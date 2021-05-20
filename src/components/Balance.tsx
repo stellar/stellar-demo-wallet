@@ -1,6 +1,7 @@
 import { useDispatch } from "react-redux";
 import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
+import { initiateSendAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
 import { initiateSep8SendAction } from "ducks/sep8Send";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { initiateSendAction } from "ducks/sep31Send";
@@ -62,6 +63,10 @@ export const Balance = ({
     return result;
   };
 
+  const handleSep6Deposit = (asset: Asset) => {
+    dispatch(initiateSep6SendAction(asset));
+  };
+
   const handleSep8Send = (asset: Asset) => {
     dispatch(initiateSep8SendAction(asset));
   };
@@ -112,6 +117,22 @@ export const Balance = ({
             </p>
           ),
           callback: onSend,
+        };
+        break;
+      case AssetActionId.SEP6_DEPOSIT:
+        props = {
+          ...defaultProps,
+          title: `SEP-6 deposit ${balance.assetCode} (with Trusted Asset)`,
+          description: `Start SEP-6 deposit of trusted asset ${balance.assetCode}?`,
+          callback: () => handleSep6Deposit(balance),
+        };
+        break;
+      case AssetActionId.SEP6_WITHDRAW:
+        props = {
+          ...defaultProps,
+          title: `SEP-6 withdrawal ${balance.assetCode}`,
+          description: `Start SEP-6 withdrawal of ${balance.assetCode}?`,
+          callback: () => handleSep24Withdraw(balance),
         };
         break;
       case AssetActionId.SEP8_SEND_PAYMENT:
