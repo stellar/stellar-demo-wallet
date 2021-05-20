@@ -344,11 +344,51 @@ export enum Sep8ApprovalStatus {
   SUCCESS = "success",
 }
 
-export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
-  approvalServer: string;
-  assetCode: string;
-  assetIssuer: string;
+export enum Sep8Step {
+  READY_TO_START = "ready_to_start",
+  TRANSACTION_REVISED = "transaction_revised",
+  COMPLETE = "complete",
+  ACTION_REQUIRED = "action_required",
+  SENT_ACTION_REQUIRED_PARAMS = "sent_action_required_params",
 }
+
+export const Sep8NextStepOnSuccess = ({
+  currentStep,
+  approvalStatus,
+}: {
+  currentStep: Sep8Step;
+  approvalStatus: Sep8ApprovalStatus;
+}) => {
+  switch (currentStep) {
+    case Sep8Step.READY_TO_START:
+      switch (approvalStatus) {
+        case Sep8ApprovalStatus.REVISED:
+        case Sep8ApprovalStatus.SUCCESS:
+          return Sep8Step.TRANSACTION_REVISED;
+
+        case Sep8ApprovalStatus.ACTION_REQUIRED:
+          return Sep8Step.ACTION_REQUIRED;
+
+        case Sep8ApprovalStatus.PENDING:
+          return undefined;
+
+        default:
+          return currentStep;
+      }
+
+    case Sep8Step.TRANSACTION_REVISED:
+      return Sep8Step.COMPLETE;
+
+    case Sep8Step.ACTION_REQUIRED:
+      return Sep8Step.SENT_ACTION_REQUIRED_PARAMS;
+
+    case Sep8Step.SENT_ACTION_REQUIRED_PARAMS:
+      return Sep8Step.READY_TO_START;
+
+    default:
+      return undefined;
+  }
+};
 
 export interface Sep8SendInitialState {
   data: {
@@ -378,6 +418,12 @@ export interface Sep8SendInitialState {
   };
   errorString?: string;
   status?: ActionStatus;
+}
+
+export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
+  approvalServer: string;
+  assetCode: string;
+  assetIssuer: string;
 }
 
 export interface Sep8RevisedTransactionInfo {

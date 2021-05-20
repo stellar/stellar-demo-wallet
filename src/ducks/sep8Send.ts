@@ -172,6 +172,7 @@ export const sep8SendActionRequiredParamsAction = createAsyncThunk<
 
 const initialState: Sep8SendInitialState = {
   data: {
+    sep8Step: undefined,
     approvalCriteria: "",
     approvalServer: "",
     assetCode: "",
