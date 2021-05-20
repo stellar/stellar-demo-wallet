@@ -108,7 +108,7 @@ export const Sep6Send = () => {
             </>
           }
         >
-          SEP-8 Deposit Required Info
+          SEP-6 Required Info
         </Heading2>
         <div className="ModalBody">
           {Object.entries(sep6DepositAsset.data.depositTypes || {}).map(
@@ -150,7 +150,7 @@ export const Sep6Send = () => {
   if (sep6DepositAsset.status === ActionStatus.SUCCESS) {
     return (
       <Modal visible={true} onClose={handleClose}>
-        <Heading2 className="ModalHeading">SEP-8 Deposit Info</Heading2>
+        <Heading2 className="ModalHeading">SEP-6 Deposit Info</Heading2>
 
         <div className="ModalBody">
           <InfoBlock>{depositResponse.how}</InfoBlock>
