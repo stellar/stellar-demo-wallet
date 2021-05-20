@@ -7,7 +7,7 @@ export const sendActionRequiredFields = async ({
   actionUrl,
 }: ActionRequiredParams): Promise<Sep8ActionRequiredResult> => {
   log.request({
-    title: `Sending action required fields to SEP-8 server with [${actionMethod} ${actionUrl}]`,
+    title: `Sending action required fields to SEP-8 server with \`${actionMethod} ${actionUrl}\``,
     body: actionFields,
   });
   const sep8ActionRequiredResult = await fetch(actionUrl, {
