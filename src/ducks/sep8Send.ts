@@ -209,10 +209,12 @@ const sep8SendSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(initiateSep8SendAction.pending, (state = initialState) => {
+      state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(initiateSep8SendAction.fulfilled, (state, action) => {
       state.data = { ...state.data, ...action.payload };
+      state.errorString = undefined;
       state.status = ActionStatus.CAN_PROCEED;
     });
     builder.addCase(initiateSep8SendAction.rejected, (state, action) => {
@@ -225,6 +227,8 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(sep8ReviseTransactionAction.fulfilled, (state, action) => {
+      state.errorString = undefined;
+
       switch (action.payload.status) {
         case Sep8ApprovalStatus.ACTION_REQUIRED:
           state.status = ActionStatus.CAN_PROCEED;
@@ -266,6 +270,7 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(sep8SubmitRevisedTransactionAction.fulfilled, (state) => {
+      state.errorString = undefined;
       state.status = ActionStatus.SUCCESS;
     });
     builder.addCase(
@@ -279,6 +284,7 @@ const sep8SendSlice = createSlice({
     builder.addCase(
       sep8SendActionRequiredParamsAction.pending,
       (state = initialState) => {
+        state.errorString = undefined;
         state.status = ActionStatus.PENDING;
       },
     );
@@ -286,6 +292,7 @@ const sep8SendSlice = createSlice({
       sep8SendActionRequiredParamsAction.fulfilled,
       (state, action) => {
         state.data = { ...state.data, actionRequiredResult: action.payload };
+        state.errorString = undefined;
         state.status = ActionStatus.SUCCESS;
       },
     );

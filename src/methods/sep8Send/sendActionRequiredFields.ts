@@ -57,7 +57,7 @@ export const sendActionRequiredFields = async ({
   } else {
     log.instruction({
       title:
-        "The SEP-8 server received your information and may or may not approve it. Please submit a new SEP-8 payment to verify it went out correctly.",
+        "The SEP-8 server received your information, let's re-submit the SEP-8 payment again.",
     });
   }
 
