@@ -230,15 +230,27 @@ const sep8SendSlice = createSlice({
       state.errorString = undefined;
 
       switch (action.payload.status) {
-        case Sep8ApprovalStatus.ACTION_REQUIRED:
+        case Sep8ApprovalStatus.ACTION_REQUIRED: {
           state.status = ActionStatus.CAN_PROCEED;
-          if (action.payload.actionRequiredInfo) {
-            state.data = {
-              ...state.data,
-              actionRequiredInfo: action.payload.actionRequiredInfo,
-            };
+
+          const hasDataChanges =
+            !!action.payload.actionRequiredInfo ||
+            !!state.data.actionRequiredInfo;
+          if (!hasDataChanges) {
+            break;
           }
+
+          const actionRequiredInfo =
+            action.payload.actionRequiredInfo ?? state.data.actionRequiredInfo;
+          const revisedTransaction =
+            action.payload.revisedTransaction ?? state.data.revisedTransaction;
+          state.data = {
+            ...state.data,
+            actionRequiredInfo,
+            revisedTransaction,
+          };
           break;
+        }
 
         case Sep8ApprovalStatus.PENDING:
           state.status = ActionStatus.NEEDS_INPUT;

@@ -3,7 +3,10 @@ import { useDispatch } from "react-redux";
 import { Button, Input, Loader } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
 import { Modal } from "components/Modal";
-import { sep8SendActionRequiredParamsAction } from "ducks/sep8Send";
+import {
+  sep8ReviseTransactionAction,
+  sep8SendActionRequiredParamsAction,
+} from "ducks/sep8Send";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
@@ -12,7 +15,7 @@ export const Sep8ActionRequiredForm = ({
 }: {
   onClose: () => void;
 }) => {
-  const { sep8Send } = useRedux("sep8Send");
+  const { account, sep8Send } = useRedux("account", "sep8Send");
   const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
   const {
     actionFields,
@@ -32,8 +35,34 @@ export const Sep8ActionRequiredForm = ({
       window.open(nextUrl, "_blank");
     }
 
+    if (account.data) {
+      dispatch(
+        sep8ReviseTransactionAction({
+          amount: sep8Send.data.revisedTransaction.amount,
+          approvalServer: sep8Send.data.approvalServer,
+          assetCode: sep8Send.data.assetCode,
+          assetIssuer: sep8Send.data.assetIssuer,
+          destination: sep8Send.data.revisedTransaction.destination,
+          isDestinationFunded: true,
+          publicKey: account.data?.id,
+        }),
+      );
+    }
+
     onClose();
-  }, [nextUrl, onClose, result, sep8Send.status]);
+  }, [
+    account.data,
+    dispatch,
+    nextUrl,
+    onClose,
+    result,
+    sep8Send.data.revisedTransaction.amount,
+    sep8Send.data.approvalServer,
+    sep8Send.data.assetCode,
+    sep8Send.data.assetIssuer,
+    sep8Send.data.revisedTransaction.destination,
+    sep8Send.status,
+  ]);
 
   const handleSubmitActionRequiredFields = () => {
     dispatch(
