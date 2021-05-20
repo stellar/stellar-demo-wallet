@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Button, InfoBlock, Input, Select } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
@@ -23,20 +23,21 @@ export const Sep6Send = () => {
   });
   const dispatch = useDispatch();
 
+  const depositTypeChoices = useMemo(
+    () => sep6DepositAsset.data.depositTypes?.type?.choices || [],
+    [sep6DepositAsset],
+  );
+
   useEffect(() => {
     if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
       setFormData({
         depositType: {
-          type: sep6DepositAsset.data.depositTypes.type.choices[0],
+          type: depositTypeChoices[0],
         },
         fields: {},
       });
     }
-  }, [
-    sep6DepositAsset.status,
-    sep6DepositAsset.data.depositTypes.type.choices,
-    dispatch,
-  ]);
+  }, [sep6DepositAsset.status, depositTypeChoices, dispatch]);
 
   useEffect(() => {
     if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED) {
@@ -90,9 +91,6 @@ export const Sep6Send = () => {
     event.preventDefault();
     dispatch(submitSep6DepositFields({ ...formData }));
   };
-
-  const depositTypeChoices =
-    sep6DepositAsset.data.depositTypes?.type?.choices || [];
 
   if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
     return (
