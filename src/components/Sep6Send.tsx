@@ -90,6 +90,10 @@ export const Sep6Send = () => {
     event.preventDefault();
     dispatch(submitSep6DepositFields({ ...formData }));
   };
+
+  const depositTypeChoices =
+    sep6DepositAsset.data.depositTypes?.type?.choices || [];
+
   if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
     return (
       <Modal visible={true} onClose={handleClose}>
@@ -116,13 +120,11 @@ export const Sep6Send = () => {
               <>
                 <label>{input.description}</label>
                 <Select id={id} key={id} onChange={handleDepositTypeChange}>
-                  {sep6DepositAsset.data.depositTypes.type.choices.map(
-                    (choice: string) => (
-                      <option key={choice} value={choice}>
-                        {choice}
-                      </option>
-                    ),
-                  )}
+                  {depositTypeChoices.map((choice: string) => (
+                    <option key={choice} value={choice}>
+                      {choice}
+                    </option>
+                  ))}
                 </Select>
               </>
             ),
