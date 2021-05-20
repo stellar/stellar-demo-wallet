@@ -214,7 +214,6 @@ export const sep6DepositAction = createAsyncThunk<
       const { data: sep6data, type } = sep6DepositSelector(getState());
 
       const { assetCode, transferServer, token } = sep6data;
-      /* eslint-disable camelcase */
 
       const depositResponse = (await programmaticDepositFlow({
         assetCode,
@@ -226,7 +225,6 @@ export const sep6DepositAction = createAsyncThunk<
       })) as Sep6DepositResponse;
 
       return { depositResponse, status: ActionStatus.SUCCESS };
-      /* eslint-enable camelcase */
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 
