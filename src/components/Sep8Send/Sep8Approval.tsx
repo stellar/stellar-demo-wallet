@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StrKey } from "stellar-sdk";
 import {
@@ -11,20 +11,20 @@ import {
 import { DataProvider } from "@stellar/wallet-sdk";
 import { Modal } from "components/Modal";
 import { TextLink } from "components/TextLink";
-import { fetchAccountAction } from "ducks/account";
-import { resetActiveAssetAction } from "ducks/activeAsset";
-import { resetSep8SendAction, sep8SendPaymentAction } from "ducks/sep8Send";
+import {
+  sep8ClearErrorAction,
+  sep8ReviseTransactionAction,
+} from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
-export const Sep8Send = () => {
+export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send, settings } = useRedux(
     "account",
     "sep8Send",
     "settings",
   );
-  const [sep8PaymentModalVisible, setSep8PaymentModalVisible] = useState(false);
   const dispatch = useDispatch();
 
   // form data
@@ -38,7 +38,6 @@ export const Sep8Send = () => {
     setIsDestinationFunded(true);
   };
 
-  // destructure sep8 data
   const {
     approvalCriteria,
     approvalServer,
@@ -59,39 +58,24 @@ export const Sep8Send = () => {
         approvalServer,
       };
 
-      dispatch(sep8SendPaymentAction(params));
+      dispatch(sep8ReviseTransactionAction(params));
     }
   };
 
-  const handleCloseModal = useCallback(() => {
-    setSep8PaymentModalVisible(false);
+  const handleCloseModal = () => {
     resetFormState();
-    dispatch(resetActiveAssetAction());
-    dispatch(resetSep8SendAction());
-  }, [dispatch]);
+    onClose();
+  };
 
   // use effect
   useEffect(() => {
-    if (sep8Send.status === ActionStatus.CAN_PROCEED) {
-      setSep8PaymentModalVisible(true);
+    if (
+      sep8Send.status === ActionStatus.CAN_PROCEED &&
+      sep8Send.data.revisedTransaction.revisedTxXdr
+    ) {
+      resetFormState();
     }
-
-    if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
-      dispatch(
-        fetchAccountAction({
-          publicKey: account.data.id,
-          secretKey: account.secretKey,
-        }),
-      );
-      handleCloseModal();
-    }
-  }, [
-    account.data?.id,
-    account.secretKey,
-    sep8Send.status,
-    dispatch,
-    handleCloseModal,
-  ]);
+  }, [sep8Send.status, sep8Send.data.revisedTransaction.revisedTxXdr]);
 
   // helper function(s)
   const checkAndSetIsDestinationFunded = async () => {
@@ -108,7 +92,7 @@ export const Sep8Send = () => {
     setIsDestinationFunded(await dataProvider.isAccountFunded());
   };
 
-  const renderSendPayment = () => (
+  const renderApprovePayment = () => (
     <>
       <Heading2 className="ModalHeading">Send SEP-8 Payment</Heading2>
 
@@ -117,10 +101,13 @@ export const Sep8Send = () => {
           id="send-destination"
           label="Destination"
           value={destination}
-          onChange={(e) => setDestination(e.target.value)}
-          onBlur={() => {
-            checkAndSetIsDestinationFunded();
+          onChange={(e) => {
+            setDestination(e.target.value);
+            if (sep8Send.errorString) {
+              dispatch(sep8ClearErrorAction());
+            }
           }}
+          onBlur={checkAndSetIsDestinationFunded}
         />
 
         <Input
@@ -128,7 +115,12 @@ export const Sep8Send = () => {
           label="Amount"
           type="number"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => {
+            setAmount(e.target.value);
+            if (sep8Send.errorString) {
+              dispatch(sep8ClearErrorAction());
+            }
+          }}
         />
 
         <Input
@@ -184,9 +176,8 @@ export const Sep8Send = () => {
   );
 
   return (
-    <Modal visible={sep8PaymentModalVisible} onClose={handleCloseModal}>
-      {/* Send payment */}
-      {renderSendPayment()}
+    <Modal onClose={handleCloseModal} visible>
+      {renderApprovePayment()}
     </Modal>
   );
 };

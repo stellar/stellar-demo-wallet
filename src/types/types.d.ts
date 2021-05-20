@@ -407,7 +407,25 @@ export interface Sep8SendInitialState {
     assetIssuer: string;
     homeDomain: string;
     isRegulated: boolean;
+    revisedTransaction: {
+      amount: string;
+      destination: string;
+      revisedTxXdr: string;
+      submittedTxXdr: string;
+    };
   };
   errorString?: string;
   status?: ActionStatus;
+}
+
+export interface Sep8RevisedTransactionInfo {
+  amount: string;
+  destination: string;
+  revisedTxXdr: string;
+  submittedTxXdr: string;
+}
+
+export interface Sep8ApprovalResponse {
+  status: Sep8ApprovalStatus;
+  revisedTransaction?: Sep8RevisedTransactionInfo;
 }
