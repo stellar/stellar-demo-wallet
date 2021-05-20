@@ -40,7 +40,7 @@ export const Sep8Send = () => {
       sep8Send.data.revisedTransaction.revisedTxXdr,
     );
     const hasPendingActionRequired = Boolean(
-      sep8Send.data.actionRequired.actionFields.length,
+      sep8Send.data.actionRequiredInfo.actionFields.length,
     );
     setApprovalModalVisible(!hasTxToRevise && !hasPendingActionRequired);
     setReviewModalVisible(hasTxToRevise);
@@ -48,7 +48,7 @@ export const Sep8Send = () => {
   }, [
     sep8Send.status,
     sep8Send.data.revisedTransaction.revisedTxXdr,
-    sep8Send.data.actionRequired.actionFields,
+    sep8Send.data.actionRequiredInfo.actionFields,
   ]);
 
   return (

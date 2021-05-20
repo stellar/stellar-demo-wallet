@@ -12,7 +12,7 @@ export const Sep8ActionRequiredForm = ({
 }) => {
   const { sep8Send } = useRedux("sep8Send");
   const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
-  const { actionFields, message } = sep8Send.data.actionRequired;
+  const { actionFields, message } = sep8Send.data.actionRequiredInfo;
 
   // user interaction handlers
   const handleSubmitActionRequiredFields = () => {

@@ -157,7 +157,7 @@ const initialState: Sep8SendInitialState = {
       submittedTxXdr: "",
       revisedTxXdr: "",
     },
-    actionRequired: {
+    actionRequiredInfo: {
       actionFields: [],
       actionMethod: "",
       actionUrl: "",
@@ -196,8 +196,8 @@ const sep8SendSlice = createSlice({
       switch (action.payload.status) {
         case Sep8ApprovalStatus.ACTION_REQUIRED:
           state.status = ActionStatus.CAN_PROCEED;
-          if (action.payload.actionRequired) {
-            state.data.actionRequired = action.payload.actionRequired;
+          if (action.payload.actionRequiredInfo) {
+            state.data.actionRequiredInfo = action.payload.actionRequiredInfo;
           }
           break;
 

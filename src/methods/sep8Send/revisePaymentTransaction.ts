@@ -63,7 +63,7 @@ export const revisePaymentTransaction = async ({
 
       return {
         status: Sep8ApprovalStatus.ACTION_REQUIRED,
-        actionRequired: {
+        actionRequiredInfo: {
           actionFields: sep8ApprovalResultJson.action_fields,
           actionMethod: sep8ApprovalResultJson.action_method,
           actionUrl: sep8ApprovalResultJson.action_url,

@@ -364,7 +364,7 @@ export interface Sep8SendInitialState {
       revisedTxXdr: string;
       submittedTxXdr: string;
     };
-    actionRequired: {
+    actionRequiredInfo: {
       actionFields: string[];
       actionMethod: string;
       actionUrl: string;
@@ -385,7 +385,7 @@ export interface Sep8RevisedTransactionInfo {
 export interface Sep8ApprovalResponse {
   status: Sep8ApprovalStatus;
   revisedTransaction?: Sep8RevisedTransactionInfo;
-  actionRequired?: Sep8ActionRequiredInfo;
+  actionRequiredInfo?: Sep8ActionRequiredInfo;
 }
 
 export interface Sep8ActionRequiredInfo {
