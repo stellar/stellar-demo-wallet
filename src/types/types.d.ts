@@ -382,14 +382,21 @@ export interface Sep8RevisedTransactionInfo {
   submittedTxXdr: string;
 }
 
+export interface Sep8ApprovalResponse {
+  status: Sep8ApprovalStatus;
+  revisedTransaction?: Sep8RevisedTransactionInfo;
+  actionRequired?: Sep8ActionRequiredInfo;
+}
+
 export interface Sep8ActionRequiredInfo {
   actionFields: string[];
   actionMethod: string;
   actionUrl: string;
   message: string;
 }
-export interface Sep8ApprovalResponse {
-  status: Sep8ApprovalStatus;
-  revisedTransaction?: Sep8RevisedTransactionInfo;
-  actionRequired?: Sep8ActionRequiredInfo;
+
+export interface Sep8ActionRequiredResult {
+  result: "no_further_action_required" | "follow_next_url";
+  nextUrl?: string;
+  message?: string;
 }
