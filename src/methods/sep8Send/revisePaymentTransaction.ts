@@ -69,6 +69,12 @@ export const revisePaymentTransaction = async ({
           actionUrl: sep8ApprovalResultJson.action_url,
           message: sep8ApprovalResultJson.message,
         },
+        revisedTransaction: {
+          amount: params.amount,
+          destination: params.destination,
+          submittedTxXdr,
+          revisedTxXdr: "",
+        },
       };
 
     case Sep8ApprovalStatus.PENDING: {

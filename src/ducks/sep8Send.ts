@@ -117,30 +117,6 @@ export const sep8ReviseTransactionAction = createAsyncThunk<
   },
 );
 
-export const sep8SendActionRequiredParamsAction = createAsyncThunk<
-  Sep8ActionRequiredResult,
-  ActionRequiredParams,
-  { rejectValue: RejectMessage; state: RootState }
->(
-  "sep8Send/sep8SendActionRequiredParamsAction",
-  async (params, { rejectWithValue }) => {
-    const { actionFields, actionMethod, actionUrl } = params;
-
-    try {
-      const result = await sendActionRequiredFields({
-        actionFields,
-        actionMethod,
-        actionUrl,
-      });
-      return result;
-    } catch (error) {
-      const errorString = getErrorString(error);
-      log.error({ title: errorString });
-      return rejectWithValue({ errorString });
-    }
-  },
-);
-
 export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
   Horizon.TransactionResponse,
   undefined,
@@ -160,6 +136,30 @@ export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
         revisedTxXdr,
         isPubnet,
         secretKey,
+      });
+      return result;
+    } catch (error) {
+      const errorString = getErrorString(error);
+      log.error({ title: errorString });
+      return rejectWithValue({ errorString });
+    }
+  },
+);
+
+export const sep8SendActionRequiredParamsAction = createAsyncThunk<
+  Sep8ActionRequiredResult,
+  ActionRequiredParams,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep8Send/sep8SendActionRequiredParamsAction",
+  async (params, { rejectWithValue }) => {
+    const { actionFields, actionMethod, actionUrl } = params;
+
+    try {
+      const result = await sendActionRequiredFields({
+        actionFields,
+        actionMethod,
+        actionUrl,
       });
       return result;
     } catch (error) {
@@ -220,27 +220,6 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(
-      sep8SendActionRequiredParamsAction.pending,
-      (state = initialState) => {
-        state.status = ActionStatus.PENDING;
-      },
-    );
-    builder.addCase(
-      sep8SendActionRequiredParamsAction.fulfilled,
-      (state, action) => {
-        state.data = { ...state.data, actionRequiredResult: action.payload };
-        state.status = ActionStatus.SUCCESS;
-      },
-    );
-    builder.addCase(
-      sep8SendActionRequiredParamsAction.rejected,
-      (state, action) => {
-        state.errorString = action.payload?.errorString;
-        state.status = ActionStatus.ERROR;
-      },
-    );
-
     builder.addCase(sep8ReviseTransactionAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
@@ -250,7 +229,10 @@ const sep8SendSlice = createSlice({
         case Sep8ApprovalStatus.ACTION_REQUIRED:
           state.status = ActionStatus.CAN_PROCEED;
           if (action.payload.actionRequiredInfo) {
-            state.data.actionRequiredInfo = action.payload.actionRequiredInfo;
+            state.data = {
+              ...state.data,
+              actionRequiredInfo: action.payload.actionRequiredInfo,
+            };
           }
           break;
 
@@ -262,7 +244,10 @@ const sep8SendSlice = createSlice({
         case Sep8ApprovalStatus.SUCCESS:
           state.status = ActionStatus.CAN_PROCEED;
           if (action.payload.revisedTransaction) {
-            state.data.revisedTransaction = action.payload.revisedTransaction;
+            state.data = {
+              ...state.data,
+              revisedTransaction: action.payload.revisedTransaction,
+            };
           }
           break;
 
@@ -285,6 +270,27 @@ const sep8SendSlice = createSlice({
     });
     builder.addCase(
       sep8SubmitRevisedTransactionAction.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
+
+    builder.addCase(
+      sep8SendActionRequiredParamsAction.pending,
+      (state = initialState) => {
+        state.status = ActionStatus.PENDING;
+      },
+    );
+    builder.addCase(
+      sep8SendActionRequiredParamsAction.fulfilled,
+      (state, action) => {
+        state.data = { ...state.data, actionRequiredResult: action.payload };
+        state.status = ActionStatus.SUCCESS;
+      },
+    );
+    builder.addCase(
+      sep8SendActionRequiredParamsAction.rejected,
       (state, action) => {
         state.errorString = action.payload?.errorString;
         state.status = ActionStatus.ERROR;
