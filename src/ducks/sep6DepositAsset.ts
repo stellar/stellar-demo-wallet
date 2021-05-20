@@ -6,12 +6,12 @@ import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import { checkDepositWithdrawInfo } from "methods/checkDepositWithdrawInfo";
+import { programmaticDepositFlow } from "methods/sep6";
 import {
   sep10AuthStart,
   sep10AuthSign,
   sep10AuthSend,
 } from "methods/sep10Auth";
-import { programmaticDepositFlow } from "methods/sep6";
 import { collectSep12Fields, putSep12FieldsRequest } from "methods/sep12";
 import { checkTomlForFields } from "methods/checkTomlForFields";
 import {
