@@ -1,17 +1,13 @@
 import { log } from "helpers/log";
-import { Sep8ActionRequiredResult } from "types/types.d";
+import { ActionRequiredParams, Sep8ActionRequiredResult } from "types/types.d";
 
 export const sendActionRequiredFields = async ({
   actionFields,
   actionMethod,
   actionUrl,
-}: {
-  actionFields: { [key: string]: string };
-  actionMethod: string;
-  actionUrl: string;
-}): Promise<Sep8ActionRequiredResult> => {
+}: ActionRequiredParams): Promise<Sep8ActionRequiredResult> => {
   log.request({
-    title: `Sending action required fields to SEP-8 server with ${actionMethod} ${actionUrl}`,
+    title: `Sending action required fields to SEP-8 server with [${actionMethod} ${actionUrl}]`,
     body: actionFields,
   });
   const sep8ActionRequiredResult = await fetch(actionUrl, {
@@ -46,13 +42,24 @@ export const sendActionRequiredFields = async ({
       break;
 
     default:
-      throw new Error(`Unexpected result: ${resultJson}`);
+      throw new Error(`Unexpected result: ${JSON.stringify(resultJson)}`);
   }
 
   log.response({
     title: "Action Required Response",
     body: resultJson,
   });
+
+  if (validatedResponse.message) {
+    log.instruction({
+      title: validatedResponse.message,
+    });
+  } else {
+    log.instruction({
+      title:
+        "The SEP-8 server received your information and may or may not approve it. Please submit a new SEP-8 payment to verify it went out correctly.",
+    });
+  }
 
   return validatedResponse;
 };

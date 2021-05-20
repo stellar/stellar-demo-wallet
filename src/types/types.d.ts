@@ -370,6 +370,11 @@ export interface Sep8SendInitialState {
       actionUrl: string;
       message: string;
     };
+    actionRequiredResult: {
+      result: string;
+      nextUrl?: string;
+      message?: string;
+    };
   };
   errorString?: string;
   status?: ActionStatus;
@@ -386,6 +391,7 @@ export interface Sep8ApprovalResponse {
   status: Sep8ApprovalStatus;
   revisedTransaction?: Sep8RevisedTransactionInfo;
   actionRequiredInfo?: Sep8ActionRequiredInfo;
+  actionRequiredResult?: Sep8ActionRequiredResult;
 }
 
 export interface Sep8ActionRequiredInfo {
@@ -395,8 +401,14 @@ export interface Sep8ActionRequiredInfo {
   message: string;
 }
 
+export interface ActionRequiredParams {
+  actionFields: { [key: string]: string };
+  actionMethod: string;
+  actionUrl: string;
+}
+
 export interface Sep8ActionRequiredResult {
-  result: "no_further_action_required" | "follow_next_url";
+  result: string;
   nextUrl?: string;
   message?: string;
 }

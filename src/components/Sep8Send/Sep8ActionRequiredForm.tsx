@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Button, Input, Loader } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
 import { Modal } from "components/Modal";
+import { sep8SendActionRequiredParamsAction } from "ducks/sep8Send";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
@@ -12,15 +14,39 @@ export const Sep8ActionRequiredForm = ({
 }) => {
   const { sep8Send } = useRedux("sep8Send");
   const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
-  const { actionFields, message } = sep8Send.data.actionRequiredInfo;
+  const {
+    actionFields,
+    message,
+    actionMethod,
+    actionUrl,
+  } = sep8Send.data.actionRequiredInfo;
+  const { nextUrl, result } = sep8Send.data.actionRequiredResult;
+  const dispatch = useDispatch();
 
-  // user interaction handlers
+  useEffect(() => {
+    if (sep8Send.status !== ActionStatus.SUCCESS) {
+      return;
+    }
+
+    if (result === "follow_next_url") {
+      window.open(nextUrl, "_blank");
+    }
+
+    onClose();
+  }, [nextUrl, onClose, result, sep8Send.status]);
+
   const handleSubmitActionRequiredFields = () => {
-    console.log("TODO: handleSubmitActionRequiredFields");
+    dispatch(
+      sep8SendActionRequiredParamsAction({
+        actionFields: fieldValues,
+        actionMethod,
+        actionUrl,
+      }),
+    );
   };
 
   const handleGetFieldValue = ({ fieldName }: { fieldName: string }) =>
-    fieldValues[fieldName];
+    fieldValues[fieldName] || "";
 
   const handleSetFieldValue = ({
     fieldName,
@@ -49,6 +75,7 @@ export const Sep8ActionRequiredForm = ({
 
         {actionFields.map((fieldName) => (
           <Input
+            key={fieldName}
             id={`sep8-action-field-${fieldName}`}
             label={fieldName}
             onChange={(e) =>
