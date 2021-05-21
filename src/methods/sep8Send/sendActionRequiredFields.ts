@@ -1,5 +1,6 @@
 import { log } from "helpers/log";
 import {
+  Sep8ActionRequiredResultType,
   Sep8ActionRequiredSendParams,
   Sep8ActionRequiredSentResult,
 } from "types/types.d";
@@ -24,18 +25,18 @@ export const sendActionRequiredFields = async ({
 
   let validatedResponse: Sep8ActionRequiredSentResult;
   switch (resultJson.result) {
-    case "no_further_action_required":
+    case Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED:
       validatedResponse = {
-        result: "no_further_action_required",
+        result: Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED,
       };
       break;
 
-    case "follow_next_url":
+    case Sep8ActionRequiredResultType.FOLLOW_NEXT_URL:
       if (!resultJson.next_url) {
         throw new Error(`Missing "next_url" parameter`);
       }
       validatedResponse = {
-        result: "follow_next_url",
+        result: Sep8ActionRequiredResultType.FOLLOW_NEXT_URL,
         nextUrl: resultJson.next_url,
       };
 

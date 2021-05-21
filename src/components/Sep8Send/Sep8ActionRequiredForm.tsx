@@ -8,7 +8,11 @@ import {
   sep8SendActionRequiredFieldsAction,
 } from "ducks/sep8Send";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, Sep8Step } from "types/types.d";
+import {
+  ActionStatus,
+  Sep8ActionRequiredResultType,
+  Sep8Step,
+} from "types/types.d";
 
 export const Sep8ActionRequiredForm = ({
   onClose,
@@ -28,7 +32,7 @@ export const Sep8ActionRequiredForm = ({
 
   useEffect(() => {
     if (sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS) {
-      if (result === "follow_next_url") {
+      if (result === Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED) {
         window.open(nextUrl, "_blank");
       }
 

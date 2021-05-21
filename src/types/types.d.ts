@@ -452,6 +452,11 @@ export interface Sep8ActionRequiredSendParams {
   actionUrl: string;
 }
 
+export enum Sep8ActionRequiredResultType {
+  FOLLOW_NEXT_URL = "follow_next_url",
+  NO_FURTHER_ACTION_REQUIRED = "no_further_action_required",
+}
+
 export interface Sep8ActionRequiredSentResult {
   result: string;
   nextUrl?: string;
