@@ -7,12 +7,13 @@ import { getErrorString } from "helpers/getErrorString";
 import { log } from "helpers/log";
 import { getToml } from "methods/getToml";
 import { revisePaymentTransaction } from "methods/sep8Send/revisePaymentTransaction";
+import { sendActionRequiredFields } from "methods/sep8Send/sendActionRequiredFields";
 import { submitRevisedTransaction } from "methods/sep8Send/submitRevisedTransaction";
 import {
-  ActionRequiredParams,
+  Sep8ActionRequiredSendParams,
   ActionStatus,
   RejectMessage,
-  Sep8ActionRequiredResult,
+  Sep8ActionRequiredSentResult,
   Sep8ApprovalResponse,
   Sep8ApprovalStatus,
   Sep8NextStepOnSuccess,
@@ -20,7 +21,6 @@ import {
   Sep8SendInitialState,
   Sep8Step,
 } from "types/types.d";
-import { sendActionRequiredFields } from "methods/sep8Send/sendActionRequiredFields";
 
 interface InitiateSep8SendActionResponse {
   approvalCriteria: string;
@@ -153,12 +153,12 @@ export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
   },
 );
 
-export const sep8SendActionRequiredParamsAction = createAsyncThunk<
-  Sep8ActionRequiredResult,
-  ActionRequiredParams,
+export const sep8SendActionRequiredFieldsAction = createAsyncThunk<
+  Sep8ActionRequiredSentResult,
+  Sep8ActionRequiredSendParams,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep8Send/sep8SendActionRequiredParamsAction",
+  "sep8Send/sep8SendActionRequiredFieldsAction",
   async (params, { rejectWithValue }) => {
     const { actionFields, actionMethod, actionUrl } = params;
 
@@ -226,7 +226,6 @@ const sep8SendSlice = createSlice({
         ...action.payload,
         sep8Step: Sep8NextStepOnSuccess({ currentStep: state.data.sep8Step }),
       };
-      state.errorString = undefined;
       state.status = ActionStatus.SUCCESS;
     });
     builder.addCase(initiateSep8SendAction.rejected, (state, action) => {
@@ -241,21 +240,13 @@ const sep8SendSlice = createSlice({
     builder.addCase(sep8ReviseTransactionAction.fulfilled, (state, action) => {
       switch (action.payload.status) {
         case Sep8ApprovalStatus.ACTION_REQUIRED: {
-          const hasDataChanges =
-            !!action.payload.actionRequiredInfo ||
-            !!state.data.actionRequiredInfo;
-          if (!hasDataChanges) {
-            break;
-          }
-
-          const actionRequiredInfo =
-            action.payload.actionRequiredInfo ?? state.data.actionRequiredInfo;
-          const revisedTransaction =
-            action.payload.revisedTransaction ?? state.data.revisedTransaction;
+          const { actionRequiredInfo, revisedTransaction } = action.payload;
           state.data = {
             ...state.data,
-            actionRequiredInfo,
-            revisedTransaction,
+            actionRequiredInfo:
+              actionRequiredInfo ?? state.data.actionRequiredInfo,
+            revisedTransaction:
+              revisedTransaction ?? state.data.revisedTransaction,
           };
           break;
         }
@@ -278,7 +269,6 @@ const sep8SendSlice = createSlice({
           break;
       }
 
-      state.errorString = undefined;
       state.status = ActionStatus.SUCCESS;
       state.data.sep8Step = Sep8NextStepOnSuccess({
         approvalStatus: action.payload.status,
@@ -295,7 +285,6 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(sep8SubmitRevisedTransactionAction.fulfilled, (state) => {
-      state.errorString = undefined;
       state.status = ActionStatus.SUCCESS;
       state.data.sep8Step = Sep8NextStepOnSuccess({
         currentStep: state.data.sep8Step,
@@ -310,14 +299,14 @@ const sep8SendSlice = createSlice({
     );
 
     builder.addCase(
-      sep8SendActionRequiredParamsAction.pending,
+      sep8SendActionRequiredFieldsAction.pending,
       (state = initialState) => {
         state.errorString = undefined;
         state.status = ActionStatus.PENDING;
       },
     );
     builder.addCase(
-      sep8SendActionRequiredParamsAction.fulfilled,
+      sep8SendActionRequiredFieldsAction.fulfilled,
       (state, action) => {
         state.data = {
           ...state.data,
@@ -326,12 +315,11 @@ const sep8SendSlice = createSlice({
             currentStep: state.data.sep8Step,
           }),
         };
-        state.errorString = undefined;
         state.status = ActionStatus.SUCCESS;
       },
     );
     builder.addCase(
-      sep8SendActionRequiredParamsAction.rejected,
+      sep8SendActionRequiredFieldsAction.rejected,
       (state, action) => {
         state.errorString = action.payload?.errorString;
         state.status = ActionStatus.ERROR;

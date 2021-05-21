@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { Sep8ActionRequiredForm } from "components/Sep8Send/Sep8ActionRequiredForm";
 import { Sep8Approval } from "components/Sep8Send/Sep8Approval";
@@ -10,29 +9,28 @@ import { Sep8Step } from "types/types.d";
 
 export const Sep8Send = () => {
   const { sep8Send } = useRedux("sep8Send");
+  const sep8Step = sep8Send.data.sep8Step;
   const dispatch = useDispatch();
 
-  const onClose = useCallback(() => {
+  const onClose = () => {
     dispatch(resetActiveAssetAction());
     dispatch(resetSep8SendAction());
-  }, [dispatch]);
+  };
 
   return (
     <>
-      {(sep8Send.data.sep8Step === Sep8Step.STARTING ||
-        sep8Send.data.sep8Step === Sep8Step.PENDING) && (
+      {[Sep8Step.STARTING, Sep8Step.PENDING].includes(sep8Step) && (
         <Sep8Approval onClose={onClose} />
       )}
 
-      {(sep8Send.data.sep8Step === Sep8Step.TRANSACTION_REVISED ||
-        sep8Send.data.sep8Step === Sep8Step.COMPLETE) && (
+      {[Sep8Step.TRANSACTION_REVISED, Sep8Step.COMPLETE].includes(sep8Step) && (
         <Sep8Review onClose={onClose} />
       )}
 
-      {(sep8Send.data.sep8Step === Sep8Step.ACTION_REQUIRED ||
-        sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_PARAMS) && (
-        <Sep8ActionRequiredForm onClose={onClose} />
-      )}
+      {[
+        Sep8Step.ACTION_REQUIRED,
+        Sep8Step.SENT_ACTION_REQUIRED_FIELDS,
+      ].includes(sep8Step) && <Sep8ActionRequiredForm onClose={onClose} />}
     </>
   );
 };

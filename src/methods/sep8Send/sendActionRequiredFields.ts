@@ -1,11 +1,14 @@
 import { log } from "helpers/log";
-import { ActionRequiredParams, Sep8ActionRequiredResult } from "types/types.d";
+import {
+  Sep8ActionRequiredSendParams,
+  Sep8ActionRequiredSentResult,
+} from "types/types.d";
 
 export const sendActionRequiredFields = async ({
   actionFields,
   actionMethod,
   actionUrl,
-}: ActionRequiredParams): Promise<Sep8ActionRequiredResult> => {
+}: Sep8ActionRequiredSendParams): Promise<Sep8ActionRequiredSentResult> => {
   log.request({
     title: `Sending action required fields to SEP-8 server with \`${actionMethod} ${actionUrl}\``,
     body: actionFields,
@@ -19,7 +22,7 @@ export const sendActionRequiredFields = async ({
   });
   const resultJson = await sep8ActionRequiredResult.json();
 
-  let validatedResponse: Sep8ActionRequiredResult;
+  let validatedResponse: Sep8ActionRequiredSentResult;
   switch (resultJson.result) {
     case "no_further_action_required":
       validatedResponse = {

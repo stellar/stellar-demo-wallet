@@ -5,7 +5,7 @@ import { Heading2 } from "components/Heading";
 import { Modal } from "components/Modal";
 import {
   initiateSep8SendAction,
-  sep8SendActionRequiredParamsAction,
+  sep8SendActionRequiredFieldsAction,
 } from "ducks/sep8Send";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, Sep8Step } from "types/types.d";
@@ -27,7 +27,7 @@ export const Sep8ActionRequiredForm = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_PARAMS) {
+    if (sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS) {
       if (result === "follow_next_url") {
         window.open(nextUrl, "_blank");
       }
@@ -55,7 +55,7 @@ export const Sep8ActionRequiredForm = ({
 
   const handleSubmitActionRequiredFields = () => {
     dispatch(
-      sep8SendActionRequiredParamsAction({
+      sep8SendActionRequiredFieldsAction({
         actionFields: fieldValues,
         actionMethod,
         actionUrl,
@@ -63,10 +63,7 @@ export const Sep8ActionRequiredForm = ({
     );
   };
 
-  const handleGetFieldValue = ({ fieldName }: { fieldName: string }) =>
-    fieldValues[fieldName] || "";
-
-  const handleSetFieldValue = ({
+  const handleOnChangeField = ({
     fieldName,
     fieldValue,
   }: {
@@ -97,9 +94,9 @@ export const Sep8ActionRequiredForm = ({
             id={`sep8-action-field-${fieldName}`}
             label={fieldName}
             onChange={(e) =>
-              handleSetFieldValue({ fieldName, fieldValue: e.target.value })
+              handleOnChangeField({ fieldName, fieldValue: e.target.value })
             }
-            value={handleGetFieldValue({ fieldName })}
+            value={fieldValues[fieldName] || ""}
           />
         ))}
 

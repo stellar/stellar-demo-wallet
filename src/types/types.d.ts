@@ -349,50 +349,50 @@ export enum Sep8Step {
   STARTING = "starting",
   PENDING = "pending",
   TRANSACTION_REVISED = "transaction_revised",
-  COMPLETE = "complete",
   ACTION_REQUIRED = "action_required",
-  SENT_ACTION_REQUIRED_PARAMS = "sent_action_required_params",
+  SENT_ACTION_REQUIRED_FIELDS = "sent_action_required_fields",
+  COMPLETE = "complete",
 }
 
+export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
+  approvalServer: string;
+  assetCode: string;
+  assetIssuer: string;
+}
+
+/**
+ * Returns the next SEP-8 step to be displayed after the current step succeeds.
+ * @param {Sep8Step} currentStep the current SEP-8 step.
+ * @param {Sep8ApprovalStatus} [approvalStatus] the approval status returned from the SEP-8 server. This value will only be used if `currentStep === Sep8Step.STARTING`.
+ * @returns {Sep8Step} the next SEP-8 step for the application.
+ */
 export const Sep8NextStepOnSuccess = ({
   currentStep,
   approvalStatus,
 }: {
   currentStep: Sep8Step;
   approvalStatus?: Sep8ApprovalStatus;
-}) => {
-  switch (currentStep) {
-    case Sep8Step.DISABLED:
-      return Sep8Step.STARTING;
+}): Sep8Step => {
+  const nextStepDict: { [key: Sep8Step]: Sep8Step } = {
+    [Sep8Step.DISABLED]: Sep8Step.STARTING,
+    [Sep8Step.STARTING]: (() => {
+      const approvalStatusDict: { [key: Sep8ApprovalStatus]: Sep8Step } = {
+        [Sep8ApprovalStatus.ACTION_REQUIRED]: Sep8Step.ACTION_REQUIRED,
+        [Sep8ApprovalStatus.PENDING]: Sep8Step.PENDING,
+        [Sep8ApprovalStatus.REVISED]: Sep8Step.TRANSACTION_REVISED,
+        [Sep8ApprovalStatus.SUCCESS]: Sep8Step.TRANSACTION_REVISED,
+        [Sep8ApprovalStatus.REJECTED]: currentStep,
+      };
+      return approvalStatusDict[approvalStatus];
+    })(),
+    [Sep8Step.PENDING]: Sep8Step.DISABLED,
+    [Sep8Step.TRANSACTION_REVISED]: Sep8Step.COMPLETE,
+    [Sep8Step.ACTION_REQUIRED]: Sep8Step.SENT_ACTION_REQUIRED_FIELDS,
+    [Sep8Step.SENT_ACTION_REQUIRED_FIELDS]: Sep8Step.STARTING,
+    [Sep8Step.COMPLETE]: Sep8Step.DISABLED,
+  };
 
-    case Sep8Step.STARTING:
-      switch (approvalStatus) {
-        case Sep8ApprovalStatus.REVISED:
-        case Sep8ApprovalStatus.SUCCESS:
-          return Sep8Step.TRANSACTION_REVISED;
-
-        case Sep8ApprovalStatus.ACTION_REQUIRED:
-          return Sep8Step.ACTION_REQUIRED;
-
-        case Sep8ApprovalStatus.PENDING:
-          return Sep8Step.PENDING;
-
-        default:
-          return currentStep;
-      }
-
-    case Sep8Step.TRANSACTION_REVISED:
-      return Sep8Step.COMPLETE;
-
-    case Sep8Step.ACTION_REQUIRED:
-      return Sep8Step.SENT_ACTION_REQUIRED_PARAMS;
-
-    case Sep8Step.SENT_ACTION_REQUIRED_PARAMS:
-      return Sep8Step.STARTING;
-
-    default:
-      return Sep8Step.DISABLED;
-  }
+  return nextStepDict[currentStep];
 };
 
 export interface Sep8SendInitialState {
@@ -426,12 +426,6 @@ export interface Sep8SendInitialState {
   status?: ActionStatus;
 }
 
-export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
-  approvalServer: string;
-  assetCode: string;
-  assetIssuer: string;
-}
-
 export interface Sep8RevisedTransactionInfo {
   amount: string;
   destination: string;
@@ -443,7 +437,6 @@ export interface Sep8ApprovalResponse {
   status: Sep8ApprovalStatus;
   revisedTransaction?: Sep8RevisedTransactionInfo;
   actionRequiredInfo?: Sep8ActionRequiredInfo;
-  actionRequiredResult?: Sep8ActionRequiredResult;
 }
 
 export interface Sep8ActionRequiredInfo {
@@ -453,13 +446,13 @@ export interface Sep8ActionRequiredInfo {
   message: string;
 }
 
-export interface ActionRequiredParams {
+export interface Sep8ActionRequiredSendParams {
   actionFields: { [key: string]: string };
   actionMethod: string;
   actionUrl: string;
 }
 
-export interface Sep8ActionRequiredResult {
+export interface Sep8ActionRequiredSentResult {
   result: string;
   nextUrl?: string;
   message?: string;

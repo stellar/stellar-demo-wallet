@@ -25,20 +25,18 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
     "sep8Send",
     "settings",
   );
-  const dispatch = useDispatch();
-
   const {
     approvalCriteria,
     approvalServer,
     assetCode,
     assetIssuer,
   } = sep8Send.data;
-  // form data
   const [amount, setAmount] = useState(sep8Send.data.revisedTransaction.amount);
   const [destination, setDestination] = useState(
     sep8Send.data.revisedTransaction.destination,
   );
   const [isDestinationFunded, setIsDestinationFunded] = useState(true);
+  const dispatch = useDispatch();
 
   const resetFormState = () => {
     setDestination("");

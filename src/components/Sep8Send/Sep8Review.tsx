@@ -22,6 +22,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   const [isApproved, setIsApproved] = useState(false);
   const dispatch = useDispatch();
   const { revisedTxXdr, submittedTxXdr } = sep8Send.data.revisedTransaction;
+  const { sep8Step } = sep8Send.data;
 
   // user interaction handlers
   const handleSubmitPayment = () => {
@@ -32,7 +33,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
   // use effect: complete action, close modal and refresh account balances
   useEffect(() => {
-    if (sep8Send.data.sep8Step === Sep8Step.COMPLETE && account.data?.id) {
+    if (sep8Step === Sep8Step.COMPLETE && account.data?.id) {
       dispatch(
         fetchAccountAction({
           publicKey: account.data.id,
@@ -41,13 +42,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
       );
       onClose();
     }
-  }, [
-    account.data?.id,
-    account.secretKey,
-    sep8Send.data.sep8Step,
-    dispatch,
-    onClose,
-  ]);
+  }, [account.data?.id, account.secretKey, dispatch, onClose, sep8Step]);
 
   // use effect: parse transaction XDRs
   useEffect(() => {
