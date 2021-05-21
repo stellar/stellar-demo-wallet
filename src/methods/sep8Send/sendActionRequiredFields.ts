@@ -33,7 +33,7 @@ export const sendActionRequiredFields = async ({
 
     case Sep8ActionRequiredResultType.FOLLOW_NEXT_URL:
       if (!resultJson.next_url) {
-        throw new Error(`Missing "next_url" parameter`);
+        throw new Error(`Missing "next_url" parameter.`);
       }
       validatedResponse = {
         result: Sep8ActionRequiredResultType.FOLLOW_NEXT_URL,
@@ -61,7 +61,7 @@ export const sendActionRequiredFields = async ({
   } else {
     log.instruction({
       title:
-        "The SEP-8 server received your information, let's re-submit the SEP-8 payment again.",
+        "The SEP-8 server received your information, re-submit the SEP-8 payment.",
     });
   }
 

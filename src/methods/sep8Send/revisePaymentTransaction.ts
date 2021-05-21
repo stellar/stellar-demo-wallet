@@ -55,7 +55,7 @@ export const revisePaymentTransaction = async ({
     case Sep8ApprovalStatus.ACTION_REQUIRED:
       log.response({
         title: "Action Required",
-        body: "Additional information is needed before we can proceed",
+        body: "Additional information is needed before we can proceed.",
       });
       log.instruction({
         title: sep8ApprovalResultJson.message,
