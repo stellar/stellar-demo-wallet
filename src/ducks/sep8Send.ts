@@ -4,6 +4,7 @@ import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getErrorString } from "helpers/getErrorString";
+import { getSep8NextStepOnSuccess } from "helpers/getSep8NextStepOnSuccess";
 import { log } from "helpers/log";
 import { getToml } from "methods/getToml";
 import { revisePaymentTransaction } from "methods/sep8Send/revisePaymentTransaction";
@@ -16,7 +17,6 @@ import {
   Sep8ActionRequiredSentResult,
   Sep8ApprovalResponse,
   Sep8ApprovalStatus,
-  Sep8NextStepOnSuccess,
   Sep8PaymentTransactionParams,
   Sep8SendInitialState,
   Sep8Step,
@@ -224,7 +224,9 @@ const sep8SendSlice = createSlice({
       state.data = {
         ...state.data,
         ...action.payload,
-        sep8Step: Sep8NextStepOnSuccess({ currentStep: state.data.sep8Step }),
+        sep8Step: getSep8NextStepOnSuccess({
+          currentStep: state.data.sep8Step,
+        }),
       };
       state.status = ActionStatus.SUCCESS;
     });
@@ -270,7 +272,7 @@ const sep8SendSlice = createSlice({
       }
 
       state.status = ActionStatus.SUCCESS;
-      state.data.sep8Step = Sep8NextStepOnSuccess({
+      state.data.sep8Step = getSep8NextStepOnSuccess({
         approvalStatus: action.payload.status,
         currentStep: state.data.sep8Step,
       });
@@ -286,7 +288,7 @@ const sep8SendSlice = createSlice({
     });
     builder.addCase(sep8SubmitRevisedTransactionAction.fulfilled, (state) => {
       state.status = ActionStatus.SUCCESS;
-      state.data.sep8Step = Sep8NextStepOnSuccess({
+      state.data.sep8Step = getSep8NextStepOnSuccess({
         currentStep: state.data.sep8Step,
       });
     });
@@ -311,7 +313,7 @@ const sep8SendSlice = createSlice({
         state.data = {
           ...state.data,
           actionRequiredResult: action.payload,
-          sep8Step: Sep8NextStepOnSuccess({
+          sep8Step: getSep8NextStepOnSuccess({
             currentStep: state.data.sep8Step,
           }),
         };
