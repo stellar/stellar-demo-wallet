@@ -17,7 +17,7 @@ import {
 } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, Sep8Step } from "types/types.d";
 
 export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send, settings } = useRedux(
@@ -27,9 +27,17 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
   );
   const dispatch = useDispatch();
 
+  const {
+    approvalCriteria,
+    approvalServer,
+    assetCode,
+    assetIssuer,
+  } = sep8Send.data;
   // form data
-  const [amount, setAmount] = useState("");
-  const [destination, setDestination] = useState("");
+  const [amount, setAmount] = useState(sep8Send.data.revisedTransaction.amount);
+  const [destination, setDestination] = useState(
+    sep8Send.data.revisedTransaction.destination,
+  );
   const [isDestinationFunded, setIsDestinationFunded] = useState(true);
 
   const resetFormState = () => {
@@ -38,12 +46,11 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
     setIsDestinationFunded(true);
   };
 
-  const {
-    approvalCriteria,
-    approvalServer,
-    assetCode,
-    assetIssuer,
-  } = sep8Send.data;
+  useEffect(() => {
+    if (sep8Send.data.sep8Step === Sep8Step.PENDING) {
+      onClose();
+    }
+  }, [onClose, sep8Send.data.sep8Step]);
 
   // user interaction handlers
   const handleSubmitPayment = () => {
@@ -66,16 +73,6 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
     resetFormState();
     onClose();
   };
-
-  // use effect
-  useEffect(() => {
-    if (
-      sep8Send.status === ActionStatus.CAN_PROCEED &&
-      sep8Send.data.revisedTransaction.revisedTxXdr
-    ) {
-      resetFormState();
-    }
-  }, [sep8Send.status, sep8Send.data.revisedTransaction.revisedTxXdr]);
 
   // helper function(s)
   const checkAndSetIsDestinationFunded = async () => {

@@ -9,7 +9,7 @@ import { fetchAccountAction } from "ducks/account";
 import { sep8SubmitRevisedTransactionAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, Sep8Step } from "types/types.d";
 
 export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send, settings } = useRedux(
@@ -32,7 +32,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
   // use effect: complete action, close modal and refresh account balances
   useEffect(() => {
-    if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
+    if (sep8Send.data.sep8Step === Sep8Step.COMPLETE && account.data?.id) {
       dispatch(
         fetchAccountAction({
           publicKey: account.data.id,
@@ -41,7 +41,13 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
       );
       onClose();
     }
-  }, [account.data?.id, account.secretKey, sep8Send.status, dispatch, onClose]);
+  }, [
+    account.data?.id,
+    account.secretKey,
+    sep8Send.data.sep8Step,
+    dispatch,
+    onClose,
+  ]);
 
   // use effect: parse transaction XDRs
   useEffect(() => {

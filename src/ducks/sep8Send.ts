@@ -11,13 +11,14 @@ import { submitRevisedTransaction } from "methods/sep8Send/submitRevisedTransact
 import {
   ActionRequiredParams,
   ActionStatus,
-  Asset,
   RejectMessage,
   Sep8ActionRequiredResult,
   Sep8ApprovalResponse,
   Sep8ApprovalStatus,
+  Sep8NextStepOnSuccess,
   Sep8PaymentTransactionParams,
   Sep8SendInitialState,
+  Sep8Step,
 } from "types/types.d";
 import { sendActionRequiredFields } from "methods/sep8Send/sendActionRequiredFields";
 
@@ -30,9 +31,15 @@ interface InitiateSep8SendActionResponse {
   isRegulated: boolean;
 }
 
+interface InitiateSep8SendActionParams {
+  assetCode: string;
+  assetIssuer: string;
+  homeDomain?: string;
+}
+
 export const initiateSep8SendAction = createAsyncThunk<
   InitiateSep8SendActionResponse,
-  Asset,
+  InitiateSep8SendActionParams,
   { rejectValue: RejectMessage; state: RootState }
 >("sep8Send/initiateSep8SendAction", async (asset, { rejectWithValue }) => {
   const { assetCode, assetIssuer, homeDomain } = asset;
@@ -172,7 +179,7 @@ export const sep8SendActionRequiredParamsAction = createAsyncThunk<
 
 const initialState: Sep8SendInitialState = {
   data: {
-    sep8Step: undefined,
+    sep8Step: Sep8Step.DISABLED,
     approvalCriteria: "",
     approvalServer: "",
     assetCode: "",
@@ -214,9 +221,13 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(initiateSep8SendAction.fulfilled, (state, action) => {
-      state.data = { ...state.data, ...action.payload };
+      state.data = {
+        ...state.data,
+        ...action.payload,
+        sep8Step: Sep8NextStepOnSuccess({ currentStep: state.data.sep8Step }),
+      };
       state.errorString = undefined;
-      state.status = ActionStatus.CAN_PROCEED;
+      state.status = ActionStatus.SUCCESS;
     });
     builder.addCase(initiateSep8SendAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
@@ -228,12 +239,8 @@ const sep8SendSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(sep8ReviseTransactionAction.fulfilled, (state, action) => {
-      state.errorString = undefined;
-
       switch (action.payload.status) {
         case Sep8ApprovalStatus.ACTION_REQUIRED: {
-          state.status = ActionStatus.CAN_PROCEED;
-
           const hasDataChanges =
             !!action.payload.actionRequiredInfo ||
             !!state.data.actionRequiredInfo;
@@ -254,12 +261,10 @@ const sep8SendSlice = createSlice({
         }
 
         case Sep8ApprovalStatus.PENDING:
-          state.status = ActionStatus.NEEDS_INPUT;
           break;
 
         case Sep8ApprovalStatus.REVISED:
         case Sep8ApprovalStatus.SUCCESS:
-          state.status = ActionStatus.CAN_PROCEED;
           if (action.payload.revisedTransaction) {
             state.data = {
               ...state.data,
@@ -272,6 +277,13 @@ const sep8SendSlice = createSlice({
           state.errorString = `The SEP-8 flow for "${action.payload.status}" status is not supported yet.`;
           break;
       }
+
+      state.errorString = undefined;
+      state.status = ActionStatus.SUCCESS;
+      state.data.sep8Step = Sep8NextStepOnSuccess({
+        approvalStatus: action.payload.status,
+        currentStep: state.data.sep8Step,
+      });
     });
     builder.addCase(sep8ReviseTransactionAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
@@ -285,6 +297,9 @@ const sep8SendSlice = createSlice({
     builder.addCase(sep8SubmitRevisedTransactionAction.fulfilled, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.SUCCESS;
+      state.data.sep8Step = Sep8NextStepOnSuccess({
+        currentStep: state.data.sep8Step,
+      });
     });
     builder.addCase(
       sep8SubmitRevisedTransactionAction.rejected,
@@ -304,7 +319,13 @@ const sep8SendSlice = createSlice({
     builder.addCase(
       sep8SendActionRequiredParamsAction.fulfilled,
       (state, action) => {
-        state.data = { ...state.data, actionRequiredResult: action.payload };
+        state.data = {
+          ...state.data,
+          actionRequiredResult: action.payload,
+          sep8Step: Sep8NextStepOnSuccess({
+            currentStep: state.data.sep8Step,
+          }),
+        };
         state.errorString = undefined;
         state.status = ActionStatus.SUCCESS;
       },

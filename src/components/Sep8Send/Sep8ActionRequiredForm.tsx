@@ -4,11 +4,11 @@ import { Button, Input, Loader } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
 import { Modal } from "components/Modal";
 import {
-  sep8ReviseTransactionAction,
+  initiateSep8SendAction,
   sep8SendActionRequiredParamsAction,
 } from "ducks/sep8Send";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { ActionStatus, Sep8Step } from "types/types.d";
 
 export const Sep8ActionRequiredForm = ({
   onClose,
@@ -27,41 +27,30 @@ export const Sep8ActionRequiredForm = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (sep8Send.status !== ActionStatus.SUCCESS) {
-      return;
-    }
+    if (sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_PARAMS) {
+      if (result === "follow_next_url") {
+        window.open(nextUrl, "_blank");
+      }
 
-    if (result === "follow_next_url") {
-      window.open(nextUrl, "_blank");
+      if (account.data) {
+        dispatch(
+          initiateSep8SendAction({
+            assetCode: sep8Send.data.assetCode,
+            assetIssuer: sep8Send.data.assetIssuer,
+            homeDomain: sep8Send.data.homeDomain,
+          }),
+        );
+      }
     }
-
-    if (account.data) {
-      dispatch(
-        sep8ReviseTransactionAction({
-          amount: sep8Send.data.revisedTransaction.amount,
-          approvalServer: sep8Send.data.approvalServer,
-          assetCode: sep8Send.data.assetCode,
-          assetIssuer: sep8Send.data.assetIssuer,
-          destination: sep8Send.data.revisedTransaction.destination,
-          isDestinationFunded: true,
-          publicKey: account.data?.id,
-        }),
-      );
-    }
-
-    onClose();
   }, [
     account.data,
     dispatch,
     nextUrl,
-    onClose,
     result,
-    sep8Send.data.revisedTransaction.amount,
-    sep8Send.data.approvalServer,
     sep8Send.data.assetCode,
     sep8Send.data.assetIssuer,
-    sep8Send.data.revisedTransaction.destination,
-    sep8Send.status,
+    sep8Send.data.homeDomain,
+    sep8Send.data.sep8Step,
   ]);
 
   const handleSubmitActionRequiredFields = () => {
