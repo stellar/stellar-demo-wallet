@@ -26,7 +26,7 @@ import {
 } from "types/types.d";
 
 export const initiateSendAction = createAsyncThunk<
-  { fields: {}; status: ActionStatus },
+  { fields: AnyObject; status: ActionStatus },
   Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(

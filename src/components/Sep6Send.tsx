@@ -17,10 +17,23 @@ export const Sep6Send = () => {
   const { sep6DepositAsset } = useRedux("sep6DepositAsset");
   const { depositResponse } = sep6DepositAsset;
 
-  const [formData, setFormData] = useState<any>({
-    depositType: {},
+  interface FormData {
+    depositType: {
+      type: string;
+    };
+    fields: {
+      [key: string]: string;
+    };
+  }
+
+  const formInitialState: FormData = {
+    depositType: {
+      type: "",
+    },
     fields: {},
-  });
+  };
+
+  const [formData, setFormData] = useState<FormData>(formInitialState);
   const dispatch = useDispatch();
 
   const depositTypeChoices = useMemo(
@@ -46,7 +59,7 @@ export const Sep6Send = () => {
   }, [sep6DepositAsset.status, dispatch]);
 
   const resetLocalState = () => {
-    setFormData({});
+    setFormData(formInitialState);
   };
 
   const handleClose = () => {
@@ -116,8 +129,12 @@ export const Sep6Send = () => {
           {Object.entries(sep6DepositAsset.data.depositTypes || {}).map(
             ([id, input]) => (
               <>
-                <label>{input.description}</label>
-                <Select id={id} key={id} onChange={handleDepositTypeChange}>
+                <Select
+                  label={input.description}
+                  id={id}
+                  key={id}
+                  onChange={handleDepositTypeChange}
+                >
                   {depositTypeChoices.map((choice: string) => (
                     <option key={choice} value={choice}>
                       {choice}
