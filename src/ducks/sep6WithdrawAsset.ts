@@ -6,7 +6,7 @@ import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import { checkDepositWithdrawInfo } from "methods/checkDepositWithdrawInfo";
-import { programmaticDepositFlow } from "methods/sep6";
+import { programmaticWithdrawFlow } from "methods/sep6";
 import {
   sep10AuthStart,
   sep10AuthSign,
@@ -17,20 +17,20 @@ import { checkTomlForFields } from "methods/checkTomlForFields";
 import {
   Asset,
   ActionStatus,
-  Sep6DepositAssetInitialState,
-  Sep6DepositResponse,
+  Sep6WithdrawAssetInitialState,
+  Sep6WithdrawResponse,
   RejectMessage,
   TomlFields,
   CheckInfoType,
   AnyObject,
 } from "types/types.d";
 
-export const initiateDepositAction = createAsyncThunk<
-  { customerFields: AnyObject; infoFields: AnyObject; status: ActionStatus },
+export const initiateWithdrawAction = createAsyncThunk<
+  { fields: AnyObject; status: ActionStatus },
   Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6DepositAsset/initiateDepositAction",
+  "sep6WithdrawAsset/initiateWithdrawAction",
   async (asset, { rejectWithValue, getState }) => {
     const { assetCode, assetIssuer, homeDomain } = asset;
     const { data, secretKey } = accountSelector(getState());
@@ -48,12 +48,12 @@ export const initiateDepositAction = createAsyncThunk<
       throw new Error("Something went wrong, home domain is not defined.");
     }
 
-    log.instruction({ title: "Initiating a SEP-6 deposit" });
+    log.instruction({ title: "Initiating a SEP-6 withdrawal" });
 
     try {
       // Check toml
       const tomlResponse = await checkTomlForFields({
-        sepName: "SEP-6 deposit",
+        sepName: "SEP-6 withdrawal",
         assetIssuer,
         requiredKeys: [TomlFields.TRANSFER_SERVER],
         networkUrl: networkConfig.url,
@@ -62,12 +62,12 @@ export const initiateDepositAction = createAsyncThunk<
 
       // Check info
       const infoData = await checkDepositWithdrawInfo({
-        type: CheckInfoType.DEPOSIT,
+        type: CheckInfoType.WITHDRAWAL,
         transferServerUrl: tomlResponse.TRANSFER_SERVER,
         assetCode,
       });
 
-      const assetInfoData = infoData.deposit[assetCode];
+      const assetInfoData = infoData.withdraw[assetCode];
 
       const {
         authentication_required: isAuthenticationRequired,
@@ -75,8 +75,8 @@ export const initiateDepositAction = createAsyncThunk<
 
       let payload = {
         assetCode,
-        infoFields: { ...assetInfoData.fields },
-        customerFields: {},
+        withdrawTypes: { types: { ...assetInfoData.types } },
+        fields: {},
         kycServer: "",
         status: ActionStatus.NEEDS_INPUT,
         token: "",
@@ -86,7 +86,7 @@ export const initiateDepositAction = createAsyncThunk<
       if (isAuthenticationRequired) {
         // Re-check toml for auth endpoint
         const webAuthTomlResponse = await checkTomlForFields({
-          sepName: "SEP-6 deposit",
+          sepName: "SEP-6 withdrawal",
           assetIssuer,
           requiredKeys: [
             TomlFields.WEB_AUTH_ENDPOINT,
@@ -98,7 +98,7 @@ export const initiateDepositAction = createAsyncThunk<
         });
         log.instruction({
           title:
-            "SEP-6 deposit is enabled, and requires authentication so we should go through SEP-10",
+            "SEP-6 withdrawal is enabled, and requires authentication so we should go through SEP-10",
         });
         // SEP-10 start
         const challengeTransaction = await sep10AuthStart({
@@ -141,7 +141,7 @@ export const initiateDepositAction = createAsyncThunk<
         if (sep12Fields) {
           payload = {
             ...payload,
-            customerFields: { ...payload.customerFields, ...sep12Fields },
+            fields: { ...payload.fields, ...sep12Fields },
           };
         }
       }
@@ -151,7 +151,7 @@ export const initiateDepositAction = createAsyncThunk<
       const errorMessage = getErrorMessage(error);
 
       log.error({
-        title: "SEP-6 deposit failed",
+        title: "SEP-6 withdrawal failed",
         body: errorMessage,
       });
 
@@ -162,23 +162,23 @@ export const initiateDepositAction = createAsyncThunk<
   },
 );
 
-export const submitSep6DepositFields = createAsyncThunk<
-  { status: ActionStatus; type: string; depositFields: AnyObject },
+export const submitSep6DWithdrawFields = createAsyncThunk<
+  { status: ActionStatus; type: string; withdrawFields: AnyObject },
   {
-    depositType: AnyObject;
+    withdrawType: AnyObject;
     infoFields: AnyObject;
     customerFields: AnyObject;
   },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6DepositAsset/submitSep6DepositFields",
+  "sep6WithdrawAsset/submitSep6WithdrawFields",
   async (
-    { depositType, customerFields, infoFields },
+    { withdrawType, infoFields, customerFields },
     { rejectWithValue, getState },
   ) => {
     try {
       const { secretKey } = accountSelector(getState());
-      const { data } = sep6DepositSelector(getState());
+      const { data } = sepWithdrawSelector(getState());
       const { kycServer, token } = data;
 
       if (Object.keys(customerFields).length) {
@@ -191,8 +191,8 @@ export const submitSep6DepositFields = createAsyncThunk<
       }
       return {
         status: ActionStatus.CAN_PROCEED,
-        type: depositType.type,
-        depositFields: infoFields,
+        type: withdrawType.type,
+        withdrawFields: infoFields,
       };
     } catch (e) {
       const errorMessage = getErrorMessage(e);
@@ -208,39 +208,39 @@ export const submitSep6DepositFields = createAsyncThunk<
   },
 );
 
-export const sep6DepositAction = createAsyncThunk<
-  { depositResponse: Sep6DepositResponse; status: ActionStatus },
+export const sep6WithdrawAction = createAsyncThunk<
+  { withdrawResponse: Sep6WithdrawResponse; status: ActionStatus },
   undefined,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6DepositAsset/sep6DepositAction",
+  "sep6WithdrawAsset/sep6WithdrawAction",
   async (_, { rejectWithValue, getState }) => {
     try {
       const { data } = accountSelector(getState());
       const { claimableBalanceSupported } = settingsSelector(getState());
       const publicKey = data?.id || "";
-      const { data: sep6data, type, depositFields } = sep6DepositSelector(
+      const { data: sep6data, type, withdrawFields } = sepWithdrawSelector(
         getState(),
       );
 
       const { assetCode, transferServer, token } = sep6data;
 
-      const depositResponse = (await programmaticDepositFlow({
+      const withdrawResponse = (await programmaticWithdrawFlow({
         assetCode,
         publicKey,
         transferServerUrl: transferServer,
         token,
         type,
-        depositFields,
+        withdrawFields,
         claimableBalanceSupported,
-      })) as Sep6DepositResponse;
+      })) as Sep6WithdrawResponse;
 
-      return { depositResponse, status: ActionStatus.SUCCESS };
+      return { withdrawResponse, status: ActionStatus.SUCCESS };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 
       log.error({
-        title: "SEP-8 deposit failed",
+        title: "SEP-8 withdrawal failed",
         body: errorMessage,
       });
 
@@ -251,74 +251,73 @@ export const sep6DepositAction = createAsyncThunk<
   },
 );
 
-const initialState: Sep6DepositAssetInitialState = {
+const initialState: Sep6WithdrawAssetInitialState = {
   data: {
     assetCode: "",
-    infoFields: {
-      type: {
-        choices: [],
-      },
+    withdrawTypes: {
+      types: {},
     },
-    customerFields: {},
+    fields: {},
     kycServer: "",
     transferServer: "",
     token: "",
   },
-  depositResponse: { how: "" },
+  withdrawResponse: { account_id: "" },
   type: "",
   status: undefined,
-  depositFields: {},
+  withdrawFields: {},
   errorString: undefined,
 };
 
-const sep6DepositAssetSlice = createSlice({
-  name: "sep6DepositAsset",
+const sep6WithdrawAssetSlice = createSlice({
+  name: "sep6WithdrawAsset",
   initialState,
   reducers: {
-    resetSep6DepositAction: () => initialState,
+    resetSep6WithdrawAction: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(initiateDepositAction.pending, (state) => {
+    builder.addCase(initiateWithdrawAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(initiateDepositAction.fulfilled, (state, action) => {
+    builder.addCase(initiateWithdrawAction.fulfilled, (state, action) => {
       state.data = { ...state.data, ...action.payload };
       state.status = action.payload.status;
     });
-    builder.addCase(initiateDepositAction.rejected, (state, action) => {
+    builder.addCase(initiateWithdrawAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
-    builder.addCase(submitSep6DepositFields.pending, (state) => {
+    builder.addCase(submitSep6DWithdrawFields.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(submitSep6DepositFields.fulfilled, (state, action) => {
+    builder.addCase(submitSep6DWithdrawFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
       state.type = action.payload.type;
-      state.depositFields = action.payload.depositFields;
+      state.withdrawFields = action.payload.withdrawFields;
     });
-    builder.addCase(submitSep6DepositFields.rejected, (state, action) => {
+    builder.addCase(submitSep6DWithdrawFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
-    builder.addCase(sep6DepositAction.pending, (state) => {
+    builder.addCase(sep6WithdrawAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(sep6DepositAction.fulfilled, (state, action) => {
+    builder.addCase(sep6WithdrawAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.depositResponse = action.payload.depositResponse;
+      state.withdrawResponse = action.payload.withdrawResponse;
     });
-    builder.addCase(sep6DepositAction.rejected, (state, action) => {
+    builder.addCase(sep6WithdrawAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
-      state.status = ActionStatus.ERROR;
+      state.status = ActionStatus.NEEDS_INPUT;
     });
   },
 });
 
-export const sep6DepositSelector = (state: RootState) => state.sep6DepositAsset;
+export const sepWithdrawSelector = (state: RootState) =>
+  state.sep6WithdrawAsset;
 
-export const { reducer } = sep6DepositAssetSlice;
-export const { resetSep6DepositAction } = sep6DepositAssetSlice.actions;
+export const { reducer } = sep6WithdrawAssetSlice;
+export const { resetSep6WithdrawAction } = sep6WithdrawAssetSlice.actions;

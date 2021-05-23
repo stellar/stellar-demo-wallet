@@ -180,10 +180,10 @@ export interface Sep6DepositAssetInitialState {
     kycServer: string;
     token: string;
     transferServer: string;
-    depositTypes: {
+    infoFields: {
       [key: string]: AnyObject;
     };
-    fields: {
+    customerFields: {
       [key: string]: AnyObject;
     };
   };
@@ -191,6 +191,50 @@ export interface Sep6DepositAssetInitialState {
   errorString?: string;
   status: ActionStatus | undefined;
   type: string;
+  depositFields: AnyObject;
+}
+
+interface Sep6WithdrawResponse {
+  /* eslint-disable camelcase */
+  account_id: string;
+  id?: string;
+  eta?: number;
+  memo_type?: string;
+  memo?: string;
+  min_amount?: number;
+  max_amount?: number;
+  fee_fixed?: number;
+  fee_percent?: number;
+  extra_info?: { message?: string };
+  /* eslint-enable camelcase */
+}
+
+export interface Sep6WithdrawAssetInitialState {
+  data: {
+    assetCode: string;
+    kycServer: string;
+    token: string;
+    transferServer: string;
+    withdrawTypes: {
+      types: {
+        [key: string]: {
+          fields: {
+            [key: string]: {
+              description: string;
+            };
+          };
+        };
+      };
+    };
+    fields: {
+      [key: string]: AnyObject;
+    };
+  };
+  withdrawResponse: Sep6WithdrawResponse;
+  errorString?: string;
+  status: ActionStatus | undefined;
+  type: string;
+  withdrawFields: AnyObject;
 }
 
 export interface Sep31SendInitialState {
@@ -270,6 +314,7 @@ export interface Store {
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
   sep6DepositAsset: Sep6DepositAssetInitialState;
+  sep6WithdrawAsset: Sep6WithdrawAssetInitialState;
   sep8Send: Sep8SendInitialState;
   sep31Send: Sep31SendInitialState;
   sep24DepositAsset: Sep24DepositAssetInitialState;
@@ -375,14 +420,17 @@ interface InfoTypeData {
   // eslint-disable-next-line camelcase
   authentication_required: boolean;
   enabled: boolean;
-  fields: {};
+  fields: AnyObject;
+  types: AnyObject;
 }
 
 export interface CheckInfoData {
   [CheckInfoType.DEPOSIT]: {
     [asset: string]: InfoTypeData;
   };
-  [CheckInfoType.WITHDRAWAL]: InfoTypeData;
+  [CheckInfoType.WITHDRAWAL]: {
+    [asset: string]: InfoTypeData;
+  };
 }
 
 export enum Sep8ApprovalStatus {
