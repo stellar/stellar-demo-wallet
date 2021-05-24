@@ -136,7 +136,7 @@ export const BalanceRow = ({
                 </>
               )}
 
-              {supportedActions?.sep8 && (
+              {asset.supportedActions?.sep8 && (
                 <option value={AssetActionId.SEP8_SEND_PAYMENT}>
                   SEP-8 Send
                 </option>
