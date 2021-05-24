@@ -13,15 +13,20 @@ import {
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
 
-export const Sep6Send = () => {
+export const Sep6Deposit = () => {
   const { sep6DepositAsset } = useRedux("sep6DepositAsset");
-  const { depositResponse } = sep6DepositAsset;
+  const {
+    data: { depositResponse },
+  } = sep6DepositAsset;
 
   interface FormData {
     depositType: {
       type: string;
     };
-    fields: {
+    infoFields: {
+      [key: string]: string;
+    };
+    customerFields: {
       [key: string]: string;
     };
   }
@@ -30,14 +35,15 @@ export const Sep6Send = () => {
     depositType: {
       type: "",
     },
-    fields: {},
+    infoFields: {},
+    customerFields: {},
   };
 
   const [formData, setFormData] = useState<FormData>(formInitialState);
   const dispatch = useDispatch();
 
   const depositTypeChoices = useMemo(
-    () => sep6DepositAsset.data.depositTypes?.type?.choices || [],
+    () => sep6DepositAsset.data.infoFields?.type?.choices || [],
     [sep6DepositAsset],
   );
 
@@ -47,7 +53,8 @@ export const Sep6Send = () => {
         depositType: {
           type: depositTypeChoices[0],
         },
-        fields: {},
+        infoFields: {},
+        customerFields: {},
       });
     }
   }, [sep6DepositAsset.status, depositTypeChoices, dispatch]);
@@ -84,13 +91,31 @@ export const Sep6Send = () => {
     setFormData(updatedState);
   };
 
-  const handleFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInfoFieldChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const { id, value } = event.target;
 
     const updatedState = {
       ...formData,
-      fields: {
-        ...formData.fields,
+      infoFields: {
+        ...formData.infoFields,
+        [id]: value,
+      },
+    };
+
+    setFormData(updatedState);
+  };
+
+  const handleCustomerFieldChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const { id, value } = event.target;
+
+    const updatedState = {
+      ...formData,
+      customerFields: {
+        ...formData.customerFields,
         [id]: value,
       },
     };
@@ -108,53 +133,86 @@ export const Sep6Send = () => {
   if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
     return (
       <Modal visible={true} onClose={handleClose}>
-        <Heading2
-          className="ModalHeading"
-          tooltipText={
-            <>
-              These are the fields the receiving anchor requires. The sending
-              client obtains them from the /customer endpoint.{" "}
-              <TextLink
-                href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
-                isExternal
-              >
-                Learn more
-              </TextLink>
-            </>
-          }
-        >
-          SEP-6 Required Info
-        </Heading2>
         <div className="ModalBody">
-          {Object.entries(sep6DepositAsset.data.depositTypes || {}).map(
-            ([id, input]) => (
+          <Heading2
+            className="ModalHeading"
+            tooltipText={
               <>
-                <Select
-                  label={input.description}
-                  id={id}
-                  key={id}
-                  onChange={handleDepositTypeChange}
+                These are the fields the receiving anchor requires. The sending
+                client obtains them from the /info endpoint.{" "}
+                <TextLink
+                  href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info"
+                  isExternal
                 >
-                  {depositTypeChoices.map((choice: string) => (
-                    <option key={choice} value={choice}>
-                      {choice}
-                    </option>
-                  ))}
-                </Select>
+                  Learn more
+                </TextLink>
               </>
-            ),
-          )}
-          {Object.entries(sep6DepositAsset.data.fields || {}).map(
-            ([id, input]) => (
-              <Input
-                key={id}
-                id={id}
-                label={input.description}
-                required
-                onChange={handleFieldChange}
-              />
-            ),
-          )}
+            }
+          >
+            SEP-6 Required Info
+          </Heading2>
+          <div className="vertical-spacing">
+            {Object.entries(sep6DepositAsset.data.infoFields || {}).map(
+              ([id, input]) =>
+                id === "type" ? (
+                  <div key={id}>
+                    <Select
+                      label={input.description}
+                      id={id}
+                      key={id}
+                      onChange={handleDepositTypeChange}
+                    >
+                      {depositTypeChoices.map((choice: string) => (
+                        <option key={choice} value={choice}>
+                          {choice}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                ) : (
+                  <Input
+                    key={id}
+                    id={id}
+                    label={input.description}
+                    required
+                    onChange={handleInfoFieldChange}
+                  />
+                ),
+            )}
+          </div>
+
+          {Object.keys(sep6DepositAsset.data.customerFields).length ? (
+            <Heading2
+              className="ModalHeading"
+              tooltipText={
+                <>
+                  These are the fields the receiving anchor requires. The
+                  sending client obtains them from the /customer endpoint.{" "}
+                  <TextLink
+                    href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
+                    isExternal
+                  >
+                    Learn more
+                  </TextLink>
+                </>
+              }
+            >
+              SEP-12 Required Info
+            </Heading2>
+          ) : null}
+          <div className="vertical-spacing">
+            {Object.entries(sep6DepositAsset.data.customerFields || {}).map(
+              ([id, input]) => (
+                <Input
+                  key={id}
+                  id={id}
+                  label={input.description}
+                  required
+                  onChange={handleCustomerFieldChange}
+                />
+              ),
+            )}
+          </div>
         </div>
 
         <div className="ModalButtonsFooter">
