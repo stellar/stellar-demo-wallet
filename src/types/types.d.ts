@@ -161,6 +161,38 @@ export interface CustomerTypeItem {
   description: string;
 }
 
+interface Sep6DepositResponse {
+  /* eslint-disable camelcase */
+  how: string;
+  id?: string;
+  eta?: number;
+  min_amount?: number;
+  max_amount?: number;
+  fee_fixed?: number;
+  fee_percent?: number;
+  extra_info?: { message?: string };
+  /* eslint-enable camelcase */
+}
+
+export interface Sep6DepositAssetInitialState {
+  data: {
+    assetCode: string;
+    kycServer: string;
+    token: string;
+    transferServer: string;
+    depositTypes: {
+      [key: string]: AnyObject;
+    };
+    fields: {
+      [key: string]: AnyObject;
+    };
+  };
+  depositResponse: Sep6DepositResponse;
+  errorString?: string;
+  status: ActionStatus | undefined;
+  type: string;
+}
+
 export interface Sep31SendInitialState {
   data: {
     publicKey: string;
@@ -237,6 +269,7 @@ export interface Store {
   claimableBalances: ClaimableBalancesInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
+  sep6DepositAsset: Sep6DepositAssetInitialState;
   sep8Send: Sep8SendInitialState;
   sep31Send: Sep31SendInitialState;
   sep24DepositAsset: Sep24DepositAssetInitialState;
@@ -295,6 +328,8 @@ export interface AssetActionItem extends ActiveAssetAction {
 
 export enum AssetActionId {
   SEND_PAYMENT = "send-payment",
+  SEP6_DEPOSIT = "sep6-deposit",
+  SEP6_WITHDRAW = "sep6-withdraw",
   SEP8_SEND_PAYMENT = "sep8-send-payment",
   SEP24_DEPOSIT = "sep24-deposit",
   SEP24_WITHDRAW = "sep24-withdraw",
@@ -334,6 +369,20 @@ export enum MemoTypeString {
 export enum CheckInfoType {
   DEPOSIT = "deposit",
   WITHDRAWAL = "withdraw",
+}
+
+interface InfoTypeData {
+  // eslint-disable-next-line camelcase
+  authentication_required: boolean;
+  enabled: boolean;
+  fields: {};
+}
+
+export interface CheckInfoData {
+  [CheckInfoType.DEPOSIT]: {
+    [asset: string]: InfoTypeData;
+  };
+  [CheckInfoType.WITHDRAWAL]: InfoTypeData;
 }
 
 export enum Sep8ApprovalStatus {
