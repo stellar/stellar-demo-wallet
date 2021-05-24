@@ -417,7 +417,7 @@ export enum MemoTypeString {
   HASH = "hash",
 }
 
-export enum CheckInfoType {
+export enum AnchorActionType {
   DEPOSIT = "deposit",
   WITHDRAWAL = "withdraw",
 }
@@ -431,10 +431,10 @@ interface InfoTypeData {
 }
 
 export interface CheckInfoData {
-  [CheckInfoType.DEPOSIT]: {
+  [AnchorActionType.DEPOSIT]: {
     [asset: string]: InfoTypeData;
   };
-  [CheckInfoType.WITHDRAWAL]: {
+  [AnchorActionType.WITHDRAWAL]: {
     [asset: string]: InfoTypeData;
   };
 }

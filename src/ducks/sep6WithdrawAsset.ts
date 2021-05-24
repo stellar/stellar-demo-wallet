@@ -24,7 +24,7 @@ import {
   Sep6WithdrawResponse,
   RejectMessage,
   TomlFields,
-  CheckInfoType,
+  AnchorActionType,
   AnyObject,
 } from "types/types.d";
 
@@ -69,12 +69,12 @@ export const initiateWithdrawAction = createAsyncThunk<
 
       // Check info
       const infoData = await checkDepositWithdrawInfo({
-        type: CheckInfoType.WITHDRAWAL,
+        type: AnchorActionType.WITHDRAWAL,
         transferServerUrl: tomlResponse.TRANSFER_SERVER,
         assetCode,
       });
 
-      const assetInfoData = infoData.withdraw[assetCode];
+      const assetInfoData = infoData[AnchorActionType.WITHDRAWAL][assetCode];
 
       const {
         authentication_required: isAuthenticationRequired,
@@ -170,7 +170,7 @@ export const initiateWithdrawAction = createAsyncThunk<
   },
 );
 
-export const submitSep6DWithdrawFields = createAsyncThunk<
+export const submitSep6WithdrawFields = createAsyncThunk<
   { status: ActionStatus; type: string; withdrawFields: AnyObject },
   {
     withdrawType: AnyObject;
@@ -230,7 +230,7 @@ export const sep6WithdrawAction = createAsyncThunk<
       );
       const networkConfig = getNetworkConfig(pubnet);
       const publicKey = data?.id || "";
-      const { data: sep6data } = sepWithdrawSelector(getState());
+      const { data: sep6Data } = sepWithdrawSelector(getState());
 
       const {
         assetCode,
@@ -239,7 +239,7 @@ export const sep6WithdrawAction = createAsyncThunk<
         token,
         type,
         withdrawFields,
-      } = sep6data;
+      } = sep6Data;
 
       const withdrawResponse = (await programmaticWithdrawFlow({
         assetCode,
@@ -321,16 +321,16 @@ const sep6WithdrawAssetSlice = createSlice({
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
-    builder.addCase(submitSep6DWithdrawFields.pending, (state) => {
+    builder.addCase(submitSep6WithdrawFields.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(submitSep6DWithdrawFields.fulfilled, (state, action) => {
+    builder.addCase(submitSep6WithdrawFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
       state.data.type = action.payload.type;
       state.data.withdrawFields = action.payload.withdrawFields;
     });
-    builder.addCase(submitSep6DWithdrawFields.rejected, (state, action) => {
+    builder.addCase(submitSep6WithdrawFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });

@@ -25,7 +25,7 @@ import {
   Sep6DepositResponse,
   RejectMessage,
   TomlFields,
-  CheckInfoType,
+  AnchorActionType,
   AnyObject,
 } from "types/types.d";
 
@@ -70,12 +70,12 @@ export const initiateDepositAction = createAsyncThunk<
 
       // Check info
       const infoData = await checkDepositWithdrawInfo({
-        type: CheckInfoType.DEPOSIT,
+        type: AnchorActionType.DEPOSIT,
         transferServerUrl: tomlResponse.TRANSFER_SERVER,
         assetCode,
       });
 
-      const assetInfoData = infoData.deposit[assetCode];
+      const assetInfoData = infoData[AnchorActionType.DEPOSIT][assetCode];
 
       const {
         authentication_required: isAuthenticationRequired,
@@ -235,7 +235,7 @@ export const sep6DepositAction = createAsyncThunk<
       const publicKey = data?.id || "";
       const { pubnet } = settingsSelector(getState());
       const networkConfig = getNetworkConfig(pubnet);
-      const { data: sep6data } = sep6DepositSelector(getState());
+      const { data: sep6Data } = sep6DepositSelector(getState());
 
       const {
         assetCode,
@@ -244,7 +244,7 @@ export const sep6DepositAction = createAsyncThunk<
         transferServerUrl,
         token,
         type,
-      } = sep6data;
+      } = sep6Data;
 
       const depositResponse = (await programmaticDepositFlow({
         assetCode,
