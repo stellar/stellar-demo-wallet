@@ -219,11 +219,15 @@ export const sep6WithdrawAction = createAsyncThunk<
       const { data } = accountSelector(getState());
       const { claimableBalanceSupported } = settingsSelector(getState());
       const publicKey = data?.id || "";
-      const { data: sep6data, type, withdrawFields } = sepWithdrawSelector(
-        getState(),
-      );
+      const { data: sep6data } = sepWithdrawSelector(getState());
 
-      const { assetCode, transferServer, token } = sep6data;
+      const {
+        assetCode,
+        transferServer,
+        token,
+        type,
+        withdrawFields,
+      } = sep6data;
 
       const withdrawResponse = (await programmaticWithdrawFlow({
         assetCode,
@@ -261,11 +265,12 @@ const initialState: Sep6WithdrawAssetInitialState = {
     kycServer: "",
     transferServer: "",
     token: "",
+    type: "",
+
+    withdrawFields: {},
+    withdrawResponse: { account_id: "" },
   },
-  withdrawResponse: { account_id: "" },
-  type: "",
   status: undefined,
-  withdrawFields: {},
   errorString: undefined,
 };
 
@@ -294,8 +299,8 @@ const sep6WithdrawAssetSlice = createSlice({
     });
     builder.addCase(submitSep6DWithdrawFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.type = action.payload.type;
-      state.withdrawFields = action.payload.withdrawFields;
+      state.data.type = action.payload.type;
+      state.data.withdrawFields = action.payload.withdrawFields;
     });
     builder.addCase(submitSep6DWithdrawFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
@@ -307,7 +312,7 @@ const sep6WithdrawAssetSlice = createSlice({
     });
     builder.addCase(sep6WithdrawAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.withdrawResponse = action.payload.withdrawResponse;
+      state.data.withdrawResponse = action.payload.withdrawResponse;
     });
     builder.addCase(sep6WithdrawAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;

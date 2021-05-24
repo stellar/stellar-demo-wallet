@@ -186,12 +186,12 @@ export interface Sep6DepositAssetInitialState {
     customerFields: {
       [key: string]: AnyObject;
     };
+    depositFields: AnyObject;
+    depositResponse: Sep6DepositResponse;
+    type: string;
   };
-  depositResponse: Sep6DepositResponse;
   errorString?: string;
   status: ActionStatus | undefined;
-  type: string;
-  depositFields: AnyObject;
 }
 
 interface Sep6WithdrawResponse {
@@ -212,9 +212,13 @@ interface Sep6WithdrawResponse {
 export interface Sep6WithdrawAssetInitialState {
   data: {
     assetCode: string;
+    fields: {
+      [key: string]: AnyObject;
+    };
     kycServer: string;
     token: string;
     transferServer: string;
+    type: string;
     withdrawTypes: {
       types: {
         [key: string]: {
@@ -226,15 +230,11 @@ export interface Sep6WithdrawAssetInitialState {
         };
       };
     };
-    fields: {
-      [key: string]: AnyObject;
-    };
+    withdrawFields: AnyObject;
+    withdrawResponse: Sep6WithdrawResponse;
   };
-  withdrawResponse: Sep6WithdrawResponse;
   errorString?: string;
   status: ActionStatus | undefined;
-  type: string;
-  withdrawFields: AnyObject;
 }
 
 export interface Sep31SendInitialState {

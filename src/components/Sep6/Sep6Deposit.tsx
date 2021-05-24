@@ -15,7 +15,9 @@ import { ActionStatus } from "types/types.d";
 
 export const Sep6Deposit = () => {
   const { sep6DepositAsset } = useRedux("sep6DepositAsset");
-  const { depositResponse } = sep6DepositAsset;
+  const {
+    data: { depositResponse },
+  } = sep6DepositAsset;
 
   interface FormData {
     depositType: {

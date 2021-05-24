@@ -219,11 +219,15 @@ export const sep6DepositAction = createAsyncThunk<
       const { data } = accountSelector(getState());
       const { claimableBalanceSupported } = settingsSelector(getState());
       const publicKey = data?.id || "";
-      const { data: sep6data, type, depositFields } = sep6DepositSelector(
-        getState(),
-      );
+      const { data: sep6data } = sep6DepositSelector(getState());
 
-      const { assetCode, transferServer, token } = sep6data;
+      const {
+        assetCode,
+        depositFields,
+        transferServer,
+        token,
+        type,
+      } = sep6data;
 
       const depositResponse = (await programmaticDepositFlow({
         assetCode,
@@ -254,6 +258,8 @@ export const sep6DepositAction = createAsyncThunk<
 const initialState: Sep6DepositAssetInitialState = {
   data: {
     assetCode: "",
+    depositFields: {},
+    depositResponse: { how: "" },
     infoFields: {
       type: {
         choices: [],
@@ -263,11 +269,9 @@ const initialState: Sep6DepositAssetInitialState = {
     kycServer: "",
     transferServer: "",
     token: "",
+    type: "",
   },
-  depositResponse: { how: "" },
-  type: "",
   status: undefined,
-  depositFields: {},
   errorString: undefined,
 };
 
@@ -296,8 +300,8 @@ const sep6DepositAssetSlice = createSlice({
     });
     builder.addCase(submitSep6DepositFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.type = action.payload.type;
-      state.depositFields = action.payload.depositFields;
+      state.data.type = action.payload.type;
+      state.data.depositFields = action.payload.depositFields;
     });
     builder.addCase(submitSep6DepositFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
@@ -309,7 +313,7 @@ const sep6DepositAssetSlice = createSlice({
     });
     builder.addCase(sep6DepositAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.depositResponse = action.payload.depositResponse;
+      state.data.depositResponse = action.payload.depositResponse;
     });
     builder.addCase(sep6DepositAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;

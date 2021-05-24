@@ -15,7 +15,9 @@ import { ActionStatus, AnyObject } from "types/types.d";
 
 export const Sep6Withdraw = () => {
   const { sep6WithdrawAsset } = useRedux("sep6WithdrawAsset");
-  const { withdrawResponse } = sep6WithdrawAsset;
+  const {
+    data: { withdrawResponse },
+  } = sep6WithdrawAsset;
 
   interface FormData {
     withdrawType: {
