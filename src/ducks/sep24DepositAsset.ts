@@ -24,7 +24,7 @@ import {
   Sep24DepositAssetInitialState,
   RejectMessage,
   TomlFields,
-  CheckInfoType,
+  AnchorActionType,
 } from "types/types.d";
 
 export const depositAssetAction = createAsyncThunk<
@@ -86,7 +86,7 @@ export const depositAssetAction = createAsyncThunk<
 
       // Check info
       await checkInfo({
-        type: CheckInfoType.DEPOSIT,
+        type: AnchorActionType.DEPOSIT,
         toml: tomlResponse,
         assetCode,
       });
