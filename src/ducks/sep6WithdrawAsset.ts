@@ -6,7 +6,10 @@ import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import { checkDepositWithdrawInfo } from "methods/checkDepositWithdrawInfo";
-import { programmaticWithdrawFlow } from "methods/sep6";
+import {
+  pollWithdrawUntilComplete,
+  programmaticWithdrawFlow,
+} from "methods/sep6";
 import {
   sep10AuthStart,
   sep10AuthSign,
@@ -25,8 +28,12 @@ import {
   AnyObject,
 } from "types/types.d";
 
+type InitiateWithdrawActionPayload = Sep6WithdrawAssetInitialState["data"] & {
+  status: ActionStatus;
+};
+
 export const initiateWithdrawAction = createAsyncThunk<
-  { fields: AnyObject; status: ActionStatus },
+  InitiateWithdrawActionPayload,
   Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(
@@ -75,13 +82,14 @@ export const initiateWithdrawAction = createAsyncThunk<
 
       let payload = {
         assetCode,
+        assetIssuer,
         withdrawTypes: { types: { ...assetInfoData.types } },
         fields: {},
         kycServer: "",
         status: ActionStatus.NEEDS_INPUT,
         token: "",
-        transferServer: tomlResponse.TRANSFER_SERVER,
-      };
+        transferServerUrl: tomlResponse.TRANSFER_SERVER,
+      } as InitiateWithdrawActionPayload;
 
       if (isAuthenticationRequired) {
         // Re-check toml for auth endpoint
@@ -216,14 +224,18 @@ export const sep6WithdrawAction = createAsyncThunk<
   "sep6WithdrawAsset/sep6WithdrawAction",
   async (_, { rejectWithValue, getState }) => {
     try {
-      const { data } = accountSelector(getState());
-      const { claimableBalanceSupported } = settingsSelector(getState());
+      const { data, secretKey } = accountSelector(getState());
+      const { claimableBalanceSupported, pubnet } = settingsSelector(
+        getState(),
+      );
+      const networkConfig = getNetworkConfig(pubnet);
       const publicKey = data?.id || "";
       const { data: sep6data } = sepWithdrawSelector(getState());
 
       const {
         assetCode,
-        transferServer,
+        assetIssuer,
+        transferServerUrl,
         token,
         type,
         withdrawFields,
@@ -232,19 +244,31 @@ export const sep6WithdrawAction = createAsyncThunk<
       const withdrawResponse = (await programmaticWithdrawFlow({
         assetCode,
         publicKey,
-        transferServerUrl: transferServer,
+        transferServerUrl,
         token,
         type,
         withdrawFields,
         claimableBalanceSupported,
       })) as Sep6WithdrawResponse;
 
-      return { withdrawResponse, status: ActionStatus.SUCCESS };
+      // Poll transaction until complete
+      const currentStatus = await pollWithdrawUntilComplete({
+        secretKey,
+        transactionId: withdrawResponse?.id || "",
+        token,
+        transferServerUrl,
+        networkPassphrase: networkConfig.network,
+        networkUrl: networkConfig.url,
+        assetCode,
+        assetIssuer,
+      });
+
+      return { currentStatus, withdrawResponse, status: ActionStatus.SUCCESS };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 
       log.error({
-        title: "SEP-8 withdrawal failed",
+        title: "SEP-6 withdrawal failed",
         body: errorMessage,
       });
 
@@ -258,15 +282,17 @@ export const sep6WithdrawAction = createAsyncThunk<
 const initialState: Sep6WithdrawAssetInitialState = {
   data: {
     assetCode: "",
+    assetIssuer: "",
+    currentStatus: "",
     withdrawTypes: {
       types: {},
     },
     fields: {},
     kycServer: "",
-    transferServer: "",
+    transferServerUrl: "",
+    trustedAssetAdded: "",
     token: "",
     type: "",
-
     withdrawFields: {},
     withdrawResponse: { account_id: "" },
   },

@@ -219,9 +219,10 @@ export const submitSep6DepositFields = createAsyncThunk<
 
 export const sep6DepositAction = createAsyncThunk<
   {
-    data: { currentStatus: string; trustedAssetAdded: string };
+    currentStatus: string;
     depositResponse: Sep6DepositResponse;
     status: ActionStatus;
+    trustedAssetAdded: string;
   },
   undefined,
   { rejectValue: RejectMessage; state: RootState }
@@ -283,13 +284,11 @@ export const sep6DepositAction = createAsyncThunk<
         trustAssetCallback,
       });
 
-      console.log(currentStatus);
-      console.log(trustedAssetAdded);
-
       return {
-        data: { currentStatus, trustedAssetAdded },
+        currentStatus,
         depositResponse,
         status: ActionStatus.SUCCESS,
+        trustedAssetAdded,
       };
     } catch (error) {
       const errorMessage = getErrorMessage(error);

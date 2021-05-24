@@ -21,7 +21,9 @@ export const programmaticWithdrawFlow = async ({
   withdrawFields,
   claimableBalanceSupported,
 }: ProgrammaticWithdrawFlowProps) => {
-  log.instruction({ title: "Starting SEP-6 programmatic flow for withdrawal" });
+  log.instruction({
+    title: "Starting SEP-6 programmatic withdraw flow for withdrawal",
+  });
 
   const API_METHOD = "GET";
   const REQUEST_URL_STR = `${transferServerUrl}/withdraw`;

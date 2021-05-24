@@ -12,20 +12,18 @@ import { TransactionStatus } from "types/types.d";
 
 export const pollWithdrawUntilComplete = async ({
   secretKey,
-  popup,
   transactionId,
   token,
-  sep24TransferServerUrl,
+  transferServerUrl,
   networkPassphrase,
   networkUrl,
   assetCode,
   assetIssuer,
 }: {
   secretKey: string;
-  popup: any;
   transactionId: string;
   token: string;
-  sep24TransferServerUrl: string;
+  transferServerUrl: string;
   networkPassphrase: string;
   networkUrl: string;
   assetCode: string;
@@ -36,7 +34,7 @@ export const pollWithdrawUntilComplete = async ({
   let currentStatus = TransactionStatus.INCOMPLETE;
 
   const transactionUrl = new URL(
-    `${sep24TransferServerUrl}/transaction?id=${transactionId}`,
+    `${transferServerUrl}/transaction?id=${transactionId}`,
   );
   log.instruction({
     title: `Polling for updates \`${transactionUrl.toString()}\``,
@@ -44,19 +42,16 @@ export const pollWithdrawUntilComplete = async ({
 
   const endStatuses = [TransactionStatus.COMPLETED, TransactionStatus.ERROR];
 
-  while (!popup.closed && !endStatuses.includes(currentStatus)) {
+  while (!endStatuses.includes(currentStatus)) {
     // eslint-disable-next-line no-await-in-loop
     const response = await fetch(transactionUrl.toString(), {
       headers: { Authorization: `Bearer ${token}` },
     });
     // eslint-disable-next-line no-await-in-loop
     const transactionJson = await response.json();
-    console.log(transactionJson);
 
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;
-      // eslint-disable-next-line no-param-reassign
-      popup.location.href = transactionJson.transaction.more_info_url;
 
       log.instruction({
         title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status`,
@@ -89,6 +84,7 @@ export const pollWithdrawUntilComplete = async ({
             title: "Fetching account sequence number",
             body: sequence,
           });
+          debugger;
 
           const account = new Account(keypair.publicKey(), sequence);
           const txn = new TransactionBuilder(account, {
@@ -161,11 +157,12 @@ export const pollWithdrawUntilComplete = async ({
     // run loop every 2 seconds
     // eslint-disable-next-line no-await-in-loop
     await new Promise((resolve) => setTimeout(resolve, 2000));
+    console.log(2);
   }
 
   log.instruction({ title: `Transaction status \`${currentStatus}\`` });
 
-  if (!endStatuses.includes(currentStatus) && popup.closed) {
+  if (!endStatuses.includes(currentStatus)) {
     log.instruction({
       title: `The popup was closed before the transaction reached a terminal status, if your balance is not updated soon, the transaction may have failed.`,
     });
