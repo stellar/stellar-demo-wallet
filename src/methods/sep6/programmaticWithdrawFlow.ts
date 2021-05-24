@@ -34,8 +34,6 @@ export const programmaticWithdrawFlow = async ({
     type,
     ...withdrawFields,
   };
-  console.log(withdrawFields);
-  console.log(getDepositParams);
 
   each(getDepositParams, (value, key) =>
     REQUEST_URL.searchParams.append(key, value),
