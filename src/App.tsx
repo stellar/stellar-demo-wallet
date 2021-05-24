@@ -11,6 +11,7 @@ import { PageContent } from "components/PageContent";
 import { PrivateRoute } from "components/PrivateRoute";
 import { SettingsHandler } from "components/SettingsHandler";
 import { WarningBanner } from "components/WarningBanner";
+import { TextLink } from "components/TextLink";
 
 import { Account } from "pages/Account";
 import { Landing } from "pages/Landing";
@@ -42,6 +43,23 @@ export const App = () => (
                   This demo wallet lets financial application developers test
                   their integrations and learn how Stellar ecosystem protocols
                   (SEPs) work.
+                </p>
+
+                <p>
+                  <TextLink
+                    href="https://github.com/stellar/stellar-demo-wallet#stellar-demo-wallet"
+                    isExternal
+                  >
+                    Learn more
+                  </TextLink>{" "}
+                  about the tool and{" "}
+                  <TextLink
+                    href="https://github.com/stellar/stellar-demo-wallet/issues"
+                    isExternal
+                  >
+                    report issues or request features
+                  </TextLink>{" "}
+                  on GitHub.
                 </p>
               </div>
 
