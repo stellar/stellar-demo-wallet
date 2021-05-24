@@ -4,6 +4,7 @@ import { AccountInfo } from "components/AccountInfo";
 import { Assets } from "components/Assets";
 import { Modal } from "components/Modal";
 import { SendPayment } from "components/SendPayment";
+import { Sep6Send } from "components/Sep6Send";
 import { Sep8Send } from "components/Sep8Send";
 import { Sep31Send } from "components/Sep31Send";
 import { resetActiveAssetAction } from "ducks/activeAsset";
@@ -38,6 +39,9 @@ export const Account = () => {
 
       {/* Assets / Balances */}
       <Assets onSendPayment={handleSendPayment} />
+
+      {/* SEP-6 Send */}
+      <Sep6Send />
 
       {/* SEP-8 Send */}
       <Sep8Send />
