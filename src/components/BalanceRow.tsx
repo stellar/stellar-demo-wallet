@@ -89,24 +89,6 @@ export const BalanceRow = ({
         )}
       </div>
 
-      {supportedActions?.sep8 && (
-        <div className="RegulatedInfo">
-          <span>Regulated</span>
-          <InfoButtonWithTooltip>
-            {
-              "Payments with regulated assets need to be approved by the asset issuer. For more information please refer to "
-            }
-            <TextLink
-              href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md"
-              isExternal
-            >
-              SEP-8
-            </TextLink>
-            "."
-          </InfoButtonWithTooltip>
-        </div>
-      )}
-
       <div className="BalanceCell BalanceActions">
         {children && <div className="CustomCell">{children}</div>}
 
@@ -119,7 +101,7 @@ export const BalanceRow = ({
               value={selectValue}
             >
               <option value="">Select action</option>
-              {!isUntrusted && !asset.supportedActions?.sep8 && (
+              {!isUntrusted && (
                 <option value={AssetActionId.SEND_PAYMENT}>Send payment</option>
               )}
 
@@ -134,12 +116,6 @@ export const BalanceRow = ({
                     </option>
                   )}
                 </>
-              )}
-
-              {supportedActions?.sep8 && (
-                <option value={AssetActionId.SEP8_SEND_PAYMENT}>
-                  SEP-8 Send
-                </option>
               )}
 
               {supportedActions?.sep24 && (
