@@ -133,6 +133,15 @@ export const Sep6Withdraw = () => {
     dispatch(submitSep6DWithdrawFields({ ...formData }));
   };
 
+  const allFields = {
+    amount: {
+      description: "amount to withdraw",
+    },
+    ...(withdrawTypes[activeWithdrawType]?.fields
+      ? withdrawTypes[activeWithdrawType].fields
+      : {}),
+  };
+
   if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {
     return (
       <Modal visible={true} onClose={handleClose}>
@@ -166,9 +175,7 @@ export const Sep6Withdraw = () => {
                 </option>
               ))}
             </Select>
-            {Object.entries(
-              withdrawTypes[activeWithdrawType]?.fields || {},
-            ).map(([field, fieldInfo]) => (
+            {Object.entries(allFields).map(([field, fieldInfo]) => (
               <Input
                 key={field}
                 id={field}

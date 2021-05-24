@@ -27,7 +27,6 @@ import {
 } from "ducks/assetOverrides";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
-import { resetSep6DepositAction } from "ducks/sep6DepositAsset";
 import { resetSep24DepositAssetAction } from "ducks/sep24DepositAsset";
 import { resetTrustAssetAction } from "ducks/trustAsset";
 import {
@@ -236,8 +235,6 @@ export const Assets = ({
   // SEP-6 Deposit asset
   useEffect(() => {
     if (sep6DepositAsset.status === ActionStatus.SUCCESS) {
-      dispatch(resetSep6DepositAction());
-
       if (sep6DepositAsset.data.trustedAssetAdded) {
         handleRemoveUntrustedAsset(sep6DepositAsset.data.trustedAssetAdded);
       }
