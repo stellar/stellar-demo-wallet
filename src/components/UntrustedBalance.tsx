@@ -5,6 +5,7 @@ import { TextButton } from "components/TextButton";
 import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
 import { resetActiveAssetAction } from "ducks/activeAsset";
+import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { trustAssetAction } from "ducks/trustAsset";
 import {
@@ -63,6 +64,10 @@ export const UntrustedBalance = ({
     dispatch(trustAssetAction({ assetString, assetCode, assetIssuer }));
   };
 
+  const handleSep6Deposit = (asset: Asset) => {
+    dispatch(initiateSep6SendAction(asset));
+  };
+
   const handleDepositAsset = (asset: Asset) => {
     dispatch(depositAssetAction(asset));
   };
@@ -98,6 +103,14 @@ export const UntrustedBalance = ({
     };
 
     switch (actionId) {
+      case AssetActionId.SEP6_DEPOSIT:
+        props = {
+          ...defaultProps,
+          title: `SEP-6 deposit ${asset.assetCode} (with untrusted Asset)`,
+          description: `Start SEP-6 deposit of untrusted asset ${asset.assetCode}? A lumen is the only asset type that can be used on the Stellar network that doesn’t require an issuer or a trustline.`,
+          callback: () => handleSep6Deposit(asset),
+        };
+        break;
       case AssetActionId.SEP24_DEPOSIT:
         props = {
           ...defaultProps,

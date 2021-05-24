@@ -29,7 +29,7 @@ export const programmaticWithdrawFlow = async ({
   const REQUEST_URL_STR = `${transferServerUrl}/withdraw`;
   const REQUEST_URL = new URL(REQUEST_URL_STR);
 
-  const getDepositParams = {
+  const getWithdrawParams = {
     asset_code: assetCode,
     account: publicKey,
     claimable_balance_supported: claimableBalanceSupported.toString(),
@@ -37,13 +37,13 @@ export const programmaticWithdrawFlow = async ({
     ...withdrawFields,
   };
 
-  each(getDepositParams, (value, key) =>
+  each(getWithdrawParams, (value, key) =>
     REQUEST_URL.searchParams.append(key, value),
   );
 
   log.request({
     title: `${API_METHOD} \`${REQUEST_URL_STR}\``,
-    body: getDepositParams,
+    body: getWithdrawParams,
   });
 
   const response = await fetch(`${REQUEST_URL}`, {

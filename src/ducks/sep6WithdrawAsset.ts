@@ -251,6 +251,8 @@ export const sep6WithdrawAction = createAsyncThunk<
         claimableBalanceSupported,
       })) as Sep6WithdrawResponse;
 
+      console.log(withdrawResponse);
+
       // Poll transaction until complete
       const currentStatus = await pollWithdrawUntilComplete({
         secretKey,
