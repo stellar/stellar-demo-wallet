@@ -21,7 +21,8 @@ export const TX_ERROR_TEXT: ErrorTextObject = {
   buy_no_issuer: "The issuer of that token doesn’t exist.",
   op_offer_not_found: "We couldn’t find that offer.",
   op_low_reserve: "That offer would take you below the minimum XLM reserve.",
-  op_not_authorized: "This operation was not authorized.",
+  op_not_authorized:
+    "This operation was not authorized, please make sure the asset you used complies with the Regulated Assets protocol (SEP-8).",
   tx_bad_auth: "Something went wrong while signing a transaction.",
   tx_bad_seq:
     "The app has gotten out of sync with the network. Please try again later.",

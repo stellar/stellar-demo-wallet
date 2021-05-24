@@ -52,10 +52,35 @@ export const revisePaymentTransaction = async ({
   // parse SEP-8 response
   const sep8ApprovalResultJson = await sep8ApprovalResult.json();
   switch (sep8ApprovalResultJson.status) {
+    case Sep8ApprovalStatus.ACTION_REQUIRED:
+      log.response({
+        title: "Action Required",
+        body: "Additional information is needed before we can proceed.",
+      });
+      log.instruction({
+        title: sep8ApprovalResultJson.message,
+      });
+
+      return {
+        status: Sep8ApprovalStatus.ACTION_REQUIRED,
+        actionRequiredInfo: {
+          actionFields: sep8ApprovalResultJson.action_fields,
+          actionMethod: sep8ApprovalResultJson.action_method,
+          actionUrl: sep8ApprovalResultJson.action_url,
+          message: sep8ApprovalResultJson.message,
+        },
+        revisedTransaction: {
+          amount: params.amount,
+          destination: params.destination,
+          submittedTxXdr,
+          revisedTxXdr: "",
+        },
+      };
+
     case Sep8ApprovalStatus.PENDING: {
       const dateStr = new Date(sep8ApprovalResultJson.timeout).toLocaleString();
       log.response({
-        title: "Authorization pending",
+        title: "Authorization Pending",
         body: `The issuer could not determine whether to approve the transaction at this time. You can re-submit the same transaction on ${dateStr}.`,
       });
       if (sep8ApprovalResultJson.message) {

@@ -393,6 +393,16 @@ export enum Sep8ApprovalStatus {
   SUCCESS = "success",
 }
 
+export enum Sep8Step {
+  DISABLED = "disabled",
+  STARTING = "starting",
+  PENDING = "pending",
+  TRANSACTION_REVISED = "transaction_revised",
+  ACTION_REQUIRED = "action_required",
+  SENT_ACTION_REQUIRED_FIELDS = "sent_action_required_fields",
+  COMPLETE = "complete",
+}
+
 export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
   approvalServer: string;
   assetCode: string;
@@ -401,6 +411,7 @@ export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
 
 export interface Sep8SendInitialState {
   data: {
+    sep8Step: Sep8Step;
     approvalCriteria: string;
     approvalServer: string;
     assetCode: string;
@@ -412,6 +423,17 @@ export interface Sep8SendInitialState {
       destination: string;
       revisedTxXdr: string;
       submittedTxXdr: string;
+    };
+    actionRequiredInfo: {
+      actionFields: string[];
+      actionMethod: string;
+      actionUrl: string;
+      message: string;
+    };
+    actionRequiredResult: {
+      result: string;
+      nextUrl?: string;
+      message?: string;
     };
   };
   errorString?: string;
@@ -428,4 +450,29 @@ export interface Sep8RevisedTransactionInfo {
 export interface Sep8ApprovalResponse {
   status: Sep8ApprovalStatus;
   revisedTransaction?: Sep8RevisedTransactionInfo;
+  actionRequiredInfo?: Sep8ActionRequiredInfo;
+}
+
+export interface Sep8ActionRequiredInfo {
+  actionFields: string[];
+  actionMethod: string;
+  actionUrl: string;
+  message: string;
+}
+
+export interface Sep8ActionRequiredSendParams {
+  actionFields: { [key: string]: string };
+  actionMethod: string;
+  actionUrl: string;
+}
+
+export enum Sep8ActionRequiredResultType {
+  FOLLOW_NEXT_URL = "follow_next_url",
+  NO_FURTHER_ACTION_REQUIRED = "no_further_action_required",
+}
+
+export interface Sep8ActionRequiredSentResult {
+  result: string;
+  nextUrl?: string;
+  message?: string;
 }
