@@ -34,6 +34,16 @@ export const Footer = () => {
             >
               Privacy Policy
             </TextLink>
+
+            <TextLink
+              variant={TextLinkVariant.secondary}
+              href="https://github.com/stellar/stellar-demo-wallet"
+              rel="noreferrer"
+              target="_blank"
+              title="Check out our GitHub repo for more information and to log issues"
+            >
+              GitHub
+            </TextLink>
           </div>
 
           {account.isAuthenticated && (
