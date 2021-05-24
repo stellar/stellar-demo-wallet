@@ -7,7 +7,7 @@ import { TextLink } from "components/TextLink";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6WithdrawAction,
-  submitSep6DWithdrawFields,
+  submitSep6WithdrawFields,
   sep6WithdrawAction,
 } from "ducks/sep6WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
@@ -130,7 +130,7 @@ export const Sep6Withdraw = () => {
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     event.preventDefault();
-    dispatch(submitSep6DWithdrawFields({ ...formData }));
+    dispatch(submitSep6WithdrawFields({ ...formData }));
   };
 
   if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {

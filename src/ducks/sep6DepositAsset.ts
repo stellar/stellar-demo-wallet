@@ -21,7 +21,7 @@ import {
   Sep6DepositResponse,
   RejectMessage,
   TomlFields,
-  CheckInfoType,
+  AnchorActionType,
   AnyObject,
 } from "types/types.d";
 
@@ -62,12 +62,12 @@ export const initiateDepositAction = createAsyncThunk<
 
       // Check info
       const infoData = await checkDepositWithdrawInfo({
-        type: CheckInfoType.DEPOSIT,
+        type: AnchorActionType.DEPOSIT,
         transferServerUrl: tomlResponse.TRANSFER_SERVER,
         assetCode,
       });
 
-      const assetInfoData = infoData.deposit[assetCode];
+      const assetInfoData = infoData[AnchorActionType.DEPOSIT][assetCode];
 
       const {
         authentication_required: isAuthenticationRequired,
