@@ -1,19 +1,19 @@
 import { get } from "lodash";
 import { log } from "helpers/log";
-import { CheckInfoData, CheckInfoType } from "types/types.d";
+import { CheckInfoData, AnchorActionType } from "types/types.d";
 
 export const checkDepositWithdrawInfo = async ({
   type,
   transferServerUrl,
   assetCode,
 }: {
-  type: CheckInfoType;
+  type: AnchorActionType;
   transferServerUrl: string;
   assetCode: string;
 }): Promise<CheckInfoData> => {
   log.instruction({
     title: `Checking \`/info\` endpoint to ensure this currency is enabled for ${
-      type === CheckInfoType.DEPOSIT ? "deposit" : "withdrawal"
+      type === AnchorActionType.DEPOSIT ? "deposit" : "withdrawal"
     }`,
   });
   const infoURL = `${transferServerUrl}/info`;
