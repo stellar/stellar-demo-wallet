@@ -56,6 +56,8 @@ export const Assets = ({
     allAssets,
     assetOverrides,
     claimAsset,
+    sep6DepositAsset,
+    sep6WithdrawAsset,
     sep24DepositAsset,
     sep24WithdrawAsset,
     sep31Send,
@@ -68,6 +70,8 @@ export const Assets = ({
     "allAssets",
     "assetOverrides",
     "claimAsset",
+    "sep6DepositAsset",
+    "sep6WithdrawAsset",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
     "sep31Send",
@@ -228,7 +232,55 @@ export const Assets = ({
     history,
   ]);
 
-  // Deposit asset
+  // SEP-6 Deposit asset
+  useEffect(() => {
+    if (
+      sep6DepositAsset.status === ActionStatus.SUCCESS &&
+      sep6DepositAsset.data.trustedAssetAdded
+    ) {
+      handleRemoveUntrustedAsset(sep6DepositAsset.data.trustedAssetAdded);
+    }
+
+    if (sep6DepositAsset.data.currentStatus === TransactionStatus.COMPLETED) {
+      handleRefreshAccount();
+      handleFetchClaimableBalances();
+    }
+
+    setActiveAssetStatusAndToastMessage({
+      status: sep6DepositAsset.status,
+      message: "SEP-6 deposit in progress",
+    });
+  }, [
+    sep6DepositAsset.status,
+    sep6DepositAsset.data.currentStatus,
+    sep6DepositAsset.data.trustedAssetAdded,
+    handleRefreshAccount,
+    handleFetchClaimableBalances,
+    handleRemoveUntrustedAsset,
+    setActiveAssetStatusAndToastMessage,
+  ]);
+
+  // SEP-6 Withdraw asset
+  useEffect(() => {
+    if (
+      sep6WithdrawAsset.status === ActionStatus.SUCCESS &&
+      sep6WithdrawAsset.data.currentStatus === TransactionStatus.COMPLETED
+    ) {
+      handleRefreshAccount();
+    }
+
+    setActiveAssetStatusAndToastMessage({
+      status: sep6WithdrawAsset.status,
+      message: "SEP-6 withdrawal in progress",
+    });
+  }, [
+    sep6WithdrawAsset.status,
+    sep6WithdrawAsset.data.currentStatus,
+    handleRefreshAccount,
+    setActiveAssetStatusAndToastMessage,
+  ]);
+
+  // SEP-24 Deposit asset
   useEffect(() => {
     if (sep24DepositAsset.status === ActionStatus.SUCCESS) {
       dispatch(resetSep24DepositAssetAction());
@@ -261,7 +313,7 @@ export const Assets = ({
     history,
   ]);
 
-  // Withdraw asset
+  // SEP-24 Withdraw asset
   useEffect(() => {
     if (sep24WithdrawAsset.status === ActionStatus.SUCCESS) {
       dispatch(resetSep24WithdrawAssetAction());
