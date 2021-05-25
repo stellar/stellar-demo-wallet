@@ -51,7 +51,6 @@ export const pollWithdrawUntilComplete = async ({
     });
     // eslint-disable-next-line no-await-in-loop
     const transactionJson = await response.json();
-    console.log(transactionJson);
 
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;

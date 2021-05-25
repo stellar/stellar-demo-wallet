@@ -30,7 +30,6 @@ export const pollDepositUntilComplete = async ({
   ];
 
   while (!endStatuses.includes(currentStatus)) {
-    console.log(currentStatus);
     // eslint-disable-next-line no-await-in-loop
     const response = await fetch(transactionUrl.toString(), {
       headers: { Authorization: `Bearer ${token}` },
@@ -38,7 +37,6 @@ export const pollDepositUntilComplete = async ({
 
     // eslint-disable-next-line no-await-in-loop
     const transactionJson = await response.json();
-    console.log(transactionJson);
 
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;
