@@ -23,9 +23,9 @@ You can use the demo wallet to test Regulated Assets ([SEP-8]), Hosted Deposit a
 1. Click "Generate keypair", and then click "Create account" - this will create a balance of 10,000 XLM.
 2. Click “Add asset” and add `MYASSET` with the anchor home domain `sep8-server.dev.stellar.org`.
 3. Click “Add trustline” - this will allow you to hold MYASSET.
-4. Click in the "Copy" link at the right of your public key and use that value to get some unities of MYASSET using the link `https://sep8-server.dev.stellar.org/friendbot?addr=<paste_your_address_here>`.
-5. Select "SEP-8 Send" from the dropdown for MYASSET and click "Start" in the modal.
-6. In the "destination" field, input an address that also has a trustline to MYASSET. You can use this destination address for it if you don't have one: `GBID36ML6VVNPIF6SQATQW5QIBREQAVEHQIUMWDLQCSVIYX2IJGK4KPP`.
+4. Click on the "Copy" link on the right of your public key and use that value to get some unities of MYASSET using the link `https://sep8-server.dev.stellar.org/friendbot?addr=<paste_your_address_here>`.
+5. Select "SEP-8 Send" from the dropdown of MYASSET and click "Start" in the modal.
+6. In the "destination" field, input an address that also has a trustline to MYASSET.
 7. The modal will display the approval criteria used by the SEP-8 server. Depending on the conditions described there your payment can be automatically approved or you may be required to undergo an additional KYC step.
 8. After your payment gets revised and signed by the SEP-8 reference server you'll need to review the updated transaction before the demo wallet submits the payment.
 9. If the payment has been successfully sent you'll see "SEP-8 send payment completed 🎉" in the logs.
