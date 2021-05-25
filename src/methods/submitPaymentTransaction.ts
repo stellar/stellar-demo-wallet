@@ -97,6 +97,7 @@ export const buildPaymentTransaction = async ({
         destination,
         asset,
         amount: amount.toString(),
+        withMuxing: true,
       });
     } else {
       log.instruction({
