@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
-import { Types } from "@stellar/wallet-sdk";
 import { Horizon } from "stellar-sdk";
+import { Types } from "@stellar/wallet-sdk";
+import { Sep9Field } from "helpers/sep9/Sep9Fields";
 
 export enum SearchParams {
   SECRET_KEY = "secretKey",
@@ -425,7 +426,7 @@ export interface Sep8SendInitialState {
       submittedTxXdr: string;
     };
     actionRequiredInfo: {
-      actionFields: string[];
+      actionFields: Sep9Field[];
       actionMethod: string;
       actionUrl: string;
       message: string;
@@ -454,14 +455,14 @@ export interface Sep8ApprovalResponse {
 }
 
 export interface Sep8ActionRequiredInfo {
-  actionFields: string[];
+  actionFields: Sep9Field[];
   actionMethod: string;
   actionUrl: string;
   message: string;
 }
 
 export interface Sep8ActionRequiredSendParams {
-  actionFields: { [key: string]: string };
+  actionFields: { [key: string]: string | File };
   actionMethod: string;
   actionUrl: string;
 }

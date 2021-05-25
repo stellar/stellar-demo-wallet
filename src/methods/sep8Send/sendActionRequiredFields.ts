@@ -1,4 +1,5 @@
 import { log } from "helpers/log";
+import { Sep9FieldsDict, Sep9FieldType } from "helpers/sep9/Sep9Fields";
 import {
   Sep8ActionRequiredResultType,
   Sep8ActionRequiredSendParams,
@@ -14,15 +15,35 @@ export const sendActionRequiredFields = async ({
     title: `Sending action required fields to SEP-8 server with \`${actionMethod} ${actionUrl}\``,
     body: actionFields,
   });
+
+  // prepare multipart request if needed
+  let contentType = "application/json";
+  let body: string | FormData = JSON.stringify(actionFields);
+
+  const hasBinary = Object.keys(actionFields).some(
+    (fieldName) => Sep9FieldsDict[fieldName].type === Sep9FieldType.BINARY,
+  );
+  if (hasBinary) {
+    contentType = "multipart/form-data";
+
+    const formData = new FormData();
+    Object.entries(actionFields).forEach(([fieldName, fieldValue]) =>
+      formData.append(fieldName, fieldValue),
+    );
+    body = formData;
+  }
+
   const sep8ActionRequiredResult = await fetch(actionUrl, {
     method: actionMethod,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": contentType,
     },
-    body: JSON.stringify(actionFields),
+    body,
   });
+
   const resultJson = await sep8ActionRequiredResult.json();
 
+  // parse result
   let validatedResponse: Sep8ActionRequiredSentResult;
   switch (resultJson.result) {
     case Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED:
@@ -54,16 +75,11 @@ export const sendActionRequiredFields = async ({
     body: resultJson,
   });
 
-  if (validatedResponse.message) {
-    log.instruction({
-      title: validatedResponse.message,
-    });
-  } else {
-    log.instruction({
-      title:
-        "The SEP-8 server received your information, re-submit the SEP-8 payment.",
-    });
-  }
+  log.instruction({
+    title:
+      validatedResponse.message ??
+      "The SEP-8 server received your information, re-submit the SEP-8 payment.",
+  });
 
   return validatedResponse;
 };

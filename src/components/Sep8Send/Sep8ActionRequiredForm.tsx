@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Input, Loader } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
@@ -7,6 +7,7 @@ import {
   initiateSep8SendAction,
   sep8SendActionRequiredFieldsAction,
 } from "ducks/sep8Send";
+import { Sep9FieldType } from "helpers/sep9/Sep9Fields";
 import { useRedux } from "hooks/useRedux";
 import {
   ActionStatus,
@@ -20,7 +21,9 @@ export const Sep8ActionRequiredForm = ({
   onClose: () => void;
 }) => {
   const { account, sep8Send } = useRedux("account", "sep8Send");
-  const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
+  const [fieldValues, setFieldValues] = useState<{
+    [key: string]: string | File;
+  }>({});
   const {
     actionFields,
     message,
@@ -32,7 +35,7 @@ export const Sep8ActionRequiredForm = ({
 
   useEffect(() => {
     if (sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS) {
-      if (result === Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED) {
+      if (result === Sep8ActionRequiredResultType.FOLLOW_NEXT_URL) {
         window.open(nextUrl, "_blank");
       }
 
@@ -69,11 +72,13 @@ export const Sep8ActionRequiredForm = ({
 
   const handleOnChangeField = ({
     fieldName,
-    fieldValue,
+    event,
   }: {
     fieldName: string;
-    fieldValue: string;
+    event: React.ChangeEvent<HTMLInputElement>;
   }) => {
+    const files = event.target.files;
+    const fieldValue = files?.length ? files[0] : event.target.value;
     const buffFieldValue = { ...fieldValues };
     buffFieldValue[fieldName] = fieldValue;
     setFieldValues(buffFieldValue);
@@ -92,17 +97,48 @@ export const Sep8ActionRequiredForm = ({
           <p>The following information is needed before we can proceed:</p>
         </div>
 
-        {actionFields.map((fieldName) => (
-          <Input
-            key={fieldName}
-            id={`sep8-action-field-${fieldName}`}
-            label={fieldName}
-            onChange={(e) =>
-              handleOnChangeField({ fieldName, fieldValue: e.target.value })
-            }
-            value={fieldValues[fieldName] || ""}
-          />
-        ))}
+        {actionFields.map((sep9Field) => {
+          const { name: fieldName, type: fieldType, description } = sep9Field;
+
+          let inputValue: { [key: string]: any } = {
+            value: fieldValues[fieldName] || "",
+          };
+          let inputType = "text";
+          switch (fieldType) {
+            case Sep9FieldType.DATE:
+              inputType = "date";
+              break;
+
+            case Sep9FieldType.BINARY:
+              inputType = "file";
+              inputValue = {};
+              break;
+
+            case Sep9FieldType.NUMBER:
+              inputType = "number";
+              break;
+
+            default:
+              inputType = "text";
+              break;
+          }
+          if (fieldName === "email_address") {
+            inputType = "email";
+          }
+
+          return (
+            <Input
+              key={fieldName}
+              id={`sep8-action-field-${fieldName}`}
+              type={inputType}
+              label={fieldName}
+              onChange={(event) => handleOnChangeField({ fieldName, event })}
+              multiple={false}
+              note={description}
+              {...inputValue}
+            />
+          );
+        })}
 
         {sep8Send.errorString && (
           <div className="ModalMessage error">

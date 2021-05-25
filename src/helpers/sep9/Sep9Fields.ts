@@ -140,7 +140,7 @@ export const Sep9Fields: Sep9Field[] = [
   },
   {
     name: "language_code",
-    type: Sep9FieldType.LANGUAGE_CODE, // TODO
+    type: Sep9FieldType.LANGUAGE_CODE,
     description: "Primary language",
   },
   {
@@ -196,3 +196,13 @@ export const Sep9Fields: Sep9Field[] = [
       "Image of a utility bill, bank statement or similar with the user's name and address",
   },
 ];
+
+export const Sep9FieldsDict: {
+  [key: string]: Sep9Field;
+} = Sep9Fields.reduce(
+  (result: { [key: string]: Sep9Field }, sep9Field: Sep9Field) => ({
+    ...result,
+    [sep9Field.name]: sep9Field,
+  }),
+  {},
+);
