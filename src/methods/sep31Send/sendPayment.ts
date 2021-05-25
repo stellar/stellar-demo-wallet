@@ -1,4 +1,5 @@
 import {
+  Account,
   Asset,
   BASE_FEE,
   Keypair,
@@ -77,7 +78,7 @@ export const sendPayment = async ({
     );
   }
 
-  const tx = new TransactionBuilder(account, {
+  const tx = new TransactionBuilder(new Account(keypair.publicKey(), "1"), {
     fee: (Number(BASE_FEE) * 5).toString(),
     networkPassphrase,
   })
