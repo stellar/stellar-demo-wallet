@@ -6,7 +6,10 @@ import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import { checkDepositWithdrawInfo } from "methods/checkDepositWithdrawInfo";
-import { programmaticDepositFlow } from "methods/sep6";
+import {
+  pollDepositUntilComplete,
+  programmaticDepositFlow,
+} from "methods/sep6";
 import {
   sep10AuthStart,
   sep10AuthSign,
@@ -14,6 +17,7 @@ import {
 } from "methods/sep10Auth";
 import { collectSep12Fields, putSep12FieldsRequest } from "methods/sep12";
 import { checkTomlForFields } from "methods/checkTomlForFields";
+import { trustAsset } from "methods/trustAsset";
 import {
   Asset,
   ActionStatus,
@@ -25,8 +29,12 @@ import {
   AnyObject,
 } from "types/types.d";
 
+type InitiateDepositActionPayload = Sep6DepositAssetInitialState["data"] & {
+  status: ActionStatus;
+};
+
 export const initiateDepositAction = createAsyncThunk<
-  { customerFields: AnyObject; infoFields: AnyObject; status: ActionStatus },
+  InitiateDepositActionPayload,
   Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(
@@ -75,13 +83,14 @@ export const initiateDepositAction = createAsyncThunk<
 
       let payload = {
         assetCode,
+        assetIssuer,
         infoFields: { ...assetInfoData.fields },
         customerFields: {},
         kycServer: "",
         status: ActionStatus.NEEDS_INPUT,
         token: "",
-        transferServer: tomlResponse.TRANSFER_SERVER,
-      };
+        transferServerUrl: tomlResponse.TRANSFER_SERVER,
+      } as InitiateDepositActionPayload;
 
       if (isAuthenticationRequired) {
         // Re-check toml for auth endpoint
@@ -163,7 +172,7 @@ export const initiateDepositAction = createAsyncThunk<
 );
 
 export const submitSep6DepositFields = createAsyncThunk<
-  { status: ActionStatus; type: string; depositFields: AnyObject },
+  { status: ActionStatus; depositResponse: Sep6DepositResponse },
   {
     depositType: AnyObject;
     infoFields: AnyObject;
@@ -177,9 +186,13 @@ export const submitSep6DepositFields = createAsyncThunk<
     { rejectWithValue, getState },
   ) => {
     try {
+      const { data } = accountSelector(getState());
+      const { claimableBalanceSupported } = settingsSelector(getState());
+      const publicKey = data?.id || "";
       const { secretKey } = accountSelector(getState());
-      const { data } = sep6DepositSelector(getState());
-      const { kycServer, token } = data;
+      const { data: sep6Data } = sep6DepositSelector(getState());
+
+      const { assetCode, kycServer, transferServerUrl, token } = sep6Data;
 
       if (Object.keys(customerFields).length) {
         await putSep12FieldsRequest({
@@ -189,10 +202,20 @@ export const submitSep6DepositFields = createAsyncThunk<
           token,
         });
       }
-      return {
-        status: ActionStatus.CAN_PROCEED,
+
+      const depositResponse = (await programmaticDepositFlow({
+        assetCode,
+        publicKey,
+        transferServerUrl,
+        token,
         type: depositType.type,
         depositFields: infoFields,
+        claimableBalanceSupported,
+      })) as Sep6DepositResponse;
+
+      return {
+        status: ActionStatus.CAN_PROCEED,
+        depositResponse,
       };
     } catch (e) {
       const errorMessage = getErrorMessage(e);
@@ -209,37 +232,63 @@ export const submitSep6DepositFields = createAsyncThunk<
 );
 
 export const sep6DepositAction = createAsyncThunk<
-  { depositResponse: Sep6DepositResponse; status: ActionStatus },
+  {
+    currentStatus: string;
+    status: ActionStatus;
+    trustedAssetAdded: string;
+  },
   undefined,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep6DepositAsset/sep6DepositAction",
   async (_, { rejectWithValue, getState }) => {
     try {
-      const { data } = accountSelector(getState());
-      const { claimableBalanceSupported } = settingsSelector(getState());
-      const publicKey = data?.id || "";
-      const { data: sep6data } = sep6DepositSelector(getState());
+      const { secretKey } = accountSelector(getState());
+      const { pubnet } = settingsSelector(getState());
+      const networkConfig = getNetworkConfig(pubnet);
+      const { data: sep6Data } = sep6DepositSelector(getState());
 
       const {
         assetCode,
-        depositFields,
-        transferServer,
+        assetIssuer,
+        depositResponse,
+        transferServerUrl,
         token,
-        type,
-      } = sep6data;
+      } = sep6Data;
 
-      const depositResponse = (await programmaticDepositFlow({
-        assetCode,
-        publicKey,
-        transferServerUrl: transferServer,
+      const trustAssetCallback = async () => {
+        const assetString = `${assetCode}:${assetIssuer}`;
+
+        await trustAsset({
+          secretKey,
+          networkPassphrase: networkConfig.network,
+          networkUrl: networkConfig.url,
+          untrustedAsset: {
+            assetString,
+            assetCode,
+            assetIssuer,
+          },
+        });
+
+        return assetString;
+      };
+
+      // Poll transaction until complete
+      const {
+        currentStatus = "",
+        trustedAssetAdded = "",
+      } = await pollDepositUntilComplete({
+        transactionId: depositResponse.id || "",
         token,
-        type,
-        depositFields,
-        claimableBalanceSupported,
-      })) as Sep6DepositResponse;
+        transferServerUrl,
+        trustAssetCallback,
+      });
 
-      return { depositResponse, status: ActionStatus.SUCCESS };
+      return {
+        currentStatus,
+        status: ActionStatus.SUCCESS,
+        trustedAssetAdded,
+      };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 
@@ -258,20 +307,21 @@ export const sep6DepositAction = createAsyncThunk<
 const initialState: Sep6DepositAssetInitialState = {
   data: {
     assetCode: "",
-    depositFields: {},
+    assetIssuer: "",
+    currentStatus: "",
+    customerFields: {},
     depositResponse: { how: "" },
     infoFields: {
       type: {
         choices: [],
       },
     },
-    customerFields: {},
     kycServer: "",
-    transferServer: "",
     token: "",
-    type: "",
+    transferServerUrl: "",
+    trustedAssetAdded: "",
   },
-  status: undefined,
+  status: "" as ActionStatus,
   errorString: undefined,
 };
 
@@ -300,20 +350,16 @@ const sep6DepositAssetSlice = createSlice({
     });
     builder.addCase(submitSep6DepositFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.data.type = action.payload.type;
-      state.data.depositFields = action.payload.depositFields;
+      state.data.depositResponse = action.payload.depositResponse;
     });
     builder.addCase(submitSep6DepositFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
-    builder.addCase(sep6DepositAction.pending, (state) => {
-      state.errorString = undefined;
-      state.status = ActionStatus.PENDING;
-    });
     builder.addCase(sep6DepositAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.data.depositResponse = action.payload.depositResponse;
+      state.data.currentStatus = action.payload.currentStatus;
+      state.data.trustedAssetAdded = action.payload.trustedAssetAdded;
     });
     builder.addCase(sep6DepositAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
