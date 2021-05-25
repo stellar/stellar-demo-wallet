@@ -172,7 +172,7 @@ export const initiateDepositAction = createAsyncThunk<
 );
 
 export const submitSep6DepositFields = createAsyncThunk<
-  { status: ActionStatus; type: string; depositFields: AnyObject },
+  { status: ActionStatus; depositResponse: Sep6DepositResponse },
   {
     depositType: AnyObject;
     infoFields: AnyObject;
@@ -186,9 +186,13 @@ export const submitSep6DepositFields = createAsyncThunk<
     { rejectWithValue, getState },
   ) => {
     try {
+      const { data } = accountSelector(getState());
+      const { claimableBalanceSupported } = settingsSelector(getState());
+      const publicKey = data?.id || "";
       const { secretKey } = accountSelector(getState());
-      const { data } = sep6DepositSelector(getState());
-      const { kycServer, token } = data;
+      const { data: sep6Data } = sep6DepositSelector(getState());
+
+      const { assetCode, kycServer, transferServerUrl, token } = sep6Data;
 
       if (Object.keys(customerFields).length) {
         await putSep12FieldsRequest({
@@ -198,10 +202,20 @@ export const submitSep6DepositFields = createAsyncThunk<
           token,
         });
       }
-      return {
-        status: ActionStatus.CAN_PROCEED,
+
+      const depositResponse = (await programmaticDepositFlow({
+        assetCode,
+        publicKey,
+        transferServerUrl,
+        token,
         type: depositType.type,
         depositFields: infoFields,
+        claimableBalanceSupported,
+      })) as Sep6DepositResponse;
+
+      return {
+        status: ActionStatus.CAN_PROCEED,
+        depositResponse,
       };
     } catch (e) {
       const errorMessage = getErrorMessage(e);
@@ -220,7 +234,6 @@ export const submitSep6DepositFields = createAsyncThunk<
 export const sep6DepositAction = createAsyncThunk<
   {
     currentStatus: string;
-    depositResponse: Sep6DepositResponse;
     status: ActionStatus;
     trustedAssetAdded: string;
   },
@@ -230,9 +243,7 @@ export const sep6DepositAction = createAsyncThunk<
   "sep6DepositAsset/sep6DepositAction",
   async (_, { rejectWithValue, getState }) => {
     try {
-      const { data, secretKey } = accountSelector(getState());
-      const { claimableBalanceSupported } = settingsSelector(getState());
-      const publicKey = data?.id || "";
+      const { secretKey } = accountSelector(getState());
       const { pubnet } = settingsSelector(getState());
       const networkConfig = getNetworkConfig(pubnet);
       const { data: sep6Data } = sep6DepositSelector(getState());
@@ -240,21 +251,10 @@ export const sep6DepositAction = createAsyncThunk<
       const {
         assetCode,
         assetIssuer,
-        depositFields,
+        depositResponse,
         transferServerUrl,
         token,
-        type,
       } = sep6Data;
-
-      const depositResponse = (await programmaticDepositFlow({
-        assetCode,
-        publicKey,
-        transferServerUrl,
-        token,
-        type,
-        depositFields,
-        claimableBalanceSupported,
-      })) as Sep6DepositResponse;
 
       const trustAssetCallback = async () => {
         const assetString = `${assetCode}:${assetIssuer}`;
@@ -286,7 +286,6 @@ export const sep6DepositAction = createAsyncThunk<
 
       return {
         currentStatus,
-        depositResponse,
         status: ActionStatus.SUCCESS,
         trustedAssetAdded,
       };
@@ -311,7 +310,6 @@ const initialState: Sep6DepositAssetInitialState = {
     assetIssuer: "",
     currentStatus: "",
     customerFields: {},
-    depositFields: {},
     depositResponse: { how: "" },
     infoFields: {
       type: {
@@ -322,7 +320,6 @@ const initialState: Sep6DepositAssetInitialState = {
     token: "",
     transferServerUrl: "",
     trustedAssetAdded: "",
-    type: "",
   },
   status: "" as ActionStatus,
   errorString: undefined,
@@ -353,20 +350,16 @@ const sep6DepositAssetSlice = createSlice({
     });
     builder.addCase(submitSep6DepositFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.data.type = action.payload.type;
-      state.data.depositFields = action.payload.depositFields;
+      state.data.depositResponse = action.payload.depositResponse;
     });
     builder.addCase(submitSep6DepositFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
-    builder.addCase(sep6DepositAction.pending, (state) => {
-      state.errorString = undefined;
-      state.status = ActionStatus.PENDING;
-    });
     builder.addCase(sep6DepositAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.data.depositResponse = action.payload.depositResponse;
+      state.data.currentStatus = action.payload.currentStatus;
+      state.data.trustedAssetAdded = action.payload.trustedAssetAdded;
     });
     builder.addCase(sep6DepositAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;

@@ -8,9 +8,10 @@ import StellarSdk, {
 } from "stellar-sdk";
 import { log } from "helpers/log";
 import { createMemoFromType } from "methods/createMemoFromType";
-import { TransactionStatus } from "types/types.d";
+import { AnyObject, TransactionStatus } from "types/types.d";
 
 export const pollWithdrawUntilComplete = async ({
+  amount,
   secretKey,
   transactionId,
   token,
@@ -20,6 +21,7 @@ export const pollWithdrawUntilComplete = async ({
   assetCode,
   assetIssuer,
 }: {
+  amount: string;
   secretKey: string;
   transactionId: string;
   token: string;
@@ -41,6 +43,7 @@ export const pollWithdrawUntilComplete = async ({
   });
 
   const endStatuses = [TransactionStatus.COMPLETED, TransactionStatus.ERROR];
+  let transactionJson = { transaction: {} as AnyObject };
 
   while (!endStatuses.includes(currentStatus)) {
     // eslint-disable-next-line no-await-in-loop
@@ -48,7 +51,7 @@ export const pollWithdrawUntilComplete = async ({
       headers: { Authorization: `Bearer ${token}` },
     });
     // eslint-disable-next-line no-await-in-loop
-    const transactionJson = await response.json();
+    transactionJson = await response.json();
 
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;
@@ -60,8 +63,7 @@ export const pollWithdrawUntilComplete = async ({
       switch (currentStatus) {
         case TransactionStatus.PENDING_USER_TRANSFER_START: {
           log.instruction({
-            title:
-              "The anchor is waiting for you to send the funds for withdrawal",
+            title: "The anchor is waiting for the funds for withdrawal",
           });
 
           const memo = createMemoFromType(
@@ -84,7 +86,6 @@ export const pollWithdrawUntilComplete = async ({
             title: "Fetching account sequence number",
             body: sequence,
           });
-          debugger;
 
           const account = new Account(keypair.publicKey(), sequence);
           const txn = new TransactionBuilder(account, {
@@ -96,7 +97,7 @@ export const pollWithdrawUntilComplete = async ({
                 destination:
                   transactionJson.transaction.withdraw_anchor_account,
                 asset: new Asset(assetCode, assetIssuer),
-                amount: transactionJson.transaction.amount_in,
+                amount,
               }),
             )
             .addMemo(memo)
@@ -168,5 +169,5 @@ export const pollWithdrawUntilComplete = async ({
     });
   }
 
-  return currentStatus;
+  return { currentStatus, transaction: transactionJson.transaction };
 };

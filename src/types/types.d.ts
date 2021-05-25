@@ -188,10 +188,8 @@ export interface Sep6DepositAssetInitialState {
     customerFields: {
       [key: string]: AnyObject;
     };
-    depositFields: AnyObject;
     depositResponse: Sep6DepositResponse;
     trustedAssetAdded: string;
-    type: string;
   };
   errorString?: string;
   status: ActionStatus;
@@ -224,7 +222,6 @@ export interface Sep6WithdrawAssetInitialState {
     token: string;
     transferServerUrl: string;
     trustedAssetAdded: string;
-    type: string;
     withdrawTypes: {
       types: {
         [key: string]: {
@@ -236,7 +233,7 @@ export interface Sep6WithdrawAssetInitialState {
         };
       };
     };
-    withdrawFields: AnyObject;
+    transactionResponse: AnyObject;
     withdrawResponse: Sep6WithdrawResponse;
   };
   errorString?: string;

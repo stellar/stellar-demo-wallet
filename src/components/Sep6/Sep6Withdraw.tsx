@@ -11,12 +11,13 @@ import {
   sep6WithdrawAction,
 } from "ducks/sep6WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
+import { shortenStellarKey } from "helpers/shortenStellarKey";
 import { ActionStatus, AnyObject } from "types/types.d";
 
 export const Sep6Withdraw = () => {
   const { sep6WithdrawAsset } = useRedux("sep6WithdrawAsset");
   const {
-    data: { withdrawResponse },
+    data: { assetCode, transactionResponse, withdrawResponse },
   } = sep6WithdrawAsset;
 
   interface FormData {
@@ -36,6 +37,7 @@ export const Sep6Withdraw = () => {
   };
 
   const [formData, setFormData] = useState<FormData>(formInitialState);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
   const dispatch = useDispatch();
 
   const withdrawTypes = useMemo(
@@ -64,12 +66,6 @@ export const Sep6Withdraw = () => {
       setActiveWithdrawType(initialWithdrawType);
     }
   }, [sep6WithdrawAsset.status, withdrawTypesArr, dispatch]);
-
-  useEffect(() => {
-    if (sep6WithdrawAsset.status === ActionStatus.CAN_PROCEED) {
-      dispatch(sep6WithdrawAction());
-    }
-  }, [sep6WithdrawAsset.status, dispatch]);
 
   const resetLocalState = () => {
     setFormData(formInitialState);
@@ -133,13 +129,19 @@ export const Sep6Withdraw = () => {
     dispatch(submitSep6WithdrawFields({ ...formData }));
   };
 
-  const allFields = {
-    amount: {
-      description: "amount to withdraw",
-    },
-    ...(withdrawTypes[activeWithdrawType]?.fields
-      ? withdrawTypes[activeWithdrawType].fields
-      : {}),
+  const handleAmountFieldChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const { value } = event.target;
+
+    setWithdrawAmount(value);
+  };
+
+  const handleAmountSubmit = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    dispatch(sep6WithdrawAction(withdrawAmount));
   };
 
   if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {
@@ -175,7 +177,9 @@ export const Sep6Withdraw = () => {
                 </option>
               ))}
             </Select>
-            {Object.entries(allFields).map(([field, fieldInfo]) => (
+            {Object.entries(
+              withdrawTypes[activeWithdrawType]?.fields || {},
+            ).map(([field, fieldInfo]) => (
               <Input
                 key={field}
                 id={field}
@@ -232,21 +236,44 @@ export const Sep6Withdraw = () => {
     );
   }
 
-  if (sep6WithdrawAsset.status === ActionStatus.SUCCESS) {
+  if (sep6WithdrawAsset.status === ActionStatus.CAN_PROCEED) {
     return (
       <Modal visible={true} onClose={handleClose}>
-        <Heading2 className="ModalHeading">SEP-6 Withdraw Info</Heading2>
+        <Heading2 className="ModalHeading">Payment Sending</Heading2>
 
         <div className="ModalBody">
           <InfoBlock>
-            <strong>Account ID: </strong>
+            <strong>Sending Payment To: </strong>
 
-            {withdrawResponse.account_id}
+            {shortenStellarKey(withdrawResponse.account_id)}
           </InfoBlock>
+
+          <Input
+            id="withdraw-amount"
+            label="Amount to Withdraw"
+            required
+            onChange={handleAmountFieldChange}
+          />
+          {withdrawResponse.min_amount || withdrawResponse.max_amount ? (
+            <InfoBlock>
+              {withdrawResponse.min_amount && (
+                <p>
+                  <strong>Min Amount: </strong>
+                  {withdrawResponse.min_amount}
+                </p>
+              )}
+              {withdrawResponse.max_amount && (
+                <p>
+                  <strong>Max Amount: </strong>
+                  {withdrawResponse.max_amount}
+                </p>
+              )}
+            </InfoBlock>
+          ) : null}
 
           {withdrawResponse.id && (
             <InfoBlock>
-              <strong>ID: </strong>
+              <strong>Transaction ID: </strong>
               {withdrawResponse.id}
             </InfoBlock>
           )}
@@ -269,20 +296,50 @@ export const Sep6Withdraw = () => {
               {withdrawResponse.memo}
             </InfoBlock>
           )}
+        </div>
+        <div className="ModalButtonsFooter">
+          <Button onClick={handleAmountSubmit}>Submit</Button>
+        </div>
+      </Modal>
+    );
+  }
 
-          {withdrawResponse.max_amount && (
+  if (sep6WithdrawAsset.status === ActionStatus.SUCCESS) {
+    return (
+      <Modal visible={true} onClose={handleClose}>
+        <Heading2 className="ModalHeading">SEP-6 Withdrawal Completed</Heading2>
+
+        <div className="ModalBody">
+          {transactionResponse.to && (
             <InfoBlock>
-              <strong>Max Amount: </strong>
-
-              {withdrawResponse.max_amount}
+              <strong>Account Withdrawn To: </strong>
+              <p>{transactionResponse.to}</p>
+              <p>{transactionResponse.external_extra_text}</p>
             </InfoBlock>
           )}
 
-          {withdrawResponse.min_amount && (
+          {transactionResponse.more_info_url && (
             <InfoBlock>
-              <strong>Min Amount: </strong>
-
-              {withdrawResponse.min_amount}
+              <strong>More Info: </strong>
+              <p>{transactionResponse.more_info_url}</p>
+            </InfoBlock>
+          )}
+          {transactionResponse.amount_in && (
+            <InfoBlock>
+              Amount Withdrawn: {transactionResponse.amount_in}
+              <p>
+                {transactionResponse.amount_fee && (
+                  <>Fee: {transactionResponse.amount_fee}</>
+                )}
+              </p>
+              <p>
+                {transactionResponse.amount_out && (
+                  <strong>
+                    Total Amount Out: {transactionResponse.amount_out}{" "}
+                    {assetCode}
+                  </strong>
+                )}
+              </p>
             </InfoBlock>
           )}
         </div>

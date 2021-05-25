@@ -234,15 +234,16 @@ export const Assets = ({
 
   // SEP-6 Deposit asset
   useEffect(() => {
-    if (sep6DepositAsset.status === ActionStatus.SUCCESS) {
-      if (sep6DepositAsset.data.trustedAssetAdded) {
-        handleRemoveUntrustedAsset(sep6DepositAsset.data.trustedAssetAdded);
-      }
+    if (
+      sep6DepositAsset.status === ActionStatus.SUCCESS &&
+      sep6DepositAsset.data.trustedAssetAdded
+    ) {
+      handleRemoveUntrustedAsset(sep6DepositAsset.data.trustedAssetAdded);
+    }
 
-      if (sep6DepositAsset.data.currentStatus === TransactionStatus.COMPLETED) {
-        handleRefreshAccount();
-        handleFetchClaimableBalances();
-      }
+    if (sep6DepositAsset.data.currentStatus === TransactionStatus.COMPLETED) {
+      handleRefreshAccount();
+      handleFetchClaimableBalances();
     }
 
     setActiveAssetStatusAndToastMessage({
@@ -263,14 +264,11 @@ export const Assets = ({
 
   // SEP-6 Withdraw asset
   useEffect(() => {
-    if (sep6WithdrawAsset.status === ActionStatus.SUCCESS) {
-      dispatch(resetSep24WithdrawAssetAction());
-
-      if (
-        sep6WithdrawAsset.data.currentStatus === TransactionStatus.COMPLETED
-      ) {
-        handleRefreshAccount();
-      }
+    if (
+      sep6WithdrawAsset.status === ActionStatus.SUCCESS &&
+      sep6WithdrawAsset.data.currentStatus === TransactionStatus.COMPLETED
+    ) {
+      handleRefreshAccount();
     }
 
     setActiveAssetStatusAndToastMessage({
