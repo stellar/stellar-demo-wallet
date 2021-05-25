@@ -16,9 +16,22 @@ feel free to clone or copy any pieces that may be helpful.
 
 ## Getting A Test Account Up and Running
 
-You can use the demo wallet to test Hosted Deposit and Withdrawal (SEP-24) and Cross-Border Payments (SEP-31) with any home domain that has a Stellar Info File (also known as SEP-1, or a stellar.toml file). The instructions below are for demo-ing standard integrations supported by Stellar test server, testanchor.stellar.org. For both integrations, the logs to the right of the screen will show every network call. 
+You can use the demo wallet to test Regulated Assets ([SEP-8]), Hosted Deposit and Withdrawal ([SEP-24]) and Cross-Border Payments ([SEP-31]) with any home domain that has a Stellar Info File (also known as [SEP-1], or a stellar.toml file). The instructions below are for demo-ing standard integrations supported by Stellar test server, testanchor.stellar.org or by the [SEP-8] reference server, sep8-server.dev.stellar.org. For these integrations, the logs to the right of the screen will show every network call.
 
-### Demo-ing a Deposit on Testnet with Hosted Deposit and Withdrawal (SEP-24)
+### Demo-ing a Regulated Asset Payment ([SEP-8])
+
+1. Click "Generate keypair", and then click "Create account" - this will create a balance of 10,000 XLM.
+2. Click “Add asset” and add `MYASSET` with the anchor home domain `sep8-server.dev.stellar.org`.
+3. Click “Add trustline” - this will allow you to hold MYASSET.
+4. Click on the "Copy" link on the right of your public key and use that value to get some unities of MYASSET using the link `https://sep8-server.dev.stellar.org/friendbot?addr=<paste_your_address_here>`.
+5. Select "SEP-8 Send" from the dropdown of MYASSET and click "Start" in the modal.
+6. In the "destination" field, input an address that also has a trustline to MYASSET.
+7. The modal will display the approval criteria used by the SEP-8 server. Depending on the conditions described there your payment can be automatically approved or you may be required to undergo an additional KYC step.
+8. After your payment gets revised and signed by the SEP-8 reference server you'll need to review the updated transaction before the demo wallet submits the payment.
+9. If the payment has been successfully sent you'll see "SEP-8 send payment completed 🎉" in the logs.
+
+
+### Demo-ing a Deposit on Testnet with Hosted Deposit and Withdrawal ([SEP-24])
 1. Click "Generate keypair", and then click "Create account" - this will create a balance of 10,000 XLM.
 2. Click “Add asset” and add `SRT` (this stands for Stellar Reference Token, it’s our representation of XLM for the test server) with the anchor home domain `testanchor.stellar.org`.
 3. Click “Add trustline” - this will allow you to hold SRT.
@@ -29,7 +42,7 @@ You can use the demo wallet to test Hosted Deposit and Withdrawal (SEP-24) and C
 8. Enter a number into the amount and click "Submit". 
 9. Leave the pop-up window open while you wait to see the deposit of SRT go through - you can close when you see “Status” is complete and you have SRT.
 
-### Demo-ing Cross-Border Payments (SEP-31) on Testnet
+### Demo-ing Cross-Border Payments ([SEP-31]) on Testnet
 1. Follow the steps above in order to establish an amount of SRT to send.
 2. Select “SEP-31 Send” from the dropdown for your SRT asset and click "Start" in the modal.
 3. Enter the requested information in the pop-up - none of the info has to be real for this testanchor.stellar.org demo, this is only to show the fields required. When testing another anchor you may need to adhere to their validation requirements.
@@ -73,3 +86,8 @@ yarn build
 - [https://www.stellar.org/developers](https://www.stellar.org/developers)
 - [https://stellar.github.io/js-stellar-sdk/](https://stellar.github.io/js-stellar-sdk/)
 - [https://github.com/stellar/js-stellar-sdk](https://github.com/stellar/js-stellar-sdk)
+
+[SEP-1]: https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0001.md
+[SEP-8]: https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md
+[SEP-24]: https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0024.md
+[SEP-31]: https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0031.md
