@@ -161,12 +161,5 @@ export const pollWithdrawUntilComplete = async ({
   }
 
   log.instruction({ title: `Transaction status \`${currentStatus}\`` });
-
-  if (!endStatuses.includes(currentStatus)) {
-    log.instruction({
-      title: `The popup was closed before the transaction reached a terminal status, if your balance is not updated soon, the transaction may have failed.`,
-    });
-  }
-
   return { currentStatus, transaction: transactionJson.transaction };
 };

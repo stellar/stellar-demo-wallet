@@ -122,7 +122,7 @@ export const Sep6Withdraw = () => {
     setFormData(updatedState);
   };
 
-  const handleSubmit = (
+  const handleFieldsSubmit = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     event.preventDefault();
@@ -230,7 +230,7 @@ export const Sep6Withdraw = () => {
         )}
 
         <div className="ModalButtonsFooter">
-          <Button onClick={handleSubmit}>Submit</Button>
+          <Button onClick={handleFieldsSubmit}>Submit</Button>
         </div>
       </Modal>
     );
