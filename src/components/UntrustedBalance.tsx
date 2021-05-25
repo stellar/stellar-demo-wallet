@@ -102,12 +102,15 @@ export const UntrustedBalance = ({
       balance: asset,
     };
 
+    const TRUSTED_ASSET_EXPLANATION =
+      "A lumen is the only asset type that can be used on the Stellar network that doesn’t require an issuer or a trustline.";
+
     switch (actionId) {
       case AssetActionId.SEP6_DEPOSIT:
         props = {
           ...defaultProps,
           title: `SEP-6 deposit ${asset.assetCode} (with untrusted Asset)`,
-          description: `Start SEP-6 deposit of untrusted asset ${asset.assetCode}? A lumen is the only asset type that can be used on the Stellar network that doesn’t require an issuer or a trustline.`,
+          description: `Start SEP-6 deposit of untrusted asset ${asset.assetCode}? ${TRUSTED_ASSET_EXPLANATION}`,
           callback: () => handleSep6Deposit(asset),
         };
         break;
@@ -115,7 +118,7 @@ export const UntrustedBalance = ({
         props = {
           ...defaultProps,
           title: `SEP-24 deposit ${asset.assetCode} (with untrusted Asset)`,
-          description: `Start SEP-24 deposit of untrusted asset ${asset.assetCode}? A lumen is the only asset type that can be used on the Stellar network that doesn’t require an issuer or a trustline.`,
+          description: `Start SEP-24 deposit of untrusted asset ${asset.assetCode}? ${TRUSTED_ASSET_EXPLANATION}`,
           callback: () => handleDepositAsset(asset),
         };
         break;

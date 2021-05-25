@@ -258,8 +258,6 @@ export const Assets = ({
     handleFetchClaimableBalances,
     handleRemoveUntrustedAsset,
     setActiveAssetStatusAndToastMessage,
-    dispatch,
-    history,
   ]);
 
   // SEP-6 Withdraw asset
@@ -280,8 +278,6 @@ export const Assets = ({
     sep6WithdrawAsset.data.currentStatus,
     handleRefreshAccount,
     setActiveAssetStatusAndToastMessage,
-    dispatch,
-    history,
   ]);
 
   // SEP-24 Deposit asset
