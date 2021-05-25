@@ -1,4 +1,5 @@
 import {
+  Account,
   Asset,
   BASE_FEE,
   Keypair,
@@ -38,7 +39,9 @@ export const sendPayment = async ({
   const keypair = Keypair.fromSecret(secretKey);
   const server = new Server(networkUrl);
   const asset = new Asset(assetCode, assetIssuer);
-  const account = await server.loadAccount(keypair.publicKey());
+  const publicKey = keypair.publicKey();
+  const account = await server.loadAccount(publicKey);
+  const { sequence } = await server.accounts().accountId(publicKey).call();
 
   const accountBalance = account.balances.find(
     (b: any) =>
@@ -77,7 +80,7 @@ export const sendPayment = async ({
     );
   }
 
-  const tx = new TransactionBuilder(account, {
+  const tx = new TransactionBuilder(new Account(publicKey, sequence), {
     fee: (Number(BASE_FEE) * 5).toString(),
     networkPassphrase,
   })
