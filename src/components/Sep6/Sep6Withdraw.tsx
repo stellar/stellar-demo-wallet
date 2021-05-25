@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, InfoBlock, Input, Select } from "@stellar/design-system";
+import { Button, Input, Select } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
 import { Modal } from "components/Modal";
 import { TextLink } from "components/TextLink";
@@ -242,11 +242,11 @@ export const Sep6Withdraw = () => {
         <Heading2 className="ModalHeading">Payment Sending</Heading2>
 
         <div className="ModalBody">
-          <InfoBlock>
+          <div className="vertical-spacing">
             <strong>Sending Payment To: </strong>
 
             {shortenStellarKey(withdrawResponse.account_id)}
-          </InfoBlock>
+          </div>
 
           <Input
             id="withdraw-amount"
@@ -255,7 +255,7 @@ export const Sep6Withdraw = () => {
             onChange={handleAmountFieldChange}
           />
           {withdrawResponse.min_amount || withdrawResponse.max_amount ? (
-            <InfoBlock>
+            <div className="vertical-spacing">
               {withdrawResponse.min_amount && (
                 <p>
                   <strong>Min Amount: </strong>
@@ -268,33 +268,35 @@ export const Sep6Withdraw = () => {
                   {withdrawResponse.max_amount}
                 </p>
               )}
-            </InfoBlock>
+            </div>
           ) : null}
 
           {withdrawResponse.id && (
-            <InfoBlock>
+            <div className="vertical-spacing">
               <strong>Transaction ID: </strong>
               {withdrawResponse.id}
-            </InfoBlock>
+            </div>
           )}
           {withdrawResponse.extra_info?.message && (
-            <InfoBlock>{withdrawResponse.extra_info.message}</InfoBlock>
+            <div className="vertical-spacing">
+              {withdrawResponse.extra_info.message}
+            </div>
           )}
 
           {withdrawResponse.memo_type && (
-            <InfoBlock>
+            <div className="vertical-spacing">
               <strong>Memo Type: </strong>
 
               {withdrawResponse.memo_type}
-            </InfoBlock>
+            </div>
           )}
 
           {withdrawResponse.memo && (
-            <InfoBlock>
+            <div className="vertical-spacing">
               <strong>Memo: </strong>
 
               {withdrawResponse.memo}
-            </InfoBlock>
+            </div>
           )}
         </div>
         <div className="ModalButtonsFooter">
@@ -311,21 +313,21 @@ export const Sep6Withdraw = () => {
 
         <div className="ModalBody">
           {transactionResponse.to && (
-            <InfoBlock>
+            <div className="vertical-spacing">
               <strong>Account Withdrawn To: </strong>
               <p>{transactionResponse.to}</p>
               <p>{transactionResponse.external_extra_text}</p>
-            </InfoBlock>
+            </div>
           )}
 
           {transactionResponse.more_info_url && (
-            <InfoBlock>
+            <div className="vertical-spacing">
               <strong>More Info: </strong>
               <p>{transactionResponse.more_info_url}</p>
-            </InfoBlock>
+            </div>
           )}
           {transactionResponse.amount_in && (
-            <InfoBlock>
+            <div className="vertical-spacing">
               Amount Withdrawn: {transactionResponse.amount_in}
               <p>
                 {transactionResponse.amount_fee && (
@@ -340,7 +342,7 @@ export const Sep6Withdraw = () => {
                   </strong>
                 )}
               </p>
-            </InfoBlock>
+            </div>
           )}
         </div>
       </Modal>

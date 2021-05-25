@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, InfoBlock, Input, Select } from "@stellar/design-system";
+import { Button, Input, Select } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
 import { Modal } from "components/Modal";
 import { TextLink } from "components/TextLink";
@@ -228,26 +228,28 @@ export const Sep6Deposit = () => {
         <Heading2 className="ModalHeading">SEP-6 Deposit Info</Heading2>
 
         <div className="ModalBody">
-          <InfoBlock>{depositResponse.how}</InfoBlock>
+          <div className="vertical-spacing">{depositResponse.how}</div>
 
           {depositResponse.extra_info?.message && (
-            <InfoBlock>{depositResponse.extra_info.message}</InfoBlock>
+            <div className="vertical-spacing">
+              {depositResponse.extra_info.message}
+            </div>
           )}
 
           {depositResponse.max_amount && (
-            <InfoBlock>
+            <div className="vertical-spacing">
               <strong>Max Amount: </strong>
 
               {depositResponse.max_amount}
-            </InfoBlock>
+            </div>
           )}
 
           {depositResponse.min_amount && (
-            <InfoBlock>
+            <div className="vertical-spacing">
               <strong>Min Amount: </strong>
 
               {depositResponse.min_amount}
-            </InfoBlock>
+            </div>
           )}
         </div>
       </Modal>
