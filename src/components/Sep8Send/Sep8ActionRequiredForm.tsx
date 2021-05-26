@@ -84,6 +84,38 @@ export const Sep8ActionRequiredForm = ({
     setFieldValues(buffFieldValue);
   };
 
+  const getInputParams = ({ sep9Field }: { sep9Field: Sep9Field }) => {
+    const { name: fieldName, type: fieldType } = sep9Field;
+
+    let inputValue: { [key: string]: any } = {
+      value: fieldValues[fieldName] || "",
+    };
+    let inputType = "text";
+
+    switch (fieldType) {
+      case Sep9FieldType.DATE:
+        inputType = "date";
+        break;
+
+      case Sep9FieldType.BINARY:
+        inputType = "file";
+        inputValue = {};
+        break;
+
+      case Sep9FieldType.NUMBER:
+        inputType = "number";
+        break;
+
+      default:
+        break;
+    }
+    if (fieldName === "email_address") {
+      inputType = "email";
+    }
+
+    return { inputType, inputValue };
+  };
+
   const renderSendPayment = () => (
     <>
       <Heading2 className="ModalHeading">SEP-8 Action Required</Heading2>
@@ -98,33 +130,8 @@ export const Sep8ActionRequiredForm = ({
         </div>
 
         {actionFields.map((sep9Field) => {
-          const { name: fieldName, type: fieldType, description } = sep9Field;
-
-          let inputValue: { [key: string]: any } = {
-            value: fieldValues[fieldName] || "",
-          };
-          let inputType = "text";
-          switch (fieldType) {
-            case Sep9FieldType.DATE:
-              inputType = "date";
-              break;
-
-            case Sep9FieldType.BINARY:
-              inputType = "file";
-              inputValue = {};
-              break;
-
-            case Sep9FieldType.NUMBER:
-              inputType = "number";
-              break;
-
-            default:
-              inputType = "text";
-              break;
-          }
-          if (fieldName === "email_address") {
-            inputType = "email";
-          }
+          const { name: fieldName, description } = sep9Field;
+          const { inputType, inputValue } = getInputParams({ sep9Field });
 
           return (
             <Input
