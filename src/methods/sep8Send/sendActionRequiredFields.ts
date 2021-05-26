@@ -1,5 +1,5 @@
 import { log } from "helpers/log";
-import { Sep9FieldsDict, Sep9FieldType } from "helpers/sep9/Sep9Fields";
+import { Sep9FieldsDict, Sep9FieldType } from "helpers/Sep9Fields";
 import {
   Sep8ActionRequiredResultType,
   Sep8ActionRequiredSendParams,

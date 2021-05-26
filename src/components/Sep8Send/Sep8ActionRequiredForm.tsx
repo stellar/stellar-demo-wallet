@@ -7,7 +7,7 @@ import {
   initiateSep8SendAction,
   sep8SendActionRequiredFieldsAction,
 } from "ducks/sep8Send";
-import { Sep9FieldType } from "helpers/sep9/Sep9Fields";
+import { Sep9Field, Sep9FieldType } from "helpers/Sep9Fields";
 import { useRedux } from "hooks/useRedux";
 import {
   ActionStatus,

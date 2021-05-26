@@ -2,7 +2,7 @@ import StellarSdk, { Transaction } from "stellar-sdk";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
-import { Sep9FieldsDict } from "helpers/sep9/Sep9Fields";
+import { Sep9FieldsDict } from "helpers/Sep9Fields";
 import { buildPaymentTransaction } from "methods/submitPaymentTransaction";
 import {
   Sep8ApprovalResponse,

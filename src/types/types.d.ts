@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { Horizon } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
-import { Sep9Field } from "helpers/sep9/Sep9Fields";
+import { Sep9Field } from "helpers/Sep9Fields";
 
 export enum SearchParams {
   SECRET_KEY = "secretKey",
