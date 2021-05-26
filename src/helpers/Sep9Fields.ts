@@ -149,13 +149,13 @@ export const Sep9Fields: Sep9Field[] = [
   {
     name: "id_type",
     type: Sep9FieldType.STRING,
-    description: "passport, drivers_license, id_card, etc...",
+    description: "Passport, drivers_license, id_card, etc...",
   },
   {
     name: "id_country_code",
     type: Sep9FieldType.COUNTRY_CODE,
     description:
-      "country issuing passport or photo ID as ISO 3166-1 alpha-3 code",
+      "Country issuing passport or photo ID as ISO 3166-1 alpha-3 code",
   },
   {
     name: "id_issue_date",
