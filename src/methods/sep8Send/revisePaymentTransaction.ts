@@ -2,7 +2,7 @@ import StellarSdk, { Transaction } from "stellar-sdk";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
-import { Sep9FieldsDict } from "helpers/Sep9Fields";
+import { Sep9Field, Sep9FieldsDict } from "helpers/Sep9Fields";
 import { buildPaymentTransaction } from "methods/submitPaymentTransaction";
 import {
   Sep8ApprovalResponse,
@@ -62,7 +62,7 @@ export const revisePaymentTransaction = async ({
         title: sep8ApprovalResultJson.message,
       });
 
-      const actionFields = sep8ApprovalResultJson.action_fields.map(
+      const actionFields: Sep9Field[] = sep8ApprovalResultJson.action_fields.map(
         (fieldName: string) => Sep9FieldsDict[fieldName],
       );
 

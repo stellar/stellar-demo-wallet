@@ -19,10 +19,10 @@ export const sendActionRequiredFields = async ({
   // prepare multipart request if needed
   let contentType = "application/json";
   let body: string | FormData = JSON.stringify(actionFields);
-
   const hasBinary = Object.keys(actionFields).some(
     (fieldName) => Sep9FieldsDict[fieldName].type === Sep9FieldType.BINARY,
   );
+
   if (hasBinary) {
     contentType = "multipart/form-data";
 

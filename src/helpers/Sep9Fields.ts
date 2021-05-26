@@ -14,6 +14,9 @@ export interface Sep9Field {
   description: string;
 }
 
+/**
+ * Sep9Fields contains a list of all SEP-9 fields from v1.3.2 (https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0009.md).
+ */
 export const Sep9Fields: Sep9Field[] = [
   {
     name: "family_name",
@@ -197,6 +200,9 @@ export const Sep9Fields: Sep9Field[] = [
   },
 ];
 
+/**
+ * Sep9FieldsDict contains a dictionary with all SEP-9 fields from v1.3.2 (https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0009.md).
+ */
 export const Sep9FieldsDict: {
   [key: string]: Sep9Field;
 } = Sep9Fields.reduce(
