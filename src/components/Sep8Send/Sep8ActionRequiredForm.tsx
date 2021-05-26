@@ -32,7 +32,7 @@ export const Sep8ActionRequiredForm = ({
 
   useEffect(() => {
     if (sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS) {
-      if (result === Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED) {
+      if (nextUrl && result === Sep8ActionRequiredResultType.FOLLOW_NEXT_URL) {
         window.open(nextUrl, "_blank");
       }
 
