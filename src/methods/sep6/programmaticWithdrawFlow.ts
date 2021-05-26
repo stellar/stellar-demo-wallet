@@ -2,46 +2,46 @@ import { each } from "lodash";
 import { log } from "helpers/log";
 import { AnyObject } from "types/types";
 
-type ProgrammaticDepositFlowProps = {
+type ProgrammaticWithdrawFlowProps = {
   assetCode: string;
   publicKey: string;
   transferServerUrl: string;
   token: string;
   type: string;
-  depositFields: AnyObject;
+  withdrawFields: AnyObject;
   claimableBalanceSupported: boolean;
 };
 
-export const programmaticDepositFlow = async ({
+export const programmaticWithdrawFlow = async ({
   assetCode,
   publicKey,
   transferServerUrl,
   token,
   type,
-  depositFields,
+  withdrawFields,
   claimableBalanceSupported,
-}: ProgrammaticDepositFlowProps) => {
-  log.instruction({ title: "Starting SEP-6 programmatic flow for deposit" });
+}: ProgrammaticWithdrawFlowProps) => {
+  log.instruction({ title: "Starting SEP-6 programmatic flow for withdrawal" });
 
   const API_METHOD = "GET";
-  const REQUEST_URL_STR = `${transferServerUrl}/deposit`;
+  const REQUEST_URL_STR = `${transferServerUrl}/withdraw`;
   const REQUEST_URL = new URL(REQUEST_URL_STR);
 
-  const getDepositParams = {
+  const getWithdrawParams = {
     asset_code: assetCode,
     account: publicKey,
     claimable_balance_supported: claimableBalanceSupported.toString(),
     type,
-    ...depositFields,
+    ...withdrawFields,
   };
 
-  each(getDepositParams, (value, key) =>
+  each(getWithdrawParams, (value, key) =>
     REQUEST_URL.searchParams.append(key, value),
   );
 
   log.request({
     title: `${API_METHOD} \`${REQUEST_URL_STR}\``,
-    body: getDepositParams,
+    body: getWithdrawParams,
   });
 
   const response = await fetch(`${REQUEST_URL}`, {
@@ -51,12 +51,16 @@ export const programmaticDepositFlow = async ({
     },
   });
 
-  const depositJson = await response.json();
+  const withdrawJson = await response.json();
+
+  if (response.status !== 200) {
+    throw new Error(withdrawJson.error);
+  }
 
   log.response({
     title: `${API_METHOD} \`${REQUEST_URL_STR}\``,
-    body: depositJson,
+    body: withdrawJson,
   });
 
-  return depositJson;
+  return withdrawJson;
 };

@@ -178,20 +178,67 @@ interface Sep6DepositResponse {
 export interface Sep6DepositAssetInitialState {
   data: {
     assetCode: string;
+    assetIssuer: string;
+    currentStatus: string;
     kycServer: string;
     token: string;
-    transferServer: string;
-    depositTypes: {
+    transferServerUrl: string;
+    infoFields: {
       [key: string]: AnyObject;
     };
+    customerFields: {
+      [key: string]: AnyObject;
+    };
+    depositResponse: Sep6DepositResponse;
+    trustedAssetAdded: string;
+  };
+  errorString?: string;
+  status: ActionStatus;
+}
+
+interface Sep6WithdrawResponse {
+  /* eslint-disable camelcase */
+  account_id: string;
+  id?: string;
+  eta?: number;
+  memo_type?: string;
+  memo?: string;
+  min_amount?: number;
+  max_amount?: number;
+  fee_fixed?: number;
+  fee_percent?: number;
+  extra_info?: { message?: string };
+  /* eslint-enable camelcase */
+}
+
+export interface Sep6WithdrawAssetInitialState {
+  data: {
+    assetCode: string;
+    assetIssuer: string;
+    currentStatus: string;
     fields: {
       [key: string]: AnyObject;
     };
+    kycServer: string;
+    token: string;
+    transferServerUrl: string;
+    trustedAssetAdded: string;
+    withdrawTypes: {
+      types: {
+        [key: string]: {
+          fields: {
+            [key: string]: {
+              description: string;
+            };
+          };
+        };
+      };
+    };
+    transactionResponse: AnyObject;
+    withdrawResponse: Sep6WithdrawResponse;
   };
-  depositResponse: Sep6DepositResponse;
   errorString?: string;
   status: ActionStatus | undefined;
-  type: string;
 }
 
 export interface Sep31SendInitialState {
@@ -271,6 +318,7 @@ export interface Store {
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
   sep6DepositAsset: Sep6DepositAssetInitialState;
+  sep6WithdrawAsset: Sep6WithdrawAssetInitialState;
   sep8Send: Sep8SendInitialState;
   sep31Send: Sep31SendInitialState;
   sep24DepositAsset: Sep24DepositAssetInitialState;
@@ -367,7 +415,7 @@ export enum MemoTypeString {
   HASH = "hash",
 }
 
-export enum CheckInfoType {
+export enum AnchorActionType {
   DEPOSIT = "deposit",
   WITHDRAWAL = "withdraw",
 }
@@ -376,14 +424,17 @@ interface InfoTypeData {
   // eslint-disable-next-line camelcase
   authentication_required: boolean;
   enabled: boolean;
-  fields: {};
+  fields: AnyObject;
+  types: AnyObject;
 }
 
 export interface CheckInfoData {
-  [CheckInfoType.DEPOSIT]: {
+  [AnchorActionType.DEPOSIT]: {
     [asset: string]: InfoTypeData;
   };
-  [CheckInfoType.WITHDRAWAL]: InfoTypeData;
+  [AnchorActionType.WITHDRAWAL]: {
+    [asset: string]: InfoTypeData;
+  };
 }
 
 export enum Sep8ApprovalStatus {

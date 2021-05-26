@@ -11,7 +11,7 @@ import { PageContent } from "components/PageContent";
 import { PrivateRoute } from "components/PrivateRoute";
 import { SettingsHandler } from "components/SettingsHandler";
 import { WarningBanner } from "components/WarningBanner";
-import { TextLink, TextLinkVariant } from "@stellar/design-system";
+import { TextLink } from "components/TextLink";
 
 import { Account } from "pages/Account";
 import { Landing } from "pages/Landing";
@@ -38,28 +38,28 @@ export const App = () => (
             <div className="ContentWrapper">
               <Header />
 
-              <div className="Announcement">
-                <div className="Inset">
-                  <p>
-                    Welcome to the new and improved Stellar demo wallet! Please
-                    log bugs and feature requests at: &nbsp;
-                    <TextLink
-                      variant={TextLinkVariant.primary}
-                      href="https://github.com/stellar/stellar-demo-wallet/issues"
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      https://github.com/stellar/stellar-demo-wallet/issues
-                    </TextLink>
-                  </p>
-                </div>
-              </div>
-
               <div className="IntroText Inset">
                 <p>
                   This demo wallet lets financial application developers test
                   their integrations and learn how Stellar ecosystem protocols
                   (SEPs) work.
+                </p>
+
+                <p>
+                  <TextLink
+                    href="https://github.com/stellar/stellar-demo-wallet#stellar-demo-wallet"
+                    isExternal
+                  >
+                    Learn more
+                  </TextLink>{" "}
+                  about the tool and{" "}
+                  <TextLink
+                    href="https://github.com/stellar/stellar-demo-wallet/issues"
+                    isExternal
+                  >
+                    report issues or request features
+                  </TextLink>{" "}
+                  on GitHub.
                 </p>
               </div>
 
