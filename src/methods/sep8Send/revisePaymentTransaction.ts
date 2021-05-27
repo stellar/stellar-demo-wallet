@@ -62,7 +62,9 @@ export const revisePaymentTransaction = async ({
         title: sep8ApprovalResultJson.message,
       });
 
-      const actionFields: Sep9Field[] = sep8ApprovalResultJson.action_fields.map(
+      const actionFields:
+        | Sep9Field[]
+        | undefined = sep8ApprovalResultJson.action_fields?.map(
         (fieldName: string) => Sep9FieldsDict[fieldName],
       );
 
@@ -70,7 +72,7 @@ export const revisePaymentTransaction = async ({
         status: Sep8ApprovalStatus.ACTION_REQUIRED,
         actionRequiredInfo: {
           actionFields,
-          actionMethod: sep8ApprovalResultJson.action_method,
+          actionMethod: sep8ApprovalResultJson.action_method ?? "GET",
           actionUrl: sep8ApprovalResultJson.action_url,
           message: sep8ApprovalResultJson.message,
         },

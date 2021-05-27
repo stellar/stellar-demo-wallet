@@ -129,7 +129,7 @@ export const Sep8ActionRequiredForm = ({
           <p>The following information is needed before we can proceed:</p>
         </div>
 
-        {actionFields.map((sep9Field) => {
+        {actionFields?.map((sep9Field) => {
           const { name: fieldName, description } = sep9Field;
           const { inputType, inputValue } = getInputParams({ sep9Field });
 
