@@ -34,17 +34,17 @@ export const Sep8ActionRequiredForm = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const shouldOpenTab = actionMethod === "GET";
+    const shouldOpenActionUrlTab = actionMethod === "GET";
     if (
-      shouldOpenTab ||
+      shouldOpenActionUrlTab ||
       sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS
     ) {
-      if (nextUrl && result === Sep8ActionRequiredResultType.FOLLOW_NEXT_URL) {
-        window.open(nextUrl, "_blank");
+      if (shouldOpenActionUrlTab) {
+        window.open(actionUrl, "_blank");
       }
 
-      if (shouldOpenTab) {
-        window.open(actionUrl, "_blank");
+      if (nextUrl && result === Sep8ActionRequiredResultType.FOLLOW_NEXT_URL) {
+        window.open(nextUrl, "_blank");
       }
 
       if (account.data) {
