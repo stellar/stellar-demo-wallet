@@ -477,7 +477,7 @@ export interface Sep8SendInitialState {
       submittedTxXdr: string;
     };
     actionRequiredInfo: {
-      actionFields: Sep9Field[];
+      actionFields?: Sep9Field[];
       actionMethod: string;
       actionUrl: string;
       message: string;
@@ -506,7 +506,7 @@ export interface Sep8ApprovalResponse {
 }
 
 export interface Sep8ActionRequiredInfo {
-  actionFields: Sep9Field[];
+  actionFields?: Sep9Field[];
   actionMethod: string;
   actionUrl: string;
   message: string;

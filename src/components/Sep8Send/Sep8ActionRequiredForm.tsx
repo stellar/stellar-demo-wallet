@@ -34,7 +34,15 @@ export const Sep8ActionRequiredForm = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS) {
+    const shouldOpenActionUrl = actionMethod === "GET";
+    if (
+      shouldOpenActionUrl ||
+      sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS
+    ) {
+      if (shouldOpenActionUrl) {
+        window.open(actionUrl, "_blank");
+      }
+
       if (nextUrl && result === Sep8ActionRequiredResultType.FOLLOW_NEXT_URL) {
         window.open(nextUrl, "_blank");
       }
@@ -50,6 +58,8 @@ export const Sep8ActionRequiredForm = ({
       }
     }
   }, [
+    actionMethod,
+    actionUrl,
     account.data,
     dispatch,
     nextUrl,
@@ -129,7 +139,7 @@ export const Sep8ActionRequiredForm = ({
           <p>The following information is needed before we can proceed:</p>
         </div>
 
-        {actionFields.map((sep9Field) => {
+        {actionFields?.map((sep9Field) => {
           const { name: fieldName, description } = sep9Field;
           const { inputType, inputValue } = getInputParams({ sep9Field });
 
