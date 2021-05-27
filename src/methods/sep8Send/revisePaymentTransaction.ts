@@ -2,6 +2,7 @@ import StellarSdk, { Transaction } from "stellar-sdk";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
+import { Sep9Field, Sep9FieldsDict } from "helpers/Sep9Fields";
 import { buildPaymentTransaction } from "methods/submitPaymentTransaction";
 import {
   Sep8ApprovalResponse,
@@ -52,7 +53,7 @@ export const revisePaymentTransaction = async ({
   // parse SEP-8 response
   const sep8ApprovalResultJson = await sep8ApprovalResult.json();
   switch (sep8ApprovalResultJson.status) {
-    case Sep8ApprovalStatus.ACTION_REQUIRED:
+    case Sep8ApprovalStatus.ACTION_REQUIRED: {
       log.response({
         title: "Action Required",
         body: "Additional information is needed before we can proceed.",
@@ -61,10 +62,14 @@ export const revisePaymentTransaction = async ({
         title: sep8ApprovalResultJson.message,
       });
 
+      const actionFields: Sep9Field[] = sep8ApprovalResultJson.action_fields.map(
+        (fieldName: string) => Sep9FieldsDict[fieldName],
+      );
+
       return {
         status: Sep8ApprovalStatus.ACTION_REQUIRED,
         actionRequiredInfo: {
-          actionFields: sep8ApprovalResultJson.action_fields,
+          actionFields,
           actionMethod: sep8ApprovalResultJson.action_method,
           actionUrl: sep8ApprovalResultJson.action_url,
           message: sep8ApprovalResultJson.message,
@@ -76,6 +81,7 @@ export const revisePaymentTransaction = async ({
           revisedTxXdr: "",
         },
       };
+    }
 
     case Sep8ApprovalStatus.PENDING: {
       const dateStr = new Date(sep8ApprovalResultJson.timeout).toLocaleString();
