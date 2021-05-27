@@ -34,9 +34,17 @@ export const Sep8ActionRequiredForm = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS) {
+    const shouldOpenTab = actionMethod === "GET";
+    if (
+      shouldOpenTab ||
+      sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS
+    ) {
       if (nextUrl && result === Sep8ActionRequiredResultType.FOLLOW_NEXT_URL) {
         window.open(nextUrl, "_blank");
+      }
+
+      if (shouldOpenTab) {
+        window.open(actionUrl, "_blank");
       }
 
       if (account.data) {
@@ -50,6 +58,8 @@ export const Sep8ActionRequiredForm = ({
       }
     }
   }, [
+    actionMethod,
+    actionUrl,
     account.data,
     dispatch,
     nextUrl,
