@@ -34,12 +34,12 @@ export const Sep8ActionRequiredForm = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const shouldOpenActionUrlTab = actionMethod === "GET";
+    const shouldOpenActionUrl = actionMethod === "GET";
     if (
-      shouldOpenActionUrlTab ||
+      shouldOpenActionUrl ||
       sep8Send.data.sep8Step === Sep8Step.SENT_ACTION_REQUIRED_FIELDS
     ) {
-      if (shouldOpenActionUrlTab) {
+      if (shouldOpenActionUrl) {
         window.open(actionUrl, "_blank");
       }
 
