@@ -175,14 +175,21 @@ export const Balance = ({
           callback: () => handleSep24Withdraw(balance),
         };
         break;
-      case AssetActionId.SEP31_SEND:
+      case AssetActionId.SEP31_SEND: {
+        let description = `Start SEP-31 send to ${balance.assetCode}?\n\n`;
+        description +=
+          "Please be aware that specifically in the case of demo-ing SEP-31 in the Demo Wallet the public and secret keys don't represent the Sending Client but instead the Sending Anchor's account.\n\n";
+        description +=
+          "In SEP-31, the only Stellar transaction happening is between the Sending and the Receiving anchors.";
         props = {
           ...defaultProps,
           title: `SEP-31 send ${balance.assetCode}`,
-          description: `Start SEP-31 send to ${balance.assetCode}?`,
+
+          description,
           callback: () => handleSep31Send(balance),
         };
         break;
+      }
       default:
       // do nothing
     }
