@@ -43,6 +43,12 @@ You can use the demo wallet to test Regulated Assets ([SEP-8]), Hosted Deposit a
 9. Leave the pop-up window open while you wait to see the deposit of SRT go through - you can close when you see “Status” is complete and you have SRT.
 
 ### Demo-ing Cross-Border Payments ([SEP-31]) on Testnet
+
+_Note: specifically in the case of demo-ing SEP-31 in the Demo Wallet, notice
+the public and secret keys don't represent the Sending Client but instead the
+Sending Anchor's account. In SEP-31, the only Stellar transaction happening is
+between the Sending and the Receiving anchors._
+
 1. Follow the steps above in order to establish an amount of SRT to send.
 2. Select “SEP-31 Send” from the dropdown for your SRT asset and click "Start" in the modal.
 3. Enter the requested information in the pop-up - none of the info has to be real for this testanchor.stellar.org demo, this is only to show the fields required. When testing another anchor you may need to adhere to their validation requirements.
