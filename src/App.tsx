@@ -22,7 +22,12 @@ if (process.env.REACT_APP_SENTRY_KEY) {
   Sentry.init({
     dsn: process.env.REACT_APP_SENTRY_KEY,
     release: `demo-wallet@${process.env.npm_package_version}`,
-    integrations: [new Integrations.BrowserTracing()],
+    integrations: [
+      new Integrations.BrowserTracing({
+        // not attaching sentry-trace to any XHR/fetch outgoing requests
+        tracingOrigins: [],
+      }),
+    ],
     tracesSampleRate: 1.0,
   });
 }
