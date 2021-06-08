@@ -25,7 +25,7 @@ if (process.env.REACT_APP_SENTRY_KEY) {
     integrations: [
       new Integrations.BrowserTracing({
         // not attaching sentry-trace to any XHR/fetch outgoing requests
-        tracingOrigins: [/^\/[^/]/],
+        tracingOrigins: [],
       }),
     ],
     tracesSampleRate: 1.0,
