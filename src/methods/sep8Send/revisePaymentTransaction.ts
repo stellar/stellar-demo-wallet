@@ -86,10 +86,16 @@ export const revisePaymentTransaction = async ({
     }
 
     case Sep8ApprovalStatus.PENDING: {
-      const dateStr = new Date(sep8ApprovalResultJson.timeout).toLocaleString();
+      let pendingApprovalBody =
+        "The issuer could not determine whether to approve the transaction at this time.";
+      let { timeout } = sep8ApprovalResultJson;
+      if (timeout) {
+        const dateStr = new Date(timeout).toLocaleString();
+        pendingApprovalBody += ` You can re-submit the same transaction on ${dateStr}.`;
+      }
       log.response({
         title: "Authorization Pending",
-        body: `The issuer could not determine whether to approve the transaction at this time. You can re-submit the same transaction on ${dateStr}.`,
+        body: pendingApprovalBody,
       });
       if (sep8ApprovalResultJson.message) {
         log.instruction({ title: sep8ApprovalResultJson.message });
