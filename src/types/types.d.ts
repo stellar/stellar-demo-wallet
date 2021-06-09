@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
-import { Types } from "@stellar/wallet-sdk";
 import { Horizon } from "stellar-sdk";
+import { Types } from "@stellar/wallet-sdk";
+import { Sep9Field } from "helpers/Sep9Fields";
 
 export enum SearchParams {
   SECRET_KEY = "secretKey",
@@ -161,6 +162,85 @@ export interface CustomerTypeItem {
   description: string;
 }
 
+interface Sep6DepositResponse {
+  /* eslint-disable camelcase */
+  how: string;
+  id?: string;
+  eta?: number;
+  min_amount?: number;
+  max_amount?: number;
+  fee_fixed?: number;
+  fee_percent?: number;
+  extra_info?: { message?: string };
+  /* eslint-enable camelcase */
+}
+
+export interface Sep6DepositAssetInitialState {
+  data: {
+    assetCode: string;
+    assetIssuer: string;
+    currentStatus: string;
+    kycServer: string;
+    token: string;
+    transferServerUrl: string;
+    infoFields: {
+      [key: string]: AnyObject;
+    };
+    customerFields: {
+      [key: string]: AnyObject;
+    };
+    depositResponse: Sep6DepositResponse;
+    trustedAssetAdded: string;
+  };
+  errorString?: string;
+  status: ActionStatus;
+}
+
+interface Sep6WithdrawResponse {
+  /* eslint-disable camelcase */
+  account_id: string;
+  id?: string;
+  eta?: number;
+  memo_type?: string;
+  memo?: string;
+  min_amount?: number;
+  max_amount?: number;
+  fee_fixed?: number;
+  fee_percent?: number;
+  extra_info?: { message?: string };
+  /* eslint-enable camelcase */
+}
+
+export interface Sep6WithdrawAssetInitialState {
+  data: {
+    assetCode: string;
+    assetIssuer: string;
+    currentStatus: string;
+    fields: {
+      [key: string]: AnyObject;
+    };
+    kycServer: string;
+    token: string;
+    transferServerUrl: string;
+    trustedAssetAdded: string;
+    withdrawTypes: {
+      types: {
+        [key: string]: {
+          fields: {
+            [key: string]: {
+              description: string;
+            };
+          };
+        };
+      };
+    };
+    transactionResponse: AnyObject;
+    withdrawResponse: Sep6WithdrawResponse;
+  };
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
+
 export interface Sep31SendInitialState {
   data: {
     publicKey: string;
@@ -237,6 +317,8 @@ export interface Store {
   claimableBalances: ClaimableBalancesInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
+  sep6DepositAsset: Sep6DepositAssetInitialState;
+  sep6WithdrawAsset: Sep6WithdrawAssetInitialState;
   sep8Send: Sep8SendInitialState;
   sep31Send: Sep31SendInitialState;
   sep24DepositAsset: Sep24DepositAssetInitialState;
@@ -295,6 +377,8 @@ export interface AssetActionItem extends ActiveAssetAction {
 
 export enum AssetActionId {
   SEND_PAYMENT = "send-payment",
+  SEP6_DEPOSIT = "sep6-deposit",
+  SEP6_WITHDRAW = "sep6-withdraw",
   SEP8_SEND_PAYMENT = "sep8-send-payment",
   SEP24_DEPOSIT = "sep24-deposit",
   SEP24_WITHDRAW = "sep24-withdraw",
@@ -331,9 +415,26 @@ export enum MemoTypeString {
   HASH = "hash",
 }
 
-export enum CheckInfoType {
+export enum AnchorActionType {
   DEPOSIT = "deposit",
   WITHDRAWAL = "withdraw",
+}
+
+interface InfoTypeData {
+  // eslint-disable-next-line camelcase
+  authentication_required: boolean;
+  enabled: boolean;
+  fields: AnyObject;
+  types: AnyObject;
+}
+
+export interface CheckInfoData {
+  [AnchorActionType.DEPOSIT]: {
+    [asset: string]: InfoTypeData;
+  };
+  [AnchorActionType.WITHDRAWAL]: {
+    [asset: string]: InfoTypeData;
+  };
 }
 
 export enum Sep8ApprovalStatus {
@@ -344,6 +445,16 @@ export enum Sep8ApprovalStatus {
   SUCCESS = "success",
 }
 
+export enum Sep8Step {
+  DISABLED = "disabled",
+  STARTING = "starting",
+  PENDING = "pending",
+  TRANSACTION_REVISED = "transaction_revised",
+  ACTION_REQUIRED = "action_required",
+  SENT_ACTION_REQUIRED_FIELDS = "sent_action_required_fields",
+  COMPLETE = "complete",
+}
+
 export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
   approvalServer: string;
   assetCode: string;
@@ -352,6 +463,7 @@ export interface Sep8PaymentTransactionParams extends PaymentTransactionParams {
 
 export interface Sep8SendInitialState {
   data: {
+    sep8Step: Sep8Step;
     approvalCriteria: string;
     approvalServer: string;
     assetCode: string;
@@ -363,6 +475,17 @@ export interface Sep8SendInitialState {
       destination: string;
       revisedTxXdr: string;
       submittedTxXdr: string;
+    };
+    actionRequiredInfo: {
+      actionFields?: Sep9Field[];
+      actionMethod: string;
+      actionUrl: string;
+      message: string;
+    };
+    actionRequiredResult: {
+      result: string;
+      nextUrl?: string;
+      message?: string;
     };
   };
   errorString?: string;
@@ -379,4 +502,29 @@ export interface Sep8RevisedTransactionInfo {
 export interface Sep8ApprovalResponse {
   status: Sep8ApprovalStatus;
   revisedTransaction?: Sep8RevisedTransactionInfo;
+  actionRequiredInfo?: Sep8ActionRequiredInfo;
+}
+
+export interface Sep8ActionRequiredInfo {
+  actionFields?: Sep9Field[];
+  actionMethod: string;
+  actionUrl: string;
+  message: string;
+}
+
+export interface Sep8ActionRequiredSendParams {
+  actionFields: { [key: string]: string | File };
+  actionMethod: string;
+  actionUrl: string;
+}
+
+export enum Sep8ActionRequiredResultType {
+  FOLLOW_NEXT_URL = "follow_next_url",
+  NO_FURTHER_ACTION_REQUIRED = "no_further_action_required",
+}
+
+export interface Sep8ActionRequiredSentResult {
+  result: string;
+  nextUrl?: string;
+  message?: string;
 }

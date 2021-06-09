@@ -23,7 +23,7 @@ import {
   RejectMessage,
   Sep24WithdrawAssetInitialState,
   TomlFields,
-  CheckInfoType,
+  AnchorActionType,
 } from "types/types.d";
 
 export const withdrawAssetAction = createAsyncThunk<
@@ -65,7 +65,7 @@ export const withdrawAssetAction = createAsyncThunk<
 
       // Check info
       await checkInfo({
-        type: CheckInfoType.WITHDRAWAL,
+        type: AnchorActionType.WITHDRAWAL,
         toml: tomlResponse,
         assetCode,
       });

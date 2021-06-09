@@ -1,22 +1,22 @@
 import { get } from "lodash";
 import { log } from "helpers/log";
-import { AnchorActionType } from "types/types.d";
+import { CheckInfoData, AnchorActionType } from "types/types.d";
 
-export const checkInfo = async ({
+export const checkDepositWithdrawInfo = async ({
   type,
-  toml,
+  transferServerUrl,
   assetCode,
 }: {
   type: AnchorActionType;
-  toml: any;
+  transferServerUrl: string;
   assetCode: string;
-}) => {
+}): Promise<CheckInfoData> => {
   log.instruction({
     title: `Checking \`/info\` endpoint to ensure this currency is enabled for ${
       type === AnchorActionType.DEPOSIT ? "deposit" : "withdrawal"
     }`,
   });
-  const infoURL = `${toml.TRANSFER_SERVER_SEP0024}/info`;
+  const infoURL = `${transferServerUrl}/info`;
   log.request({ title: `GET \`${infoURL}\`` });
 
   const info = await fetch(infoURL);
