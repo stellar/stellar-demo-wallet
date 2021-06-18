@@ -270,7 +270,7 @@ export const Sep6Deposit = () => {
   if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED) {
     return (
       <Modal visible={true} onClose={handleClose}>
-        <Heading2 className="ModalHeading">SEP-6 Deposit Info</Heading2>
+        <Heading2 className="ModalHeading">How SEP-6 Deposits Work</Heading2>
 
         <div className="ModalBody">
           <div className="vertical-spacing">{depositResponse.how}</div>
@@ -280,28 +280,12 @@ export const Sep6Deposit = () => {
               {depositResponse.extra_info.message}
             </div>
           )}
-
-          {depositResponse.max_amount && (
-            <div className="vertical-spacing">
-              <strong>Max Amount: </strong>
-
-              {depositResponse.max_amount}
-            </div>
-          )}
-
-          {depositResponse.min_amount && (
-            <div className="vertical-spacing">
-              <strong>Min Amount: </strong>
-
-              {depositResponse.min_amount}
-            </div>
-          )}
         </div>
 
         <div className="ModalButtonsFooter">
           <Button onClick={() => dispatch(sep6DepositAction())}>Proceed</Button>
           <Button onClick={handleClose} variant={ButtonVariant.secondary}>
-            Cancel
+            Close
           </Button>
         </div>
       </Modal>
