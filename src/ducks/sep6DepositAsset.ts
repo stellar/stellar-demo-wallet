@@ -79,12 +79,16 @@ export const initiateDepositAction = createAsyncThunk<
 
       const {
         authentication_required: isAuthenticationRequired,
+        min_amount: minAmount = 0,
+        max_amount: maxAmount = 0,
       } = assetInfoData;
 
       let payload = {
         assetCode,
         assetIssuer,
         infoFields: { ...assetInfoData.fields },
+        minAmount,
+        maxAmount,
         customerFields: {},
         kycServer: "",
         status: ActionStatus.NEEDS_INPUT,
@@ -316,6 +320,8 @@ const initialState: Sep6DepositAssetInitialState = {
         choices: [],
       },
     },
+    minAmount: 0,
+    maxAmount: 0,
     kycServer: "",
     token: "",
     transferServerUrl: "",

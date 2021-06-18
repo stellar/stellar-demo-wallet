@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Input, Select } from "@stellar/design-system";
-import { Heading2 } from "components/Heading";
+import { Button, ButtonVariant, Select } from "@stellar/design-system";
+import { Heading2, Heading3 } from "components/Heading";
+import { Input } from "components/Input";
 import { Modal } from "components/Modal";
 import { TextLink } from "components/TextLink";
 import { resetActiveAssetAction } from "ducks/activeAsset";
@@ -20,6 +21,7 @@ export const Sep6Deposit = () => {
   } = sep6DepositAsset;
 
   interface FormData {
+    amount?: string;
     depositType: {
       type: string;
     };
@@ -32,6 +34,7 @@ export const Sep6Deposit = () => {
   }
 
   const formInitialState: FormData = {
+    amount: "",
     depositType: {
       type: "",
     },
@@ -50,6 +53,7 @@ export const Sep6Deposit = () => {
   useEffect(() => {
     if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
       setFormData({
+        amount: "",
         depositType: {
           type: depositTypeChoices[0],
         },
@@ -123,6 +127,17 @@ export const Sep6Deposit = () => {
     setFormData(updatedState);
   };
 
+  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = event.target;
+
+    const updatedState = {
+      ...formData,
+      [id]: value.toString(),
+    };
+
+    setFormData(updatedState);
+  };
+
   const handleSubmit = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
@@ -130,12 +145,46 @@ export const Sep6Deposit = () => {
     dispatch(submitSep6DepositFields({ ...formData }));
   };
 
+  const renderMinMaxAmount = () => {
+    const { minAmount, maxAmount } = sep6DepositAsset.data;
+
+    if (minAmount === 0 && maxAmount === 0) {
+      return null;
+    }
+
+    return `Min: ${minAmount} | Max: ${maxAmount}`;
+  };
+
   if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
     return (
       <Modal visible={true} onClose={handleClose}>
         <div className="ModalBody">
-          <Heading2
-            className="ModalHeading"
+          <Heading2 className="ModalHeading">SEP-6 Deposit Info</Heading2>
+
+          <div className="vertical-spacing">
+            <Input
+              id="amount"
+              label="Amount (optional)"
+              onChange={handleAmountChange}
+              type="number"
+              tooltipText={
+                <>
+                  The amount of the asset the user would like to deposit with
+                  the anchor. This field may be necessary for the anchor to
+                  determine what KYC information is necessary to collect.{" "}
+                  <TextLink
+                    href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#1-success-no-additional-information-needed"
+                    isExternal
+                  >
+                    Learn more
+                  </TextLink>
+                </>
+              }
+              note={renderMinMaxAmount()}
+            />
+          </div>
+
+          <Heading3
             tooltipText={
               <>
                 These are the fields the receiving anchor requires. The sending
@@ -150,7 +199,7 @@ export const Sep6Deposit = () => {
             }
           >
             SEP-6 Required Info
-          </Heading2>
+          </Heading3>
           <div className="vertical-spacing">
             {Object.entries(sep6DepositAsset.data.infoFields || {}).map(
               ([id, input]) =>
@@ -182,8 +231,7 @@ export const Sep6Deposit = () => {
           </div>
 
           {Object.keys(sep6DepositAsset.data.customerFields).length ? (
-            <Heading2
-              className="ModalHeading"
+            <Heading3
               tooltipText={
                 <>
                   These are the fields the receiving anchor requires. The
@@ -198,7 +246,7 @@ export const Sep6Deposit = () => {
               }
             >
               SEP-12 Required Info
-            </Heading2>
+            </Heading3>
           ) : null}
           <div className="vertical-spacing">
             {Object.entries(sep6DepositAsset.data.customerFields || {}).map(
@@ -217,6 +265,9 @@ export const Sep6Deposit = () => {
 
         <div className="ModalButtonsFooter">
           <Button onClick={handleSubmit}>Submit</Button>
+          <Button onClick={handleClose} variant={ButtonVariant.secondary}>
+            Cancel
+          </Button>
         </div>
       </Modal>
     );
