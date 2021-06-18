@@ -63,12 +63,6 @@ export const Sep6Deposit = () => {
     }
   }, [sep6DepositAsset.status, depositTypeChoices, dispatch]);
 
-  useEffect(() => {
-    if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED) {
-      dispatch(sep6DepositAction());
-    }
-  }, [sep6DepositAsset.status, dispatch]);
-
   const resetLocalState = () => {
     setFormData(formInitialState);
   };
@@ -302,6 +296,13 @@ export const Sep6Deposit = () => {
               {depositResponse.min_amount}
             </div>
           )}
+        </div>
+
+        <div className="ModalButtonsFooter">
+          <Button onClick={() => dispatch(sep6DepositAction())}>Proceed</Button>
+          <Button onClick={handleClose} variant={ButtonVariant.secondary}>
+            Cancel
+          </Button>
         </div>
       </Modal>
     );

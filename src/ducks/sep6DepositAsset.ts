@@ -362,6 +362,9 @@ const sep6DepositAssetSlice = createSlice({
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+    builder.addCase(sep6DepositAction.pending, (state) => {
+      state.status = ActionStatus.PENDING;
+    });
     builder.addCase(sep6DepositAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
       state.data.currentStatus = action.payload.currentStatus;
