@@ -27,3 +27,4 @@
 - Reset asset action dropdown after modal is dismissed
 - Add Amplitude and Sentry integrations
 - Add announcement banner
+- SEP-6 and SEP-8
