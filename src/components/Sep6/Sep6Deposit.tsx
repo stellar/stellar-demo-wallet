@@ -270,7 +270,7 @@ export const Sep6Deposit = () => {
   if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED) {
     return (
       <Modal visible={true} onClose={handleClose}>
-        <Heading2 className="ModalHeading">How SEP-6 Deposits Work</Heading2>
+        <Heading2 className="ModalHeading">SEP-6 Deposit Success</Heading2>
 
         <div className="ModalBody">
           <div className="vertical-spacing">{depositResponse.how}</div>
