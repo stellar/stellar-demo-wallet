@@ -148,27 +148,30 @@ interface SetCustomerTypesActionResponse {
 
 export const setCustomerTypesAction = createAsyncThunk<
   SetCustomerTypesActionResponse,
-  { senderType: string; receiverType: string },
+  { senderType?: string; receiverType?: string },
   { rejectValue: RejectMessage; state: RootState }
->("sep31Send/setCustomerTypesAction", ({ senderType, receiverType }) => {
-  if (senderType) {
-    log.instruction({
-      title: `Using \`${senderType}\` type for sending customers`,
-    });
-  }
+>(
+  "sep31Send/setCustomerTypesAction",
+  ({ senderType = "", receiverType = "" }) => {
+    if (senderType) {
+      log.instruction({
+        title: `Using \`${senderType}\` type for sending customers`,
+      });
+    }
 
-  if (receiverType) {
-    log.instruction({
-      title: `Using \`${receiverType}\` type for receiving customers`,
-    });
-  }
+    if (receiverType) {
+      log.instruction({
+        title: `Using \`${receiverType}\` type for receiving customers`,
+      });
+    }
 
-  return {
-    senderType,
-    receiverType,
-    isTypeSelected: true,
-  };
-});
+    return {
+      senderType,
+      receiverType,
+      isTypeSelected: true,
+    };
+  },
+);
 
 interface FetchSendFieldsActionResponse {
   token: string;
