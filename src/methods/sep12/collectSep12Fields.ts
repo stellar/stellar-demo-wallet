@@ -1,4 +1,5 @@
 import { log } from "helpers/log";
+import { Sep12CustomerFieldStatus } from "types/types.d";
 
 export const collectSep12Fields = async ({
   kycServer,
@@ -43,12 +44,42 @@ export const collectSep12Fields = async ({
     );
   }
 
+  const fieldsToCollect = Object.entries(resultJson.fields ?? {}).reduce(
+    (collectResult: any, field: any) => {
+      const [key, props] = field;
+
+      if (
+        !props.status ||
+        [
+          Sep12CustomerFieldStatus.NOT_PROVIDED,
+          Sep12CustomerFieldStatus.REJECTED,
+        ].includes(props.status)
+      ) {
+        return { ...collectResult, [key]: props };
+      }
+
+      return collectResult;
+    },
+    {},
+  );
+
   if (resultJson.fields) {
     log.instruction({
-      title: "Received the following fields",
+      title: "Received the following customer fields",
       body: resultJson.fields,
     });
   }
 
-  return resultJson.fields;
+  if (Object.keys(fieldsToCollect).length > 0) {
+    log.instruction({
+      title: "The following customer fields must be submitted",
+      body: fieldsToCollect,
+    });
+  } else {
+    log.instruction({
+      title: "No customer fields need to be submitted",
+    });
+  }
+
+  return fieldsToCollect;
 };

@@ -528,3 +528,11 @@ export interface Sep8ActionRequiredSentResult {
   nextUrl?: string;
   message?: string;
 }
+
+export enum Sep12CustomerFieldStatus {
+  ACCEPTED = "ACCEPTED",
+  PROCESSING = "PROCESSING",
+  NOT_PROVIDED = "NOT_PROVIDED",
+  REJECTED = "REJECTED",
+  VERIFICATION_REQUIRED = "VERIFICATION_REQUIRED",
+}
