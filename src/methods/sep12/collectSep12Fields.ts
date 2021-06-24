@@ -69,7 +69,7 @@ export const collectSep12Fields = async ({
     });
   }
 
-  if (Object.keys(fieldsToCollect).length > 0) {
+  if (Object.keys(fieldsToCollect).length) {
     log.instruction({
       title: "The following customer fields must be submitted",
       body: fieldsToCollect,
