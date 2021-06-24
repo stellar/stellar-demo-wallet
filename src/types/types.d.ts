@@ -529,6 +529,13 @@ export interface Sep8ActionRequiredSentResult {
   message?: string;
 }
 
+export enum Sep12CustomerStatus {
+  ACCEPTED = "ACCEPTED",
+  PROCESSING = "PROCESSING",
+  NEEDS_INFO = "NEEDS_INFO",
+  REJECTED = "REJECTED",
+}
+
 export enum Sep12CustomerFieldStatus {
   ACCEPTED = "ACCEPTED",
   PROCESSING = "PROCESSING",

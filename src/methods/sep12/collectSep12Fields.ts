@@ -1,5 +1,5 @@
 import { log } from "helpers/log";
-import { Sep12CustomerFieldStatus } from "types/types.d";
+import { Sep12CustomerStatus, Sep12CustomerFieldStatus } from "types/types.d";
 
 export const collectSep12Fields = async ({
   kycServer,
@@ -38,7 +38,7 @@ export const collectSep12Fields = async ({
 
   log.response({ title: "GET `/customer`", body: resultJson });
 
-  if (isNewCustomer && resultJson.status !== "NEEDS_INFO") {
+  if (isNewCustomer && resultJson.status !== Sep12CustomerStatus.NEEDS_INFO) {
     throw new Error(
       `Unexpected status for new customer \`${resultJson.status}\``,
     );
@@ -50,10 +50,9 @@ export const collectSep12Fields = async ({
 
       if (
         !props.status ||
-        [
-          Sep12CustomerFieldStatus.NOT_PROVIDED,
-          Sep12CustomerFieldStatus.REJECTED,
-        ].includes(props.status)
+        props.status === Sep12CustomerFieldStatus.NOT_PROVIDED ||
+        (props.status === Sep12CustomerFieldStatus.REJECTED &&
+          resultJson.status === Sep12CustomerStatus.NEEDS_INFO)
       ) {
         return { ...collectResult, [key]: props };
       }
