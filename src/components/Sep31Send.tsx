@@ -117,7 +117,10 @@ export const Sep31Send = () => {
     }
 
     dispatch(
-      setCustomerTypesAction({ senderType: sender, receiverType: receiver }),
+      setCustomerTypesAction({
+        senderType: sender ?? data.senderType,
+        receiverType: receiver ?? data.receiverType,
+      }),
     );
   };
 
