@@ -30,3 +30,4 @@
 - SEP-6 and SEP-8
 - SEP-31 send fix
 - SEP-12 customer fields
+- SEP-6 updates
