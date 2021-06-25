@@ -79,12 +79,16 @@ export const initiateDepositAction = createAsyncThunk<
 
       const {
         authentication_required: isAuthenticationRequired,
+        min_amount: minAmount = 0,
+        max_amount: maxAmount = 0,
       } = assetInfoData;
 
       let payload = {
         assetCode,
         assetIssuer,
         infoFields: { ...assetInfoData.fields },
+        minAmount,
+        maxAmount,
         customerFields: {},
         kycServer: "",
         status: ActionStatus.NEEDS_INPUT,
@@ -316,6 +320,8 @@ const initialState: Sep6DepositAssetInitialState = {
         choices: [],
       },
     },
+    minAmount: 0,
+    maxAmount: 0,
     kycServer: "",
     token: "",
     transferServerUrl: "",
@@ -355,6 +361,9 @@ const sep6DepositAssetSlice = createSlice({
     builder.addCase(submitSep6DepositFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
+    });
+    builder.addCase(sep6DepositAction.pending, (state) => {
+      state.status = ActionStatus.PENDING;
     });
     builder.addCase(sep6DepositAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
