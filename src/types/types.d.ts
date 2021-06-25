@@ -186,6 +186,8 @@ export interface Sep6DepositAssetInitialState {
     infoFields: {
       [key: string]: AnyObject;
     };
+    minAmount: number;
+    maxAmount: number;
     customerFields: {
       [key: string]: AnyObject;
     };
@@ -426,6 +428,10 @@ interface InfoTypeData {
   enabled: boolean;
   fields: AnyObject;
   types: AnyObject;
+  // eslint-disable-next-line camelcase
+  min_amount?: number;
+  // eslint-disable-next-line camelcase
+  max_amount?: number;
 }
 
 export interface CheckInfoData {
