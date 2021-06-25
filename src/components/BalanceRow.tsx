@@ -87,7 +87,7 @@ export const BalanceRow = ({
               </>
             )}
 
-            {asset.supportedActions?.sep8 && (
+            {!isUntrusted && asset.supportedActions?.sep8 && (
               <option value={AssetActionId.SEP8_SEND_PAYMENT}>
                 SEP-8 Send
               </option>
