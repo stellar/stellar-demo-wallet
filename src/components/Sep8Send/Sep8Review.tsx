@@ -74,6 +74,8 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
       <div className="ModalBody">
         <div className="ModalMessage">
           <p>
+            {sep8Send.data.actionRequiredResult.result &&
+              "KYC has been approved. "}
             Please review the updated operations before submitting your SEP-8
             payment.
           </p>
