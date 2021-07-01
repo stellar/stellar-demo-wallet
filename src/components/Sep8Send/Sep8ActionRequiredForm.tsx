@@ -4,6 +4,7 @@ import { Button, Input, Loader } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
 import { Modal } from "components/Modal";
 import {
+  initiateSep8SendAction,
   sep8ReviseTransactionAction,
   sep8SendActionRequiredFieldsAction,
 } from "ducks/sep8Send";
@@ -45,9 +46,22 @@ export const Sep8ActionRequiredForm = ({
 
       if (nextUrl && result === Sep8ActionRequiredResultType.FOLLOW_NEXT_URL) {
         window.open(nextUrl, "_blank");
+
+        if (account.data) {
+          dispatch(
+            initiateSep8SendAction({
+              assetCode: sep8Send.data.assetCode,
+              assetIssuer: sep8Send.data.assetIssuer,
+              homeDomain: sep8Send.data.homeDomain,
+            }),
+          );
+        }
       }
 
-      if (account.data) {
+      if (
+        account.data &&
+        result === Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED
+      ) {
         const params = {
           destination: sep8Send.data.revisedTransaction.destination,
           isDestinationFunded: true,
@@ -68,12 +82,13 @@ export const Sep8ActionRequiredForm = ({
     dispatch,
     nextUrl,
     result,
+    sep8Send.data.approvalServer,
     sep8Send.data.assetCode,
     sep8Send.data.assetIssuer,
-    sep8Send.data.sep8Step,
-    sep8Send.data.approvalServer,
+    sep8Send.data.homeDomain,
     sep8Send.data.revisedTransaction.amount,
     sep8Send.data.revisedTransaction.destination,
+    sep8Send.data.sep8Step,
   ]);
 
   const handleSubmitActionRequiredFields = () => {

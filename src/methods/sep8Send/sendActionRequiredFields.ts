@@ -75,10 +75,14 @@ export const sendActionRequiredFields = async ({
     body: resultJson,
   });
 
+  const defaultCompletionMessage =
+    resultJson.result ===
+    Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED
+      ? "The SEP-8 server received your information, re-submitting the SEP-8 payment..."
+      : "The SEP-8 server received your information, re-submit the SEP-8 payment.";
+
   log.instruction({
-    title:
-      validatedResponse.message ??
-      "The SEP-8 server received your information, re-submitting the SEP-8 payment...",
+    title: validatedResponse.message ?? defaultCompletionMessage,
   });
 
   return validatedResponse;

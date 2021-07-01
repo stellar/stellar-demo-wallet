@@ -9,9 +9,11 @@ import { Sep8ApprovalStatus, Sep8Step } from "types/types.d";
 export const getSep8NextStepOnSuccess = ({
   currentStep,
   approvalStatus,
+  didUndergoKYC,
 }: {
   currentStep: Sep8Step;
   approvalStatus?: Sep8ApprovalStatus;
+  didUndergoKYC?: boolean;
 }): Sep8Step => {
   const nextStepDict: { [key in Sep8Step]: Sep8Step } = {
     [Sep8Step.DISABLED]: Sep8Step.STARTING,
@@ -22,10 +24,12 @@ export const getSep8NextStepOnSuccess = ({
     [Sep8Step.PENDING]: Sep8Step.DISABLED,
     [Sep8Step.TRANSACTION_REVISED]: Sep8Step.COMPLETE,
     [Sep8Step.ACTION_REQUIRED]: Sep8Step.SENT_ACTION_REQUIRED_FIELDS,
-    [Sep8Step.SENT_ACTION_REQUIRED_FIELDS]: nextStepAfterApprovalServer({
-      currentStep,
-      approvalStatus,
-    }),
+    [Sep8Step.SENT_ACTION_REQUIRED_FIELDS]: didUndergoKYC
+      ? nextStepAfterApprovalServer({
+          currentStep,
+          approvalStatus,
+        })
+      : Sep8Step.STARTING,
     [Sep8Step.COMPLETE]: Sep8Step.DISABLED,
   };
 
