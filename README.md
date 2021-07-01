@@ -34,6 +34,7 @@ right of the screen will show every network call.
 4. Click on the "Copy" link on the right of your public key and use that value
    to get some unities of MYASSET using the link
    `https://sep8-server.dev.stellar.org/friendbot?addr=<paste_your_address_here>`.
+   Refresh the [demo-wallet page](https://demo-wallet.stellar.org/) to see funds in your account.
 5. Select "SEP-8 Send" from the dropdown of MYASSET and click "Start" in the
    modal.
 6. In the "destination" field, input an address that also has a trustline to
@@ -113,9 +114,11 @@ yarn build
 - [x] Implement Claimable Balance support
 - [x] Add Pubnet Support
 - [x] Improve UX
-- [ ] Forward sep24.stellar.org traffic to demo-wallet.stellar.org
 - [x] Implement SEP-31 support
+- [ ] Forward sep24.stellar.org traffic to demo-wallet.stellar.org
+- [ ] Deprecate older clients to use this tool instead (sep31-demo-client.netlify.app,sep24.stellar.org, sep6.stellar.org)
 - [ ] Implement SEP-6 support
+- [ ] Implement SEP-8 support
 
 ### Helpful links
 
