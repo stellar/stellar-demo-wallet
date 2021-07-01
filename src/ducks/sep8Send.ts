@@ -275,7 +275,7 @@ const sep8SendSlice = createSlice({
       state.data.sep8Step = getSep8NextStepOnSuccess({
         approvalStatus: action.payload.status,
         currentStep: state.data.sep8Step,
-        didUndergoKYC: !!state.data.actionRequiredResult.result,
+        didUndergoKyc: !!state.data.actionRequiredResult.result,
       });
     });
     builder.addCase(sep8ReviseTransactionAction.rejected, (state, action) => {
