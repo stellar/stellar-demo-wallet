@@ -5,6 +5,7 @@ import { Heading2 } from "components/Heading";
 import { Modal } from "components/Modal";
 import {
   initiateSep8SendAction,
+  sep8ReviseTransactionAction,
   sep8SendActionRequiredFieldsAction,
 } from "ducks/sep8Send";
 import { Sep9Field, Sep9FieldType } from "helpers/Sep9Fields";
@@ -45,16 +46,33 @@ export const Sep8ActionRequiredForm = ({
 
       if (nextUrl && result === Sep8ActionRequiredResultType.FOLLOW_NEXT_URL) {
         window.open(nextUrl, "_blank");
+
+        if (account.data) {
+          dispatch(
+            initiateSep8SendAction({
+              assetCode: sep8Send.data.assetCode,
+              assetIssuer: sep8Send.data.assetIssuer,
+              homeDomain: sep8Send.data.homeDomain,
+            }),
+          );
+        }
       }
 
-      if (account.data) {
-        dispatch(
-          initiateSep8SendAction({
-            assetCode: sep8Send.data.assetCode,
-            assetIssuer: sep8Send.data.assetIssuer,
-            homeDomain: sep8Send.data.homeDomain,
-          }),
-        );
+      if (
+        account.data &&
+        result === Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED
+      ) {
+        const params = {
+          destination: sep8Send.data.revisedTransaction.destination,
+          isDestinationFunded: true,
+          amount: sep8Send.data.revisedTransaction.amount,
+          assetCode: sep8Send.data.assetCode,
+          assetIssuer: sep8Send.data.assetIssuer,
+          publicKey: account.data?.id,
+          approvalServer: sep8Send.data.approvalServer,
+        };
+
+        dispatch(sep8ReviseTransactionAction(params));
       }
     }
   }, [
@@ -64,9 +82,12 @@ export const Sep8ActionRequiredForm = ({
     dispatch,
     nextUrl,
     result,
+    sep8Send.data.approvalServer,
     sep8Send.data.assetCode,
     sep8Send.data.assetIssuer,
     sep8Send.data.homeDomain,
+    sep8Send.data.revisedTransaction.amount,
+    sep8Send.data.revisedTransaction.destination,
     sep8Send.data.sep8Step,
   ]);
 
