@@ -33,8 +33,6 @@ export const getSep8NextStepOnSuccess = ({
     [Sep8Step.COMPLETE]: Sep8Step.DISABLED,
   };
 
-  console.log(currentStep, "->", nextStepDict[currentStep]);
-
   return nextStepDict[currentStep];
 };
 
