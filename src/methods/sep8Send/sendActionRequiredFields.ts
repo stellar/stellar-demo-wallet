@@ -78,7 +78,7 @@ export const sendActionRequiredFields = async ({
   log.instruction({
     title:
       validatedResponse.message ??
-      "The SEP-8 server received your information, re-submit the SEP-8 payment.",
+      "The SEP-8 server received your information, re-submitting the SEP-8 payment...",
   });
 
   return validatedResponse;
