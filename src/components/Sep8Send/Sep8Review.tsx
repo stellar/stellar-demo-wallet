@@ -9,7 +9,11 @@ import { fetchAccountAction } from "ducks/account";
 import { sep8SubmitRevisedTransactionAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, Sep8Step } from "types/types.d";
+import {
+  ActionStatus,
+  Sep8ActionRequiredResultType,
+  Sep8Step,
+} from "types/types.d";
 
 export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send, settings } = useRedux(
@@ -74,6 +78,9 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
       <div className="ModalBody">
         <div className="ModalMessage">
           <p>
+            {sep8Send.data.actionRequiredResult.result ===
+              Sep8ActionRequiredResultType.NO_FURTHER_ACTION_REQUIRED &&
+              "KYC has been approved. "}
             Please review the updated operations before submitting your SEP-8
             payment.
           </p>
