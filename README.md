@@ -110,19 +110,6 @@ yarn build
 
 ## Release Notes
 
-### v1.0
-
-- Revamped UI
-- All SEPs are integrated into one tool
-  - SEP-24 and SEP-31 are now found in the Asset action drop-down menus
-- Ablity to download logs
-- Claimable Balances supported
-
-### [v1.1](https://github.com/stellar/stellar-demo-wallet/releases/tag/v1.1.0)
-
-- Fix for local CORS issue
-- Updated Sentry to log exceptions
-
 ### v1.2
 
 - SEP-06 now supported
@@ -132,6 +119,19 @@ yarn build
 - Fixed an [issue](https://github.com/stellar/stellar-demo-wallet/issues/196)
   where balance amounts were being overwritten
 - Sending to Muxed Accounts is now supported
+
+### [v1.1](https://github.com/stellar/stellar-demo-wallet/releases/tag/v1.1.0)
+
+- Fix for local CORS issue
+- Updated Sentry to log exceptions
+
+### v1.0
+
+- Revamped UI
+- All SEPs are integrated into one tool
+  - SEP-24 and SEP-31 are now found in the Asset action drop-down menus
+- Ablity to download logs
+- Claimable Balances supported
 
 ## Roadmap
 
@@ -143,7 +143,7 @@ yarn build
 - [x] Implement SEP-31 support
 - [ ] Forward sep24.stellar.org traffic to demo-wallet.stellar.org
 - [ ] Deprecate older clients to use this tool instead
-      (sep31-demo-client.netlify.app,sep24.stellar.org, sep6.stellar.org)
+      (sep31-demo-client.netlify.app, sep24.stellar.org, sep6.stellar.org)
 - [ ] Implement SEP-6 support
 - [ ] Implement SEP-8 support
 
