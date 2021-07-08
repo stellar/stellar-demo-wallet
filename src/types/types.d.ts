@@ -307,7 +307,7 @@ export interface LogItemProps {
   timestamp: number;
   type: LogType;
   title: string;
-  body?: string | object;
+  body?: string | AnyObject;
 }
 
 export interface Store {

@@ -30,7 +30,9 @@ export const TX_ERROR_TEXT: ErrorTextObject = {
 };
 
 /**
- * Given a Horizon error object, return a human-readable string that summarizes it.
+ * Given a Horizon error object, return a human-readable string that summarizes
+ * it.
+ *
  * @param {Error} err - error object from horizon
  * @returns {string} error string
  */
@@ -95,6 +97,7 @@ export function getErrorString(err: any): string {
 
 /**
  * Given a Horizon error object, return the error code
+ *
  * @param {Error} err - error object from horizon
  * @returns {string} error code
  */
@@ -105,6 +108,7 @@ export function getErrorCodeString(err: any): string {
 
 /**
  * Given a Horizon error object, return a list of the error codes.
+ *
  * @param {Error} err - error object from horizon
  * @returns {string[]} error code
  */
@@ -121,9 +125,8 @@ export function getErrorCodes(err: any): string[] {
   // first, try to parse the errors in extras
   // eslint-disable-next-line camelcase
   if (e?.data?.extras?.result_codes) {
-    const {
-      result_codes: resultCodes,
-    }: Horizon.TransactionFailedExtras = e.data.extras;
+    const { result_codes: resultCodes }: Horizon.TransactionFailedExtras =
+      e.data.extras;
 
     if (resultCodes.operations) {
       const codes = resultCodes.operations;
