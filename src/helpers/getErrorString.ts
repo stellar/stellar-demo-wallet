@@ -10,6 +10,9 @@ export const TX_ERROR_TEXT: ErrorTextObject = {
   op_malformed: "The input is incorrect and would result in an invalid offer.",
   op_sell_no_trust: "You are not authorized to sell this asset.",
   op_line_full: "You have reached the limit allowed for buying that asset.",
+  op_no_destination: "The destination account doesn't exist.",
+  op_no_trust:
+    "One or more accounts in this transaction doesn't have a trustline with the desired asset.",
   op_underfunded: "You don’t have enough to cover that transaction.",
   op_under_dest_min:
     "We couldn’t complete your transaction at this time because the exchange rate offered is no longer available. Please try again.",
@@ -54,8 +57,8 @@ export function getErrorString(err: any): string {
       const ignoredCodes = ["op_success"];
       const message = codes
         .filter((code: string) => !ignoredCodes.includes(code))
-        .map((code: string) => TX_ERROR_TEXT[code] || `Error code '${code}'`)
-        .join(", ");
+        .map((code: string) => TX_ERROR_TEXT[code] || `Error code '${code}'.`)
+        .join(" ");
 
       if (message) {
         return message;
