@@ -7,12 +7,6 @@
   "engines": {
     "node": "14.x"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "concurrently 'pretty-quick --staged' 'lint-staged' 'tsc --noEmit'",
-      "post-merge": "yarn install-if-package-changed"
-    }
-  },
   "lint-staged": {
     "src/**/*.ts?(x)": [
       "eslint --fix --max-warnings 0"
@@ -58,7 +52,9 @@
     "eject": "react-scripts eject",
     "prod:build": "docker image build --build-arg REACT_APP_AMPLITUDE_KEY=$AMPLITUDE_KEY --build-arg REACT_APP_SENTRY_KEY=$SENTRY_KEY -t stellar-demo-wallet:localbuild .",
     "prod:serve": "docker run -p 8000:80 stellar-demo-wallet:localbuild",
-    "production": "yarn prod:build && yarn prod:serve"
+    "production": "yarn prod:build && yarn prod:serve",
+    "prepare": "husky install",
+    "pre-commit": "concurrently 'pretty-quick --staged' 'lint-staged' 'tsc --noEmit'"
   },
   "eslintConfig": {
     "extends": [
@@ -106,8 +102,8 @@
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "husky": "^4.3.7",
-    "lint-staged": "^10.5.3",
+    "husky": "^7.0.1",
+    "lint-staged": "^11.0.0",
     "prettier": "^2.3.2",
     "pretty-quick": "^3.1.1"
   }
