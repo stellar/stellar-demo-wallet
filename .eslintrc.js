@@ -5,9 +5,7 @@ module.exports = {
     "import/no-unresolved": "off",
     "react/jsx-filename-extension": ["error", { extensions: [".tsx", ".jsx"] }],
     "no-plusplus": "off",
-    "prefer-arrow/prefer-arrow-functions": "off",
     "jsdoc/check-indentation": "off",
-    "no-underscore-dangle": "off",
     "@typescript-eslint/naming-convention": [
       "error",
       {
