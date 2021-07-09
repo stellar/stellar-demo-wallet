@@ -75,7 +75,7 @@
     ]
   },
   "devDependencies": {
-    "@stellar/eslint-config": "^2.0.1",
+    "@stellar/eslint-config": "^2.1.0",
     "@stellar/tsconfig": "^1.0.2",
     "@types/jest": "^26.0.24",
     "@types/lodash": "^4.14.171",

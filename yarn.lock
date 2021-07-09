@@ -2471,10 +2471,10 @@
     react "^17.0.1"
     react-dom "^17.0.1"
 
-"@stellar/eslint-config@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@stellar/eslint-config/-/eslint-config-2.0.1.tgz#de3b177e2d83772f89858208f3d5eda97406013c"
-  integrity sha512-7YgzLRG2GmBjyuh5bPRoEH1HV9fxbygBW+TqP7uCI+RsYiGjKHxB9NLVqVOrzXR7Xm3Ro7SVQ91ngsPFt7ncHg==
+"@stellar/eslint-config@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@stellar/eslint-config/-/eslint-config-2.1.0.tgz#16963e92a03eb72279bf69af5732b61aecc1fd22"
+  integrity sha512-vxJCSKRd55mN0E0tDLhg8vPYRnEJlrgoXtUMgA7h2I8X3PGAZRhn1Oi9c+U7EYSdzzrp0O8v6JYBaagMjuVo5A==
 
 "@stellar/freighter-api@^1.0.0-beta.0":
   version "1.0.0-beta.0"
