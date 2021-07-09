@@ -6,7 +6,7 @@ import { ReactComponent as IconArrowRight } from "assets/icons/arrow-right.svg";
 import { ReactComponent as IconBubble } from "assets/icons/bubble.svg";
 import { ReactComponent as IconError } from "assets/icons/error.svg";
 import { sanitizeHtml } from "helpers/sanitizeHtml";
-import { LogType } from "types/types.d";
+import { LogType, AnyObject } from "types/types.d";
 import "./styles.scss";
 
 marked.setOptions({
@@ -23,7 +23,7 @@ const LogItemIcon = {
 interface LogItemProps {
   title: string;
   variant: LogType;
-  body?: string | object;
+  body?: string | AnyObject;
 }
 
 const theme = {
