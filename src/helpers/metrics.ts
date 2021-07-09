@@ -1,6 +1,6 @@
 import throttle from "lodash/throttle";
 
-interface event {
+interface Event {
   /* eslint-disable camelcase */
   event_type: string;
   event_properties: { [key: string]: any };
@@ -10,7 +10,7 @@ interface event {
 }
 
 const METRICS_ENDPOINT = "https://api.amplitude.com/2/httpapi";
-let cache: event[] = [];
+let cache: Event[] = [];
 
 const uploadMetrics = throttle(() => {
   const toUpload = cache;

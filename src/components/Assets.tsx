@@ -86,7 +86,7 @@ export const Assets = ({
   const dispatch = useDispatch();
   const history = useHistory();
 
-  enum modalType {
+  enum ModalType {
     ADD_ASSET = "ADD_ASSET",
     CONFIRM_ACTION = "CONFIRM_ACTION",
   }
@@ -133,7 +133,7 @@ export const Assets = ({
     description,
     options,
   }: AssetActionItem) => {
-    setActiveModal(modalType.CONFIRM_ACTION);
+    setActiveModal(ModalType.CONFIRM_ACTION);
     dispatch(
       setActiveAssetAction({
         assetString,
@@ -396,7 +396,7 @@ export const Assets = ({
 
         <div className="BalancesButtons Inset">
           <Button
-            onClick={() => setActiveModal(modalType.ADD_ASSET)}
+            onClick={() => setActiveModal(ModalType.ADD_ASSET)}
             disabled={Boolean(activeAsset.action)}
           >
             Add asset
@@ -409,12 +409,12 @@ export const Assets = ({
 
       <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
         {/* Action confirmation */}
-        {activeModal === modalType.CONFIRM_ACTION && (
+        {activeModal === ModalType.CONFIRM_ACTION && (
           <ConfirmAssetAction onClose={handleCloseModal} />
         )}
 
         {/* Add asset */}
-        {activeModal === modalType.ADD_ASSET && (
+        {activeModal === ModalType.ADD_ASSET && (
           <AddAsset onClose={handleCloseModal} />
         )}
       </Modal>

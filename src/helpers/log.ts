@@ -1,6 +1,6 @@
 import { captureMessage as sentryCaptureMessage } from "@sentry/browser";
 import { LOG_MESSAGE_EVENT } from "constants/settings";
-import { LogType, LogItemProps } from "types/types.d";
+import { LogType, LogItemProps, AnyObject } from "types/types.d";
 
 const dispatchLog = (detail: LogItemProps) => {
   document.dispatchEvent(
@@ -16,7 +16,7 @@ export const log = {
     body = "",
   }: {
     title: string;
-    body?: string | object;
+    body?: string | AnyObject;
   }) => {
     console.log("🚀", title, body);
     dispatchLog({
@@ -32,7 +32,7 @@ export const log = {
     body = "",
   }: {
     title: string;
-    body?: string | object;
+    body?: string | AnyObject;
   }) => {
     console.log("✅", title, body);
     dispatchLog({
@@ -48,7 +48,7 @@ export const log = {
     body = "",
   }: {
     title: string;
-    body?: string | object;
+    body?: string | AnyObject;
   }) => {
     console.info("💬", title, body);
     dispatchLog({
@@ -59,7 +59,13 @@ export const log = {
     });
   },
 
-  error: ({ title, body = "" }: { title: string; body?: string | object }) => {
+  error: ({
+    title,
+    body = "",
+  }: {
+    title: string;
+    body?: string | AnyObject;
+  }) => {
     sentryCaptureMessage(title);
     console.error(title, body);
     dispatchLog({
