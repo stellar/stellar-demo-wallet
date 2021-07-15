@@ -1,14 +1,34 @@
+import { useEffect, useState } from "react";
 import { Button, Checkbox, Heading2 } from "@stellar/design-system";
-import { presetAsset, PRESET_ASSETS } from "constants/presetAssets";
+import { presetAsset } from "constants/presetAssets";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
+import { getPresetAssets } from "helpers/getPresetAssets";
 import { useRedux } from "hooks/useRedux";
-import { TextLink } from "./TextLink";
+import { TextLink } from "components/TextLink";
 
 export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
-  const { settings } = useRedux("settings");
+  const { allAssets, settings } = useRedux("allAssets", "settings");
+  const [presetAssets, setPresetAssets] = useState<presetAsset[]>([]);
+  const [checkedAssets, setCheckedAssets] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  useEffect(() => {
+    setPresetAssets(getPresetAssets(allAssets.data));
+  }, [allAssets]);
 
   const onConfirm = () => {
     onClose();
+  };
+
+  const handleOnChangeCheckbox = (asset: presetAsset) => {
+    const updatedCheckedAssets = JSON.parse(JSON.stringify(checkedAssets));
+
+    const key = `${asset.assetCode}:${
+      asset.anchorHomeDomain || asset.issuerPublicKey
+    }`;
+    updatedCheckedAssets[key] = !checkedAssets[key];
+    setCheckedAssets(updatedCheckedAssets);
   };
 
   const renderPresetAssetRow = (asset: presetAsset) => {
@@ -16,15 +36,22 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
       anchorHomeDomain: homeDomain,
       issuerPublicKey: assetIssuer,
     } = asset;
-    const key = `preset-asset-${asset.assetCode}:${homeDomain || assetIssuer}`;
+    const assetId = `${asset.assetCode}:${homeDomain || assetIssuer}`;
     const issuerLink =
       (homeDomain && `//${homeDomain}/.well-known/stellar.toml`) ||
       (assetIssuer &&
         `${getNetworkConfig(settings.pubnet).url}/accounts/${assetIssuer}`);
 
     return (
-      <div key={key} className="PresetAssetRow">
-        <Checkbox id={key} label="" />
+      <div key={`preset-asset-${assetId}`} className="PresetAssetRow">
+        <Checkbox
+          id={assetId}
+          label=""
+          checked={!!checkedAssets[assetId]}
+          onChange={() => {
+            handleOnChangeCheckbox(asset);
+          }}
+        />
         <div>
           <div className="PresetAssetCode">{asset.assetCode}</div>
           <div className="PresetAssetIssuer">
@@ -46,7 +73,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
       <div className="ModalBody">
         <p>Select one or more assets</p>
         <div className="PresetAssets">
-          {PRESET_ASSETS.map(renderPresetAssetRow)}
+          {presetAssets.map(renderPresetAssetRow)}
         </div>
       </div>
 
