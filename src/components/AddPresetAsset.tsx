@@ -30,7 +30,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
   const [checkedAssets, setCheckedAssets] = useState<{
     [key: string]: boolean;
   }>({});
-  const [isBusy, setIsBusy] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const history = useHistory();
@@ -38,6 +38,24 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     setPresetAssets(getPresetAssets(allAssets.data));
   }, [allAssets]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (!isValidating && untrustedAssets.status === ActionStatus.SUCCESS) {
+        console.log("STATUS", untrustedAssets.status);
+        onClose();
+      }
+    }, 100);
+
+    if (untrustedAssets.errorString) {
+      setErrorMessage(untrustedAssets.errorString);
+    }
+  }, [
+    isValidating,
+    onClose,
+    untrustedAssets.errorString,
+    untrustedAssets.status,
+  ]);
 
   const getAssetId = (asset: presetAsset) =>
     `${asset.assetCode}:${asset.homeDomain || asset.issuerPublicKey}`;
@@ -64,7 +82,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
 
   const handleAddUntrustedAssets = async (assetList: presetAsset[]) => {
     setErrorMessage("");
-    setIsBusy(true);
+    setIsValidating(true);
 
     // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < assetList.length; i++) {
@@ -75,7 +93,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
         const errorMsg = `Home domain OR issuer public key is required with asset code ${assetCode}`;
         log.error({ title: errorMsg });
         setErrorMessage(errorMsg);
-        setIsBusy(false);
+        setIsValidating(false);
         return;
       }
 
@@ -108,13 +126,12 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
         const errorMsg = getErrorMessage(e);
         log.error({ title: errorMsg });
         setErrorMessage(errorMsg);
-        setIsBusy(false);
+        setIsValidating(false);
         return;
       }
     }
 
-    setIsBusy(false);
-    onClose();
+    setIsValidating(false);
   };
 
   const renderAssetRow = (asset: presetAsset) => {
@@ -134,7 +151,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
           onChange={() => {
             handleOnChangeCheckbox(asset);
           }}
-          disabled={isBusy}
+          disabled={isValidating}
         />
         <div>
           <div className="PresetAssetCode">{asset.assetCode}</div>
@@ -150,7 +167,8 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
     );
   };
 
-  const isPending = isBusy || untrustedAssets.status === ActionStatus.PENDING;
+  const isPending =
+    isValidating || untrustedAssets.status === ActionStatus.PENDING;
 
   return (
     <>
@@ -175,7 +193,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
             const assetsToAdd = getAssetsToAdd();
             handleAddUntrustedAssets(assetsToAdd);
           }}
-          disabled={isBusy}
+          disabled={isPending}
         >
           Confirm
         </Button>
