@@ -78,7 +78,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
 
       const newSearchQ = searchParam.update(
         SearchParams.UNTRUSTED_ASSETS,
-        validatedAssetValues,
+        validatedAssetValues.join(","),
       );
       history.push(newSearchQ);
     } catch (e) {

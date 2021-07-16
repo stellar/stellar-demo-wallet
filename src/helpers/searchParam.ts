@@ -7,7 +7,7 @@ import { SearchParams, SearchParamAsset, StringObject } from "types/types.d";
 
 const update = (
   param: SearchParams,
-  value: string | string[],
+  value: string,
   urlSearchParams?: URLSearchParams,
 ) => {
   const queryParams =
@@ -30,16 +30,14 @@ const update = (
       }
       break;
     case SearchParams.SECRET_KEY:
-      queryParams.set(SearchParams.SECRET_KEY, value as string);
+      queryParams.set(SearchParams.SECRET_KEY, value);
       break;
-    case SearchParams.UNTRUSTED_ASSETS: {
-      const newValues: string[] = typeof value == "string" ? [value] : value;
+    case SearchParams.UNTRUSTED_ASSETS:
       queryParams.set(
         SearchParams.UNTRUSTED_ASSETS,
-        updateValue({ currentVal: currentParamValue, newValues }),
+        updateValue({ currentVal: currentParamValue, newVal: value }),
       );
       break;
-    }
     default:
       throw new Error(`Search param \`${searchParam}\` does not exist`);
   }
@@ -174,26 +172,19 @@ const removeKeyPair = ({
 
 type UpdateValueProps = {
   currentVal: string;
-  newValues?: string[];
+  newVal?: string;
   removeVal?: string;
 };
 
-const updateValue = ({
-  currentVal,
-  newValues,
-  removeVal,
-}: UpdateValueProps) => {
+const updateValue = ({ currentVal, newVal, removeVal }: UpdateValueProps) => {
   const valuesArray = currentVal ? currentVal.split(",") : [];
 
-  if (newValues) {
-    const intersection = valuesArray.filter((value) =>
-      newValues.includes(value),
-    );
-    if (intersection.length) {
-      throw new Error(`Values ${intersection} were already added`);
+  if (newVal) {
+    if (valuesArray.includes(newVal)) {
+      throw new Error(`${newVal} was already added`);
     }
 
-    return [...valuesArray, ...newValues].join(",");
+    return [...valuesArray, newVal].join(",");
   }
 
   if (removeVal) {
