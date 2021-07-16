@@ -36,6 +36,7 @@ import {
 } from "ducks/untrustedAssets";
 import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
+import { getPresetAssets } from "helpers/getPresetAssets";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import {
@@ -404,12 +405,14 @@ export const Assets = ({
             Add asset
           </Button>
 
-          <TextButton
-            onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
-            disabled={Boolean(activeAsset.action)}
-          >
-            Select a preset asset
-          </TextButton>
+          {getPresetAssets(allAssets.data).length > 0 && (
+            <TextButton
+              onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
+              disabled={Boolean(activeAsset.action)}
+            >
+              Select a preset asset
+            </TextButton>
+          )}
         </div>
       </div>
 
