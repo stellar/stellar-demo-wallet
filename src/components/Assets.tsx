@@ -405,12 +405,12 @@ export const Assets = ({
             Add asset
           </Button>
 
-          {getPresetAssets(allAssets.data).length > 0 && (
+          {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
             <TextButton
               onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
               disabled={Boolean(activeAsset.action)}
             >
-              Select a preset asset
+              Select from preset assets
             </TextButton>
           )}
         </div>
