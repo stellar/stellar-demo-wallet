@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { Button, Heading2, Loader } from "@stellar/design-system";
+import { Button, Heading2, Loader, TextButton } from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
+import { AddPresetAsset } from "components/AddPresetAsset";
 import { Balance } from "components/Balance";
 import { ClaimableBalance } from "components/ClaimableBalance";
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
@@ -35,6 +36,7 @@ import {
 } from "ducks/untrustedAssets";
 import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
+import { getPresetAssets } from "helpers/getPresetAssets";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import {
@@ -88,6 +90,7 @@ export const Assets = ({
 
   enum ModalType {
     ADD_ASSET = "ADD_ASSET",
+    ADD_PRESET_ASSET = "ADD_PRESET_ASSET",
     CONFIRM_ACTION = "CONFIRM_ACTION",
   }
 
@@ -401,6 +404,15 @@ export const Assets = ({
           >
             Add asset
           </Button>
+
+          {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
+            <TextButton
+              onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
+              disabled={Boolean(activeAsset.action)}
+            >
+              Select from preset assets
+            </TextButton>
+          )}
         </div>
       </div>
 
@@ -416,6 +428,11 @@ export const Assets = ({
         {/* Add asset */}
         {activeModal === ModalType.ADD_ASSET && (
           <AddAsset onClose={handleCloseModal} />
+        )}
+
+        {/* Add preset asset */}
+        {activeModal === ModalType.ADD_PRESET_ASSET && (
+          <AddPresetAsset onClose={handleCloseModal} />
         )}
       </Modal>
 
