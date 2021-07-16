@@ -84,51 +84,40 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
     setErrorMessage("");
     setIsValidating(true);
 
-    // eslint-disable-next-line @typescript-eslint/prefer-for-of
-    for (let i = 0; i < assetList.length; i++) {
-      const pAsset = assetList[i];
-      const { assetCode, issuerPublicKey, homeDomain } = pAsset;
+    try {
+      const validatedAssetValues = await Promise.all(
+        assetList.map(async (pAsset) => {
+          const { assetCode, issuerPublicKey, homeDomain } = pAsset;
 
-      if (!(homeDomain || issuerPublicKey)) {
-        const errorMsg = `Home domain OR issuer public key is required with asset code ${assetCode}`;
-        log.error({ title: errorMsg });
-        setErrorMessage(errorMsg);
-        setIsValidating(false);
-        return;
-      }
+          if (!(homeDomain || issuerPublicKey)) {
+            const errorMsg = `Home domain OR issuer public key is required with asset code ${assetCode}`;
+            log.error({ title: errorMsg });
+            throw new Error(errorMsg);
+          }
 
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        const asset = await getValidatedUntrustedAsset({
-          assetCode,
-          homeDomain,
-          issuerPublicKey,
-          accountBalances: account.data?.balances,
-          networkUrl: getNetworkConfig(settings.pubnet).url,
-        });
-
-        let search = searchParam.update(
-          SearchParams.UNTRUSTED_ASSETS,
-          `${asset.assetCode}:${asset.assetIssuer}`,
-        );
-
-        if (asset.homeDomain) {
-          search = searchParam.updateKeyPair({
-            param: SearchParams.ASSET_OVERRIDES,
-            itemId: `${asset.assetCode}:${asset.assetIssuer}`,
-            keyPairs: { homeDomain: asset.homeDomain },
-            urlSearchParams: new URLSearchParams(search),
+          const asset = await getValidatedUntrustedAsset({
+            assetCode,
+            homeDomain,
+            issuerPublicKey,
+            accountBalances: account.data?.balances,
+            networkUrl: getNetworkConfig(settings.pubnet).url,
           });
-        }
 
-        history.push(search);
-      } catch (e) {
-        const errorMsg = getErrorMessage(e);
-        log.error({ title: errorMsg });
-        setErrorMessage(errorMsg);
-        setIsValidating(false);
-        return;
-      }
+          return `${asset.assetCode}:${asset.assetIssuer}`;
+        }),
+      );
+
+      const newSearchQ = searchParam.update(
+        SearchParams.UNTRUSTED_ASSETS,
+        validatedAssetValues,
+      );
+      history.push(newSearchQ);
+    } catch (e) {
+      const errorMsg = getErrorMessage(e);
+      log.error({ title: errorMsg });
+      setErrorMessage(errorMsg);
+      setIsValidating(false);
+      return;
     }
 
     setIsValidating(false);
@@ -194,10 +183,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
         {isPending && <Loader />}
 
         <Button
-          onClick={() => {
-            const assetsToAdd = getAssetsToAdd();
-            handleAddUntrustedAssets(assetsToAdd);
-          }}
+          onClick={() => handleAddUntrustedAssets(getAssetsToAdd())}
           disabled={isPending}
         >
           Confirm
