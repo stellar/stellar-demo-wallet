@@ -23,6 +23,7 @@
     "@sentry/browser": "^6.3.1",
     "@sentry/tracing": "^6.3.1",
     "@stellar/design-system": "^0.1.0-alpha.3",
+    "@stellar/frontend-helpers": "^1.0.0",
     "@stellar/prettier-config": "^1.0.1",
     "@stellar/wallet-sdk": "^0.3.0-rc.4",
     "@testing-library/jest-dom": "^5.11.9",
