@@ -18,6 +18,7 @@ import { log } from "helpers/log";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
+import { shortenStellarKey } from "helpers/shortenStellarKey";
 
 export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
   const { account, allAssets, settings, untrustedAssets } = useRedux(
@@ -42,7 +43,6 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     setTimeout(() => {
       if (!isValidating && untrustedAssets.status === ActionStatus.SUCCESS) {
-        console.log("STATUS", untrustedAssets.status);
         onClose();
       }
     }, 100);
@@ -140,7 +140,12 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
     const issuerLink =
       (homeDomain && `//${homeDomain}/.well-known/stellar.toml`) ||
       (assetIssuer &&
-        `${getNetworkConfig(settings.pubnet).url}/accounts/${assetIssuer}`);
+        `${getNetworkConfig(settings.pubnet).url.replace(
+          "https:",
+          "",
+        )}/accounts/${assetIssuer}`);
+    const displayLink =
+      homeDomain || (assetIssuer && shortenStellarKey(assetIssuer));
 
     return (
       <div key={`preset-asset-${assetId}`} className="PresetAssetRow">
@@ -156,9 +161,9 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
         <div>
           <div className="PresetAssetCode">{asset.assetCode}</div>
           <div className="PresetAssetIssuer">
-            {homeDomain && (
+            {displayLink && (
               <TextLink href={issuerLink} isExternal>
-                {homeDomain}
+                {displayLink}
               </TextLink>
             )}
           </div>
