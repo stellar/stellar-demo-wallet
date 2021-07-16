@@ -61,7 +61,6 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
 
           if (!(homeDomain || issuerPublicKey)) {
             const errorMsg = `Home domain OR issuer public key is required with asset code ${assetCode}`;
-            log.error({ title: errorMsg });
             throw new Error(errorMsg);
           }
 
@@ -98,14 +97,17 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
 
   const renderAssetRow = (asset: presetAsset) => {
     const { homeDomain, issuerPublicKey: assetIssuer } = asset;
+
     const assetId = getAssetId(asset);
+    const networkUrl = getNetworkConfig(settings.pubnet).url.replace(
+      "https:",
+      "",
+    );
+
+    // if no home domain is provided, use horizon's /account endpoint:
     const issuerLink =
       (homeDomain && `//${homeDomain}/.well-known/stellar.toml`) ||
-      (assetIssuer &&
-        `${getNetworkConfig(settings.pubnet).url.replace(
-          "https:",
-          "",
-        )}/accounts/${assetIssuer}`);
+      (assetIssuer && `${networkUrl}/accounts/${assetIssuer}`);
     const displayLink =
       homeDomain || (assetIssuer && shortenStellarKey(assetIssuer));
 
