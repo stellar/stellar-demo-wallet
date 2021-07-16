@@ -41,37 +41,17 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
   }, [allAssets]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (!isValidating && untrustedAssets.status === ActionStatus.SUCCESS) {
-        onClose();
-      }
-    }, 100);
+    if (untrustedAssets.status === ActionStatus.SUCCESS) {
+      onClose();
+    }
 
     if (untrustedAssets.errorString) {
       setErrorMessage(untrustedAssets.errorString);
     }
-  }, [
-    isValidating,
-    onClose,
-    untrustedAssets.errorString,
-    untrustedAssets.status,
-  ]);
+  }, [onClose, untrustedAssets.errorString, untrustedAssets.status]);
 
   const getAssetId = (asset: presetAsset) =>
     `${asset.assetCode}:${asset.homeDomain || asset.issuerPublicKey}`;
-
-  const getAssetsToAdd = () => {
-    const assetsToAdd: presetAsset[] = [];
-
-    presetAssets.forEach((pAsset) => {
-      const assetId = getAssetId(pAsset);
-      if (checkedAssets[assetId]) {
-        assetsToAdd.push(pAsset);
-      }
-    });
-
-    return assetsToAdd;
-  };
 
   const handleOnChangeCheckbox = (asset: presetAsset) => {
     const updatedCheckedAssets = JSON.parse(JSON.stringify(checkedAssets));
@@ -123,6 +103,9 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
     setIsValidating(false);
   };
 
+  const isPending =
+    isValidating || untrustedAssets.status === ActionStatus.PENDING;
+
   const renderAssetRow = (asset: presetAsset) => {
     const { homeDomain, issuerPublicKey: assetIssuer } = asset;
     const assetId = getAssetId(asset);
@@ -145,7 +128,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
           onChange={() => {
             handleOnChangeCheckbox(asset);
           }}
-          disabled={isValidating}
+          disabled={isPending}
         />
         <div>
           <div className="PresetAssetCode">{asset.assetCode}</div>
@@ -160,9 +143,6 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
       </div>
     );
   };
-
-  const isPending =
-    isValidating || untrustedAssets.status === ActionStatus.PENDING;
 
   return (
     <>
@@ -183,7 +163,13 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
         {isPending && <Loader />}
 
         <Button
-          onClick={() => handleAddUntrustedAssets(getAssetsToAdd())}
+          onClick={() => {
+            const assetsToAdd = presetAssets.flatMap((pAsset) => {
+              const assetId = getAssetId(pAsset);
+              return checkedAssets[assetId] ? pAsset : [];
+            });
+            handleAddUntrustedAssets(assetsToAdd);
+          }}
           disabled={isPending}
         >
           Confirm
