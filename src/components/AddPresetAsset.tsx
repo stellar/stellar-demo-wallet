@@ -9,7 +9,6 @@ import {
   Loader,
 } from "@stellar/design-system";
 import { TextLink } from "components/TextLink";
-import { presetAsset } from "constants/presetAssets";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { getPresetAssets } from "helpers/getPresetAssets";
@@ -17,7 +16,7 @@ import { getValidatedUntrustedAsset } from "helpers/getValidatedUntrustedAsset";
 import { log } from "helpers/log";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, SearchParams } from "types/types.d";
+import { ActionStatus, presetAsset, SearchParams } from "types/types.d";
 import { shortenStellarKey } from "helpers/shortenStellarKey";
 
 export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {

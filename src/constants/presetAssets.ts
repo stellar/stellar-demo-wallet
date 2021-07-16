@@ -1,8 +1,4 @@
-export interface presetAsset {
-  assetCode: string;
-  homeDomain?: string;
-  issuerPublicKey?: string;
-}
+import { presetAsset } from "types/types.d";
 
 export const PRESET_ASSETS: presetAsset[] = [
   {
