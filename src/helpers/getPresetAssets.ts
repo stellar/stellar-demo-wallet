@@ -8,7 +8,7 @@ export const getPresetAssets = (allAssets: Asset[]) => {
     const alreadyContainsAsset = allAssets.some(
       (a) =>
         a.assetCode === pAsset.assetCode &&
-        (a.homeDomain === pAsset.anchorHomeDomain ||
+        (a.homeDomain === pAsset.homeDomain ||
           a.assetIssuer === pAsset.issuerPublicKey),
     );
     if (!alreadyContainsAsset) {

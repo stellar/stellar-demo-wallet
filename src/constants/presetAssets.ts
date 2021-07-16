@@ -1,16 +1,16 @@
 export interface presetAsset {
   assetCode: string;
-  anchorHomeDomain?: string;
+  homeDomain?: string;
   issuerPublicKey?: string;
 }
 
 export const PRESET_ASSETS: presetAsset[] = [
   {
     assetCode: "MYASSET",
-    anchorHomeDomain: "sep8-server.dev.stellar.org",
+    homeDomain: "sep8-server.dev.stellar.org",
   },
   {
     assetCode: "SRT",
-    anchorHomeDomain: "testanchor.stellar.org",
+    homeDomain: "testanchor.stellar.org",
   },
 ];
