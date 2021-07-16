@@ -28,9 +28,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
     "untrustedAssets",
   );
   const [presetAssets, setPresetAssets] = useState<presetAsset[]>([]);
-  const [checkedAssets, setCheckedAssets] = useState<{
-    [key: string]: boolean;
-  }>({});
+  const checkedAssets: { [key: string]: boolean } = {};
   const [isValidating, setIsValidating] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -52,13 +50,6 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
 
   const getAssetId = (asset: presetAsset) =>
     `${asset.assetCode}:${asset.homeDomain || asset.issuerPublicKey}`;
-
-  const handleOnChangeCheckbox = (asset: presetAsset) => {
-    const updatedCheckedAssets = JSON.parse(JSON.stringify(checkedAssets));
-    const assetId = getAssetId(asset);
-    updatedCheckedAssets[assetId] = !checkedAssets[assetId];
-    setCheckedAssets(updatedCheckedAssets);
-  };
 
   const handleAddUntrustedAssets = async (assetList: presetAsset[]) => {
     setErrorMessage("");
@@ -124,9 +115,8 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
         <Checkbox
           id={assetId}
           label=""
-          checked={!!checkedAssets[assetId]}
           onChange={() => {
-            handleOnChangeCheckbox(asset);
+            checkedAssets[assetId] = !checkedAssets[assetId];
           }}
           disabled={isPending}
         />
