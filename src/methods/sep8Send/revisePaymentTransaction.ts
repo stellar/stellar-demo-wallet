@@ -2,7 +2,6 @@ import StellarSdk, { Transaction } from "stellar-sdk";
 import { getErrorString } from "helpers/getErrorString";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
-import { Sep9Field, Sep9FieldsDict } from "helpers/Sep9Fields";
 import { buildPaymentTransaction } from "methods/submitPaymentTransaction";
 import {
   Sep8ApprovalResponse,
@@ -53,49 +52,11 @@ export const revisePaymentTransaction = async ({
   // parse SEP-8 response
   const sep8ApprovalResultJson = await sep8ApprovalResult.json();
   switch (sep8ApprovalResultJson.status) {
-    case Sep8ApprovalStatus.ACTION_REQUIRED: {
-      log.response({
-        title: "Action Required",
-        body: "Additional information is needed before we can proceed.",
-      });
-      log.instruction({
-        title: sep8ApprovalResultJson.message,
-      });
-
-      const actionFields:
-        | Sep9Field[]
-        | undefined = sep8ApprovalResultJson.action_fields?.map(
-        (fieldName: string) => Sep9FieldsDict[fieldName],
-      );
-
-      return {
-        status: Sep8ApprovalStatus.ACTION_REQUIRED,
-        actionRequiredInfo: {
-          actionFields,
-          actionMethod: sep8ApprovalResultJson.action_method ?? "GET",
-          actionUrl: sep8ApprovalResultJson.action_url,
-          message: sep8ApprovalResultJson.message,
-        },
-        revisedTransaction: {
-          amount: params.amount,
-          destination: params.destination,
-          submittedTxXdr,
-          revisedTxXdr: "",
-        },
-      };
-    }
-
     case Sep8ApprovalStatus.PENDING: {
-      let pendingApprovalBody =
-        "The issuer could not determine whether to approve the transaction at this time.";
-      const { timeout } = sep8ApprovalResultJson;
-      if (timeout) {
-        const dateStr = new Date(timeout).toLocaleString();
-        pendingApprovalBody += ` You can re-submit the same transaction on ${dateStr}.`;
-      }
+      const dateStr = new Date(sep8ApprovalResultJson.timeout).toLocaleString();
       log.response({
-        title: "Authorization Pending",
-        body: pendingApprovalBody,
+        title: "Authorization pending",
+        body: `The issuer could not determine whether to approve the transaction at this time. You can re-submit the same transaction on ${dateStr}.`,
       });
       if (sep8ApprovalResultJson.message) {
         log.instruction({ title: sep8ApprovalResultJson.message });
@@ -110,7 +71,6 @@ export const revisePaymentTransaction = async ({
     case Sep8ApprovalStatus.SUCCESS:
       log.response({
         title: `Payment transaction revised and authorized 🎉.`,
-        body: sep8ApprovalResultJson.message as string | undefined,
       });
 
       return {
