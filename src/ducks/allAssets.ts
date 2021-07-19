@@ -34,7 +34,6 @@ const includeAssetOverrides = ({
           category: assetCategory,
           isUntrusted: asset.isUntrusted,
           isOverride: true,
-          total: asset.total,
         }
       : { ...asset, category: assetCategory };
 

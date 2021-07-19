@@ -50,8 +50,8 @@ export const submitRevisedTransaction = async ({
   );
   log.response({ title: "Submitted send payment transaction", body: result });
   log.instruction({
-    title: "SEP-8 send payment completed 🎉",
-    body: `Payment of ${amount} ${assetCode} successfully sent to ${destination}.`,
+    title: `Payment of ${amount} ${assetCode} sent 🎉`,
+    body: `Destination: ${destination}`,
   });
   return result;
 };

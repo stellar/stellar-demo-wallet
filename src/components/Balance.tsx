@@ -1,8 +1,6 @@
 import { useDispatch } from "react-redux";
 import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
-import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
-import { initiateWithdrawAction as initiateSep6WithdrawAction } from "ducks/sep6WithdrawAsset";
 import { initiateSep8SendAction } from "ducks/sep8Send";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { initiateSendAction } from "ducks/sep31Send";
@@ -64,14 +62,6 @@ export const Balance = ({
     return result;
   };
 
-  const handleSep6Deposit = (asset: Asset) => {
-    dispatch(initiateSep6SendAction(asset));
-  };
-
-  const handleSep6Withdraw = (asset: Asset) => {
-    dispatch(initiateSep6WithdrawAction(asset));
-  };
-
   const handleSep8Send = (asset: Asset) => {
     dispatch(initiateSep8SendAction(asset));
   };
@@ -124,22 +114,6 @@ export const Balance = ({
           callback: onSend,
         };
         break;
-      case AssetActionId.SEP6_DEPOSIT:
-        props = {
-          ...defaultProps,
-          title: `SEP-6 deposit ${balance.assetCode} (with Trusted Asset)`,
-          description: `Start SEP-6 deposit of trusted asset ${balance.assetCode}?`,
-          callback: () => handleSep6Deposit(balance),
-        };
-        break;
-      case AssetActionId.SEP6_WITHDRAW:
-        props = {
-          ...defaultProps,
-          title: `SEP-6 withdrawal ${balance.assetCode}`,
-          description: `Start SEP-6 withdrawal of ${balance.assetCode}?`,
-          callback: () => handleSep6Withdraw(balance),
-        };
-        break;
       case AssetActionId.SEP8_SEND_PAYMENT:
         props = {
           ...defaultProps,
@@ -175,21 +149,14 @@ export const Balance = ({
           callback: () => handleSep24Withdraw(balance),
         };
         break;
-      case AssetActionId.SEP31_SEND: {
-        let description = `Start SEP-31 send to ${balance.assetCode}?\n\n`;
-        description +=
-          "Please be aware that specifically in the case of demo-ing SEP-31 in the Demo Wallet the public and secret keys don't represent the Sending Client but instead the Sending Anchor's account.\n\n";
-        description +=
-          "In SEP-31, the only Stellar transaction happening is between the Sending and the Receiving anchors.";
+      case AssetActionId.SEP31_SEND:
         props = {
           ...defaultProps,
           title: `SEP-31 send ${balance.assetCode}`,
-
-          description,
+          description: `Start SEP-31 send to ${balance.assetCode}?`,
           callback: () => handleSep31Send(balance),
         };
         break;
-      }
       default:
       // do nothing
     }

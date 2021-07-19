@@ -1,19 +1,19 @@
 import { get } from "lodash";
 import { log } from "helpers/log";
-import { AnchorActionType } from "types/types.d";
+import { CheckInfoType } from "types/types.d";
 
 export const checkInfo = async ({
   type,
   toml,
   assetCode,
 }: {
-  type: AnchorActionType;
+  type: CheckInfoType;
   toml: any;
   assetCode: string;
 }) => {
   log.instruction({
     title: `Checking \`/info\` endpoint to ensure this currency is enabled for ${
-      type === AnchorActionType.DEPOSIT ? "deposit" : "withdrawal"
+      type === CheckInfoType.DEPOSIT ? "deposit" : "withdrawal"
     }`,
   });
   const infoURL = `${toml.TRANSFER_SERVER_SEP0024}/info`;

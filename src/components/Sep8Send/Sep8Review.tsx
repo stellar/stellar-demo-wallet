@@ -9,7 +9,7 @@ import { fetchAccountAction } from "ducks/account";
 import { sep8SubmitRevisedTransactionAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, Sep8Step } from "types/types.d";
+import { ActionStatus } from "types/types.d";
 
 export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send, settings } = useRedux(
@@ -22,7 +22,6 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   const [isApproved, setIsApproved] = useState(false);
   const dispatch = useDispatch();
   const { revisedTxXdr, submittedTxXdr } = sep8Send.data.revisedTransaction;
-  const { sep8Step } = sep8Send.data;
 
   // user interaction handlers
   const handleSubmitPayment = () => {
@@ -33,7 +32,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
   // use effect: complete action, close modal and refresh account balances
   useEffect(() => {
-    if (sep8Step === Sep8Step.COMPLETE && account.data?.id) {
+    if (sep8Send.status === ActionStatus.SUCCESS && account.data?.id) {
       dispatch(
         fetchAccountAction({
           publicKey: account.data.id,
@@ -42,7 +41,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
       );
       onClose();
     }
-  }, [account.data?.id, account.secretKey, dispatch, onClose, sep8Step]);
+  }, [account.data?.id, account.secretKey, sep8Send.status, dispatch, onClose]);
 
   // use effect: parse transaction XDRs
   useEffect(() => {
@@ -74,8 +73,6 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
       <div className="ModalBody">
         <div className="ModalMessage">
           <p>
-            {sep8Send.data.actionRequiredResult.result &&
-              "KYC has been approved. "}
             Please review the updated operations before submitting your SEP-8
             payment.
           </p>
