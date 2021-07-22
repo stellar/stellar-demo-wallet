@@ -49,7 +49,7 @@ export const HomeDomainOverrideModal = ({
       if (validAsset.homeDomain) {
         history.push(
           searchParam.updateKeyPair({
-            searchParam: SearchParams.ASSET_OVERRIDES,
+            param: SearchParams.ASSET_OVERRIDES,
             itemId: `${asset.assetCode}:${asset.assetIssuer}`,
             keyPairs: { homeDomain },
           }),

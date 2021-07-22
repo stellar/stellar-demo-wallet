@@ -83,7 +83,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
       if (asset.homeDomain) {
         search = searchParam.updateKeyPair({
-          searchParam: SearchParams.ASSET_OVERRIDES,
+          param: SearchParams.ASSET_OVERRIDES,
           itemId: `${asset.assetCode}:${asset.assetIssuer}`,
           keyPairs: { homeDomain },
           urlSearchParams: new URLSearchParams(search),

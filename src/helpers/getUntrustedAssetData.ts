@@ -22,7 +22,7 @@ export const getUntrustedAssetData = async ({
 
   let response: Asset[] = [];
 
-  // eslint-disable-next-line no-plusplus
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let i = 0; i < assetsToAdd.length; i++) {
     const assetString = assetsToAdd[i];
     const [assetCode, assetIssuer] = assetString.split(":");

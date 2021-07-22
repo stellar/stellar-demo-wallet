@@ -19,7 +19,7 @@ export const getAssetOverridesData = async ({
 
   let response: Asset[] = [];
 
-  // eslint-disable-next-line no-plusplus
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let i = 0; i < assetOverrides.length; i++) {
     const { assetString, homeDomain } = assetOverrides[i];
     const [assetCode, assetIssuer] = assetString.split(":");

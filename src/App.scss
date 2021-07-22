@@ -363,10 +363,37 @@ code {
 
 .BalancesButtons {
   margin-top: 1.5rem;
+  display: flex;
+  flex-direction: row;
+
+  *:not(:first-child) {
+    margin-left: 1em;
+  }
 }
 
 .CheckboxWrapper {
   position: relative;
+}
+
+.PresetAssets {
+  border-top: 1px solid var(--color-border-main);
+
+  .PresetAssetRow {
+    border-bottom: 1px solid var(--color-border-main);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    display: flex;
+    flex-direction: row;
+
+    .PresetAssetCode {
+      font-size: 1.1em;
+      font-weight: var(--font-weight-medium);
+    }
+
+    .PresetAssetIssuer {
+      margin-top: 0.3rem;
+    }
+  }
 }
 
 // Logs

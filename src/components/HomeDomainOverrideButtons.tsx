@@ -43,7 +43,9 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
         activeAsset = {
           assetString: asset.assetString,
           title: "",
-          callback: () => {},
+          callback: () => {
+            // do nothing
+          },
         };
         break;
       case ModalType.REMOVE_ASSET_OVERRIDE:
@@ -64,7 +66,7 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
   const handleRemove = () => {
     history.push(
       searchParam.removeKeyPair({
-        searchParam: SearchParams.ASSET_OVERRIDES,
+        param: SearchParams.ASSET_OVERRIDES,
         itemId: asset.assetString,
       }),
     );
