@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Layout } from "@stellar/design-system";
-import { Modal } from "components/Modal";
+import { Layout, Modal } from "@stellar/design-system";
 import { SignOutModal } from "components/SignOutModal";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { useRedux } from "hooks/useRedux";
 
 export const Header = () => {
@@ -23,7 +23,11 @@ export const Header = () => {
         hasDarkModeToggle
       />
 
-      <Modal visible={modalVisible} onClose={handleCloseModal}>
+      <Modal
+        visible={modalVisible}
+        onClose={handleCloseModal}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
         <SignOutModal onClose={handleCloseModal} />
       </Modal>
     </>

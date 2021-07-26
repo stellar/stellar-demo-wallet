@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Button, TextLink, Icon, InfoBlock } from "@stellar/design-system";
+import {
+  Button,
+  TextLink,
+  Icon,
+  InfoBlock,
+  Modal,
+} from "@stellar/design-system";
 import { CopyWithTooltip, TooltipPosition } from "components/CopyWithTooltip";
 import { resetStoreAction } from "config/store";
 import { getCurrentSessionParams } from "helpers/getCurrentSessionParams";
@@ -37,7 +43,7 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      <div className="ModalBody">
+      <Modal.Body>
         <p>
           You can reload the account using your secret key or press back in your
           browser to sign back in.
@@ -60,14 +66,14 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
             </div>
           </InfoBlock>
         )}
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         <Button onClick={handleSignOut}>Sign out</Button>
         <Button variant={Button.variant.secondary} onClick={onClose}>
           Go back
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

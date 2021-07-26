@@ -5,6 +5,7 @@ import { Heading3, Loader, TextLink, Modal } from "@stellar/design-system";
 import { metrics } from "@stellar/frontend-helpers";
 
 import { METRIC_NAMES } from "constants/metricNames";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { createRandomAccount } from "ducks/account";
 import { ConnectAccount } from "components/ConnectAccount";
 import { searchParam } from "helpers/searchParam";
@@ -76,7 +77,7 @@ export const Landing = () => {
       <Modal
         visible={isConnectAccountModalVisible}
         onClose={() => setIsConnectAccountModalVisible(false)}
-        parentId="app-wrapper"
+        parentId={CSS_MODAL_PARENT_ID}
       >
         <ConnectAccount />
       </Modal>
