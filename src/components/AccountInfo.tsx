@@ -1,8 +1,7 @@
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Heading2, Loader } from "@stellar/design-system";
+import { Heading2, Loader, TextLink } from "@stellar/design-system";
 import { TextButton } from "components/TextButton";
-import { TextLink } from "components/TextLink";
 
 import { CopyWithText } from "components/CopyWithText";
 import { Json } from "components/Json";
@@ -82,10 +81,7 @@ export const AccountInfo = () => {
                         Clicking create will fund your test account with XLM. If
                         you’re testing SEP-24 you may want to leave this account
                         unfunded.{" "}
-                        <TextLink
-                          href="https://developers.stellar.org/docs/tutorials/create-account/#create-account"
-                          isExternal
-                        >
+                        <TextLink href="https://developers.stellar.org/docs/tutorials/create-account/#create-account">
                           Learn more
                         </TextLink>
                       </>

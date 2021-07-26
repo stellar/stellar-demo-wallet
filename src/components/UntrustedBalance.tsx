@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { TextLink } from "@stellar/design-system";
+
 import { TextButton } from "components/TextButton";
-import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
@@ -131,10 +132,7 @@ export const UntrustedBalance = ({
               You are about to create a trustline to asset{" "}
               <code>{`${asset.assetCode}:${asset.assetIssuer}`}</code>. This
               will allow you to hold this asset.{" "}
-              <TextLink
-                href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines"
-                isExternal
-              >
+              <TextLink href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines">
                 Learn more
               </TextLink>
             </p>
@@ -195,10 +193,7 @@ export const UntrustedBalance = ({
                   Adding a trustline means you trust an issuer to redeem its
                   credit. If you’re testing SEP-24 or SEP-6 you may not want to
                   do this.{" "}
-                  <TextLink
-                    href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines"
-                    isExternal
-                  >
+                  <TextLink href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines">
                     Learn more
                   </TextLink>
                 </>

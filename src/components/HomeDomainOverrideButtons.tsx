@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { TextLink } from "components/TextLink";
+import { Loader, TextLink } from "@stellar/design-system";
+
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
 import { HomeDomainOverrideModal } from "components/HomeDomainOverrideModal";
 import { Modal } from "components/Modal";
@@ -17,7 +18,6 @@ import { ActionStatus, Asset, SearchParams } from "types/types.d";
 import { ReactComponent as IconEdit } from "assets/icons/edit.svg";
 import { ReactComponent as IconRemove } from "assets/icons/error.svg";
 import { useRedux } from "hooks/useRedux";
-import { Loader } from "@stellar/design-system";
 
 export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
   const [activeModal, setActiveModal] = useState("");

@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Input, Select } from "@stellar/design-system";
+import { Button, Input, Select, TextLink } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
 import { Modal } from "components/Modal";
-import { TextLink } from "components/TextLink";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6WithdrawAction,
@@ -49,9 +48,10 @@ export const Sep6Withdraw = () => {
     Object.keys(withdrawTypes)[0],
   );
 
-  const withdrawTypesArr = useMemo(() => Object.entries(withdrawTypes), [
-    withdrawTypes,
-  ]);
+  const withdrawTypesArr = useMemo(
+    () => Object.entries(withdrawTypes),
+    [withdrawTypes],
+  );
 
   useEffect(() => {
     if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {
@@ -154,10 +154,7 @@ export const Sep6Withdraw = () => {
               <>
                 These are the fields the receiving anchor requires. The sending
                 client obtains them from the /info endpoint.{" "}
-                <TextLink
-                  href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info"
-                  isExternal
-                >
+                <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info">
                   Learn more
                 </TextLink>
               </>
@@ -196,10 +193,7 @@ export const Sep6Withdraw = () => {
                 <>
                   These are the fields the receiving anchor requires. The
                   sending client obtains them from the /customer endpoint.{" "}
-                  <TextLink
-                    href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
-                    isExternal
-                  >
+                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
                     Learn more
                   </TextLink>
                 </>

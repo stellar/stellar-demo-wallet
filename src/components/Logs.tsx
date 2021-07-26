@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { TextLink } from "@stellar/design-system";
+import { Layout, TextLink } from "@stellar/design-system";
 
 import { LogItem } from "components/LogItem";
 import { LOG_MESSAGE_EVENT } from "constants/settings";
@@ -83,7 +83,7 @@ export const Logs = () => {
   if (!account.isAuthenticated) {
     return (
       <div className="SplitContainer Logs">
-        <div className="ContentWrapper">
+        <div className="Logs__content">
           <div className="EmptyLogsContent">
             Operation logs will appear here once a transaction begins
           </div>
@@ -94,8 +94,8 @@ export const Logs = () => {
 
   return (
     <div className="SplitContainer Logs">
-      <div className="LogsWrapper">
-        <div className="ContentWrapper">
+      <div className="Logs__container">
+        <div className="Logs__content">
           <div className="Inset">
             <div className="LogsContent">
               {logs.items.length ? (
@@ -115,24 +115,19 @@ export const Logs = () => {
         </div>
       </div>
 
-      <div className="LogsFooter">
-        <div className="Inset horizontal-spacing">
-          <TextLink
-            role="button"
-            onClick={handleDownload}
-            disabled={!logs.items.length}
-          >
+      <div className="Logs__footer">
+        <Layout.Inset>
+          <TextLink onClick={handleDownload} disabled={!logs.items.length}>
             Download logs
           </TextLink>
 
           <TextLink
-            role="button"
             onClick={() => dispatch(clearLogsAction())}
             disabled={!logs.items.length}
           >
             Clear logs
           </TextLink>
-        </div>
+        </Layout.Inset>
       </div>
     </div>
   );

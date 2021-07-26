@@ -51,7 +51,6 @@ export const ClaimableBalance = ({
             asset={balance}
           >
             <TextLink
-              role="button"
               onClick={() => handleClaim(balance)}
               disabled={Boolean(activeAsset.action)}
             >

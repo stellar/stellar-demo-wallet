@@ -6,8 +6,8 @@ import {
   InfoBlock,
   Input,
   Loader,
+  TextLink,
 } from "@stellar/design-system";
-import { TextLink } from "components/TextLink";
 import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
@@ -132,10 +132,7 @@ export const SendPayment = ({
           <InfoBlock>
             The destination account doesn’t exist. A create account operation
             will be used to create this account.{" "}
-            <TextLink
-              href="https://developers.stellar.org/docs/tutorials/create-account/"
-              isExternal
-            >
+            <TextLink href="https://developers.stellar.org/docs/tutorials/create-account/">
               Learn more about account creation
             </TextLink>
           </InfoBlock>

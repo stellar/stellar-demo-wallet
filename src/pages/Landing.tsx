@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Heading1, Loader, TextLink } from "@stellar/design-system";
+import { Heading3, Loader, TextLink, Modal } from "@stellar/design-system";
 import { metrics } from "@stellar/frontend-helpers";
 
 import { METRIC_NAMES } from "constants/metricNames";
 import { createRandomAccount } from "ducks/account";
 import { ConnectAccount } from "components/ConnectAccount";
-import { Modal } from "components/Modal";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
@@ -46,25 +45,25 @@ export const Landing = () => {
   };
 
   return (
-    <div className="Inset">
-      <Heading1>Import or generate keypair</Heading1>
+    <div className="Landing__container">
+      <Heading3>Import or generate keypair</Heading3>
 
-      <div className="LandingButtons">
+      <div className="Landing__buttons">
         <TextLink
-          role="button"
           onClick={() => setIsConnectAccountModalVisible(true)}
           variant={TextLink.variant.secondary}
           disabled={account.status === ActionStatus.PENDING}
+          underline
         >
           Provide a secret key (testnet or mainnet)
         </TextLink>
 
-        <div className="Inline">
+        <div className="Layout__inline">
           <TextLink
-            role="button"
             onClick={handleCreateAccount}
             variant={TextLink.variant.secondary}
             disabled={account.status === ActionStatus.PENDING}
+            underline
           >
             Generate keypair for new account (testnet only)
           </TextLink>
@@ -77,6 +76,7 @@ export const Landing = () => {
       <Modal
         visible={isConnectAccountModalVisible}
         onClose={() => setIsConnectAccountModalVisible(false)}
+        parentId="app-wrapper"
       >
         <ConnectAccount />
       </Modal>

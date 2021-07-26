@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Input } from "@stellar/design-system";
+import { Button, Input, TextLink } from "@stellar/design-system";
 import { Heading2, Heading3 } from "components/Heading";
 import { Modal } from "components/Modal";
 import { RadioButton } from "components/RadioButton";
-import { TextLink } from "components/TextLink";
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -254,10 +253,7 @@ export const Sep31Send = () => {
               <>
                 These are the fields the receiving anchor requires. The sending
                 client obtains them from the /customer endpoint.{" "}
-                <TextLink
-                  href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
-                  isExternal
-                >
+                <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
                   Learn more
                 </TextLink>
               </>

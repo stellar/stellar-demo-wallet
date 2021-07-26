@@ -7,10 +7,10 @@ import {
   InfoBlock,
   Input,
   Loader,
+  TextLink,
 } from "@stellar/design-system";
 import { DataProvider } from "@stellar/wallet-sdk";
 import { Modal } from "components/Modal";
-import { TextLink } from "components/TextLink";
 import {
   sep8ClearErrorAction,
   sep8ReviseTransactionAction,
@@ -25,12 +25,8 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
     "sep8Send",
     "settings",
   );
-  const {
-    approvalCriteria,
-    approvalServer,
-    assetCode,
-    assetIssuer,
-  } = sep8Send.data;
+  const { approvalCriteria, approvalServer, assetCode, assetIssuer } =
+    sep8Send.data;
   const [amount, setAmount] = useState(sep8Send.data.revisedTransaction.amount);
   const [destination, setDestination] = useState(
     sep8Send.data.revisedTransaction.destination,
@@ -141,10 +137,7 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
           <InfoBlock>
             The destination account doesn’t exist. A create account operation
             will be used to create this account.{" "}
-            <TextLink
-              href="https://developers.stellar.org/docs/tutorials/create-account/"
-              isExternal
-            >
+            <TextLink href="https://developers.stellar.org/docs/tutorials/create-account/">
               Learn more about account creation
             </TextLink>
           </InfoBlock>

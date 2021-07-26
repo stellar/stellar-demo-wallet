@@ -407,7 +407,6 @@ export const Assets = ({
 
           {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
             <TextLink
-              role="button"
               onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
               disabled={Boolean(activeAsset.action)}
             >

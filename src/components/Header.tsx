@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ProjectLogo, TextLink } from "@stellar/design-system";
+import { Layout } from "@stellar/design-system";
 import { Modal } from "components/Modal";
 import { SignOutModal } from "components/SignOutModal";
 import { useRedux } from "hooks/useRedux";
@@ -14,19 +14,18 @@ export const Header = () => {
   };
 
   return (
-    <div className="Header">
-      <div className="Inset">
-        <ProjectLogo title="Demo Wallet" />
-        {account.isAuthenticated && (
-          <TextLink role="button" onClick={() => setModalVisible(true)}>
-            Sign out
-          </TextLink>
-        )}
-      </div>
+    <>
+      <Layout.Header
+        projectTitle="Demo Wallet"
+        onSignOut={
+          account.isAuthenticated ? () => setModalVisible(true) : undefined
+        }
+        hasDarkModeToggle
+      />
 
       <Modal visible={modalVisible} onClose={handleCloseModal}>
         <SignOutModal onClose={handleCloseModal} />
       </Modal>
-    </div>
+    </>
   );
 };

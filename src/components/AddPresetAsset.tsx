@@ -6,8 +6,8 @@ import {
   Heading2,
   InfoBlock,
   Loader,
+  TextLink,
 } from "@stellar/design-system";
-import { TextLink } from "components/TextLink";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { getPresetAssets } from "helpers/getPresetAssets";
@@ -132,9 +132,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
           <div className="PresetAssetCode">{asset.assetCode}</div>
           <div className="PresetAssetIssuer">
             {displayLink && (
-              <TextLink href={issuerLink} isExternal>
-                {displayLink}
-              </TextLink>
+              <TextLink href={issuerLink}>{displayLink}</TextLink>
             )}
           </div>
         </div>

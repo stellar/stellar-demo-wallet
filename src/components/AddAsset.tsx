@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, Heading2, InfoBlock, Loader } from "@stellar/design-system";
+import {
+  Button,
+  Heading2,
+  InfoBlock,
+  Loader,
+  TextLink,
+} from "@stellar/design-system";
 import { Input } from "components/Input";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -9,7 +15,6 @@ import { searchParam } from "helpers/searchParam";
 import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
-import { TextLink } from "./TextLink";
 
 export const AddAsset = ({ onClose }: { onClose: () => void }) => {
   const { account, settings, untrustedAssets } = useRedux(
@@ -119,10 +124,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
             <>
               Assets are identified by 1) their code and 2) either a home domain
               or the public key of the issuing account.{" "}
-              <TextLink
-                href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/"
-                isExternal
-              >
+              <TextLink href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/">
                 Learn more
               </TextLink>
             </>
@@ -141,10 +143,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
           tooltipText={
             <>
               Domain where the well-known TOML file can be found for this asset.{" "}
-              <TextLink
-                href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/#what-is-a-stellartoml"
-                isExternal
-              >
+              <TextLink href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/#what-is-a-stellartoml">
                 Learn more
               </TextLink>
             </>
@@ -163,10 +162,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
           tooltipText={
             <>
               Public key for the Asset Issuer.{" "}
-              <TextLink
-                href="https://developers.stellar.org/docs/issuing-assets/how-to-issue-an-asset"
-                isExternal
-              >
+              <TextLink href="https://developers.stellar.org/docs/issuing-assets/how-to-issue-an-asset">
                 Learn more
               </TextLink>
             </>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextLink } from "@stellar/design-system";
+import { TextLink, Layout } from "@stellar/design-system";
 import { Modal } from "components/Modal";
 import { ConfigurationModal } from "components/ConfigurationModal";
 import { useRedux } from "hooks/useRedux";
@@ -15,7 +15,17 @@ export const Footer = () => {
 
   return (
     <>
-      <div className="Footer">
+      <Layout.Footer gitHubLink="https://github.com/stellar/stellar-demo-wallet">
+        {account.isAuthenticated && (
+          <div>
+            <TextLink onClick={() => setConfigModalVisible(true)}>
+              Configuration
+            </TextLink>
+          </div>
+        )}
+      </Layout.Footer>
+
+      {/* <div className="Footer">
         <div className="Inset">
           <div>
             <TextLink
@@ -40,7 +50,8 @@ export const Footer = () => {
               href="https://github.com/stellar/stellar-demo-wallet"
               rel="noreferrer"
               target="_blank"
-              title="Check out our GitHub repo for more information and to log issues"
+              title="Check out our GitHub repo for more information and to
+              // log issues"
             >
               GitHub
             </TextLink>
@@ -48,14 +59,13 @@ export const Footer = () => {
 
           {account.isAuthenticated && (
             <div>
-              {/* TODO: check if role is needed */}
               <TextLink onClick={() => setConfigModalVisible(true)}>
                 Configuration
               </TextLink>
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       <Modal visible={configModalVisible} onClose={handleConfigModalClose}>
         <ConfigurationModal onClose={handleConfigModalClose} />

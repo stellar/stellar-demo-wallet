@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Select } from "@stellar/design-system";
+import { Button, Select, TextLink } from "@stellar/design-system";
+
 import { Heading2, Heading3 } from "components/Heading";
 import { Input } from "components/Input";
 import { Modal } from "components/Modal";
-import { TextLink } from "components/TextLink";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6DepositAction,
@@ -166,10 +166,7 @@ export const Sep6Deposit = () => {
                   The amount of the asset the user would like to deposit with
                   the anchor. This field may be necessary for the anchor to
                   determine what KYC information is necessary to collect.{" "}
-                  <TextLink
-                    href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#1-success-no-additional-information-needed"
-                    isExternal
-                  >
+                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#1-success-no-additional-information-needed">
                     Learn more
                   </TextLink>
                 </>
@@ -183,10 +180,7 @@ export const Sep6Deposit = () => {
               <>
                 These are the fields the receiving anchor requires. The sending
                 client obtains them from the /info endpoint.{" "}
-                <TextLink
-                  href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info"
-                  isExternal
-                >
+                <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info">
                   Learn more
                 </TextLink>
               </>
@@ -230,10 +224,7 @@ export const Sep6Deposit = () => {
                 <>
                   These are the fields the receiving anchor requires. The
                   sending client obtains them from the /customer endpoint.{" "}
-                  <TextLink
-                    href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
-                    isExternal
-                  >
+                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
                     Learn more
                   </TextLink>
                 </>

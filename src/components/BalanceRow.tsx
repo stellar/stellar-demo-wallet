@@ -1,6 +1,5 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import { Select } from "@stellar/design-system";
-import { TextLink } from "components/TextLink";
+import { Select, TextLink } from "@stellar/design-system";
 import { HomeDomainOverrideButtons } from "components/HomeDomainOverrideButtons";
 import { shortenStellarKey } from "helpers/shortenStellarKey";
 import {
@@ -115,10 +114,7 @@ export const BalanceRow = ({
               {
                 "What you can do with an asset (deposit, withdraw, or send) depends on what transactions the anchor supports."
               }{" "}
-              <TextLink
-                href="https://developers.stellar.org/docs/anchoring-assets"
-                isExternal
-              >
+              <TextLink href="https://developers.stellar.org/docs/anchoring-assets">
                 Learn more
               </TextLink>
             </>
@@ -149,10 +145,7 @@ export const BalanceRow = ({
             } ${assetCode}`}</div>
             <div className="BalanceOptions Inline">
               {homeDomain && (
-                <TextLink
-                  href={`//${homeDomain}/.well-known/stellar.toml`}
-                  isExternal
-                >
+                <TextLink href={`//${homeDomain}/.well-known/stellar.toml`}>
                   {homeDomain}
                 </TextLink>
               )}
@@ -172,10 +165,7 @@ export const BalanceRow = ({
             {
               "Payments with regulated assets need to be approved by the asset issuer. For more information please refer to "
             }
-            <TextLink
-              href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md"
-              isExternal
-            >
+            <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md">
               SEP-8
             </TextLink>
             .
