@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import {
   Button,
-  Heading2,
   InfoBlock,
   Loader,
   TextLink,
+  Modal,
 } from "@stellar/design-system";
 import { Input } from "components/Input";
 import { getErrorMessage } from "helpers/getErrorMessage";
@@ -105,10 +105,9 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      {/* TODO: move to Modal component */}
-      <Heading2 className="ModalHeading">Add asset</Heading2>
+      <Modal.Heading>Add asset</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <p>Required: asset code AND (home domain OR issuer)</p>
 
         <Input
@@ -174,9 +173,9 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
             <p>{errorMessage}</p>
           </InfoBlock>
         )}
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         {isPending && <Loader />}
 
         <Button
@@ -185,7 +184,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
         >
           Add
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

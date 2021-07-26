@@ -1,4 +1,4 @@
-import { Button, Heading2 } from "@stellar/design-system";
+import { Button, Modal } from "@stellar/design-system";
 import { useRedux } from "hooks/useRedux";
 
 export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
@@ -12,10 +12,9 @@ export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      {/* TODO: move to Modal component */}
-      <Heading2 className="ModalHeading">{title}</Heading2>
+      <Modal.Heading>{title}</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         {description &&
           (typeof description === "string" ? (
             <p>{description}</p>
@@ -23,9 +22,9 @@ export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
             description
           ))}
         {options && <p>{options}</p>}
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         <Button
           onClick={() => {
             callback();
@@ -36,7 +35,7 @@ export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
         <Button variant={Button.variant.secondary} onClick={onClose}>
           Cancel
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

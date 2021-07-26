@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { Loader, TextLink } from "@stellar/design-system";
+import { Loader, TextLink, Modal } from "@stellar/design-system";
 
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
 import { HomeDomainOverrideModal } from "components/HomeDomainOverrideModal";
-import { Modal } from "components/Modal";
 import { IconButton } from "components/IconButton";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import {
   setActiveAssetAction,
   resetActiveAssetAction,
@@ -108,7 +108,11 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
         />
       )}
 
-      <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
+      <Modal
+        visible={Boolean(activeModal)}
+        onClose={handleCloseModal}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
         {/* Action confirmation */}
         {activeModal === ModalType.REMOVE_ASSET_OVERRIDE && (
           <ConfirmAssetAction onClose={handleCloseModal} />

@@ -15,7 +15,10 @@ export const Footer = () => {
 
   return (
     <>
-      <Layout.Footer gitHubLink="https://github.com/stellar/stellar-demo-wallet">
+      <Layout.Footer
+        gitHubLink="https://github.com/stellar/stellar-demo-wallet"
+        hideTopBorder
+      >
         {account.isAuthenticated && (
           <div>
             <TextLink onClick={() => setConfigModalVisible(true)}>

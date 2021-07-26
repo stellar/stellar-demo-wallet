@@ -3,10 +3,10 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   Checkbox,
-  Heading2,
   InfoBlock,
   Loader,
   TextLink,
+  Modal,
 } from "@stellar/design-system";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -142,9 +142,9 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      <Heading2 className="ModalHeading">Add preset asset</Heading2>
+      <Modal.Heading>Add preset asset</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <p>Select one or more assets</p>
         <div className="PresetAssets">{presetAssets.map(renderAssetRow)}</div>
 
@@ -153,9 +153,9 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
             <p>{errorMessage}</p>
           </InfoBlock>
         )}
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         {isPending && <Loader />}
 
         <Button
@@ -170,7 +170,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
         >
           Confirm
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Select, TextLink } from "@stellar/design-system";
+import { Button, Select, TextLink, Modal } from "@stellar/design-system";
 
-import { Heading2, Heading3 } from "components/Heading";
+import { Heading3 } from "components/Heading";
 import { Input } from "components/Input";
-import { Modal } from "components/Modal";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6DepositAction,
@@ -151,10 +151,9 @@ export const Sep6Deposit = () => {
 
   if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
     return (
-      <Modal visible={true} onClose={handleClose}>
-        <div className="ModalBody">
-          <Heading2 className="ModalHeading">SEP-6 Deposit Info</Heading2>
-
+      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+        <Modal.Heading>SEP-6 Deposit Info</Modal.Heading>
+        <Modal.Body>
           <div className="vertical-spacing">
             <Input
               id="amount"
@@ -246,24 +245,24 @@ export const Sep6Deposit = () => {
               ),
             )}
           </div>
-        </div>
+        </Modal.Body>
 
-        <div className="ModalButtonsFooter">
+        <Modal.Footer>
           <Button onClick={handleSubmit}>Submit</Button>
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Cancel
           </Button>
-        </div>
+        </Modal.Footer>
       </Modal>
     );
   }
 
   if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED) {
     return (
-      <Modal visible={true} onClose={handleClose}>
-        <Heading2 className="ModalHeading">SEP-6 Deposit Success</Heading2>
+      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+        <Modal.Heading>SEP-6 Deposit Success</Modal.Heading>
 
-        <div className="ModalBody">
+        <Modal.Body>
           <div className="vertical-spacing">{depositResponse.how}</div>
 
           {depositResponse.extra_info?.message && (
@@ -271,14 +270,14 @@ export const Sep6Deposit = () => {
               {depositResponse.extra_info.message}
             </div>
           )}
-        </div>
+        </Modal.Body>
 
-        <div className="ModalButtonsFooter">
+        <Modal.Footer>
           <Button onClick={() => dispatch(sep6DepositAction())}>Proceed</Button>
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Close
           </Button>
-        </div>
+        </Modal.Footer>
       </Modal>
     );
   }

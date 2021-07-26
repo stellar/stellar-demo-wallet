@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Transaction, TransactionBuilder } from "stellar-sdk";
-import { Button, Checkbox, Loader } from "@stellar/design-system";
-import { Heading2, Heading3 } from "components/Heading";
+import { Button, Checkbox, Loader, Modal } from "@stellar/design-system";
+import { Heading3 } from "components/Heading";
 import { Json } from "components/Json";
-import { Modal } from "components/Modal";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { fetchAccountAction } from "ducks/account";
 import { sep8SubmitRevisedTransactionAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -67,11 +67,9 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
   const renderSendPayment = () => (
     <>
-      <Heading2 className="ModalHeading">
-        Review & Submit SEP-8 Transaction
-      </Heading2>
+      <Modal.Heading>Review & Submit SEP-8 Transaction</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <div className="ModalMessage">
           <p>
             {sep8Send.data.actionRequiredResult.result &&
@@ -112,9 +110,9 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
             disabled={sep8Send.status === ActionStatus.PENDING}
           />
         </div>
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         {sep8Send.status === ActionStatus.PENDING && <Loader />}
 
         <Button
@@ -123,12 +121,12 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
         >
           Submit
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 
   return (
-    <Modal onClose={onClose} visible>
+    <Modal onClose={onClose} visible parentId={CSS_MODAL_PARENT_ID}>
       {renderSendPayment()}
     </Modal>
   );
