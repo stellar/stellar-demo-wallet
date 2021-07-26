@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
-import { TextButton } from "@stellar/design-system";
+import { TextLink } from "@stellar/design-system";
 
 export const CopyWithText = ({
   textToCopy,
@@ -28,7 +28,7 @@ export const CopyWithText = ({
     <>
       {children}
       <CopyToClipboard text={textToCopy} onCopy={handleCopy}>
-        <TextButton>{inProgress ? "Copied" : "Copy"}</TextButton>
+        <TextLink role="button">{inProgress ? "Copied" : "Copy"}</TextLink>
       </CopyToClipboard>
     </>
   );

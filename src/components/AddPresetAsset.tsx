@@ -5,7 +5,6 @@ import {
   Checkbox,
   Heading2,
   InfoBlock,
-  InfoBlockVariant,
   Loader,
 } from "@stellar/design-system";
 import { TextLink } from "components/TextLink";
@@ -152,7 +151,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
         <div className="PresetAssets">{presetAssets.map(renderAssetRow)}</div>
 
         {errorMessage && (
-          <InfoBlock variant={InfoBlockVariant.error}>
+          <InfoBlock variant={InfoBlock.variant.error}>
             <p>{errorMessage}</p>
           </InfoBlock>
         )}

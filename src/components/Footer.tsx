@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextLink, TextLinkVariant, TextButton } from "@stellar/design-system";
+import { TextLink } from "@stellar/design-system";
 import { Modal } from "components/Modal";
 import { ConfigurationModal } from "components/ConfigurationModal";
 import { useRedux } from "hooks/useRedux";
@@ -19,7 +19,7 @@ export const Footer = () => {
         <div className="Inset">
           <div>
             <TextLink
-              variant={TextLinkVariant.secondary}
+              variant={TextLink.variant.secondary}
               href="https://www.stellar.org/terms-of-service"
               rel="noreferrer"
               target="_blank"
@@ -27,7 +27,7 @@ export const Footer = () => {
               Terms of Service
             </TextLink>
             <TextLink
-              variant={TextLinkVariant.secondary}
+              variant={TextLink.variant.secondary}
               href="https://www.stellar.org/privacy-policy"
               rel="noreferrer"
               target="_blank"
@@ -36,7 +36,7 @@ export const Footer = () => {
             </TextLink>
 
             <TextLink
-              variant={TextLinkVariant.secondary}
+              variant={TextLink.variant.secondary}
               href="https://github.com/stellar/stellar-demo-wallet"
               rel="noreferrer"
               target="_blank"
@@ -48,9 +48,10 @@ export const Footer = () => {
 
           {account.isAuthenticated && (
             <div>
-              <TextButton onClick={() => setConfigModalVisible(true)}>
+              {/* TODO: check if role is needed */}
+              <TextLink onClick={() => setConfigModalVisible(true)}>
                 Configuration
-              </TextButton>
+              </TextLink>
             </div>
           )}
         </div>

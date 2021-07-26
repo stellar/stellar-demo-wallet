@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import {
-  Button,
-  ButtonVariant,
-  TextButton,
-  IconCopy,
-  InfoBlock,
-  InfoBlockVariant,
-} from "@stellar/design-system";
+import { Button, TextLink, Icon, InfoBlock } from "@stellar/design-system";
 import { CopyWithTooltip, TooltipPosition } from "components/CopyWithTooltip";
 import { resetStoreAction } from "config/store";
 import { getCurrentSessionParams } from "helpers/getCurrentSessionParams";
@@ -51,7 +44,7 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
         </p>
 
         {sessionParams.length > 0 && (
-          <InfoBlock variant={InfoBlockVariant.warning}>
+          <InfoBlock variant={InfoBlock.variant.warning}>
             <p>
               {`You have session data (${getMessageText()}) that will be lost when you sign out. You can copy the URL to save it.`}
             </p>
@@ -60,7 +53,9 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
                 copyText={window.location.toString()}
                 tooltipPosition={TooltipPosition.right}
               >
-                <TextButton icon={<IconCopy />}>Copy URL</TextButton>
+                <TextLink role="button" iconLeft={<Icon.Copy />}>
+                  Copy URL
+                </TextLink>
               </CopyWithTooltip>
             </div>
           </InfoBlock>
@@ -69,7 +64,7 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
 
       <div className="ModalButtonsFooter">
         <Button onClick={handleSignOut}>Sign out</Button>
-        <Button variant={ButtonVariant.secondary} onClick={onClose}>
+        <Button variant={Button.variant.secondary} onClick={onClose}>
           Go back
         </Button>
       </div>

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
-import { IconClose } from "@stellar/design-system";
+import { Icon } from "@stellar/design-system";
 
 import "./styles.scss";
 
@@ -38,7 +38,7 @@ export const Modal = ({
       <div className="Modal">
         <div className="ModalContent">{children}</div>
         <button className="ModalCloseButton" onClick={onClose}>
-          <IconClose />
+          <Icon.X />
         </button>
       </div>
       <div className="ModalBackground" onClick={onClose} />

@@ -1,4 +1,4 @@
-import { Heading2, TextButton } from "@stellar/design-system";
+import { Heading2, TextLink } from "@stellar/design-system";
 import { useDispatch } from "react-redux";
 import { BalanceRow } from "components/BalanceRow";
 import { claimAssetAction } from "ducks/claimAsset";
@@ -50,12 +50,13 @@ export const ClaimableBalance = ({
             key={balance.assetString}
             asset={balance}
           >
-            <TextButton
+            <TextLink
+              role="button"
               onClick={() => handleClaim(balance)}
               disabled={Boolean(activeAsset.action)}
             >
               Claim
-            </TextButton>
+            </TextLink>
           </BalanceRow>
         ))}
       </div>

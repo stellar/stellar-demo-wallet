@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ProjectLogo, TextButton } from "@stellar/design-system";
+import { ProjectLogo, TextLink } from "@stellar/design-system";
 import { Modal } from "components/Modal";
 import { SignOutModal } from "components/SignOutModal";
 import { useRedux } from "hooks/useRedux";
@@ -18,9 +18,9 @@ export const Header = () => {
       <div className="Inset">
         <ProjectLogo title="Demo Wallet" />
         {account.isAuthenticated && (
-          <TextButton onClick={() => setModalVisible(true)}>
+          <TextLink role="button" onClick={() => setModalVisible(true)}>
             Sign out
-          </TextButton>
+          </TextLink>
         )}
       </div>
 

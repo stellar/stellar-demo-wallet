@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import {
-  Button,
-  Heading2,
-  InfoBlock,
-  InfoBlockVariant,
-  Loader,
-} from "@stellar/design-system";
+import { Button, Heading2, InfoBlock, Loader } from "@stellar/design-system";
 import { Input } from "components/Input";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -180,7 +174,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
         />
 
         {errorMessage && (
-          <InfoBlock variant={InfoBlockVariant.error}>
+          <InfoBlock variant={InfoBlock.variant.error}>
             <p>{errorMessage}</p>
           </InfoBlock>
         )}

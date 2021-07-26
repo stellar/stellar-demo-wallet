@@ -2,11 +2,9 @@ import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import {
   Button,
-  ButtonVariant,
   Heading2,
   Input,
   InfoBlock,
-  InfoBlockVariant,
   Loader,
 } from "@stellar/design-system";
 import { getAssetFromHomeDomain } from "helpers/getAssetFromHomeDomain";
@@ -90,7 +88,7 @@ export const HomeDomainOverrideModal = ({
         />
 
         {errorMessage && (
-          <InfoBlock variant={InfoBlockVariant.error}>
+          <InfoBlock variant={InfoBlock.variant.error}>
             <p>{errorMessage}</p>
           </InfoBlock>
         )}
@@ -106,7 +104,7 @@ export const HomeDomainOverrideModal = ({
         <Button
           onClick={onClose}
           disabled={isPending}
-          variant={ButtonVariant.secondary}
+          variant={Button.variant.secondary}
         >
           Cancel
         </Button>

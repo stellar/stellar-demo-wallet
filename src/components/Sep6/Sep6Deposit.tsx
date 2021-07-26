@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, ButtonVariant, Select } from "@stellar/design-system";
+import { Button, Select } from "@stellar/design-system";
 import { Heading2, Heading3 } from "components/Heading";
 import { Input } from "components/Input";
 import { Modal } from "components/Modal";
@@ -259,7 +259,7 @@ export const Sep6Deposit = () => {
 
         <div className="ModalButtonsFooter">
           <Button onClick={handleSubmit}>Submit</Button>
-          <Button onClick={handleClose} variant={ButtonVariant.secondary}>
+          <Button onClick={handleClose} variant={Button.variant.secondary}>
             Cancel
           </Button>
         </div>
@@ -284,7 +284,7 @@ export const Sep6Deposit = () => {
 
         <div className="ModalButtonsFooter">
           <Button onClick={() => dispatch(sep6DepositAction())}>Proceed</Button>
-          <Button onClick={handleClose} variant={ButtonVariant.secondary}>
+          <Button onClick={handleClose} variant={Button.variant.secondary}>
             Close
           </Button>
         </div>

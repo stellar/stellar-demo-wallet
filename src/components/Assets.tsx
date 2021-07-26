@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { Button, Heading2, Loader, TextButton } from "@stellar/design-system";
+import { Button, Heading2, Loader, TextLink } from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
 import { AddPresetAsset } from "components/AddPresetAsset";
@@ -406,12 +406,13 @@ export const Assets = ({
           </Button>
 
           {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
-            <TextButton
+            <TextLink
+              role="button"
               onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
               disabled={Boolean(activeAsset.action)}
             >
               Select from preset assets
-            </TextButton>
+            </TextLink>
           )}
         </div>
       </div>

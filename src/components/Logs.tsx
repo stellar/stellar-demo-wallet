@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { TextButton } from "@stellar/design-system";
+import { TextLink } from "@stellar/design-system";
 
 import { LogItem } from "components/LogItem";
 import { LOG_MESSAGE_EVENT } from "constants/settings";
@@ -117,16 +117,21 @@ export const Logs = () => {
 
       <div className="LogsFooter">
         <div className="Inset horizontal-spacing">
-          <TextButton onClick={handleDownload} disabled={!logs.items.length}>
+          <TextLink
+            role="button"
+            onClick={handleDownload}
+            disabled={!logs.items.length}
+          >
             Download logs
-          </TextButton>
+          </TextLink>
 
-          <TextButton
+          <TextLink
+            role="button"
             onClick={() => dispatch(clearLogsAction())}
             disabled={!logs.items.length}
           >
             Clear logs
-          </TextButton>
+          </TextLink>
         </div>
       </div>
     </div>

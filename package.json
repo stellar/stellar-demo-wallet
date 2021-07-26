@@ -16,7 +16,7 @@
     "@reduxjs/toolkit": "^1.6.0",
     "@sentry/browser": "^6.8.0",
     "@sentry/tracing": "^6.8.0",
-    "@stellar/design-system": "^0.1.0-alpha.3",
+    "@stellar/design-system": "^0.3.3",
     "@stellar/frontend-helpers": "^1.0.0",
     "@stellar/prettier-config": "^1.0.1",
     "@stellar/wallet-sdk": "^0.4.0-rc.0",

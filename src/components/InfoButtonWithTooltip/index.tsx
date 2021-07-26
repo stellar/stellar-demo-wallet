@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IconInfo } from "@stellar/design-system";
+import { Icon } from "@stellar/design-system";
 import "./styles.scss";
 
 export const InfoButtonWithTooltip = ({
@@ -44,7 +44,7 @@ export const InfoButtonWithTooltip = ({
         ref={toggleEl}
         onClick={() => setIsInfoVisible((currentState) => !currentState)}
       >
-        <IconInfo />
+        <Icon.Info />
       </div>
 
       <div

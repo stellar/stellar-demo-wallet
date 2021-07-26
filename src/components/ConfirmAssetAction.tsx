@@ -1,4 +1,4 @@
-import { Button, ButtonVariant, Heading2 } from "@stellar/design-system";
+import { Button, Heading2 } from "@stellar/design-system";
 import { useRedux } from "hooks/useRedux";
 
 export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
@@ -33,7 +33,7 @@ export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
         >
           Start
         </Button>
-        <Button variant={ButtonVariant.secondary} onClick={onClose}>
+        <Button variant={Button.variant.secondary} onClick={onClose}>
           Cancel
         </Button>
       </div>
