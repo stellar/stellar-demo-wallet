@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { Provider } from "react-redux";
-import * as Sentry from "@sentry/browser";
-import { Integrations } from "@sentry/tracing";
 import { Layout, TextLink } from "@stellar/design-system";
+import { errorReporting } from "@stellar/frontend-helpers";
 
 import { store } from "config/store";
 import { Header } from "components/Header";
@@ -17,19 +16,7 @@ import { Landing } from "pages/Landing";
 import { NotFound } from "pages/NotFound";
 import "./App.scss";
 
-if (process.env.REACT_APP_SENTRY_KEY) {
-  Sentry.init({
-    dsn: process.env.REACT_APP_SENTRY_KEY,
-    release: `demo-wallet@${process.env.npm_package_version}`,
-    integrations: [
-      new Integrations.BrowserTracing({
-        // not attaching sentry-trace to any XHR/fetch outgoing requests
-        tracingOrigins: [/^\/[^/]/],
-      }),
-    ],
-    tracesSampleRate: 1.0,
-  });
-}
+errorReporting.reportErrors("demo-wallet");
 
 export const App = () => (
   <Provider store={store}>
