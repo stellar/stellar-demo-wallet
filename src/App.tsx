@@ -26,50 +26,52 @@ export const App = () => (
 
         <div id="app-wrapper" className="Wrapper">
           <div className="SplitContainer Main">
-            <Header />
+            <div className="Main__content">
+              <Header />
 
-            <Layout.Content>
-              <Layout.Inset>
-                <p>
-                  This demo wallet lets financial application developers test
-                  their integrations and learn how Stellar ecosystem protocols
-                  (SEPs) work.
-                </p>
+              <Layout.Content>
+                <Layout.Inset>
+                  <p>
+                    This demo wallet lets financial application developers test
+                    their integrations and learn how Stellar ecosystem protocols
+                    (SEPs) work.
+                  </p>
 
-                <p>
-                  <TextLink
-                    variant={TextLink.variant.secondary}
-                    underline
-                    href="https://github.com/stellar/stellar-demo-wallet#stellar-demo-wallet"
-                  >
-                    Learn more
-                  </TextLink>{" "}
-                  about the tool and{" "}
-                  <TextLink
-                    variant={TextLink.variant.secondary}
-                    underline
-                    href="https://github.com/stellar/stellar-demo-wallet/issues"
-                  >
-                    report issues or request features
-                  </TextLink>{" "}
-                  on GitHub.
-                </p>
+                  <p>
+                    <TextLink
+                      variant={TextLink.variant.secondary}
+                      underline
+                      href="https://github.com/stellar/stellar-demo-wallet#stellar-demo-wallet"
+                    >
+                      Learn more
+                    </TextLink>{" "}
+                    about the tool and{" "}
+                    <TextLink
+                      variant={TextLink.variant.secondary}
+                      underline
+                      href="https://github.com/stellar/stellar-demo-wallet/issues"
+                    >
+                      report issues or request features
+                    </TextLink>{" "}
+                    on GitHub.
+                  </p>
 
-                <Switch>
-                  <Route exact path="/">
-                    <Landing />
-                  </Route>
+                  <Switch>
+                    <Route exact path="/">
+                      <Landing />
+                    </Route>
 
-                  <PrivateRoute exact path="/account">
-                    <Account />
-                  </PrivateRoute>
+                    <PrivateRoute exact path="/account">
+                      <Account />
+                    </PrivateRoute>
 
-                  <Route component={NotFound} />
-                </Switch>
-              </Layout.Inset>
-            </Layout.Content>
+                    <Route component={NotFound} />
+                  </Switch>
+                </Layout.Inset>
+              </Layout.Content>
 
-            <Footer />
+              <Footer />
+            </div>
           </div>
 
           <Logs />

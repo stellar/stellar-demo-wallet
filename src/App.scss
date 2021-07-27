@@ -58,11 +58,22 @@ body {
     flex-direction: column;
     background-color: var(--pal-background-primary);
   }
+
+  .Main__content {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
+  }
 }
 
 // Logs
 .Logs {
-  background-color: var(--pal-background-tertiary);
+  background-color: var(--pal-example-details);
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -95,12 +106,12 @@ body {
     }
   }
 
-  .LogsContent {
+  &__wrapper {
     margin-top: 1rem;
     margin-bottom: 1rem;
   }
 
-  .EmptyLogsContent {
+  &__empty {
     display: flex;
     align-items: center;
     justify-content: center;
