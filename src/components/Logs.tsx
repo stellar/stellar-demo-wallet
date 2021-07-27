@@ -84,7 +84,7 @@ export const Logs = () => {
     return (
       <div className="SplitContainer Logs">
         <div className="Logs__content">
-          <div className="EmptyLogsContent">
+          <div className="Logs__empty">
             Operation logs will appear here once a transaction begins
           </div>
         </div>
@@ -96,8 +96,8 @@ export const Logs = () => {
     <div className="SplitContainer Logs">
       <div className="Logs__container">
         <div className="Logs__content">
-          <div className="Inset">
-            <div className="LogsContent">
+          <Layout.Inset>
+            <div className="Logs__wrapper">
               {logs.items.length ? (
                 logs.items.map((log: LogItemProps) => (
                   <LogItem
@@ -111,7 +111,7 @@ export const Logs = () => {
                 <p>No logs to show</p>
               )}
             </div>
-          </div>
+          </Layout.Inset>
         </div>
       </div>
 

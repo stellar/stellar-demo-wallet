@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Input, TextLink, Modal } from "@stellar/design-system";
+import {
+  Button,
+  Input,
+  TextLink,
+  Modal,
+  RadioButton,
+} from "@stellar/design-system";
 import { Heading2, Heading3 } from "components/Heading";
-import { RadioButton } from "components/RadioButton";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";

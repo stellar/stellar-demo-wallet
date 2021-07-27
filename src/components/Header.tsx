@@ -17,9 +17,9 @@ export const Header = () => {
     <>
       <Layout.Header
         projectTitle="Demo Wallet"
-        onSignOut={
-          account.isAuthenticated ? () => setModalVisible(true) : undefined
-        }
+        {...(account.isAuthenticated
+          ? { onSignOut: () => setModalVisible(true) }
+          : {})}
         hasDarkModeToggle
       />
 

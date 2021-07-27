@@ -8,7 +8,7 @@ import {
   InfoBlock,
   Modal,
 } from "@stellar/design-system";
-import { CopyWithTooltip, TooltipPosition } from "components/CopyWithTooltip";
+import { CopyText } from "components/CopyText";
 import { resetStoreAction } from "config/store";
 import { getCurrentSessionParams } from "helpers/getCurrentSessionParams";
 import { SearchParams, StringObject } from "types/types.d";
@@ -55,14 +55,13 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
               {`You have session data (${getMessageText()}) that will be lost when you sign out. You can copy the URL to save it.`}
             </p>
             <div className="SessionParamsWrapper">
-              <CopyWithTooltip
+              <CopyText
                 copyText={window.location.toString()}
-                tooltipPosition={TooltipPosition.right}
+                tooltipPosition={CopyText.tooltipPosition.right}
+                showTooltip
               >
-                <TextLink role="button" iconLeft={<Icon.Copy />}>
-                  Copy URL
-                </TextLink>
-              </CopyWithTooltip>
+                <TextLink iconLeft={<Icon.Copy />}>Copy URL</TextLink>
+              </CopyText>
             </div>
           </InfoBlock>
         )}
