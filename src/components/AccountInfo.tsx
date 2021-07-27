@@ -3,9 +3,9 @@ import { useDispatch } from "react-redux";
 import { Heading2, Loader, TextLink } from "@stellar/design-system";
 import { TextButton } from "components/TextButton";
 
-import { CopyWithText } from "components/CopyWithText";
 import { Json } from "components/Json";
 import { ToastBanner } from "components/ToastBanner";
+import { CopyText } from "components/CopyText";
 
 import { fetchAccountAction, fundTestnetAccount } from "ducks/account";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
@@ -43,7 +43,7 @@ export const AccountInfo = () => {
   }
 
   return (
-    <div className="Inset">
+    <>
       <div className="Account">
         {/* Account keys */}
         <div className="AccountInfo">
@@ -53,7 +53,9 @@ export const AccountInfo = () => {
               {shortenStellarKey(account.data.id)}
             </div>
             <div className="AccountInfoCell CopyButton">
-              <CopyWithText textToCopy={account.data.id} />
+              <CopyText copyText={account.data.id}>
+                <TextLink>Copy</TextLink>
+              </CopyText>
             </div>
           </div>
           <div className="AccountInfoRow">
@@ -62,7 +64,9 @@ export const AccountInfo = () => {
               {shortenStellarKey(account.secretKey)}
             </div>
             <div className="AccountInfoCell CopyButton">
-              <CopyWithText textToCopy={account.secretKey} />
+              <CopyText copyText={account.secretKey}>
+                <TextLink>Copy</TextLink>
+              </CopyText>
             </div>
           </div>
         </div>
@@ -140,6 +144,6 @@ export const AccountInfo = () => {
           <Loader />
         </div>
       </ToastBanner>
-    </div>
+    </>
   );
 };
