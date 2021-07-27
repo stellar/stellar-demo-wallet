@@ -1,0 +1,38 @@
+.DetailsTooltip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+
+  &__component {
+    margin-right: 0.5rem;
+    flex-grow: 1;
+  }
+
+  &__button {
+    flex-shrink: 0;
+    flex-grow: 0;
+    position: relative;
+  }
+
+  &__tooltipWrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: var(--z-index-tooltip);
+
+    .Tooltip {
+      top: 0.3rem;
+      right: -0.3rem;
+      width: 16.875rem;
+    }
+  }
+
+  &--open {
+    .DetailsTooltip__component {
+      // disable clicks when tooltip is open
+      pointer-events: none;
+    }
+  }
+}

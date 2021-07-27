@@ -3,8 +3,8 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { TextLink } from "@stellar/design-system";
 
-import { TextButton } from "components/TextButton";
 import { BalanceRow } from "components/BalanceRow";
+import { DetailsTooltip } from "components/DetailsTooltip";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
@@ -180,15 +180,8 @@ export const UntrustedBalance = ({
               handleAction({ actionId, asset: assetItem })
             }
           >
-            <TextButton
-              onClick={() =>
-                handleAction({
-                  actionId: AssetActionId.TRUST_ASSET,
-                  asset,
-                })
-              }
-              disabled={account.isUnfunded || disabledButton}
-              tooltipText={
+            <DetailsTooltip
+              details={
                 <>
                   Adding a trustline means you trust an issuer to redeem its
                   credit. If you’re testing SEP-24 or SEP-6 you may not want to
@@ -199,8 +192,18 @@ export const UntrustedBalance = ({
                 </>
               }
             >
-              Add trustline
-            </TextButton>
+              <TextLink
+                onClick={() =>
+                  handleAction({
+                    actionId: AssetActionId.TRUST_ASSET,
+                    asset,
+                  })
+                }
+                disabled={account.isUnfunded || disabledButton}
+              >
+                Add trustline
+              </TextLink>
+            </DetailsTooltip>
           </BalanceRow>
         ) : (
           // Does not exist
@@ -209,7 +212,7 @@ export const UntrustedBalance = ({
             key={asset.assetString}
             asset={asset}
           >
-            <TextButton
+            <TextLink
               onClick={() =>
                 handleAction({
                   actionId: AssetActionId.REMOVE_ASSET,
@@ -219,7 +222,7 @@ export const UntrustedBalance = ({
               disabled={disabledButton}
             >
               Remove
-            </TextButton>
+            </TextLink>
           </BalanceRow>
         ),
       )}

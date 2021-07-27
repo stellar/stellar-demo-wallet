@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { Loader, TextLink, Modal, Icon } from "@stellar/design-system";
+import {
+  Loader,
+  TextLink,
+  Modal,
+  Icon,
+  IconButton,
+} from "@stellar/design-system";
 
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
 import { HomeDomainOverrideModal } from "components/HomeDomainOverrideModal";
-import { IconButton } from "components/IconButton";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import {
   setActiveAssetAction,
@@ -101,7 +106,7 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
           icon={<Icon.XCircle />}
           altText="Remove home domain override"
           onClick={() => showModal(ModalType.REMOVE_ASSET_OVERRIDE)}
-          color="var(--color-error)"
+          variant={IconButton.variant.error}
         />
       )}
 
