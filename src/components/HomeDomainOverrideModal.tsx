@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import {
   Button,
-  Heading2,
   Input,
   InfoBlock,
   Loader,
+  Modal,
 } from "@stellar/design-system";
 import { getAssetFromHomeDomain } from "helpers/getAssetFromHomeDomain";
 import { getErrorMessage } from "helpers/getErrorMessage";
@@ -69,9 +69,9 @@ export const HomeDomainOverrideModal = ({
 
   return (
     <>
-      <Heading2 className="ModalHeading">Override home domain</Heading2>
+      <Modal.Heading>Override home domain</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <p>{`Asset ${asset.assetCode} currently has ${
           asset.homeDomain || "no"
         } home domain.`}</p>
@@ -92,9 +92,9 @@ export const HomeDomainOverrideModal = ({
             <p>{errorMessage}</p>
           </InfoBlock>
         )}
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         {isPending && <Loader />}
 
         <Button onClick={handleOverride} disabled={!homeDomain || isPending}>
@@ -108,7 +108,7 @@ export const HomeDomainOverrideModal = ({
         >
           Cancel
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

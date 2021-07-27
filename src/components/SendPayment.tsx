@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   Button,
-  Heading2,
   InfoBlock,
   Input,
   Loader,
   TextLink,
+  Modal,
 } from "@stellar/design-system";
 import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
@@ -94,9 +94,9 @@ export const SendPayment = ({
 
   return (
     <>
-      <Heading2 className="ModalHeading">Send payment</Heading2>
+      <Modal.Heading>Send payment</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <Input
           id="send-destination"
           label="Destination"
@@ -137,15 +137,14 @@ export const SendPayment = ({
             </TextLink>
           </InfoBlock>
         )}
-      </div>
+        {sendPayment.errorString && (
+          <div className="ModalMessage error">
+            <p>{sendPayment.errorString}</p>
+          </div>
+        )}
+      </Modal.Body>
 
-      {sendPayment.errorString && (
-        <div className="ModalMessage error">
-          <p>{sendPayment.errorString}</p>
-        </div>
-      )}
-
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         {sendPayment.status === ActionStatus.PENDING && <Loader />}
 
         <Button
@@ -154,7 +153,7 @@ export const SendPayment = ({
         >
           Submit
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

@@ -1,16 +1,22 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { Button, Heading2, Loader, TextLink } from "@stellar/design-system";
+import {
+  Button,
+  Heading2,
+  Loader,
+  TextLink,
+  Modal,
+} from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
 import { AddPresetAsset } from "components/AddPresetAsset";
 import { Balance } from "components/Balance";
 import { ClaimableBalance } from "components/ClaimableBalance";
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
-import { Modal } from "components/Modal";
 import { ToastBanner } from "components/ToastBanner";
 import { UntrustedBalance } from "components/UntrustedBalance";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 
 import { fetchAccountAction, resetAccountStatusAction } from "ducks/account";
 import {
@@ -419,7 +425,11 @@ export const Assets = ({
       {/* Claimable balances */}
       <ClaimableBalance onAssetAction={handleAssetAction} />
 
-      <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
+      <Modal
+        visible={Boolean(activeModal)}
+        onClose={handleCloseModal}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
         {/* Action confirmation */}
         {activeModal === ModalType.CONFIRM_ACTION && (
           <ConfirmAssetAction onClose={handleCloseModal} />

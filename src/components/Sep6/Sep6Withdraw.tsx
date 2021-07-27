@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Input, Select, TextLink } from "@stellar/design-system";
+import { Button, Input, Select, TextLink, Modal } from "@stellar/design-system";
 import { Heading2 } from "components/Heading";
-import { Modal } from "components/Modal";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6WithdrawAction,
@@ -146,22 +146,23 @@ export const Sep6Withdraw = () => {
 
   if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {
     return (
-      <Modal visible={true} onClose={handleClose}>
-        <div className="ModalBody">
-          <Heading2
-            className="ModalHeading"
-            tooltipText={
-              <>
-                These are the fields the receiving anchor requires. The sending
-                client obtains them from the /info endpoint.{" "}
-                <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info">
-                  Learn more
-                </TextLink>
-              </>
-            }
-          >
-            SEP-6 Required Info
-          </Heading2>
+      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+        <Heading2
+          className="ModalHeading"
+          tooltipText={
+            <>
+              These are the fields the receiving anchor requires. The sending
+              client obtains them from the /info endpoint.{" "}
+              <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info">
+                Learn more
+              </TextLink>
+            </>
+          }
+        >
+          SEP-6 Required Info
+        </Heading2>
+
+        <Modal.Body>
           <div className="vertical-spacing">
             <Select
               label="Withdrawal Type"
@@ -216,26 +217,26 @@ export const Sep6Withdraw = () => {
               ),
             )}
           </div>
-        </div>
-        {sep6WithdrawAsset.errorString && (
-          <div className="ModalMessage error">
-            <p>{sep6WithdrawAsset.errorString}</p>
-          </div>
-        )}
+          {sep6WithdrawAsset.errorString && (
+            <div className="ModalMessage error">
+              <p>{sep6WithdrawAsset.errorString}</p>
+            </div>
+          )}
+        </Modal.Body>
 
-        <div className="ModalButtonsFooter">
+        <Modal.Footer>
           <Button onClick={handleFieldsSubmit}>Submit</Button>
-        </div>
+        </Modal.Footer>
       </Modal>
     );
   }
 
   if (sep6WithdrawAsset.status === ActionStatus.CAN_PROCEED) {
     return (
-      <Modal visible={true} onClose={handleClose}>
-        <Heading2 className="ModalHeading">Payment Sending</Heading2>
+      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+        <Modal.Heading>Payment Sending</Modal.Heading>
 
-        <div className="ModalBody">
+        <Modal.Body>
           <div className="vertical-spacing">
             <strong>Sending Payment To: </strong>
 
@@ -292,20 +293,21 @@ export const Sep6Withdraw = () => {
               {withdrawResponse.memo}
             </div>
           )}
-        </div>
-        <div className="ModalButtonsFooter">
+        </Modal.Body>
+
+        <Modal.Footer>
           <Button onClick={handleAmountSubmit}>Submit</Button>
-        </div>
+        </Modal.Footer>
       </Modal>
     );
   }
 
   if (sep6WithdrawAsset.status === ActionStatus.SUCCESS) {
     return (
-      <Modal visible={true} onClose={handleClose}>
-        <Heading2 className="ModalHeading">SEP-6 Withdrawal Completed</Heading2>
+      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+        <Modal.Heading>SEP-6 Withdrawal Completed</Modal.Heading>
 
-        <div className="ModalBody">
+        <Modal.Body>
           {transactionResponse.to && (
             <div className="vertical-spacing">
               <strong>Account Withdrawn To: </strong>
@@ -338,7 +340,7 @@ export const Sep6Withdraw = () => {
               </p>
             </div>
           )}
-        </div>
+        </Modal.Body>
       </Modal>
     );
   }

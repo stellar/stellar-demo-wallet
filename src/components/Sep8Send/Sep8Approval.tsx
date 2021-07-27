@@ -3,14 +3,14 @@ import { useDispatch } from "react-redux";
 import { StrKey } from "stellar-sdk";
 import {
   Button,
-  Heading2,
   InfoBlock,
   Input,
   Loader,
   TextLink,
+  Modal,
 } from "@stellar/design-system";
 import { DataProvider } from "@stellar/wallet-sdk";
-import { Modal } from "components/Modal";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import {
   sep8ClearErrorAction,
   sep8ReviseTransactionAction,
@@ -85,9 +85,9 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
 
   const renderApprovePayment = () => (
     <>
-      <Heading2 className="ModalHeading">Send SEP-8 Payment</Heading2>
+      <Modal.Heading>Send SEP-8 Payment</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <Input
           id="send-destination"
           label="Destination"
@@ -142,7 +142,7 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
             </TextLink>
           </InfoBlock>
         )}
-      </div>
+      </Modal.Body>
 
       {sep8Send.errorString && (
         <div className="ModalMessage error">
@@ -150,7 +150,7 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
         </div>
       )}
 
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         {sep8Send.status === ActionStatus.PENDING && <Loader />}
 
         <Button
@@ -159,12 +159,12 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
         >
           Submit
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 
   return (
-    <Modal onClose={handleCloseModal} visible>
+    <Modal onClose={handleCloseModal} visible parentId={CSS_MODAL_PARENT_ID}>
       {renderApprovePayment()}
     </Modal>
   );
