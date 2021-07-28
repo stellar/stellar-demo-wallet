@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Heading2, Loader, TextLink } from "@stellar/design-system";
+import { Heading2, Loader, TextLink, Layout } from "@stellar/design-system";
 
 import { Json } from "components/Json";
 import { ToastBanner } from "components/ToastBanner";
@@ -43,7 +43,7 @@ export const AccountInfo = () => {
   }
 
   return (
-    <>
+    <Layout.Inset>
       <div className="Account">
         {/* Account keys */}
         <div className="AccountInfo">
@@ -150,6 +150,6 @@ export const AccountInfo = () => {
           <Loader />
         </div>
       </ToastBanner>
-    </>
+    </Layout.Inset>
   );
 };

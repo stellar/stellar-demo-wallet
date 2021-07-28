@@ -7,6 +7,7 @@ import {
   Loader,
   TextLink,
   Modal,
+  Layout,
 } from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
@@ -395,31 +396,33 @@ export const Assets = ({
     <>
       {/* Balances */}
       <div className="Section">
-        <div className="Inset">
+        <Layout.Inset>
           <Heading2>Balances</Heading2>
-        </div>
+        </Layout.Inset>
         <div className="Balances">
           <Balance onSend={onSendPayment} onAssetAction={handleAssetAction} />
           <UntrustedBalance onAssetAction={handleAssetAction} />
         </div>
 
-        <div className="BalancesButtons Inset">
-          <Button
-            onClick={() => setActiveModal(ModalType.ADD_ASSET)}
-            disabled={Boolean(activeAsset.action)}
-          >
-            Add asset
-          </Button>
-
-          {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
-            <TextLink
-              onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
+        <Layout.Inset>
+          <div className="BalancesButtons">
+            <Button
+              onClick={() => setActiveModal(ModalType.ADD_ASSET)}
               disabled={Boolean(activeAsset.action)}
             >
-              Select from preset assets
-            </TextLink>
-          )}
-        </div>
+              Add asset
+            </Button>
+
+            {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
+              <TextLink
+                onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
+                disabled={Boolean(activeAsset.action)}
+              >
+                Select from preset assets
+              </TextLink>
+            )}
+          </div>
+        </Layout.Inset>
       </div>
 
       {/* Claimable balances */}

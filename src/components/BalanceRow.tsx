@@ -130,7 +130,7 @@ export const BalanceRow = ({
 
   return (
     <div
-      className={`BalanceRow Inset ${isActive ? "active" : ""} ${
+      className={`BalanceRow Layout__inset ${isActive ? "active" : ""} ${
         disabled ? "disabled" : ""
       }`}
       key={assetString}

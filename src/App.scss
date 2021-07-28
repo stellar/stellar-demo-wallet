@@ -138,19 +138,6 @@ body {
 }
 
 // TODO: OLD styles +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-.Announcement {
-  background-color: var(--color-note);
-  color: var(--color-text-contrast);
-  text-align: center;
-  width: 100%;
-  margin-bottom: 2rem;
-  padding: 1rem 0; //vertical padding
-  // change anchor text to reflect same color as the rest of the announcment
-  .TextLink {
-    color: inherit;
-  }
-}
-
 .LoadingBlock {
   margin-bottom: 1rem;
 }
@@ -167,11 +154,11 @@ body {
 
 // Generic
 .error {
-  color: var(--color-error);
+  color: var(--pal-error);
 }
 
 .success {
-  color: var(--color-success);
+  color: var(--pal-success);
 }
 
 .vertical-spacing {
@@ -192,6 +179,7 @@ body {
   display: flex;
   flex-direction: column;
   margin-bottom: 1rem;
+  margin-top: 3rem;
 
   .AccountInfo {
     display: table;
@@ -248,15 +236,15 @@ body {
 }
 
 .Balances {
-  border-top: 1px solid var(--color-border-main);
+  border-top: 1px solid var(--pal-border-primary);
 
   .BalanceRow {
-    border-bottom: 1px solid var(--color-border-main);
+    border-bottom: 1px solid var(--pal-border-primary);
     padding-top: 1rem;
     padding-bottom: 1rem;
 
     &.disabled {
-      background-color: var(--color-background-off);
+      background-color: var(--pal-background-secondary);
       cursor: not-allowed;
 
       .BalanceCell.BalanceInfo {
@@ -269,7 +257,7 @@ body {
     }
 
     &.active {
-      background-color: #dfd8ff;
+      background-color: rgba(var(--pal-brand-primary-rgb), 0.2);
     }
 
     .RegulatedInfo {
@@ -367,6 +355,10 @@ body {
 
 .ClaimableBalances {
   margin-top: 3rem;
+
+  .CustomCell {
+    min-height: 2.75rem;
+  }
 }
 
 .BalancesButtons {
@@ -384,10 +376,10 @@ body {
 }
 
 .PresetAssets {
-  border-top: 1px solid var(--color-border-main);
+  border-top: 1px solid var(--pal-border-primary);
 
   .PresetAssetRow {
-    border-bottom: 1px solid var(--color-border-main);
+    border-bottom: 1px solid var(--pal-border-primary);
     padding-top: 1rem;
     padding-bottom: 1rem;
     display: flex;
