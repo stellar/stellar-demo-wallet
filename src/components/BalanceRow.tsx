@@ -145,7 +145,7 @@ export const BalanceRow = ({
             <div className="BalanceAmount">{`${
               total || "0"
             } ${assetCode}`}</div>
-            <div className="BalanceOptions Inline">
+            <div className="BalanceOptions Layout__inline">
               {homeDomain && (
                 <TextLink href={`//${homeDomain}/.well-known/stellar.toml`}>
                   {homeDomain}

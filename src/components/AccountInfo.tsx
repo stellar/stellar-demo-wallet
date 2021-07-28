@@ -145,7 +145,7 @@ export const AccountInfo = () => {
         parentId="app-wrapper"
         visible={account.status === ActionStatus.PENDING}
       >
-        <div className="Inline">
+        <div className="Layout__inline">
           <span>Updating account</span>
           <Loader />
         </div>

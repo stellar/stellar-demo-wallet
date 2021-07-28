@@ -450,7 +450,7 @@ export const Assets = ({
       </Modal>
 
       <ToastBanner parentId="app-wrapper" visible={Boolean(toastMessage)}>
-        <div className="Inline">
+        <div className="Layout__inline">
           <div>{toastMessage}</div>
           <Loader />
         </div>
