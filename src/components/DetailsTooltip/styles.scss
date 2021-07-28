@@ -29,6 +29,10 @@
     }
   }
 
+  &--inline {
+    display: inline-flex;
+  }
+
   &--open {
     .DetailsTooltip__component {
       // disable clicks when tooltip is open

@@ -1,9 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Select, TextLink, Modal } from "@stellar/design-system";
+import {
+  Button,
+  Select,
+  TextLink,
+  Modal,
+  Heading3,
+} from "@stellar/design-system";
 
-import { Heading3 } from "components/Heading";
 import { Input } from "components/Input";
+import { DetailsTooltip } from "components/DetailsTooltip";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -174,18 +180,21 @@ export const Sep6Deposit = () => {
             />
           </div>
 
-          <Heading3
-            tooltipText={
-              <>
-                These are the fields the receiving anchor requires. The sending
-                client obtains them from the /info endpoint.{" "}
-                <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info">
-                  Learn more
-                </TextLink>
-              </>
-            }
-          >
-            SEP-6 Required Info
+          <Heading3>
+            <DetailsTooltip
+              details={
+                <>
+                  These are the fields the receiving anchor requires. The
+                  sending client obtains them from the /info endpoint.{" "}
+                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info">
+                    Learn more
+                  </TextLink>
+                </>
+              }
+              isInline
+            >
+              <>SEP-6 Required Info</>
+            </DetailsTooltip>
           </Heading3>
           <div className="vertical-spacing">
             {Object.entries(sep6DepositAsset.data.infoFields || {}).map(
@@ -218,18 +227,21 @@ export const Sep6Deposit = () => {
           </div>
 
           {Object.keys(sep6DepositAsset.data.customerFields).length ? (
-            <Heading3
-              tooltipText={
-                <>
-                  These are the fields the receiving anchor requires. The
-                  sending client obtains them from the /customer endpoint.{" "}
-                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
-                    Learn more
-                  </TextLink>
-                </>
-              }
-            >
-              SEP-12 Required Info
+            <Heading3>
+              <DetailsTooltip
+                details={
+                  <>
+                    These are the fields the receiving anchor requires. The
+                    sending client obtains them from the /customer endpoint.{" "}
+                    <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
+                      Learn more
+                    </TextLink>
+                  </>
+                }
+                isInline
+              >
+                <>SEP-12 Required Info</>
+              </DetailsTooltip>
             </Heading3>
           ) : null}
           <div className="vertical-spacing">

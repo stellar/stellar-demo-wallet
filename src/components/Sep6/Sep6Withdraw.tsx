@@ -1,7 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Input, Select, TextLink, Modal } from "@stellar/design-system";
-import { Heading2 } from "components/Heading";
+import {
+  Button,
+  Input,
+  Select,
+  TextLink,
+  Modal,
+  Heading3,
+} from "@stellar/design-system";
+import { DetailsTooltip } from "components/DetailsTooltip";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -147,22 +154,26 @@ export const Sep6Withdraw = () => {
   if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Heading2
-          className="ModalHeading"
-          tooltipText={
-            <>
-              These are the fields the receiving anchor requires. The sending
-              client obtains them from the /info endpoint.{" "}
-              <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info">
-                Learn more
-              </TextLink>
-            </>
-          }
-        >
-          SEP-6 Required Info
-        </Heading2>
+        <Modal.Heading>SEP-6 Withdrawal Info</Modal.Heading>
 
         <Modal.Body>
+          <Heading3>
+            <DetailsTooltip
+              details={
+                <>
+                  These are the fields the receiving anchor requires. The
+                  sending client obtains them from the /info endpoint.{" "}
+                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info">
+                    Learn more
+                  </TextLink>
+                </>
+              }
+              isInline
+            >
+              <>SEP-6 Required Info</>
+            </DetailsTooltip>
+          </Heading3>
+
           <div className="vertical-spacing">
             <Select
               label="Withdrawal Type"
@@ -188,20 +199,22 @@ export const Sep6Withdraw = () => {
             ))}
           </div>
           {Object.keys(sep6WithdrawAsset.data.fields).length ? (
-            <Heading2
-              className="ModalHeading"
-              tooltipText={
-                <>
-                  These are the fields the receiving anchor requires. The
-                  sending client obtains them from the /customer endpoint.{" "}
-                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
-                    Learn more
-                  </TextLink>
-                </>
-              }
-            >
-              SEP-12 Required Info
-            </Heading2>
+            <Heading3>
+              <DetailsTooltip
+                details={
+                  <>
+                    These are the fields the receiving anchor requires. The
+                    sending client obtains them from the /customer endpoint.{" "}
+                    <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
+                      Learn more
+                    </TextLink>
+                  </>
+                }
+                isInline
+              >
+                <>SEP-12 Required Info</>
+              </DetailsTooltip>
+            </Heading3>
           ) : null}
 
           <div className="vertical-spacing">

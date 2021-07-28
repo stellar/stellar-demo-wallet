@@ -7,6 +7,7 @@ import "./styles.scss";
 interface DetailsTooltipProps {
   details: React.ReactNode;
   children: React.ReactElement;
+  isInline?: boolean;
   altText?: string;
   customIcon?: React.ReactNode;
   customColor?: string;
@@ -16,6 +17,7 @@ interface DetailsTooltipProps {
 export const DetailsTooltip = ({
   details,
   children,
+  isInline,
   altText = "Learn more",
   customIcon = <Icon.Info />,
   customColor,
@@ -53,7 +55,7 @@ export const DetailsTooltip = ({
 
   return (
     <div
-      className={`DetailsTooltip ${
+      className={`DetailsTooltip ${isInline ? "DetailsTooltip--inline" : ""} ${
         isTooltipVisible ? "DetailsTooltip--open" : ""
       }`}
     >

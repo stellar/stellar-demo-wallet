@@ -6,8 +6,9 @@ import {
   TextLink,
   Modal,
   RadioButton,
+  Heading3,
 } from "@stellar/design-system";
-import { Heading2, Heading3 } from "components/Heading";
+import { DetailsTooltip } from "components/DetailsTooltip";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
@@ -252,21 +253,22 @@ export const Sep31Send = () => {
 
       return (
         <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-          {/* TODO: heading with tooltip */}
-          <Heading2
-            className="ModalHeading"
-            tooltipText={
-              <>
-                These are the fields the receiving anchor requires. The sending
-                client obtains them from the /customer endpoint.{" "}
-                <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
-                  Learn more
-                </TextLink>
-              </>
-            }
-          >
-            Sender and receiver info
-          </Heading2>
+          <Modal.Heading>
+            <DetailsTooltip
+              details={
+                <>
+                  These are the fields the receiving anchor requires. The
+                  sending client obtains them from the /customer endpoint.{" "}
+                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
+                    Learn more
+                  </TextLink>
+                </>
+              }
+              isInline
+            >
+              <>Sender and receiver info</>
+            </DetailsTooltip>
+          </Modal.Heading>
 
           <Modal.Body>
             {Object.entries(allFields).map(([sectionTitle, sectionItems]) => (
