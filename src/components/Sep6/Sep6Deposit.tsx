@@ -179,6 +179,7 @@ export const Sep6Deposit = () => {
                     </>
                   }
                   isInline
+                  tooltipPosition={DetailsTooltip.tooltipPosition.left}
                 >
                   <>Amount (optional)</>
                 </DetailsTooltip>

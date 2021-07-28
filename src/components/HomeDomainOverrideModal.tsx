@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import {
-  Button,
-  Input,
-  InfoBlock,
-  Loader,
-  Modal,
-} from "@stellar/design-system";
+import { Button, Input, InfoBlock, Modal } from "@stellar/design-system";
 import { getAssetFromHomeDomain } from "helpers/getAssetFromHomeDomain";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -95,9 +89,11 @@ export const HomeDomainOverrideModal = ({
       </Modal.Body>
 
       <Modal.Footer>
-        {isPending && <Loader />}
-
-        <Button onClick={handleOverride} disabled={!homeDomain || isPending}>
+        <Button
+          onClick={handleOverride}
+          disabled={!homeDomain}
+          isLoading={isPending}
+        >
           Override
         </Button>
 

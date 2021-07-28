@@ -3,7 +3,6 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   InfoBlock,
-  Loader,
   TextLink,
   Modal,
   Input,
@@ -205,11 +204,10 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
       </Modal.Body>
 
       <Modal.Footer>
-        {isPending && <Loader />}
-
         <Button
           onClick={handleSetUntrustedAsset}
-          disabled={!assetCode || isPending}
+          disabled={!assetCode}
+          isLoading={isPending}
         >
           Add
         </Button>

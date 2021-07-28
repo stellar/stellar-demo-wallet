@@ -42,6 +42,8 @@ export const AccountInfo = () => {
     return null;
   }
 
+  const isPending = account.status === ActionStatus.PENDING;
+
   return (
     <Layout.Inset>
       <div className="Account">
@@ -91,7 +93,7 @@ export const AccountInfo = () => {
                   >
                     <TextLink
                       onClick={handleCreateAccount}
-                      disabled={account.status === ActionStatus.PENDING}
+                      disabled={isPending}
                     >
                       Create account
                     </TextLink>
@@ -118,10 +120,7 @@ export const AccountInfo = () => {
                   details="If you performed account actions elsewhere, like in the
                   Stellar Laboratory, click here to update."
                 >
-                  <TextLink
-                    onClick={handleRefreshAccount}
-                    disabled={account.status === ActionStatus.PENDING}
-                  >
+                  <TextLink onClick={handleRefreshAccount} disabled={isPending}>
                     Refresh account
                   </TextLink>
                 </DetailsTooltip>
@@ -141,10 +140,7 @@ export const AccountInfo = () => {
         </div>
       )}
 
-      <ToastBanner
-        parentId="app-wrapper"
-        visible={account.status === ActionStatus.PENDING}
-      >
+      <ToastBanner parentId="app-wrapper" visible={isPending}>
         <div className="Layout__inline">
           <span>Updating account</span>
           <Loader />
