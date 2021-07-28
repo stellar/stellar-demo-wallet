@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { Select, TextLink } from "@stellar/design-system";
 import { HomeDomainOverrideButtons } from "components/HomeDomainOverrideButtons";
+import { DetailsTooltip } from "components/DetailsTooltip";
 import { shortenStellarKey } from "helpers/shortenStellarKey";
 import {
   Asset,
@@ -9,7 +10,6 @@ import {
   AssetType,
   ClaimableAsset,
 } from "types/types.d";
-import { InfoButtonWithTooltip } from "components/InfoButtonWithTooltip";
 
 interface BalanceRowProps {
   activeAction: ActiveAssetAction | undefined;
@@ -62,63 +62,65 @@ export const BalanceRow = ({
 
       return (
         <div className="BalanceCellSelect">
-          <Select
-            id={`${assetString}-actions`}
-            onChange={handleSelectChange}
-            disabled={disabled}
-            value={selectValue}
+          <DetailsTooltip
+            details={
+              <>
+                {
+                  "What you can do with an asset (deposit, withdraw, or send) depends on what transactions the anchor supports."
+                }{" "}
+                <TextLink href="https://developers.stellar.org/docs/anchoring-assets">
+                  Learn more
+                </TextLink>
+              </>
+            }
           >
-            <option value="">Select action</option>
-            {!isUntrusted && !asset.supportedActions?.sep8 && (
-              <option value={AssetActionId.SEND_PAYMENT}>Send payment</option>
-            )}
+            <Select
+              id={`${assetString}-actions`}
+              onChange={handleSelectChange}
+              disabled={disabled}
+              value={selectValue}
+            >
+              <option value="">Select action</option>
+              {!isUntrusted && !asset.supportedActions?.sep8 && (
+                <option value={AssetActionId.SEND_PAYMENT}>Send payment</option>
+              )}
 
-            {supportedActions?.sep6 && (
-              <>
-                <option value={AssetActionId.SEP6_DEPOSIT}>
-                  SEP-6 Deposit
-                </option>
-                {!isUntrusted && (
-                  <option value={AssetActionId.SEP6_WITHDRAW}>
-                    SEP-6 Withdraw
+              {supportedActions?.sep6 && (
+                <>
+                  <option value={AssetActionId.SEP6_DEPOSIT}>
+                    SEP-6 Deposit
                   </option>
-                )}
-              </>
-            )}
+                  {!isUntrusted && (
+                    <option value={AssetActionId.SEP6_WITHDRAW}>
+                      SEP-6 Withdraw
+                    </option>
+                  )}
+                </>
+              )}
 
-            {!isUntrusted && asset.supportedActions?.sep8 && (
-              <option value={AssetActionId.SEP8_SEND_PAYMENT}>
-                SEP-8 Send
-              </option>
-            )}
-
-            {supportedActions?.sep24 && (
-              <>
-                <option value={AssetActionId.SEP24_DEPOSIT}>
-                  SEP-24 Deposit
+              {!isUntrusted && asset.supportedActions?.sep8 && (
+                <option value={AssetActionId.SEP8_SEND_PAYMENT}>
+                  SEP-8 Send
                 </option>
-                {!isUntrusted && (
-                  <option value={AssetActionId.SEP24_WITHDRAW}>
-                    SEP-24 Withdraw
-                  </option>
-                )}
-              </>
-            )}
-            {!isUntrusted && supportedActions?.sep31 && (
-              <option value={AssetActionId.SEP31_SEND}>SEP-31 Send</option>
-            )}
-          </Select>
+              )}
 
-          <InfoButtonWithTooltip>
-            <>
-              {
-                "What you can do with an asset (deposit, withdraw, or send) depends on what transactions the anchor supports."
-              }{" "}
-              <TextLink href="https://developers.stellar.org/docs/anchoring-assets">
-                Learn more
-              </TextLink>
-            </>
-          </InfoButtonWithTooltip>
+              {supportedActions?.sep24 && (
+                <>
+                  <option value={AssetActionId.SEP24_DEPOSIT}>
+                    SEP-24 Deposit
+                  </option>
+                  {!isUntrusted && (
+                    <option value={AssetActionId.SEP24_WITHDRAW}>
+                      SEP-24 Withdraw
+                    </option>
+                  )}
+                </>
+              )}
+              {!isUntrusted && supportedActions?.sep31 && (
+                <option value={AssetActionId.SEP31_SEND}>SEP-31 Send</option>
+              )}
+            </Select>
+          </DetailsTooltip>
         </div>
       );
     }
@@ -159,18 +161,21 @@ export const BalanceRow = ({
       </div>
 
       {supportedActions?.sep8 && (
-        <div className="RegulatedInfo">
+        <DetailsTooltip
+          details={
+            <>
+              {
+                "Payments with regulated assets need to be approved by the asset issuer. For more information please refer to "
+              }
+              <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md">
+                SEP-8
+              </TextLink>
+              .
+            </>
+          }
+        >
           <span>Regulated</span>
-          <InfoButtonWithTooltip>
-            {
-              "Payments with regulated assets need to be approved by the asset issuer. For more information please refer to "
-            }
-            <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md">
-              SEP-8
-            </TextLink>
-            .
-          </InfoButtonWithTooltip>
-        </div>
+        </DetailsTooltip>
       )}
 
       <div className="BalanceCell BalanceActions">

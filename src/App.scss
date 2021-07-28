@@ -211,12 +211,6 @@ body {
       display: table-cell;
       vertical-align: middle;
 
-      button {
-        padding-top: 0.1rem;
-        padding-bottom: 0.1rem;
-        text-align: left;
-      }
-
       &.AccountLabel {
         text-transform: uppercase;
       }
@@ -325,15 +319,6 @@ body {
     }
 
     &.BalanceActions {
-      .BalanceCellSelect {
-        display: flex;
-        align-items: center;
-
-        & > :first-child {
-          margin-right: 0.5rem;
-        }
-      }
-
       .CustomCell {
         display: flex;
         align-items: center;

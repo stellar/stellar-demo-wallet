@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Transaction, TransactionBuilder } from "stellar-sdk";
-import { Button, Checkbox, Loader, Modal } from "@stellar/design-system";
-import { Heading3 } from "components/Heading";
+import { Button, Checkbox, Modal, Heading3 } from "@stellar/design-system";
 import { Json } from "components/Json";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { fetchAccountAction } from "ducks/account";
@@ -113,11 +112,10 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
       </Modal.Body>
 
       <Modal.Footer>
-        {sep8Send.status === ActionStatus.PENDING && <Loader />}
-
         <Button
           onClick={handleSubmitPayment}
-          disabled={sep8Send.status === ActionStatus.PENDING || !isApproved}
+          disabled={!isApproved}
+          isLoading={sep8Send.status === ActionStatus.PENDING}
         >
           Submit
         </Button>

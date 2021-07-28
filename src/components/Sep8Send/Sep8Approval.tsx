@@ -5,7 +5,6 @@ import {
   Button,
   InfoBlock,
   Input,
-  Loader,
   TextLink,
   Modal,
 } from "@stellar/design-system";
@@ -151,11 +150,9 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
       )}
 
       <Modal.Footer>
-        {sep8Send.status === ActionStatus.PENDING && <Loader />}
-
         <Button
           onClick={handleSubmitPayment}
-          disabled={sep8Send.status === ActionStatus.PENDING}
+          isLoading={sep8Send.status === ActionStatus.PENDING}
         >
           Submit
         </Button>

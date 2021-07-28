@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Input, Loader, Modal } from "@stellar/design-system";
+import { Button, Input, Modal } from "@stellar/design-system";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import {
   initiateSep8SendAction,
@@ -181,11 +181,9 @@ export const Sep8ActionRequiredForm = ({
       </Modal.Body>
 
       <Modal.Footer>
-        {sep8Send.status === ActionStatus.PENDING && <Loader />}
-
         <Button
           onClick={handleSubmitActionRequiredFields}
-          disabled={sep8Send.status === ActionStatus.PENDING}
+          isLoading={sep8Send.status === ActionStatus.PENDING}
         >
           Submit
         </Button>

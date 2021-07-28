@@ -13,6 +13,8 @@
     color: var(--pal-text-secondary);
     font-size: var(--font-size-secondary);
     line-height: 1.5em;
+    font-weight: var(--font-weight-normal);
+    text-transform: none;
 
     a {
       color: inherit;

@@ -4,7 +4,6 @@ import {
   Button,
   InfoBlock,
   Input,
-  Loader,
   TextLink,
   Modal,
 } from "@stellar/design-system";
@@ -145,11 +144,9 @@ export const SendPayment = ({
       </Modal.Body>
 
       <Modal.Footer>
-        {sendPayment.status === ActionStatus.PENDING && <Loader />}
-
         <Button
           onClick={handleSubmit}
-          disabled={sendPayment.status === ActionStatus.PENDING}
+          isLoading={sendPayment.status === ActionStatus.PENDING}
         >
           Submit
         </Button>
