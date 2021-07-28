@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Checkbox, Input, Loader, Modal } from "@stellar/design-system";
+import { Button, Checkbox, Input, Modal } from "@stellar/design-system";
 import { useHistory } from "react-router-dom";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
@@ -42,11 +42,10 @@ export const ConnectAccount = () => {
       </Modal.Body>
 
       <Modal.Footer>
-        {account.status === ActionStatus.PENDING && <Loader />}
-
         <Button
           onClick={handleSetSecretKey}
-          disabled={!secretKey || account.status === ActionStatus.PENDING}
+          disabled={!secretKey}
+          isLoading={account.status === ActionStatus.PENDING}
         >
           Connect
         </Button>

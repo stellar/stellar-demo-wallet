@@ -4,7 +4,6 @@ import {
   Button,
   Checkbox,
   InfoBlock,
-  Loader,
   TextLink,
   Modal,
 } from "@stellar/design-system";
@@ -156,8 +155,6 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
       </Modal.Body>
 
       <Modal.Footer>
-        {isPending && <Loader />}
-
         <Button
           onClick={() => {
             const assetsToAdd = presetAssets.flatMap((pAsset) => {
@@ -166,7 +163,8 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
             });
             handleAddUntrustedAssets(assetsToAdd);
           }}
-          disabled={isPending || !hasAnySelectedAsset()}
+          disabled={!hasAnySelectedAsset()}
+          isLoading={isPending}
         >
           Confirm
         </Button>
