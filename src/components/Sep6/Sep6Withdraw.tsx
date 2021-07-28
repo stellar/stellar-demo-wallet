@@ -9,6 +9,7 @@ import {
   Heading3,
 } from "@stellar/design-system";
 import { DetailsTooltip } from "components/DetailsTooltip";
+import { ErrorMessage } from "components/ErrorMessage";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -169,6 +170,7 @@ export const Sep6Withdraw = () => {
                 </>
               }
               isInline
+              tooltipPosition={DetailsTooltip.tooltipPosition.left}
             >
               <>SEP-6 Required Info</>
             </DetailsTooltip>
@@ -230,11 +232,8 @@ export const Sep6Withdraw = () => {
               ),
             )}
           </div>
-          {sep6WithdrawAsset.errorString && (
-            <div className="ModalMessage error">
-              <p>{sep6WithdrawAsset.errorString}</p>
-            </div>
-          )}
+
+          <ErrorMessage message={sep6WithdrawAsset.errorString} />
         </Modal.Body>
 
         <Modal.Footer>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Input, Modal } from "@stellar/design-system";
+import { ErrorMessage } from "components/ErrorMessage";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import {
   initiateSep8SendAction,
@@ -173,11 +174,7 @@ export const Sep8ActionRequiredForm = ({
           );
         })}
 
-        {sep8Send.errorString && (
-          <div className="ModalMessage error">
-            <p>{sep8Send.errorString}</p>
-          </div>
-        )}
+        <ErrorMessage message={sep8Send.errorString} />
       </Modal.Body>
 
       <Modal.Footer>

@@ -24,11 +24,37 @@
     min-height: 50vh;
     position: absolute;
   }
+
+  code {
+    word-break: break-all;
+  }
 }
 
 // TODO: fix this in SDS
 body {
   overflow-x: auto !important;
+}
+
+// TODO: Add to SDS
+// We want to have smaller headings on modals
+.Modal {
+  h2 {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    line-height: 2.25rem;
+  }
+  h4 {
+    font-size: 1.25rem;
+    line-height: 1.88rem;
+  }
+  h5 {
+    font-size: 1.13rem;
+    line-height: 1.75rem;
+  }
 }
 
 .Layout__inline {
@@ -152,14 +178,6 @@ body {
 }
 
 // Generic
-.error {
-  color: var(--pal-error);
-}
-
-.success {
-  color: var(--pal-success);
-}
-
 .vertical-spacing {
   & > * {
     margin-bottom: 1rem;
@@ -241,6 +259,7 @@ body {
     border-bottom: 1px solid var(--pal-border-primary);
     padding-top: 1rem;
     padding-bottom: 1rem;
+    color: var(--pal-text-primary);
 
     &.disabled {
       background-color: var(--pal-background-secondary);
@@ -368,10 +387,6 @@ body {
   *:not(:first-child) {
     margin-left: 1em;
   }
-}
-
-.CheckboxWrapper {
-  position: relative;
 }
 
 .PresetAssets {

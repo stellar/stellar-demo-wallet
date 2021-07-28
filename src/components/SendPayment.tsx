@@ -10,6 +10,7 @@ import {
 import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
+import { ErrorMessage } from "components/ErrorMessage";
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { sendPaymentAction, resetSendPaymentAction } from "ducks/sendPayment";
@@ -136,11 +137,7 @@ export const SendPayment = ({
             </TextLink>
           </InfoBlock>
         )}
-        {sendPayment.errorString && (
-          <div className="ModalMessage error">
-            <p>{sendPayment.errorString}</p>
-          </div>
-        )}
+        <ErrorMessage message={sendPayment.errorString} />
       </Modal.Body>
 
       <Modal.Footer>

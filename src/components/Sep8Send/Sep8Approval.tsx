@@ -9,6 +9,7 @@ import {
   Modal,
 } from "@stellar/design-system";
 import { DataProvider } from "@stellar/wallet-sdk";
+import { ErrorMessage } from "components/ErrorMessage";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import {
   sep8ClearErrorAction,
@@ -141,13 +142,9 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
             </TextLink>
           </InfoBlock>
         )}
-      </Modal.Body>
 
-      {sep8Send.errorString && (
-        <div className="ModalMessage error">
-          <p>{sep8Send.errorString}</p>
-        </div>
-      )}
+        <ErrorMessage message={sep8Send.errorString} />
+      </Modal.Body>
 
       <Modal.Footer>
         <Button

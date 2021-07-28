@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Transaction, TransactionBuilder } from "stellar-sdk";
 import { Button, Checkbox, Modal, Heading3 } from "@stellar/design-system";
+import { ErrorMessage } from "components/ErrorMessage";
 import { Json } from "components/Json";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { fetchAccountAction } from "ducks/account";
@@ -92,23 +93,17 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
           </>
         )}
 
-        {sep8Send.errorString && (
-          <div className="ModalMessage error">
-            <p>{sep8Send.errorString}</p>
-          </div>
-        )}
+        <ErrorMessage marginBottom="1rem" message={sep8Send.errorString} />
 
-        <div className="CheckboxWrapper">
-          <Checkbox
-            id="sep8-send-approve"
-            label="I approve executing these operations."
-            checked={isApproved}
-            onChange={() => {
-              setIsApproved(!isApproved);
-            }}
-            disabled={sep8Send.status === ActionStatus.PENDING}
-          />
-        </div>
+        <Checkbox
+          id="sep8-send-approve"
+          label="I approve executing these operations."
+          checked={isApproved}
+          onChange={() => {
+            setIsApproved(!isApproved);
+          }}
+          disabled={sep8Send.status === ActionStatus.PENDING}
+        />
       </Modal.Body>
 
       <Modal.Footer>
