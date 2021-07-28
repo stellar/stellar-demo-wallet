@@ -1,28 +1,41 @@
+// TODO: move to SDS
 import { useRef, useState, useLayoutEffect } from "react";
 import { IconButton, Icon } from "@stellar/design-system";
 import { Tooltip } from "components/Tooltip";
 
 import "./styles.scss";
 
+enum TooltipPosition {
+  left = "left",
+  right = "right",
+}
+
+interface DetailsTooltipComponent {
+  tooltipPosition: typeof TooltipPosition;
+}
+
 interface DetailsTooltipProps {
   details: React.ReactNode;
   children: React.ReactElement;
   isInline?: boolean;
   altText?: string;
+  tooltipPosition?: TooltipPosition;
   customIcon?: React.ReactNode;
   customColor?: string;
   customSize?: string;
 }
 
-export const DetailsTooltip = ({
+export const DetailsTooltip: React.FC<DetailsTooltipProps> &
+  DetailsTooltipComponent = ({
   details,
   children,
   isInline,
   altText = "Learn more",
+  tooltipPosition = TooltipPosition.right,
   customIcon = <Icon.Info />,
   customColor,
   customSize,
-}: DetailsTooltipProps) => {
+}) => {
   const toggleEl = useRef<null | HTMLDivElement>(null);
   const tooltipEl = useRef<null | HTMLDivElement>(null);
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
@@ -53,14 +66,27 @@ export const DetailsTooltip = ({
     }
   };
 
+  const getExtraClasses = () => {
+    const classes: string[] = [];
+
+    if (isInline) {
+      classes.push("DetailsTooltip--inline");
+    }
+
+    if (isTooltipVisible) {
+      classes.push("DetailsTooltip--open");
+    }
+
+    return classes.join(" ");
+  };
+
   return (
-    <div
-      className={`DetailsTooltip ${isInline ? "DetailsTooltip--inline" : ""} ${
-        isTooltipVisible ? "DetailsTooltip--open" : ""
-      }`}
-    >
+    <div className={`DetailsTooltip ${getExtraClasses()}`}>
       <div className="DetailsTooltip__component">{children}</div>
-      <div ref={toggleEl} className="DetailsTooltip__button">
+      <div
+        ref={toggleEl}
+        className={`DetailsTooltip__button DetailsTooltip--${tooltipPosition}`}
+      >
         <IconButton
           altText={altText}
           icon={customIcon}
@@ -76,3 +102,6 @@ export const DetailsTooltip = ({
     </div>
   );
 };
+
+DetailsTooltip.displayName = "DetailsTooltip";
+DetailsTooltip.tooltipPosition = TooltipPosition;

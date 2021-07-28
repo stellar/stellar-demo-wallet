@@ -6,9 +6,9 @@ import {
   TextLink,
   Modal,
   Heading3,
+  Input,
 } from "@stellar/design-system";
 
-import { Input } from "components/Input";
 import { DetailsTooltip } from "components/DetailsTooltip";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
@@ -163,19 +163,28 @@ export const Sep6Deposit = () => {
           <div className="vertical-spacing">
             <Input
               id="amount"
-              label="Amount (optional)"
+              // TODO: change type in SDS
+              // @ts-ignore
+              label={
+                <DetailsTooltip
+                  details={
+                    <>
+                      The amount of the asset the user would like to deposit
+                      with the anchor. This field may be necessary for the
+                      anchor to determine what KYC information is necessary to
+                      collect.{" "}
+                      <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#1-success-no-additional-information-needed">
+                        Learn more
+                      </TextLink>
+                    </>
+                  }
+                  isInline
+                >
+                  <>Amount (optional)</>
+                </DetailsTooltip>
+              }
               onChange={handleAmountChange}
               type="number"
-              tooltipText={
-                <>
-                  The amount of the asset the user would like to deposit with
-                  the anchor. This field may be necessary for the anchor to
-                  determine what KYC information is necessary to collect.{" "}
-                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#1-success-no-additional-information-needed">
-                    Learn more
-                  </TextLink>
-                </>
-              }
               note={renderMinMaxAmount()}
             />
           </div>
