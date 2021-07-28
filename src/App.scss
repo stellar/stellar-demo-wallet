@@ -137,7 +137,6 @@ body {
   }
 }
 
-// TODO: OLD styles +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 .LoadingBlock {
   margin-bottom: 1rem;
 }
@@ -432,5 +431,22 @@ body {
 
   & > * {
     margin-right: 1rem;
+  }
+}
+
+.NotFoundPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 3rem;
+  padding-bottom: 2rem;
+
+  .Eyebrow {
+    color: var(--pal-brand-primary);
+  }
+
+  h1 {
+    text-align: center;
   }
 }
