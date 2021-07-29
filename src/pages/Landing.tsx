@@ -51,6 +51,8 @@ export const Landing = () => {
     dispatch(createRandomAccount());
   };
 
+  const isPending = account.status === ActionStatus.PENDING;
+
   return (
     <Layout.Inset>
       <div className="Landing__container">
@@ -60,7 +62,7 @@ export const Landing = () => {
           <TextLink
             onClick={() => setIsConnectAccountModalVisible(true)}
             variant={TextLink.variant.secondary}
-            disabled={account.status === ActionStatus.PENDING}
+            disabled={isPending}
             underline
           >
             Provide a secret key (testnet or mainnet)
@@ -70,14 +72,13 @@ export const Landing = () => {
             <TextLink
               onClick={handleCreateAccount}
               variant={TextLink.variant.secondary}
-              disabled={account.status === ActionStatus.PENDING}
+              disabled={isPending}
               underline
             >
               Generate keypair for new account (testnet only)
             </TextLink>
 
-            {!isConnectAccountModalVisible &&
-              account.status === ActionStatus.PENDING && <Loader />}
+            {!isConnectAccountModalVisible && isPending && <Loader />}
           </div>
         </div>
 
