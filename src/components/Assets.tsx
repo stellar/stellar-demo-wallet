@@ -1,16 +1,23 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { Button, Heading2, Loader, TextButton } from "@stellar/design-system";
+import {
+  Button,
+  Heading2,
+  Loader,
+  TextLink,
+  Modal,
+  Layout,
+} from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
 import { AddPresetAsset } from "components/AddPresetAsset";
 import { Balance } from "components/Balance";
 import { ClaimableBalance } from "components/ClaimableBalance";
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
-import { Modal } from "components/Modal";
 import { ToastBanner } from "components/ToastBanner";
 import { UntrustedBalance } from "components/UntrustedBalance";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 
 import { fetchAccountAction, resetAccountStatusAction } from "ducks/account";
 import {
@@ -389,37 +396,43 @@ export const Assets = ({
     <>
       {/* Balances */}
       <div className="Section">
-        <div className="Inset">
+        <Layout.Inset>
           <Heading2>Balances</Heading2>
-        </div>
+        </Layout.Inset>
         <div className="Balances">
           <Balance onSend={onSendPayment} onAssetAction={handleAssetAction} />
           <UntrustedBalance onAssetAction={handleAssetAction} />
         </div>
 
-        <div className="BalancesButtons Inset">
-          <Button
-            onClick={() => setActiveModal(ModalType.ADD_ASSET)}
-            disabled={Boolean(activeAsset.action)}
-          >
-            Add asset
-          </Button>
-
-          {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
-            <TextButton
-              onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
+        <Layout.Inset>
+          <div className="BalancesButtons">
+            <Button
+              onClick={() => setActiveModal(ModalType.ADD_ASSET)}
               disabled={Boolean(activeAsset.action)}
             >
-              Select from preset assets
-            </TextButton>
-          )}
-        </div>
+              Add asset
+            </Button>
+
+            {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
+              <TextLink
+                onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
+                disabled={Boolean(activeAsset.action)}
+              >
+                Select from preset assets
+              </TextLink>
+            )}
+          </div>
+        </Layout.Inset>
       </div>
 
       {/* Claimable balances */}
       <ClaimableBalance onAssetAction={handleAssetAction} />
 
-      <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
+      <Modal
+        visible={Boolean(activeModal)}
+        onClose={handleCloseModal}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
         {/* Action confirmation */}
         {activeModal === ModalType.CONFIRM_ACTION && (
           <ConfirmAssetAction onClose={handleCloseModal} />
@@ -437,7 +450,7 @@ export const Assets = ({
       </Modal>
 
       <ToastBanner parentId="app-wrapper" visible={Boolean(toastMessage)}>
-        <div className="Inline">
+        <div className="Layout__inline">
           <div>{toastMessage}</div>
           <Loader />
         </div>

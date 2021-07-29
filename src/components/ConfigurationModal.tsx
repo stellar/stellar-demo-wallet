@@ -1,6 +1,5 @@
 import { useHistory } from "react-router-dom";
-import { Heading2, Button } from "@stellar/design-system";
-import { Toggle } from "components/Toggle";
+import { Button, Modal, Toggle } from "@stellar/design-system";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import { SearchParams } from "types/types.d";
@@ -20,9 +19,9 @@ export const ConfigurationModal = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      <Heading2 className="ModalHeading">Configuration</Heading2>
+      <Modal.Heading>Configuration</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <div className="ConfigurationItem">
           <label htmlFor="claimable-balance-supported">
             Claimable balance supported
@@ -33,11 +32,11 @@ export const ConfigurationModal = ({ onClose }: { onClose: () => void }) => {
             onChange={handleClaimableBalanceSupported}
           />
         </div>
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         <Button onClick={onClose}>Close</Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

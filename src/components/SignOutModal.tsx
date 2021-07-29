@@ -3,13 +3,12 @@ import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   Button,
-  ButtonVariant,
-  TextButton,
-  IconCopy,
+  TextLink,
+  Icon,
   InfoBlock,
-  InfoBlockVariant,
+  Modal,
 } from "@stellar/design-system";
-import { CopyWithTooltip, TooltipPosition } from "components/CopyWithTooltip";
+import { CopyText } from "components/CopyText";
 import { resetStoreAction } from "config/store";
 import { getCurrentSessionParams } from "helpers/getCurrentSessionParams";
 import { SearchParams, StringObject } from "types/types.d";
@@ -44,35 +43,36 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      <div className="ModalBody">
+      <Modal.Body>
         <p>
           You can reload the account using your secret key or press back in your
           browser to sign back in.
         </p>
 
         {sessionParams.length > 0 && (
-          <InfoBlock variant={InfoBlockVariant.warning}>
+          <InfoBlock variant={InfoBlock.variant.warning}>
             <p>
               {`You have session data (${getMessageText()}) that will be lost when you sign out. You can copy the URL to save it.`}
             </p>
             <div className="SessionParamsWrapper">
-              <CopyWithTooltip
+              <CopyText
                 copyText={window.location.toString()}
-                tooltipPosition={TooltipPosition.right}
+                tooltipPosition={CopyText.tooltipPosition.right}
+                showTooltip
               >
-                <TextButton icon={<IconCopy />}>Copy URL</TextButton>
-              </CopyWithTooltip>
+                <TextLink iconLeft={<Icon.Copy />}>Copy URL</TextLink>
+              </CopyText>
             </div>
           </InfoBlock>
         )}
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
+      <Modal.Footer>
         <Button onClick={handleSignOut}>Sign out</Button>
-        <Button variant={ButtonVariant.secondary} onClick={onClose}>
+        <Button variant={Button.variant.secondary} onClick={onClose}>
           Go back
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

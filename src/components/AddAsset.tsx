@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import {
   Button,
-  Heading2,
   InfoBlock,
-  InfoBlockVariant,
-  Loader,
+  TextLink,
+  Modal,
+  Input,
 } from "@stellar/design-system";
-import { Input } from "components/Input";
+import { DetailsTooltip } from "components/DetailsTooltip";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { getValidatedUntrustedAsset } from "helpers/getValidatedUntrustedAsset";
@@ -15,7 +15,6 @@ import { searchParam } from "helpers/searchParam";
 import { log } from "helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
-import { TextLink } from "./TextLink";
 
 export const AddAsset = ({ onClose }: { onClose: () => void }) => {
   const { account, settings, untrustedAssets } = useRedux(
@@ -106,96 +105,113 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      {/* TODO: move to Modal component */}
-      <Heading2 className="ModalHeading">Add asset</Heading2>
+      <Modal.Heading>Add asset</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <p>Required: asset code AND (home domain OR issuer)</p>
 
         <Input
           id="aa-asset-code"
-          label="Asset code"
+          // TODO: change type in SDS
+          // @ts-ignore
+          label={
+            <DetailsTooltip
+              details={
+                <>
+                  Assets are identified by 1) their code and 2) either a home
+                  domain or the public key of the issuing account.{" "}
+                  <TextLink href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/">
+                    Learn more
+                  </TextLink>
+                </>
+              }
+              isInline
+              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+            >
+              <>Asset code</>
+            </DetailsTooltip>
+          }
           onChange={(e) => {
             setErrorMessage("");
             setAssetCode(e.target.value);
           }}
           value={assetCode}
           placeholder="ex: USDC, EURT, NGNT"
-          tooltipText={
-            <>
-              Assets are identified by 1) their code and 2) either a home domain
-              or the public key of the issuing account.{" "}
-              <TextLink
-                href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/"
-                isExternal
-              >
-                Learn more
-              </TextLink>
-            </>
-          }
         />
 
         <Input
           id="aa-home-domain"
-          label="Anchor home domain"
+          // TODO: change type in SDS
+          // @ts-ignore
+          label={
+            <DetailsTooltip
+              details={
+                <>
+                  Domain where the well-known TOML file can be found for this
+                  asset.{" "}
+                  <TextLink href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/#what-is-a-stellartoml">
+                    Learn more
+                  </TextLink>
+                </>
+              }
+              isInline
+              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+            >
+              <>Anchor home domain</>
+            </DetailsTooltip>
+          }
           onChange={(e) => {
             setErrorMessage("");
             setHomeDomain(e.target.value);
           }}
           value={homeDomain}
           placeholder="ex: example.com"
-          tooltipText={
-            <>
-              Domain where the well-known TOML file can be found for this asset.{" "}
-              <TextLink
-                href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/#what-is-a-stellartoml"
-                isExternal
-              >
-                Learn more
-              </TextLink>
-            </>
-          }
         />
 
         <Input
           id="aa-public-key"
-          label="Issuer public key"
+          // TODO: change type in SDS
+          // @ts-ignore
+          label={
+            <DetailsTooltip
+              details={
+                <>
+                  Public key for the Asset Issuer.{" "}
+                  <TextLink href="https://developers.stellar.org/docs/issuing-assets/how-to-issue-an-asset">
+                    Learn more
+                  </TextLink>
+                </>
+              }
+              isInline
+              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+            >
+              <>Issuer public key</>
+            </DetailsTooltip>
+          }
           onChange={(e) => {
             setErrorMessage("");
             setIssuerPublicKey(e.target.value);
           }}
           value={issuerPublicKey}
           placeholder="ex: GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B"
-          tooltipText={
-            <>
-              Public key for the Asset Issuer.{" "}
-              <TextLink
-                href="https://developers.stellar.org/docs/issuing-assets/how-to-issue-an-asset"
-                isExternal
-              >
-                Learn more
-              </TextLink>
-            </>
-          }
         />
 
         {errorMessage && (
-          <InfoBlock variant={InfoBlockVariant.error}>
+          <InfoBlock variant={InfoBlock.variant.error}>
             <p>{errorMessage}</p>
           </InfoBlock>
         )}
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
-        {isPending && <Loader />}
-
+      <Modal.Footer>
         <Button
           onClick={handleSetUntrustedAsset}
-          disabled={!assetCode || isPending}
+          disabled={!assetCode}
+          isLoading={isPending}
         >
           Add
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

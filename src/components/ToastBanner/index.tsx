@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom";
+import { Layout } from "@stellar/design-system";
 import "./styles.scss";
 
 interface ToastBannerProps {
@@ -43,7 +44,7 @@ export const ToastBanner = ({
 
   return ReactDOM.createPortal(
     <div className={`ToastBanner ${isFadeReady ? "open" : ""}`}>
-      <div className="Inset">{children}</div>
+      <Layout.Inset>{children}</Layout.Inset>
     </div>,
     parent,
   );

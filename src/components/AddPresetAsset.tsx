@@ -3,12 +3,10 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   Checkbox,
-  Heading2,
   InfoBlock,
-  InfoBlockVariant,
-  Loader,
+  TextLink,
+  Modal,
 } from "@stellar/design-system";
-import { TextLink } from "components/TextLink";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { getPresetAssets } from "helpers/getPresetAssets";
@@ -133,9 +131,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
           <div className="PresetAssetCode">{asset.assetCode}</div>
           <div className="PresetAssetIssuer">
             {displayLink && (
-              <TextLink href={issuerLink} isExternal>
-                {displayLink}
-              </TextLink>
+              <TextLink href={issuerLink}>{displayLink}</TextLink>
             )}
           </div>
         </div>
@@ -145,22 +141,20 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      <Heading2 className="ModalHeading">Add preset asset</Heading2>
+      <Modal.Heading>Add preset asset</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <p>Select one or more assets</p>
         <div className="PresetAssets">{presetAssets.map(renderAssetRow)}</div>
 
         {errorMessage && (
-          <InfoBlock variant={InfoBlockVariant.error}>
+          <InfoBlock variant={InfoBlock.variant.error}>
             <p>{errorMessage}</p>
           </InfoBlock>
         )}
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
-        {isPending && <Loader />}
-
+      <Modal.Footer>
         <Button
           onClick={() => {
             const assetsToAdd = presetAssets.flatMap((pAsset) => {
@@ -169,11 +163,12 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
             });
             handleAddUntrustedAssets(assetsToAdd);
           }}
-          disabled={isPending || !hasAnySelectedAsset()}
+          disabled={!hasAnySelectedAsset()}
+          isLoading={isPending}
         >
           Confirm
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

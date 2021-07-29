@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Input, Loader } from "@stellar/design-system";
-import { Heading2 } from "components/Heading";
-import { Modal } from "components/Modal";
+import { Button, Input, Modal } from "@stellar/design-system";
+import { ErrorMessage } from "components/ErrorMessage";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import {
   initiateSep8SendAction,
   sep8ReviseTransactionAction,
@@ -25,12 +25,8 @@ export const Sep8ActionRequiredForm = ({
   const [fieldValues, setFieldValues] = useState<{
     [key: string]: string | File;
   }>({});
-  const {
-    actionFields,
-    message,
-    actionMethod,
-    actionUrl,
-  } = sep8Send.data.actionRequiredInfo;
+  const { actionFields, message, actionMethod, actionUrl } =
+    sep8Send.data.actionRequiredInfo;
   const { nextUrl, result } = sep8Send.data.actionRequiredResult;
   const dispatch = useDispatch();
 
@@ -149,9 +145,9 @@ export const Sep8ActionRequiredForm = ({
 
   const renderSendPayment = () => (
     <>
-      <Heading2 className="ModalHeading">SEP-8 Action Required</Heading2>
+      <Modal.Heading>SEP-8 Action Required</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <div className="ModalMessage">
           <p>{message}</p>
         </div>
@@ -178,28 +174,22 @@ export const Sep8ActionRequiredForm = ({
           );
         })}
 
-        {sep8Send.errorString && (
-          <div className="ModalMessage error">
-            <p>{sep8Send.errorString}</p>
-          </div>
-        )}
-      </div>
+        <ErrorMessage message={sep8Send.errorString} />
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
-        {sep8Send.status === ActionStatus.PENDING && <Loader />}
-
+      <Modal.Footer>
         <Button
           onClick={handleSubmitActionRequiredFields}
-          disabled={sep8Send.status === ActionStatus.PENDING}
+          isLoading={sep8Send.status === ActionStatus.PENDING}
         >
           Submit
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 
   return (
-    <Modal onClose={onClose} visible>
+    <Modal onClose={onClose} visible parentId={CSS_MODAL_PARENT_ID}>
       {renderSendPayment()}
     </Modal>
   );
