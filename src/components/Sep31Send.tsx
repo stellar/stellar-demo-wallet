@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Input } from "@stellar/design-system";
-import { Heading2, Heading3 } from "components/Heading";
-import { Modal } from "components/Modal";
-import { RadioButton } from "components/RadioButton";
-import { TextLink } from "components/TextLink";
+import {
+  Button,
+  Input,
+  TextLink,
+  Modal,
+  RadioButton,
+  Heading3,
+} from "@stellar/design-system";
+import { DetailsTooltip } from "components/DetailsTooltip";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -198,10 +203,10 @@ export const Sep31Send = () => {
     // Select customer types
     if (!data.isTypeSelected) {
       return (
-        <Modal visible={true} onClose={handleClose}>
-          <Heading2>Customer Types</Heading2>
+        <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+          <Modal.Heading>Customer Types</Modal.Heading>
 
-          <div className="ModalBody">
+          <Modal.Body>
             <p>
               Receiving anchors are required to collect Know Your Customer (KYC)
               information on the customers involved in a transaction. Each type
@@ -222,11 +227,11 @@ export const Sep31Send = () => {
             </div>
 
             {errorMessage && <p className="error">{errorMessage}</p>}
-          </div>
+          </Modal.Body>
 
-          <div className="ModalButtonsFooter">
+          <Modal.Footer>
             <Button onClick={handleSelectTypes}>Submit</Button>
-          </div>
+          </Modal.Footer>
         </Modal>
       );
     }
@@ -247,26 +252,25 @@ export const Sep31Send = () => {
       };
 
       return (
-        <Modal visible={true} onClose={handleClose}>
-          <Heading2
-            className="ModalHeading"
-            tooltipText={
-              <>
-                These are the fields the receiving anchor requires. The sending
-                client obtains them from the /customer endpoint.{" "}
-                <TextLink
-                  href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
-                  isExternal
-                >
-                  Learn more
-                </TextLink>
-              </>
-            }
-          >
-            Sender and receiver info
-          </Heading2>
+        <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+          <Modal.Heading>
+            <DetailsTooltip
+              details={
+                <>
+                  These are the fields the receiving anchor requires. The
+                  sending client obtains them from the /customer endpoint.{" "}
+                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
+                    Learn more
+                  </TextLink>
+                </>
+              }
+              isInline
+            >
+              <>Sender and receiver info</>
+            </DetailsTooltip>
+          </Modal.Heading>
 
-          <div className="ModalBody">
+          <Modal.Body>
             {Object.entries(allFields).map(([sectionTitle, sectionItems]) => (
               <div className="vertical-spacing" key={sectionTitle}>
                 <Heading3>{capitalizeString(sectionTitle)}</Heading3>
@@ -282,11 +286,11 @@ export const Sep31Send = () => {
                 ))}
               </div>
             ))}
-          </div>
+          </Modal.Body>
 
-          <div className="ModalButtonsFooter">
+          <Modal.Footer>
             <Button onClick={handleSubmit}>Submit</Button>
-          </div>
+          </Modal.Footer>
         </Modal>
       );
     }

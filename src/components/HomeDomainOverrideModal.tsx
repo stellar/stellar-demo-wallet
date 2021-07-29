@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import {
-  Button,
-  ButtonVariant,
-  Heading2,
-  Input,
-  InfoBlock,
-  InfoBlockVariant,
-  Loader,
-} from "@stellar/design-system";
+import { Button, Input, InfoBlock, Modal } from "@stellar/design-system";
 import { getAssetFromHomeDomain } from "helpers/getAssetFromHomeDomain";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -71,9 +63,9 @@ export const HomeDomainOverrideModal = ({
 
   return (
     <>
-      <Heading2 className="ModalHeading">Override home domain</Heading2>
+      <Modal.Heading>Override home domain</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <p>{`Asset ${asset.assetCode} currently has ${
           asset.homeDomain || "no"
         } home domain.`}</p>
@@ -90,27 +82,29 @@ export const HomeDomainOverrideModal = ({
         />
 
         {errorMessage && (
-          <InfoBlock variant={InfoBlockVariant.error}>
+          <InfoBlock variant={InfoBlock.variant.error}>
             <p>{errorMessage}</p>
           </InfoBlock>
         )}
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
-        {isPending && <Loader />}
-
-        <Button onClick={handleOverride} disabled={!homeDomain || isPending}>
+      <Modal.Footer>
+        <Button
+          onClick={handleOverride}
+          disabled={!homeDomain}
+          isLoading={isPending}
+        >
           Override
         </Button>
 
         <Button
           onClick={onClose}
           disabled={isPending}
-          variant={ButtonVariant.secondary}
+          variant={Button.variant.secondary}
         >
           Cancel
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };

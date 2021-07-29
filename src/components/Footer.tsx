@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { TextLink, TextLinkVariant, TextButton } from "@stellar/design-system";
-import { Modal } from "components/Modal";
+import { TextLink, Layout, Modal } from "@stellar/design-system";
 import { ConfigurationModal } from "components/ConfigurationModal";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { useRedux } from "hooks/useRedux";
 
 export const Footer = () => {
@@ -15,48 +15,24 @@ export const Footer = () => {
 
   return (
     <>
-      <div className="Footer">
-        <div className="Inset">
+      <Layout.Footer
+        gitHubLink="https://github.com/stellar/stellar-demo-wallet"
+        hideTopBorder
+      >
+        {account.isAuthenticated && (
           <div>
-            <TextLink
-              variant={TextLinkVariant.secondary}
-              href="https://www.stellar.org/terms-of-service"
-              rel="noreferrer"
-              target="_blank"
-            >
-              Terms of Service
-            </TextLink>
-            <TextLink
-              variant={TextLinkVariant.secondary}
-              href="https://www.stellar.org/privacy-policy"
-              rel="noreferrer"
-              target="_blank"
-            >
-              Privacy Policy
-            </TextLink>
-
-            <TextLink
-              variant={TextLinkVariant.secondary}
-              href="https://github.com/stellar/stellar-demo-wallet"
-              rel="noreferrer"
-              target="_blank"
-              title="Check out our GitHub repo for more information and to log issues"
-            >
-              GitHub
+            <TextLink onClick={() => setConfigModalVisible(true)}>
+              Configuration
             </TextLink>
           </div>
+        )}
+      </Layout.Footer>
 
-          {account.isAuthenticated && (
-            <div>
-              <TextButton onClick={() => setConfigModalVisible(true)}>
-                Configuration
-              </TextButton>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <Modal visible={configModalVisible} onClose={handleConfigModalClose}>
+      <Modal
+        visible={configModalVisible}
+        onClose={handleConfigModalClose}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
         <ConfigurationModal onClose={handleConfigModalClose} />
       </Modal>
     </>

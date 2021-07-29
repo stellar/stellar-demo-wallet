@@ -3,14 +3,14 @@ import { useDispatch } from "react-redux";
 import { StrKey } from "stellar-sdk";
 import {
   Button,
-  Heading2,
   InfoBlock,
   Input,
-  Loader,
+  TextLink,
+  Modal,
 } from "@stellar/design-system";
 import { DataProvider } from "@stellar/wallet-sdk";
-import { Modal } from "components/Modal";
-import { TextLink } from "components/TextLink";
+import { ErrorMessage } from "components/ErrorMessage";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import {
   sep8ClearErrorAction,
   sep8ReviseTransactionAction,
@@ -25,12 +25,8 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
     "sep8Send",
     "settings",
   );
-  const {
-    approvalCriteria,
-    approvalServer,
-    assetCode,
-    assetIssuer,
-  } = sep8Send.data;
+  const { approvalCriteria, approvalServer, assetCode, assetIssuer } =
+    sep8Send.data;
   const [amount, setAmount] = useState(sep8Send.data.revisedTransaction.amount);
   const [destination, setDestination] = useState(
     sep8Send.data.revisedTransaction.destination,
@@ -89,9 +85,9 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
 
   const renderApprovePayment = () => (
     <>
-      <Heading2 className="ModalHeading">Send SEP-8 Payment</Heading2>
+      <Modal.Heading>Send SEP-8 Payment</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <Input
           id="send-destination"
           label="Destination"
@@ -141,37 +137,28 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
           <InfoBlock>
             The destination account doesn’t exist. A create account operation
             will be used to create this account.{" "}
-            <TextLink
-              href="https://developers.stellar.org/docs/tutorials/create-account/"
-              isExternal
-            >
+            <TextLink href="https://developers.stellar.org/docs/tutorials/create-account/">
               Learn more about account creation
             </TextLink>
           </InfoBlock>
         )}
-      </div>
 
-      {sep8Send.errorString && (
-        <div className="ModalMessage error">
-          <p>{sep8Send.errorString}</p>
-        </div>
-      )}
+        <ErrorMessage message={sep8Send.errorString} />
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
-        {sep8Send.status === ActionStatus.PENDING && <Loader />}
-
+      <Modal.Footer>
         <Button
           onClick={handleSubmitPayment}
-          disabled={sep8Send.status === ActionStatus.PENDING}
+          isLoading={sep8Send.status === ActionStatus.PENDING}
         >
           Submit
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 
   return (
-    <Modal onClose={handleCloseModal} visible>
+    <Modal onClose={handleCloseModal} visible parentId={CSS_MODAL_PARENT_ID}>
       {renderApprovePayment()}
     </Modal>
   );

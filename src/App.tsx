@@ -1,16 +1,15 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { Provider } from "react-redux";
+import { Layout, TextLink } from "@stellar/design-system";
 import { errorReporting } from "@stellar/frontend-helpers";
 
 import { store } from "config/store";
 import { Header } from "components/Header";
 import { Footer } from "components/Footer";
 import { Logs } from "components/Logs";
-import { PageContent } from "components/PageContent";
 import { PrivateRoute } from "components/PrivateRoute";
 import { SettingsHandler } from "components/SettingsHandler";
 import { WarningBanner } from "components/WarningBanner";
-import { TextLink } from "components/TextLink";
 
 import { Account } from "pages/Account";
 import { Landing } from "pages/Landing";
@@ -27,35 +26,37 @@ export const App = () => (
 
         <div id="app-wrapper" className="Wrapper">
           <div className="SplitContainer Main">
-            <div className="ContentWrapper">
+            <div className="Main__content">
               <Header />
 
-              <div className="IntroText Inset">
-                <p>
-                  This demo wallet lets financial application developers test
-                  their integrations and learn how Stellar ecosystem protocols
-                  (SEPs) work.
-                </p>
+              <Layout.Content>
+                <Layout.Inset>
+                  <p>
+                    This demo wallet lets financial application developers test
+                    their integrations and learn how Stellar ecosystem protocols
+                    (SEPs) work.
+                  </p>
 
-                <p>
-                  <TextLink
-                    href="https://github.com/stellar/stellar-demo-wallet#stellar-demo-wallet"
-                    isExternal
-                  >
-                    Learn more
-                  </TextLink>{" "}
-                  about the tool and{" "}
-                  <TextLink
-                    href="https://github.com/stellar/stellar-demo-wallet/issues"
-                    isExternal
-                  >
-                    report issues or request features
-                  </TextLink>{" "}
-                  on GitHub.
-                </p>
-              </div>
+                  <p>
+                    <TextLink
+                      variant={TextLink.variant.secondary}
+                      underline
+                      href="https://github.com/stellar/stellar-demo-wallet#stellar-demo-wallet"
+                    >
+                      Learn more
+                    </TextLink>{" "}
+                    about the tool and{" "}
+                    <TextLink
+                      variant={TextLink.variant.secondary}
+                      underline
+                      href="https://github.com/stellar/stellar-demo-wallet/issues"
+                    >
+                      report issues or request features
+                    </TextLink>{" "}
+                    on GitHub.
+                  </p>
+                </Layout.Inset>
 
-              <PageContent>
                 <Switch>
                   <Route exact path="/">
                     <Landing />
@@ -67,7 +68,7 @@ export const App = () => (
 
                   <Route component={NotFound} />
                 </Switch>
-              </PageContent>
+              </Layout.Content>
 
               <Footer />
             </div>

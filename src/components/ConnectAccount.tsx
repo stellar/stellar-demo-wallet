@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  Button,
-  Checkbox,
-  Heading2,
-  Input,
-  Loader,
-} from "@stellar/design-system";
+import { Button, Checkbox, Input, Modal } from "@stellar/design-system";
 import { useHistory } from "react-router-dom";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
@@ -28,10 +22,9 @@ export const ConnectAccount = () => {
 
   return (
     <>
-      {/* TODO: move to Modal component */}
-      <Heading2 className="ModalHeading">Connect with a secret key</Heading2>
+      <Modal.Heading>Connect with a secret key</Modal.Heading>
 
-      <div className="ModalBody">
+      <Modal.Body>
         <Input
           id="secretKey"
           label="Your secret key"
@@ -46,18 +39,17 @@ export const ConnectAccount = () => {
           checked={settings.pubnet}
           onChange={handleSwitchNetwork}
         />
-      </div>
+      </Modal.Body>
 
-      <div className="ModalButtonsFooter">
-        {account.status === ActionStatus.PENDING && <Loader />}
-
+      <Modal.Footer>
         <Button
           onClick={handleSetSecretKey}
-          disabled={!secretKey || account.status === ActionStatus.PENDING}
+          disabled={!secretKey}
+          isLoading={account.status === ActionStatus.PENDING}
         >
           Connect
         </Button>
-      </div>
+      </Modal.Footer>
     </>
   );
 };
