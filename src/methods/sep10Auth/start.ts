@@ -12,7 +12,7 @@ export const start = async ({
   publicKey: string;
   homeDomain: string;
 }) => {
-  const params = { account: publicKey, homeDomain };
+  const params = { account: publicKey, home_domain: homeDomain };
 
   log.instruction({
     title:
