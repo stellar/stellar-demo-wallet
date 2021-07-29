@@ -48,6 +48,16 @@ export const SendPayment = ({
     setIsDestinationFunded(true);
   };
 
+  useEffect(
+    () => () => {
+      // Reset when component unmounts
+      dispatch(resetSendPaymentAction());
+      dispatch(resetActiveAssetAction());
+      resetFormState();
+    },
+    [dispatch],
+  );
+
   useEffect(() => {
     if (sendPayment.status === ActionStatus.SUCCESS && data?.id) {
       dispatch(
