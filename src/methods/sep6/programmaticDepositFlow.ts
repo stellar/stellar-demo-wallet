@@ -3,6 +3,7 @@ import { log } from "helpers/log";
 import { AnyObject } from "types/types";
 
 type ProgrammaticDepositFlowProps = {
+  amount?: string;
   assetCode: string;
   publicKey: string;
   transferServerUrl: string;
@@ -13,6 +14,7 @@ type ProgrammaticDepositFlowProps = {
 };
 
 export const programmaticDepositFlow = async ({
+  amount = "",
   assetCode,
   publicKey,
   transferServerUrl,
@@ -32,6 +34,7 @@ export const programmaticDepositFlow = async ({
     account: publicKey,
     claimable_balance_supported: claimableBalanceSupported.toString(),
     type,
+    amount,
     ...depositFields,
   };
 
