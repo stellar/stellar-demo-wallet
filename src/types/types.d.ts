@@ -32,6 +32,12 @@ export enum TomlFields {
   WEB_AUTH_ENDPOINT = "WEB_AUTH_ENDPOINT",
 }
 
+export interface presetAsset {
+  assetCode: string;
+  homeDomain?: string;
+  issuerPublicKey?: string;
+}
+
 export interface Asset {
   assetString: string;
   assetCode: string;
@@ -307,7 +313,7 @@ export interface LogItemProps {
   timestamp: number;
   type: LogType;
   title: string;
-  body?: string | object;
+  body?: string | AnyObject;
 }
 
 export interface Store {

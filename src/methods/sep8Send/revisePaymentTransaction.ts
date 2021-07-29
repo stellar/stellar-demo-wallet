@@ -30,7 +30,7 @@ export const revisePaymentTransaction = async ({
     });
   } catch (error) {
     throw new Error(
-      `Failed to build transaction, error: ${getErrorString(error)})}`,
+      `Failed to build transaction, error: ${getErrorString(error)}`,
     );
   }
 
@@ -62,11 +62,10 @@ export const revisePaymentTransaction = async ({
         title: sep8ApprovalResultJson.message,
       });
 
-      const actionFields:
-        | Sep9Field[]
-        | undefined = sep8ApprovalResultJson.action_fields?.map(
-        (fieldName: string) => Sep9FieldsDict[fieldName],
-      );
+      const actionFields: Sep9Field[] | undefined =
+        sep8ApprovalResultJson.action_fields?.map(
+          (fieldName: string) => Sep9FieldsDict[fieldName],
+        );
 
       return {
         status: Sep8ApprovalStatus.ACTION_REQUIRED,

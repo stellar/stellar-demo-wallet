@@ -2,34 +2,33 @@ import { useState, useEffect } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
-  Heading1,
+  Heading3,
   Loader,
-  TextButton,
-  TextButtonVariant,
+  TextLink,
+  Modal,
+  Layout,
 } from "@stellar/design-system";
+import { metrics } from "@stellar/frontend-helpers";
 
 import { METRIC_NAMES } from "constants/metricNames";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { createRandomAccount } from "ducks/account";
 import { ConnectAccount } from "components/ConnectAccount";
-import { Modal } from "components/Modal";
-import { emitMetric } from "helpers/metrics";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
 
 export const Landing = () => {
   const { account } = useRedux("account");
-  const [
-    isConnectAccountModalVisible,
-    setIsConnectAccountModalVisible,
-  ] = useState(false);
+  const [isConnectAccountModalVisible, setIsConnectAccountModalVisible] =
+    useState(false);
 
   const dispatch = useDispatch();
   const location = useLocation();
   const history = useHistory();
 
   useEffect(() => {
-    emitMetric(METRIC_NAMES.viewHome);
+    metrics.emitMetric(METRIC_NAMES.viewHome);
   }, []);
 
   useEffect(() => {
@@ -52,39 +51,45 @@ export const Landing = () => {
     dispatch(createRandomAccount());
   };
 
+  const isPending = account.status === ActionStatus.PENDING;
+
   return (
-    <div className="Inset">
-      <Heading1>Import or generate keypair</Heading1>
+    <Layout.Inset>
+      <div className="Landing__container">
+        <Heading3>Import or generate keypair</Heading3>
 
-      <div className="LandingButtons">
-        <TextButton
-          onClick={() => setIsConnectAccountModalVisible(true)}
-          variant={TextButtonVariant.secondary}
-          disabled={account.status === ActionStatus.PENDING}
-        >
-          Provide a secret key (testnet or mainnet)
-        </TextButton>
-
-        <div className="Inline">
-          <TextButton
-            onClick={handleCreateAccount}
-            variant={TextButtonVariant.secondary}
-            disabled={account.status === ActionStatus.PENDING}
+        <div className="Landing__buttons">
+          <TextLink
+            onClick={() => setIsConnectAccountModalVisible(true)}
+            variant={TextLink.variant.secondary}
+            disabled={isPending}
+            underline
           >
-            Generate keypair for new account (testnet only)
-          </TextButton>
+            Provide a secret key (testnet or mainnet)
+          </TextLink>
 
-          {!isConnectAccountModalVisible &&
-            account.status === ActionStatus.PENDING && <Loader />}
+          <div className="Layout__inline">
+            <TextLink
+              onClick={handleCreateAccount}
+              variant={TextLink.variant.secondary}
+              disabled={isPending}
+              underline
+            >
+              Generate keypair for new account (testnet only)
+            </TextLink>
+
+            {!isConnectAccountModalVisible && isPending && <Loader />}
+          </div>
         </div>
-      </div>
 
-      <Modal
-        visible={isConnectAccountModalVisible}
-        onClose={() => setIsConnectAccountModalVisible(false)}
-      >
-        <ConnectAccount />
-      </Modal>
-    </div>
+        <Modal
+          visible={isConnectAccountModalVisible}
+          onClose={() => setIsConnectAccountModalVisible(false)}
+          parentId={CSS_MODAL_PARENT_ID}
+        >
+          <ConnectAccount />
+        </Modal>
+      </div>
+    </Layout.Inset>
   );
 };

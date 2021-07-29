@@ -3,7 +3,7 @@ import { App } from "./App";
 import reportWebVitals from "./reportWebVitals";
 
 // Import global CSS from Stellar Design System
-import "@stellar/design-system/dist/styles.min.css";
+import "@stellar/design-system/build/styles.min.css";
 
 ReactDOM.render(<App />, document.getElementById("root"));
 

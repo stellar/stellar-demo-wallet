@@ -1,43 +1,75 @@
-:root {
-  --size-min-window: 800px;
-  --size-max-window: 1296px;
+#root {
+  --layout-window-width-min: 800px;
+  --layout-window-width-max: 1296px;
+
+  // TODO: fix this in SDS
+  overflow-x: auto !important;
+
+  .Layout__inset {
+    --Layout-inset-padding-horizontal: 1rem;
+  }
+
+  .Layout__header {
+    --Layout-header-padding-vertical: 1rem;
+  }
+
+  .Layout__footer {
+    --Layout-footer-padding-bottom: 1rem;
+    --Layout-footer-margin-top: 2rem;
+  }
+
+  .Modal {
+    width: 50%;
+    min-width: calc(var(--layout-window-width-min) / 2);
+    min-height: 50vh;
+    position: absolute;
+  }
+
+  code {
+    word-break: break-all;
+  }
 }
 
+// TODO: fix this in SDS
 body {
-  overflow-y: hidden;
+  overflow-x: auto !important;
 }
 
-p {
-  word-break: break-word;
+// TODO: Add to SDS
+// We want to have smaller headings on modals
+.Modal {
+  h2 {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    line-height: 2.25rem;
+  }
+  h4 {
+    font-size: 1.25rem;
+    line-height: 1.88rem;
+  }
+  h5 {
+    font-size: 1.13rem;
+    line-height: 1.75rem;
+  }
 }
 
-code {
-  // TODO: color not in SDS
-  color: #490be3;
-  font-family: var(--font-family-monospace);
-  border-radius: 0.1875rem;
-  border: 0.5px solid var(--color-background-off);
-  background-color: var(--color-background-secondary);
-  padding: 0 0.25rem;
-  font-size: 0.875rem;
-  line-height: 1.5rem;
-  font-weight: var(--font-weight-medium);
-  display: inline;
-  line-break: anywhere;
-}
-
-@mixin header-footer-inset {
-  height: 3rem;
+.Layout__inline {
   display: flex;
   align-items: center;
-}
+  position: relative;
 
-@mixin header-footer-vertical-padding {
-  padding-top: 1rem;
+  & > *:not(:last-child) {
+    margin-bottom: 0;
+    margin-right: 1rem;
+  }
 }
 
 .Wrapper {
-  min-width: var(--size-min-window);
+  min-width: var(--layout-window-width-min);
   display: flex;
   flex-grow: 1;
   position: relative;
@@ -46,85 +78,88 @@ code {
 .SplitContainer {
   width: 50%;
   position: relative;
+
+  &.Main {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--pal-background-primary);
+  }
+
+  .Main__content {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
+  }
 }
 
-.ContentWrapper {
+// Logs
+.Logs {
+  background-color: var(--pal-example-details);
+  overflow: auto;
   display: flex;
   flex-direction: column;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  overflow: auto;
-}
 
-.Announcement {
-  background-color: var(--color-note);
-  color: var(--color-text-contrast);
-  text-align: center;
-  width: 100%;
-  margin-bottom: 2rem;
-  padding: 1rem 0; //vertical padding
-  // change anchor text to reflect same color as the rest of the announcment
-  .TextLink {
-    color: inherit;
+  &__container {
+    position: relative;
+    flex-grow: 1;
   }
-}
 
-.Main {
-  background-color: var(--color-background-main);
-}
-
-.Inset {
-  position: relative;
-  margin: 0 auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  width: 100%;
-  max-width: var(--size-max-window);
-}
-
-.Header {
-  @include header-footer-vertical-padding;
-  padding-bottom: 1rem;
-
-  .Inset {
-    @include header-footer-inset;
-    justify-content: space-between;
+  &__content {
+    display: flex;
+    flex-direction: column-reverse;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
   }
-}
 
-.Footer {
-  @include header-footer-vertical-padding;
-
-  .Inset {
-    @include header-footer-inset;
-    justify-content: space-between;
+  &__footer {
+    background-color: var(--pal-background-primary);
+    border: 1px solid var(--pal-border-primary);
+    border-bottom: none;
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
 
     a:not(:last-child) {
       margin-right: 1.5rem;
     }
   }
-}
 
-.IntroText {
-  margin-bottom: 3rem;
-}
+  &__wrapper {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
 
-.LandingButtons {
-  button {
-    text-align: left;
+  &__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 1rem;
+    color: var(--pal-text-secondary);
+  }
+
+  .LogItem {
+    margin-bottom: 1rem;
   }
 }
 
-.Inline {
-  display: flex;
-  align-items: center;
-  position: relative;
+.Landing {
+  &__container {
+    margin-top: 3rem;
+  }
 
-  & > *:not(:last-child) {
-    margin-right: 1rem;
+  &__buttons {
+    a {
+      margin-bottom: 1rem;
+    }
   }
 }
 
@@ -143,14 +178,6 @@ code {
 }
 
 // Generic
-.error {
-  color: var(--color-error);
-}
-
-.success {
-  color: var(--color-success);
-}
-
 .vertical-spacing {
   & > * {
     margin-bottom: 1rem;
@@ -169,6 +196,7 @@ code {
   display: flex;
   flex-direction: column;
   margin-bottom: 1rem;
+  margin-top: 3rem;
 
   .AccountInfo {
     display: table;
@@ -187,12 +215,6 @@ code {
     .AccountInfoCell {
       display: table-cell;
       vertical-align: middle;
-
-      button {
-        padding-top: 0.1rem;
-        padding-bottom: 0.1rem;
-        text-align: left;
-      }
 
       &.AccountLabel {
         text-transform: uppercase;
@@ -231,15 +253,16 @@ code {
 }
 
 .Balances {
-  border-top: 1px solid var(--color-border-main);
+  border-top: 1px solid var(--pal-border-primary);
 
   .BalanceRow {
-    border-bottom: 1px solid var(--color-border-main);
+    border-bottom: 1px solid var(--pal-border-primary);
     padding-top: 1rem;
     padding-bottom: 1rem;
+    color: var(--pal-text-primary);
 
     &.disabled {
-      background-color: var(--color-background-off);
+      background-color: var(--pal-background-secondary);
       cursor: not-allowed;
 
       .BalanceCell.BalanceInfo {
@@ -252,7 +275,7 @@ code {
     }
 
     &.active {
-      background-color: #dfd8ff;
+      background-color: rgba(var(--pal-brand-primary-rgb), 0.2);
     }
 
     .RegulatedInfo {
@@ -302,15 +325,6 @@ code {
     }
 
     &.BalanceActions {
-      .BalanceCellSelect {
-        display: flex;
-        align-items: center;
-
-        & > :first-child {
-          margin-right: 0.5rem;
-        }
-      }
-
       .CustomCell {
         display: flex;
         align-items: center;
@@ -359,61 +373,40 @@ code {
 
 .ClaimableBalances {
   margin-top: 3rem;
+
+  .CustomCell {
+    min-height: 2.75rem;
+  }
 }
 
 .BalancesButtons {
   margin-top: 1.5rem;
-}
-
-.CheckboxWrapper {
-  position: relative;
-}
-
-// Logs
-.Logs {
-  background-color: var(--color-background-off);
-  overflow: auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 
-  .LogsWrapper {
-    position: relative;
-    flex-grow: 1;
+  *:not(:first-child) {
+    margin-left: 1em;
   }
+}
 
-  .ContentWrapper {
-    flex-direction: column-reverse;
-  }
+.PresetAssets {
+  border-top: 1px solid var(--pal-border-primary);
 
-  .LogsFooter {
-    background-color: var(--color-background-main);
-    border: 1px solid var(--color-border-main);
-
-    .Inset {
-      @include header-footer-inset;
-
-      a:not(:last-child) {
-        margin-right: 1.5rem;
-      }
-    }
-  }
-
-  .LogsContent {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .EmptyLogsContent {
+  .PresetAssetRow {
+    border-bottom: 1px solid var(--pal-border-primary);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 1rem;
-    color: var(--color-note);
-  }
+    flex-direction: row;
 
-  .LogItem {
-    margin-bottom: 1rem;
+    .PresetAssetCode {
+      font-size: 1.1em;
+      font-weight: var(--font-weight-medium);
+    }
+
+    .PresetAssetIssuer {
+      margin-top: 0.3rem;
+    }
   }
 }
 
@@ -453,5 +446,22 @@ code {
 
   & > * {
     margin-right: 1rem;
+  }
+}
+
+.NotFoundPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 3rem;
+  padding-bottom: 2rem;
+
+  .Eyebrow {
+    color: var(--pal-brand-primary);
+  }
+
+  h1 {
+    text-align: center;
   }
 }

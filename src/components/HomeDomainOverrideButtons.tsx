@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { TextLink } from "components/TextLink";
+import {
+  Loader,
+  TextLink,
+  Modal,
+  Icon,
+  IconButton,
+} from "@stellar/design-system";
+
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
 import { HomeDomainOverrideModal } from "components/HomeDomainOverrideModal";
-import { Modal } from "components/Modal";
-import { IconButton } from "components/IconButton";
+import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import {
   setActiveAssetAction,
   resetActiveAssetAction,
@@ -13,11 +19,7 @@ import {
 import { log } from "helpers/log";
 import { searchParam } from "helpers/searchParam";
 import { ActionStatus, Asset, SearchParams } from "types/types.d";
-
-import { ReactComponent as IconEdit } from "assets/icons/edit.svg";
-import { ReactComponent as IconRemove } from "assets/icons/error.svg";
 import { useRedux } from "hooks/useRedux";
-import { Loader } from "@stellar/design-system";
 
 export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
   const [activeModal, setActiveModal] = useState("");
@@ -43,7 +45,9 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
         activeAsset = {
           assetString: asset.assetString,
           title: "",
-          callback: () => {},
+          callback: () => {
+            // do nothing
+          },
         };
         break;
       case ModalType.REMOVE_ASSET_OVERRIDE:
@@ -64,7 +68,7 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
   const handleRemove = () => {
     history.push(
       searchParam.removeKeyPair({
-        searchParam: SearchParams.ASSET_OVERRIDES,
+        param: SearchParams.ASSET_OVERRIDES,
         itemId: asset.assetString,
       }),
     );
@@ -87,7 +91,7 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
     <>
       {asset.homeDomain ? (
         <IconButton
-          icon={<IconEdit />}
+          icon={<Icon.Edit2 />}
           altText="Edit home domain"
           onClick={() => showModal(ModalType.ASSET_OVERRIDE)}
         />
@@ -99,14 +103,18 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
 
       {asset.isOverride && (
         <IconButton
-          icon={<IconRemove />}
+          icon={<Icon.XCircle />}
           altText="Remove home domain override"
           onClick={() => showModal(ModalType.REMOVE_ASSET_OVERRIDE)}
-          color="var(--color-error)"
+          variant={IconButton.variant.error}
         />
       )}
 
-      <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
+      <Modal
+        visible={Boolean(activeModal)}
+        onClose={handleCloseModal}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
         {/* Action confirmation */}
         {activeModal === ModalType.REMOVE_ASSET_OVERRIDE && (
           <ConfirmAssetAction onClose={handleCloseModal} />

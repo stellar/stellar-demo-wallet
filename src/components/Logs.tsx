@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { TextButton } from "@stellar/design-system";
+import { Layout, TextLink } from "@stellar/design-system";
 
 import { LogItem } from "components/LogItem";
 import { LOG_MESSAGE_EVENT } from "constants/settings";
@@ -83,8 +83,8 @@ export const Logs = () => {
   if (!account.isAuthenticated) {
     return (
       <div className="SplitContainer Logs">
-        <div className="ContentWrapper">
-          <div className="EmptyLogsContent">
+        <div className="Logs__content">
+          <div className="Logs__empty">
             Operation logs will appear here once a transaction begins
           </div>
         </div>
@@ -94,14 +94,15 @@ export const Logs = () => {
 
   return (
     <div className="SplitContainer Logs">
-      <div className="LogsWrapper">
-        <div className="ContentWrapper">
-          <div className="Inset">
-            <div className="LogsContent">
+      <div className="Logs__container">
+        <div className="Logs__content">
+          <Layout.Inset>
+            <div className="Logs__wrapper">
               {logs.items.length ? (
-                logs.items.map((log: LogItemProps) => (
+                logs.items.map((log: LogItemProps, index: number) => (
                   <LogItem
-                    key={log.timestamp}
+                    // eslint-disable-next-line react/no-array-index-key
+                    key={`${log.timestamp}-${index}`}
                     variant={log.type}
                     title={log.title}
                     body={log.body}
@@ -111,23 +112,23 @@ export const Logs = () => {
                 <p>No logs to show</p>
               )}
             </div>
-          </div>
+          </Layout.Inset>
         </div>
       </div>
 
-      <div className="LogsFooter">
-        <div className="Inset horizontal-spacing">
-          <TextButton onClick={handleDownload} disabled={!logs.items.length}>
+      <div className="Logs__footer">
+        <Layout.Inset>
+          <TextLink onClick={handleDownload} disabled={!logs.items.length}>
             Download logs
-          </TextButton>
+          </TextLink>
 
-          <TextButton
+          <TextLink
             onClick={() => dispatch(clearLogsAction())}
             disabled={!logs.items.length}
           >
             Clear logs
-          </TextButton>
-        </div>
+          </TextLink>
+        </Layout.Inset>
       </div>
     </div>
   );

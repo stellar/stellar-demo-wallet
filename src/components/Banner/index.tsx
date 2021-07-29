@@ -1,8 +1,14 @@
+// TODO: move to SDS
 import React from "react";
+import { Layout } from "@stellar/design-system";
 import "./styles.scss";
 
-export const Banner = ({ children }: { children: React.ReactNode }) => (
+interface BannerProps {
+  children: React.ReactNode;
+}
+
+export const Banner: React.FC<BannerProps> = ({ children }) => (
   <div className="Banner">
-    <div className="Inset">{children}</div>
+    <Layout.Inset>{children}</Layout.Inset>
   </div>
 );

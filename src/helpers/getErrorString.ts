@@ -10,6 +10,9 @@ export const TX_ERROR_TEXT: ErrorTextObject = {
   op_malformed: "The input is incorrect and would result in an invalid offer.",
   op_sell_no_trust: "You are not authorized to sell this asset.",
   op_line_full: "You have reached the limit allowed for buying that asset.",
+  op_no_destination: "The destination account doesn't exist.",
+  op_no_trust:
+    "One or more accounts in this transaction doesn't have a trustline with the desired asset.",
   op_underfunded: "You don’t have enough to cover that transaction.",
   op_under_dest_min:
     "We couldn’t complete your transaction at this time because the exchange rate offered is no longer available. Please try again.",
@@ -30,7 +33,9 @@ export const TX_ERROR_TEXT: ErrorTextObject = {
 };
 
 /**
- * Given a Horizon error object, return a human-readable string that summarizes it.
+ * Given a Horizon error object, return a human-readable string that summarizes
+ * it.
+ *
  * @param {Error} err - error object from horizon
  * @returns {string} error string
  */
@@ -54,8 +59,8 @@ export function getErrorString(err: any): string {
       const ignoredCodes = ["op_success"];
       const message = codes
         .filter((code: string) => !ignoredCodes.includes(code))
-        .map((code: string) => TX_ERROR_TEXT[code] || `Error code '${code}'`)
-        .join(", ");
+        .map((code: string) => TX_ERROR_TEXT[code] || `Error code '${code}'.`)
+        .join(" ");
 
       if (message) {
         return message;
@@ -95,6 +100,7 @@ export function getErrorString(err: any): string {
 
 /**
  * Given a Horizon error object, return the error code
+ *
  * @param {Error} err - error object from horizon
  * @returns {string} error code
  */
@@ -105,6 +111,7 @@ export function getErrorCodeString(err: any): string {
 
 /**
  * Given a Horizon error object, return a list of the error codes.
+ *
  * @param {Error} err - error object from horizon
  * @returns {string[]} error code
  */
@@ -121,9 +128,8 @@ export function getErrorCodes(err: any): string[] {
   // first, try to parse the errors in extras
   // eslint-disable-next-line camelcase
   if (e?.data?.extras?.result_codes) {
-    const {
-      result_codes: resultCodes,
-    }: Horizon.TransactionFailedExtras = e.data.extras;
+    const { result_codes: resultCodes }: Horizon.TransactionFailedExtras =
+      e.data.extras;
 
     if (resultCodes.operations) {
       const codes = resultCodes.operations;
