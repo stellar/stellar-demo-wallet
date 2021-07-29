@@ -39,8 +39,8 @@ interface InitiateSendActionResponse {
   assetIssuer: string;
   fields: {
     transaction: AnyObject;
-    sender: AnyObject;
-    receiver: AnyObject;
+    sender: {};
+    receiver: {};
   };
   senderType: string | undefined;
   receiverType: string | undefined;

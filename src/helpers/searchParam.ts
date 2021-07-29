@@ -6,15 +6,15 @@ import { searchKeyPairStringToArray } from "helpers/searchKeyPairStringToArray";
 import { SearchParams, SearchParamAsset, StringObject } from "types/types.d";
 
 const update = (
-  param: SearchParams,
+  searchParam: SearchParams,
   value: string,
   urlSearchParams?: URLSearchParams,
 ) => {
   const queryParams =
     urlSearchParams || new URLSearchParams(window.location.search);
-  const currentParamValue = queryParams.get(param) || "";
+  const currentParamValue = queryParams.get(searchParam) || "";
 
-  switch (param) {
+  switch (searchParam) {
     case SearchParams.PUBNET:
       if (value === "true") {
         queryParams.set(SearchParams.PUBNET, value);
@@ -46,13 +46,13 @@ const update = (
 };
 
 const remove = (
-  param: SearchParams,
+  searchParam: SearchParams,
   removeValue: string,
   urlSearchParams?: URLSearchParams,
 ) => {
   const queryParams =
     urlSearchParams || new URLSearchParams(window.location.search);
-  const currentParamValue = queryParams.get(param) || "";
+  const currentParamValue = queryParams.get(searchParam) || "";
 
   const updatedValue = updateValue({
     currentVal: currentParamValue,
@@ -60,30 +60,30 @@ const remove = (
   });
 
   if (updatedValue) {
-    queryParams.set(param, updatedValue);
+    queryParams.set(searchParam, updatedValue);
   } else {
-    queryParams.delete(param);
+    queryParams.delete(searchParam);
   }
 
   return `?${queryParams.toString()}`;
 };
 
 type UpdateKeyPairProps = {
-  param: SearchParams;
+  searchParam: SearchParams;
   itemId: string;
   keyPairs: StringObject;
   urlSearchParams?: URLSearchParams;
 };
 
 const updateKeyPair = ({
-  param,
+  searchParam,
   itemId,
   keyPairs,
   urlSearchParams,
 }: UpdateKeyPairProps) => {
   const queryParams =
     urlSearchParams || new URLSearchParams(window.location.search);
-  const currentParamValue = queryParams.get(param) || "";
+  const currentParamValue = queryParams.get(searchParam) || "";
   const valuesArray = currentParamValue ? currentParamValue.split(",") : [];
 
   const assetArray = searchKeyPairStringToArray(currentParamValue);
@@ -118,9 +118,9 @@ const updateKeyPair = ({
       [],
     );
 
-    // eslint-disable-next-line max-len
-    // We're building URL string back together here. Example: SRT:GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B|homeDomain>testanchor.stellar.org|someKey>someValue
-    queryParams.set(param, updatedValuesString.join(","));
+    // We're building URL string back together here. Example:
+    // SRT:GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B|homeDomain>testanchor.stellar.org|someKey>someValue
+    queryParams.set(searchParam, updatedValuesString.join(","));
   } else {
     // Add new item
     const updatedValue = [
@@ -128,24 +128,24 @@ const updateKeyPair = ({
       `${itemId}${URL_ITEM_SEPARATOR_CHAR}${getKeyPairString(keyPairs)}`,
     ].join(",");
 
-    queryParams.set(param, updatedValue);
+    queryParams.set(searchParam, updatedValue);
   }
 
   return `?${queryParams.toString()}`;
 };
 
 const removeKeyPair = ({
-  param,
+  searchParam,
   itemId,
   urlSearchParams,
 }: {
-  param: SearchParams;
+  searchParam: SearchParams;
   itemId: string;
   urlSearchParams?: URLSearchParams;
 }) => {
   const queryParams =
     urlSearchParams || new URLSearchParams(window.location.search);
-  const currentParamValue = queryParams.get(param) || "";
+  const currentParamValue = queryParams.get(searchParam) || "";
   const assetArray = searchKeyPairStringToArray(currentParamValue);
   const assetsToKeep = assetArray.filter((v) => v.assetString !== itemId);
 
@@ -160,11 +160,11 @@ const removeKeyPair = ({
       [],
     );
 
-    // eslint-disable-next-line max-len
-    // We're building URL string back together here. Example: SRT:GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B|homeDomain>testanchor.stellar.org|someKey>someValue
-    queryParams.set(param, updatedValuesString.join(","));
+    // We're building URL string back together here. Example:
+    // SRT:GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B|homeDomain>testanchor.stellar.org|someKey>someValue
+    queryParams.set(searchParam, updatedValuesString.join(","));
   } else {
-    queryParams.delete(param);
+    queryParams.delete(searchParam);
   }
 
   return `?${queryParams.toString()}`;

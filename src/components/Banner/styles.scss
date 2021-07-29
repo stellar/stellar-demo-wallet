@@ -1,9 +1,10 @@
+// TODO: add to SDS
 .Banner {
-  width: 100%;
-  padding: 1rem 0;
+  min-width: var(--size-min-window);
+  background-color: var(--color-error);
+  color: var(--color-text-contrast);
   text-align: center;
-  background-color: var(--pal-error);
-  color: var(--pal-error-on);
-  font-size: 1rem;
-  line-height: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  z-index: calc(var(--z-index-modal) + 2);
 }

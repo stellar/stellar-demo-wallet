@@ -5,19 +5,19 @@
   opacity: 0;
   transition: all 300ms;
 
-  &--open {
+  &.open {
     opacity: 1;
   }
 
-  &__header {
+  .LogItemHeader {
     display: flex;
     align-items: flex-start;
     padding: 1rem;
   }
 
-  &__icon {
+  .LogItemIcon {
     width: 1rem;
-    height: 1.6rem;
+    height: 1.25rem;
     margin-right: 0.5rem;
     flex-shrink: 0;
     flex-grow: 0;
@@ -28,13 +28,13 @@
     }
   }
 
-  &__title {
+  .LogItemTitle {
     font-size: 1rem;
     line-height: 1.25rem;
     word-break: break-word;
   }
 
-  &__body {
+  .LogItemBody {
     padding: 1rem;
     font-weight: var(--font-weight-light);
     font-family: var(--font-family-monospace);
@@ -44,50 +44,39 @@
   }
 
   // Light box
-  &--instruction,
-  &--error {
+  &.instruction,
+  &.error {
     width: fit-content;
-    background-color: var(--pal-background-primary);
-    border: 1px solid var(--pal-border-primary);
-    box-shadow: 0 0.25rem 0.5rem -0.25rem rgba(var(--pal-shadow-rbg), 0.08);
-    color: var(--pal-text-primary);
+    background-color: var(--color-background-main);
+    border: 1px solid var(--color-border-input);
+    box-shadow: 0 0.25rem 0.5rem -0.25rem rgba(0, 0, 0, 0.08);
+    color: var(--color-text);
 
-    p {
-      color: var(--pal-text-primary);
-    }
-
-    .LogItem__body {
-      border-top: 1px solid var(--pal-border-primary);
-      color: var(--pal-text-primary);
+    .LogItemBody {
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      color: var(--color-text);
     }
   }
 
   // Dark box
-  &--request,
-  &--response {
+  &.request,
+  &.response {
     width: 100%;
-    background-color: var(--pal-example-code);
-    color: var(--pal-brand-primary-on);
+    background-color: var(--color-background-contrast);
+    color: var(--color-text-contrast);
 
-    p {
-      color: var(--pal-brand-primary-on);
-    }
-
-    .LogItem__title {
+    .LogItemTitle {
       font-weight: var(--font-weight-medium);
-      color: var(--pal-brand-primary-on);
     }
 
-    .LogItem__body {
-      // Hard coded color, but it's OK. It does not change between light and
-      // dark theme.
+    .LogItemBody {
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--pal-brand-primary-on);
+      // TODO: add color to SDS
+      color: #fbfaf7;
     }
 
     code {
-      // Hard coded colors, but it's OK. They do not change between light and
-      // dark theme.
+      // TODO: add color to SDS
       color: #ffdd96;
       background-color: rgba(255, 221, 150, 0.08);
       border-color: rgba(255, 221, 150, 0.16);
@@ -95,30 +84,34 @@
   }
 
   // Instruction
-  &--instruction {
-    .LogItem__icon svg {
-      stroke: var(--pal-success);
+  &.instruction {
+    .LogItemIcon svg {
+      // TODO: add color to SDS
+      fill: #20bf6b;
     }
   }
 
   // Error
-  &--error {
-    .LogItem__icon svg {
-      stroke: var(--pal-error);
+  &.error {
+    .LogItemIcon svg {
+      // TODO: add color to SDS
+      fill: #eb3b5a;
     }
   }
 
   // Request
-  &--request {
-    .LogItem__icon svg {
-      stroke: var(--pal-warning);
+  &.request {
+    .LogItemIcon svg {
+      // TODO: add color to SDS
+      fill: #ffdd96;
     }
   }
 
   // Response
-  &--response {
-    .LogItem__icon svg {
-      stroke: var(--pal-success);
+  &.response {
+    .LogItemIcon svg {
+      // TODO: add color to SDS
+      fill: #abcc7d;
     }
   }
 }

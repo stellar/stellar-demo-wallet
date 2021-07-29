@@ -31,4 +31,3 @@
 - SEP-31 send fix
 - SEP-12 customer fields
 - SEP-6 updates
-- Dark mode

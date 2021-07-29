@@ -17,7 +17,7 @@ export const getAssetData = async ({
     return assets;
   }
 
-  // eslint-disable-next-line @typescript-eslint/prefer-for-of
+  // eslint-disable-next-line no-plusplus
   for (let i = 0; i < allAssets.length; i++) {
     const [assetId, data] = allAssets[i];
 

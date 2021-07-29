@@ -1,5 +1,3 @@
-import { AnyObject } from "types/types.d";
-
 // These props are accessed whenever react-devtools is used.
 // We need to bypass them, otherwise it'll explode with an exception.
 const SKIPPING_PROPS = [
@@ -18,7 +16,7 @@ const SKIPPING_PROPS = [
  * @param  {Object} mapping Any object.
  * @return {Proxy}          The dict proxy object.
  */
-export function Struct<T>(mapping: AnyObject): T {
+export function Struct<T>(mapping: object): T {
   const proxy = new Proxy(mapping, {
     get(target: any, name: string) {
       if (name === "toJSON") {

@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   Button,
+  Heading2,
   InfoBlock,
   Input,
-  TextLink,
-  Modal,
+  Loader,
 } from "@stellar/design-system";
+import { TextLink } from "components/TextLink";
 import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
-import { ErrorMessage } from "components/ErrorMessage";
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { sendPaymentAction, resetSendPaymentAction } from "ducks/sendPayment";
@@ -47,16 +47,6 @@ export const SendPayment = ({
     setAssetIssuer("");
     setIsDestinationFunded(true);
   };
-
-  useEffect(
-    () => () => {
-      // Reset when component unmounts
-      dispatch(resetSendPaymentAction());
-      dispatch(resetActiveAssetAction());
-      resetFormState();
-    },
-    [dispatch],
-  );
 
   useEffect(() => {
     if (sendPayment.status === ActionStatus.SUCCESS && data?.id) {
@@ -104,9 +94,9 @@ export const SendPayment = ({
 
   return (
     <>
-      <Modal.Heading>Send payment</Modal.Heading>
+      <Heading2 className="ModalHeading">Send payment</Heading2>
 
-      <Modal.Body>
+      <div className="ModalBody">
         <Input
           id="send-destination"
           label="Destination"
@@ -142,22 +132,32 @@ export const SendPayment = ({
           <InfoBlock>
             The destination account doesn’t exist. A create account operation
             will be used to create this account.{" "}
-            <TextLink href="https://developers.stellar.org/docs/tutorials/create-account/">
+            <TextLink
+              href="https://developers.stellar.org/docs/tutorials/create-account/"
+              isExternal
+            >
               Learn more about account creation
             </TextLink>
           </InfoBlock>
         )}
-        <ErrorMessage message={sendPayment.errorString} />
-      </Modal.Body>
+      </div>
 
-      <Modal.Footer>
+      {sendPayment.errorString && (
+        <div className="ModalMessage error">
+          <p>{sendPayment.errorString}</p>
+        </div>
+      )}
+
+      <div className="ModalButtonsFooter">
+        {sendPayment.status === ActionStatus.PENDING && <Loader />}
+
         <Button
           onClick={handleSubmit}
-          isLoading={sendPayment.status === ActionStatus.PENDING}
+          disabled={sendPayment.status === ActionStatus.PENDING}
         >
           Submit
         </Button>
-      </Modal.Footer>
+      </div>
     </>
   );
 };

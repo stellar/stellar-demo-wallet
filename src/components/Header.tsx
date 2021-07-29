@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Layout, Modal } from "@stellar/design-system";
+import { ProjectLogo, TextButton } from "@stellar/design-system";
+import { Modal } from "components/Modal";
 import { SignOutModal } from "components/SignOutModal";
-import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { useRedux } from "hooks/useRedux";
 
 export const Header = () => {
@@ -14,22 +14,19 @@ export const Header = () => {
   };
 
   return (
-    <>
-      <Layout.Header
-        projectTitle="Demo Wallet"
-        {...(account.isAuthenticated
-          ? { onSignOut: () => setModalVisible(true) }
-          : {})}
-        hasDarkModeToggle
-      />
+    <div className="Header">
+      <div className="Inset">
+        <ProjectLogo title="Demo Wallet" />
+        {account.isAuthenticated && (
+          <TextButton onClick={() => setModalVisible(true)}>
+            Sign out
+          </TextButton>
+        )}
+      </div>
 
-      <Modal
-        visible={modalVisible}
-        onClose={handleCloseModal}
-        parentId={CSS_MODAL_PARENT_ID}
-      >
+      <Modal visible={modalVisible} onClose={handleCloseModal}>
         <SignOutModal onClose={handleCloseModal} />
       </Modal>
-    </>
+    </div>
   );
 };
