@@ -178,7 +178,6 @@ export const initiateDepositAction = createAsyncThunk<
 export const submitSep6DepositFields = createAsyncThunk<
   { status: ActionStatus; depositResponse: Sep6DepositResponse },
   {
-    amount?: string;
     depositType: AnyObject;
     infoFields: AnyObject;
     customerFields: AnyObject;
@@ -187,7 +186,7 @@ export const submitSep6DepositFields = createAsyncThunk<
 >(
   "sep6DepositAsset/submitSep6DepositFields",
   async (
-    { amount, depositType, customerFields, infoFields },
+    { depositType, customerFields, infoFields },
     { rejectWithValue, getState },
   ) => {
     try {
@@ -209,7 +208,6 @@ export const submitSep6DepositFields = createAsyncThunk<
       }
 
       const depositResponse = (await programmaticDepositFlow({
-        amount,
         assetCode,
         publicKey,
         transferServerUrl,
@@ -280,13 +278,15 @@ export const sep6DepositAction = createAsyncThunk<
       };
 
       // Poll transaction until complete
-      const { currentStatus = "", trustedAssetAdded = "" } =
-        await pollDepositUntilComplete({
-          transactionId: depositResponse.id || "",
-          token,
-          transferServerUrl,
-          trustAssetCallback,
-        });
+      const {
+        currentStatus = "",
+        trustedAssetAdded = "",
+      } = await pollDepositUntilComplete({
+        transactionId: depositResponse.id || "",
+        token,
+        transferServerUrl,
+        trustAssetCallback,
+      });
 
       return {
         currentStatus,

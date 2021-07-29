@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { TextLink } from "@stellar/design-system";
-
+import { TextButton } from "components/TextButton";
+import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
-import { DetailsTooltip } from "components/DetailsTooltip";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
@@ -132,7 +131,10 @@ export const UntrustedBalance = ({
               You are about to create a trustline to asset{" "}
               <code>{`${asset.assetCode}:${asset.assetIssuer}`}</code>. This
               will allow you to hold this asset.{" "}
-              <TextLink href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines">
+              <TextLink
+                href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines"
+                isExternal
+              >
                 Learn more
               </TextLink>
             </p>
@@ -180,30 +182,30 @@ export const UntrustedBalance = ({
               handleAction({ actionId, asset: assetItem })
             }
           >
-            <DetailsTooltip
-              details={
+            <TextButton
+              onClick={() =>
+                handleAction({
+                  actionId: AssetActionId.TRUST_ASSET,
+                  asset,
+                })
+              }
+              disabled={account.isUnfunded || disabledButton}
+              tooltipText={
                 <>
                   Adding a trustline means you trust an issuer to redeem its
                   credit. If you’re testing SEP-24 or SEP-6 you may not want to
                   do this.{" "}
-                  <TextLink href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines">
+                  <TextLink
+                    href="https://developers.stellar.org/docs/issuing-assets/anatomy-of-an-asset/#trustlines"
+                    isExternal
+                  >
                     Learn more
                   </TextLink>
                 </>
               }
             >
-              <TextLink
-                onClick={() =>
-                  handleAction({
-                    actionId: AssetActionId.TRUST_ASSET,
-                    asset,
-                  })
-                }
-                disabled={account.isUnfunded || disabledButton}
-              >
-                Add trustline
-              </TextLink>
-            </DetailsTooltip>
+              Add trustline
+            </TextButton>
           </BalanceRow>
         ) : (
           // Does not exist
@@ -212,7 +214,7 @@ export const UntrustedBalance = ({
             key={asset.assetString}
             asset={asset}
           >
-            <TextLink
+            <TextButton
               onClick={() =>
                 handleAction({
                   actionId: AssetActionId.REMOVE_ASSET,
@@ -222,7 +224,7 @@ export const UntrustedBalance = ({
               disabled={disabledButton}
             >
               Remove
-            </TextLink>
+            </TextButton>
           </BalanceRow>
         ),
       )}

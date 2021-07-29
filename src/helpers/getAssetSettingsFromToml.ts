@@ -14,7 +14,7 @@ export const getAssetSettingsFromToml = async ({
   homeDomainOverride,
 }: GetAssetSettingsFromToml): Promise<{
   homeDomain: string | undefined;
-  supportedActions: AssetSupportedActions | AnyObject;
+  supportedActions: AssetSupportedActions | {};
 }> => {
   const server = new Server(networkUrl);
 
@@ -65,7 +65,7 @@ const isSep8Asset = ({
 }: {
   currencies: any;
   assetId: string;
-}): boolean => {
+}): Boolean => {
   const [assetCode, assetIssuer] = assetId.split(":");
 
   const currency = (currencies as any[]).find(

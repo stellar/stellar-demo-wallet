@@ -1,0 +1,83 @@
+@mixin input-note-shared {
+  margin-top: 1rem;
+}
+
+.Input {
+  width: 100%;
+
+  .InputLabelWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+
+    label {
+      margin-bottom: 0;
+    }
+
+    .InfoButton {
+      margin-left: 0.5rem;
+    }
+
+    .InfoButtonTooltip {
+      right: auto;
+      left: 0;
+    }
+  }
+
+  .InputContainer {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .InputWrapper {
+      border: 1px solid var(--color-border-input);
+      border-radius: 0.125rem;
+      background-color: var(--color-background-input);
+      flex: 1;
+      height: 100%;
+
+      &[data-disabled="true"] {
+        opacity: 0.5;
+      }
+
+      input {
+        padding: 0.55rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        color: var(--color-text-input);
+        border-radius: 0.125rem;
+        border: none;
+        background-color: transparent;
+        width: 100%;
+        min-width: 0;
+
+        &::placeholder {
+          color: var(--color-text-input-placeholder);
+        }
+      }
+    }
+
+    .InputRightElement {
+      margin-left: 1rem;
+      font-size: 1rem;
+      line-height: 1.5rem;
+      color: var(--color-text);
+    }
+  }
+
+  .InputError {
+    @include input-note-shared;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: var(--color-error);
+  }
+
+  .InputNote {
+    @include input-note-shared;
+    font-size: 0.9rem;
+    line-height: 1.4rem;
+    color: var(--color-note);
+  }
+}

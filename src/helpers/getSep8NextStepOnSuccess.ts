@@ -2,11 +2,8 @@ import { Sep8ApprovalStatus, Sep8Step } from "types/types.d";
 
 /**
  * Returns the next SEP-8 step to be displayed after the current step succeeds.
- *
  * @param {Sep8Step} currentStep the current SEP-8 step.
- * @param {Sep8ApprovalStatus} [approvalStatus] the approval status returned
- * from the SEP-8 server. This value will only be used if
- * `currentStep === Sep8Step.STARTING`.
+ * @param {Sep8ApprovalStatus} [approvalStatus] the approval status returned from the SEP-8 server. This value will only be used if `currentStep === Sep8Step.STARTING`.
  * @returns {Sep8Step} the next SEP-8 step for the application.
  */
 export const getSep8NextStepOnSuccess = ({
@@ -40,13 +37,9 @@ export const getSep8NextStepOnSuccess = ({
 };
 
 /**
- * Returns the next SEP-8 step to be displayed after the current step succeeds,
- * based solely on the respone comming from the SEP-8 approval server.
- *
+ * Returns the next SEP-8 step to be displayed after the current step succeeds, based solely on the respone comming from the SEP-8 approval server.
  * @param {Sep8Step} currentStep the current SEP-8 step.
- * @param {Sep8ApprovalStatus} [approvalStatus] the approval status returned
- * from the SEP-8 server. This value will only be used if
- * `currentStep === Sep8Step.STARTING`.
+ * @param {Sep8ApprovalStatus} [approvalStatus] the approval status returned from the SEP-8 server. This value will only be used if `currentStep === Sep8Step.STARTING`.
  * @returns {Sep8Step} the next SEP-8 step for the application.
  */
 const nextStepAfterApprovalServer = ({

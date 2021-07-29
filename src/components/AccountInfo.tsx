@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Heading2, Loader, TextLink, Layout } from "@stellar/design-system";
+import { Heading2, Loader } from "@stellar/design-system";
+import { TextButton } from "components/TextButton";
+import { TextLink } from "components/TextLink";
 
+import { CopyWithText } from "components/CopyWithText";
 import { Json } from "components/Json";
 import { ToastBanner } from "components/ToastBanner";
-import { CopyText } from "components/CopyText";
-import { DetailsTooltip } from "components/DetailsTooltip";
 
 import { fetchAccountAction, fundTestnetAccount } from "ducks/account";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
@@ -42,10 +43,8 @@ export const AccountInfo = () => {
     return null;
   }
 
-  const isPending = account.status === ActionStatus.PENDING;
-
   return (
-    <Layout.Inset>
+    <div className="Inset">
       <div className="Account">
         {/* Account keys */}
         <div className="AccountInfo">
@@ -55,9 +54,7 @@ export const AccountInfo = () => {
               {shortenStellarKey(account.data.id)}
             </div>
             <div className="AccountInfoCell CopyButton">
-              <CopyText copyText={account.data.id}>
-                <TextLink>Copy</TextLink>
-              </CopyText>
+              <CopyWithText textToCopy={account.data.id} />
             </div>
           </div>
           <div className="AccountInfoRow">
@@ -66,9 +63,7 @@ export const AccountInfo = () => {
               {shortenStellarKey(account.secretKey)}
             </div>
             <div className="AccountInfoCell CopyButton">
-              <CopyText copyText={account.secretKey}>
-                <TextLink>Copy</TextLink>
-              </CopyText>
+              <CopyWithText textToCopy={account.secretKey} />
             </div>
           </div>
         </div>
@@ -79,36 +74,36 @@ export const AccountInfo = () => {
             <div className="AccountInfoCell">
               {account.isUnfunded && (
                 <div className="InfoButtonWrapper">
-                  <DetailsTooltip
-                    details={
+                  <TextButton
+                    onClick={handleCreateAccount}
+                    disabled={account.status === ActionStatus.PENDING}
+                    tooltipText={
                       <>
                         Clicking create will fund your test account with XLM. If
                         you’re testing SEP-24 you may want to leave this account
                         unfunded.{" "}
-                        <TextLink href="https://developers.stellar.org/docs/tutorials/create-account/#create-account">
+                        <TextLink
+                          href="https://developers.stellar.org/docs/tutorials/create-account/#create-account"
+                          isExternal
+                        >
                           Learn more
                         </TextLink>
                       </>
                     }
                   >
-                    <TextLink
-                      onClick={handleCreateAccount}
-                      disabled={isPending}
-                    >
-                      Create account
-                    </TextLink>
-                  </DetailsTooltip>
+                    Create account
+                  </TextButton>
                 </div>
               )}
 
               {!account.isUnfunded && (
-                <TextLink
+                <TextButton
                   onClick={() =>
                     setIsAccountDetailsVisible(!isAccountDetailsVisible)
                   }
                 >{`${
                   isAccountDetailsVisible ? "Hide" : "Show"
-                } account details`}</TextLink>
+                } account details`}</TextButton>
               )}
             </div>
           </div>
@@ -116,14 +111,14 @@ export const AccountInfo = () => {
           <div className="AccountInfoRow">
             <div className="AccountInfoCell">
               <div className="InfoButtonWrapper">
-                <DetailsTooltip
-                  details="If you performed account actions elsewhere, like in the
+                <TextButton
+                  onClick={handleRefreshAccount}
+                  disabled={account.status === ActionStatus.PENDING}
+                  tooltipText="If you performed account actions elsewhere, like in the
                   Stellar Laboratory, click here to update."
                 >
-                  <TextLink onClick={handleRefreshAccount} disabled={isPending}>
-                    Refresh account
-                  </TextLink>
-                </DetailsTooltip>
+                  Refresh account
+                </TextButton>
               </div>
             </div>
           </div>
@@ -140,12 +135,15 @@ export const AccountInfo = () => {
         </div>
       )}
 
-      <ToastBanner parentId="app-wrapper" visible={isPending}>
-        <div className="Layout__inline">
+      <ToastBanner
+        parentId="app-wrapper"
+        visible={account.status === ActionStatus.PENDING}
+      >
+        <div className="Inline">
           <span>Updating account</span>
           <Loader />
         </div>
       </ToastBanner>
-    </Layout.Inset>
+    </div>
   );
 };

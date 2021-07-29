@@ -1,36 +1,28 @@
 import ReactJson, { ReactJsonViewProps } from "react-json-view";
 
-const defaultTheme = {
-  base00: "var(--pal-background-primary)",
-  base01: "var(--pal-background-primary)",
-  base02: "var(--pal-background-primary)",
-  base03: "var(--pal-text-primary)",
-  base04: "var(--pal-text-link)",
-  base05: "var(--pal-text-primary)",
-  base06: "var(--pal-text-primary)",
-  base07: "var(--pal-text-primary)",
-  base08: "var(--pal-text-primary)",
-  base09: "var(--pal-text-primary)",
-  base0A: "var(--pal-text-primary)",
-  base0B: "var(--pal-text-primary)",
-  base0C: "var(--pal-text-primary)",
-  base0D: "var(--pal-text-link)",
-  base0E: "var(--pal-text-link)",
-  base0F: "var(--pal-text-link)",
-};
-
-export const Json = ({
-  src,
-  collapseStringsAfterLength = 15,
-  displayDataTypes = true,
-  collapsed = false,
-  theme = defaultTheme,
-}: ReactJsonViewProps) => (
+export const Json = ({ src }: ReactJsonViewProps) => (
   <ReactJson
     src={src}
-    collapseStringsAfterLength={collapseStringsAfterLength}
-    displayDataTypes={displayDataTypes}
-    collapsed={collapsed}
-    theme={theme}
+    collapseStringsAfterLength={15}
+    displayDataTypes={true}
+    collapsed={false}
+    theme={{
+      base00: "#fff",
+      base01: "#fff",
+      base02: "#fff",
+      base03: "#000",
+      base04: "#3e1bdb",
+      base05: "#000",
+      base06: "#000",
+      base07: "#000",
+      base08: "#000",
+      base09: "#000",
+      base0A: "#000",
+      base0B: "#000",
+      base0C: "#000",
+      base0D: "#3e1bdb",
+      base0E: "#3e1bdb",
+      base0F: "#3e1bdb",
+    }}
   />
 );

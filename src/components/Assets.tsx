@@ -1,23 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import {
-  Button,
-  Heading2,
-  Loader,
-  TextLink,
-  Modal,
-  Layout,
-} from "@stellar/design-system";
+import { Button, Heading2, Loader } from "@stellar/design-system";
 
 import { AddAsset } from "components/AddAsset";
-import { AddPresetAsset } from "components/AddPresetAsset";
 import { Balance } from "components/Balance";
 import { ClaimableBalance } from "components/ClaimableBalance";
 import { ConfirmAssetAction } from "components/ConfirmAssetAction";
+import { Modal } from "components/Modal";
 import { ToastBanner } from "components/ToastBanner";
 import { UntrustedBalance } from "components/UntrustedBalance";
-import { CSS_MODAL_PARENT_ID } from "constants/settings";
 
 import { fetchAccountAction, resetAccountStatusAction } from "ducks/account";
 import {
@@ -43,7 +35,6 @@ import {
 } from "ducks/untrustedAssets";
 import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 
-import { getPresetAssets } from "helpers/getPresetAssets";
 import { searchParam } from "helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import {
@@ -95,9 +86,8 @@ export const Assets = ({
   const dispatch = useDispatch();
   const history = useHistory();
 
-  enum ModalType {
+  enum modalType {
     ADD_ASSET = "ADD_ASSET",
-    ADD_PRESET_ASSET = "ADD_PRESET_ASSET",
     CONFIRM_ACTION = "CONFIRM_ACTION",
   }
 
@@ -143,7 +133,7 @@ export const Assets = ({
     description,
     options,
   }: AssetActionItem) => {
-    setActiveModal(ModalType.CONFIRM_ACTION);
+    setActiveModal(modalType.CONFIRM_ACTION);
     dispatch(
       setActiveAssetAction({
         assetString,
@@ -396,61 +386,41 @@ export const Assets = ({
     <>
       {/* Balances */}
       <div className="Section">
-        <Layout.Inset>
+        <div className="Inset">
           <Heading2>Balances</Heading2>
-        </Layout.Inset>
+        </div>
         <div className="Balances">
           <Balance onSend={onSendPayment} onAssetAction={handleAssetAction} />
           <UntrustedBalance onAssetAction={handleAssetAction} />
         </div>
 
-        <Layout.Inset>
-          <div className="BalancesButtons">
-            <Button
-              onClick={() => setActiveModal(ModalType.ADD_ASSET)}
-              disabled={Boolean(activeAsset.action)}
-            >
-              Add asset
-            </Button>
-
-            {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
-              <TextLink
-                onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
-                disabled={Boolean(activeAsset.action)}
-              >
-                Select from preset assets
-              </TextLink>
-            )}
-          </div>
-        </Layout.Inset>
+        <div className="BalancesButtons Inset">
+          <Button
+            onClick={() => setActiveModal(modalType.ADD_ASSET)}
+            disabled={Boolean(activeAsset.action)}
+          >
+            Add asset
+          </Button>
+        </div>
       </div>
 
       {/* Claimable balances */}
       <ClaimableBalance onAssetAction={handleAssetAction} />
 
-      <Modal
-        visible={Boolean(activeModal)}
-        onClose={handleCloseModal}
-        parentId={CSS_MODAL_PARENT_ID}
-      >
+      <Modal visible={Boolean(activeModal)} onClose={handleCloseModal}>
         {/* Action confirmation */}
-        {activeModal === ModalType.CONFIRM_ACTION && (
+        {activeModal === modalType.CONFIRM_ACTION && (
           <ConfirmAssetAction onClose={handleCloseModal} />
         )}
 
         {/* Add asset */}
-        {activeModal === ModalType.ADD_ASSET && (
+        {activeModal === modalType.ADD_ASSET && (
           <AddAsset onClose={handleCloseModal} />
-        )}
-
-        {/* Add preset asset */}
-        {activeModal === ModalType.ADD_PRESET_ASSET && (
-          <AddPresetAsset onClose={handleCloseModal} />
         )}
       </Modal>
 
       <ToastBanner parentId="app-wrapper" visible={Boolean(toastMessage)}>
-        <div className="Layout__inline">
+        <div className="Inline">
           <div>{toastMessage}</div>
           <Loader />
         </div>

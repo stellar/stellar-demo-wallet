@@ -64,11 +64,8 @@ export const sendPayment = async ({
 
   try {
     const memoType = {
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       [MemoTypeString.TEXT]: Memo.text,
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       [MemoTypeString.ID]: Memo.id,
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       [MemoTypeString.HASH]: Memo.hash,
     }[sendMemoType];
 

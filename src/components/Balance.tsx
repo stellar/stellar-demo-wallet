@@ -1,6 +1,5 @@
 import { useDispatch } from "react-redux";
-import { TextLink } from "@stellar/design-system";
-
+import { TextLink } from "components/TextLink";
 import { BalanceRow } from "components/BalanceRow";
 import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
 import { initiateWithdrawAction as initiateSep6WithdrawAction } from "ducks/sep6WithdrawAsset";
@@ -114,7 +113,10 @@ export const Balance = ({
           description: (
             <p>
               {`Send ${balance.assetCode} on-chain to another account.`}{" "}
-              <TextLink href="https://developers.stellar.org/docs/tutorials/send-and-receive-payments/">
+              <TextLink
+                href="https://developers.stellar.org/docs/tutorials/send-and-receive-payments/"
+                isExternal
+              >
                 Learn more
               </TextLink>
             </p>
@@ -145,7 +147,10 @@ export const Balance = ({
           description: (
             <p>
               {`Payments with regulated assets need to be approved by the asset issuer. For more information please refer to`}{" "}
-              <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md">
+              <TextLink
+                href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md"
+                isExternal
+              >
                 SEP-8
               </TextLink>
               .

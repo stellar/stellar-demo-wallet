@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, Input, InfoBlock, Modal } from "@stellar/design-system";
+import {
+  Button,
+  ButtonVariant,
+  Heading2,
+  Input,
+  InfoBlock,
+  InfoBlockVariant,
+  Loader,
+} from "@stellar/design-system";
 import { getAssetFromHomeDomain } from "helpers/getAssetFromHomeDomain";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -41,7 +49,7 @@ export const HomeDomainOverrideModal = ({
       if (validAsset.homeDomain) {
         history.push(
           searchParam.updateKeyPair({
-            param: SearchParams.ASSET_OVERRIDES,
+            searchParam: SearchParams.ASSET_OVERRIDES,
             itemId: `${asset.assetCode}:${asset.assetIssuer}`,
             keyPairs: { homeDomain },
           }),
@@ -63,9 +71,9 @@ export const HomeDomainOverrideModal = ({
 
   return (
     <>
-      <Modal.Heading>Override home domain</Modal.Heading>
+      <Heading2 className="ModalHeading">Override home domain</Heading2>
 
-      <Modal.Body>
+      <div className="ModalBody">
         <p>{`Asset ${asset.assetCode} currently has ${
           asset.homeDomain || "no"
         } home domain.`}</p>
@@ -82,29 +90,27 @@ export const HomeDomainOverrideModal = ({
         />
 
         {errorMessage && (
-          <InfoBlock variant={InfoBlock.variant.error}>
+          <InfoBlock variant={InfoBlockVariant.error}>
             <p>{errorMessage}</p>
           </InfoBlock>
         )}
-      </Modal.Body>
+      </div>
 
-      <Modal.Footer>
-        <Button
-          onClick={handleOverride}
-          disabled={!homeDomain}
-          isLoading={isPending}
-        >
+      <div className="ModalButtonsFooter">
+        {isPending && <Loader />}
+
+        <Button onClick={handleOverride} disabled={!homeDomain || isPending}>
           Override
         </Button>
 
         <Button
           onClick={onClose}
           disabled={isPending}
-          variant={Button.variant.secondary}
+          variant={ButtonVariant.secondary}
         >
           Cancel
         </Button>
-      </Modal.Footer>
+      </div>
     </>
   );
 };

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Transaction, TransactionBuilder } from "stellar-sdk";
-import { Button, Checkbox, Modal, Heading3 } from "@stellar/design-system";
-import { ErrorMessage } from "components/ErrorMessage";
+import { Button, Checkbox, Loader } from "@stellar/design-system";
+import { Heading2, Heading3 } from "components/Heading";
 import { Json } from "components/Json";
-import { CSS_MODAL_PARENT_ID } from "constants/settings";
+import { Modal } from "components/Modal";
 import { fetchAccountAction } from "ducks/account";
 import { sep8SubmitRevisedTransactionAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
@@ -67,9 +67,11 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
   const renderSendPayment = () => (
     <>
-      <Modal.Heading>Review & Submit SEP-8 Transaction</Modal.Heading>
+      <Heading2 className="ModalHeading">
+        Review & Submit SEP-8 Transaction
+      </Heading2>
 
-      <Modal.Body>
+      <div className="ModalBody">
         <div className="ModalMessage">
           <p>
             {sep8Send.data.actionRequiredResult.result &&
@@ -93,33 +95,40 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
           </>
         )}
 
-        <ErrorMessage marginBottom="1rem" message={sep8Send.errorString} />
+        {sep8Send.errorString && (
+          <div className="ModalMessage error">
+            <p>{sep8Send.errorString}</p>
+          </div>
+        )}
 
-        <Checkbox
-          id="sep8-send-approve"
-          label="I approve executing these operations."
-          checked={isApproved}
-          onChange={() => {
-            setIsApproved(!isApproved);
-          }}
-          disabled={sep8Send.status === ActionStatus.PENDING}
-        />
-      </Modal.Body>
+        <div className="CheckboxWrapper">
+          <Checkbox
+            id="sep8-send-approve"
+            label="I approve executing these operations."
+            checked={isApproved}
+            onChange={() => {
+              setIsApproved(!isApproved);
+            }}
+            disabled={sep8Send.status === ActionStatus.PENDING}
+          />
+        </div>
+      </div>
 
-      <Modal.Footer>
+      <div className="ModalButtonsFooter">
+        {sep8Send.status === ActionStatus.PENDING && <Loader />}
+
         <Button
           onClick={handleSubmitPayment}
-          disabled={!isApproved}
-          isLoading={sep8Send.status === ActionStatus.PENDING}
+          disabled={sep8Send.status === ActionStatus.PENDING || !isApproved}
         >
           Submit
         </Button>
-      </Modal.Footer>
+      </div>
     </>
   );
 
   return (
-    <Modal onClose={onClose} visible parentId={CSS_MODAL_PARENT_ID}>
+    <Modal onClose={onClose} visible>
       {renderSendPayment()}
     </Modal>
   );

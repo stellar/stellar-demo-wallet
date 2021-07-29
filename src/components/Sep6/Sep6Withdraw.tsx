@@ -1,16 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  Button,
-  Input,
-  Select,
-  TextLink,
-  Modal,
-  Heading3,
-} from "@stellar/design-system";
-import { DetailsTooltip } from "components/DetailsTooltip";
-import { ErrorMessage } from "components/ErrorMessage";
-import { CSS_MODAL_PARENT_ID } from "constants/settings";
+import { Button, Input, Select } from "@stellar/design-system";
+import { Heading2 } from "components/Heading";
+import { Modal } from "components/Modal";
+import { TextLink } from "components/TextLink";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6WithdrawAction,
@@ -56,10 +49,9 @@ export const Sep6Withdraw = () => {
     Object.keys(withdrawTypes)[0],
   );
 
-  const withdrawTypesArr = useMemo(
-    () => Object.entries(withdrawTypes),
-    [withdrawTypes],
-  );
+  const withdrawTypesArr = useMemo(() => Object.entries(withdrawTypes), [
+    withdrawTypes,
+  ]);
 
   useEffect(() => {
     if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {
@@ -154,28 +146,25 @@ export const Sep6Withdraw = () => {
 
   if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {
     return (
-      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>SEP-6 Withdrawal Info</Modal.Heading>
-
-        <Modal.Body>
-          <Heading3>
-            <DetailsTooltip
-              details={
-                <>
-                  These are the fields the receiving anchor requires. The
-                  sending client obtains them from the /info endpoint.{" "}
-                  <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info">
-                    Learn more
-                  </TextLink>
-                </>
-              }
-              isInline
-              tooltipPosition={DetailsTooltip.tooltipPosition.left}
-            >
-              <>SEP-6 Required Info</>
-            </DetailsTooltip>
-          </Heading3>
-
+      <Modal visible={true} onClose={handleClose}>
+        <div className="ModalBody">
+          <Heading2
+            className="ModalHeading"
+            tooltipText={
+              <>
+                These are the fields the receiving anchor requires. The sending
+                client obtains them from the /info endpoint.{" "}
+                <TextLink
+                  href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md#info"
+                  isExternal
+                >
+                  Learn more
+                </TextLink>
+              </>
+            }
+          >
+            SEP-6 Required Info
+          </Heading2>
           <div className="vertical-spacing">
             <Select
               label="Withdrawal Type"
@@ -201,22 +190,23 @@ export const Sep6Withdraw = () => {
             ))}
           </div>
           {Object.keys(sep6WithdrawAsset.data.fields).length ? (
-            <Heading3>
-              <DetailsTooltip
-                details={
-                  <>
-                    These are the fields the receiving anchor requires. The
-                    sending client obtains them from the /customer endpoint.{" "}
-                    <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
-                      Learn more
-                    </TextLink>
-                  </>
-                }
-                isInline
-              >
-                <>SEP-12 Required Info</>
-              </DetailsTooltip>
-            </Heading3>
+            <Heading2
+              className="ModalHeading"
+              tooltipText={
+                <>
+                  These are the fields the receiving anchor requires. The
+                  sending client obtains them from the /customer endpoint.{" "}
+                  <TextLink
+                    href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get"
+                    isExternal
+                  >
+                    Learn more
+                  </TextLink>
+                </>
+              }
+            >
+              SEP-12 Required Info
+            </Heading2>
           ) : null}
 
           <div className="vertical-spacing">
@@ -232,23 +222,26 @@ export const Sep6Withdraw = () => {
               ),
             )}
           </div>
+        </div>
+        {sep6WithdrawAsset.errorString && (
+          <div className="ModalMessage error">
+            <p>{sep6WithdrawAsset.errorString}</p>
+          </div>
+        )}
 
-          <ErrorMessage message={sep6WithdrawAsset.errorString} />
-        </Modal.Body>
-
-        <Modal.Footer>
+        <div className="ModalButtonsFooter">
           <Button onClick={handleFieldsSubmit}>Submit</Button>
-        </Modal.Footer>
+        </div>
       </Modal>
     );
   }
 
   if (sep6WithdrawAsset.status === ActionStatus.CAN_PROCEED) {
     return (
-      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>Payment Sending</Modal.Heading>
+      <Modal visible={true} onClose={handleClose}>
+        <Heading2 className="ModalHeading">Payment Sending</Heading2>
 
-        <Modal.Body>
+        <div className="ModalBody">
           <div className="vertical-spacing">
             <strong>Sending Payment To: </strong>
 
@@ -305,21 +298,20 @@ export const Sep6Withdraw = () => {
               {withdrawResponse.memo}
             </div>
           )}
-        </Modal.Body>
-
-        <Modal.Footer>
+        </div>
+        <div className="ModalButtonsFooter">
           <Button onClick={handleAmountSubmit}>Submit</Button>
-        </Modal.Footer>
+        </div>
       </Modal>
     );
   }
 
   if (sep6WithdrawAsset.status === ActionStatus.SUCCESS) {
     return (
-      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>SEP-6 Withdrawal Completed</Modal.Heading>
+      <Modal visible={true} onClose={handleClose}>
+        <Heading2 className="ModalHeading">SEP-6 Withdrawal Completed</Heading2>
 
-        <Modal.Body>
+        <div className="ModalBody">
           {transactionResponse.to && (
             <div className="vertical-spacing">
               <strong>Account Withdrawn To: </strong>
@@ -352,7 +344,7 @@ export const Sep6Withdraw = () => {
               </p>
             </div>
           )}
-        </Modal.Body>
+        </div>
       </Modal>
     );
   }

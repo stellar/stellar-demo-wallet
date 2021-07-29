@@ -1,0 +1,110 @@
+.ModalWrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  z-index: var(--z-index-modal);
+  min-width: calc(var(--size-min-window) / 2);
+  min-height: 50vh;
+  overflow: hidden;
+
+  .Modal {
+    position: absolute;
+    width: 80%;
+    max-width: 600px;
+    background-color: var(--color-background-main);
+    border-radius: 0;
+    z-index: calc(var(--z-index-modal) + 1);
+    padding: 4.5rem 1.5rem 2rem;
+    overflow: hidden;
+    box-shadow: 0 1.5rem 3rem -1.5rem rgba(0, 0, 0, 0.16);
+    margin-top: 3rem;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -35%);
+    border-radius: 0.5rem;
+
+    .ModalContent {
+      overflow-y: auto;
+      max-height: 70vh;
+
+      .ModalHeading {
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .ModalMessage {
+        margin-top: 1.5rem;
+        word-break: break-word;
+      }
+
+      .ModalLabel {
+        margin-top: 1.5rem;
+      }
+
+      .ModalButtonsFooter {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        width: 100%;
+        margin-top: 1.5rem;
+
+        & > *:not(:first-child) {
+          margin-left: 0.5rem;
+        }
+      }
+
+      .ModalBody {
+        & > *:not(:last-child) {
+          margin-bottom: 1rem;
+        }
+
+        .InfoBlock:not(:last-child) {
+          margin-bottom: 1.5rem;
+        }
+
+        p {
+          white-space: pre-line;
+        }
+      }
+    }
+
+    .ModalCloseButton {
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      position: absolute;
+      top: 1rem;
+      right: 0.75rem;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      svg {
+        width: 1rem;
+        height: 1rem;
+        fill: var(--color-link);
+      }
+    }
+  }
+
+  .ModalBackground {
+    position: absolute;
+    background-color: #000;
+    opacity: 0.24;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}
