@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Heading2, Loader, TextLink } from "@stellar/design-system";
+import { Heading2, Loader, TextLink, Layout } from "@stellar/design-system";
 
 import { Json } from "components/Json";
 import { ToastBanner } from "components/ToastBanner";
@@ -45,7 +45,7 @@ export const AccountInfo = () => {
   const isPending = account.status === ActionStatus.PENDING;
 
   return (
-    <>
+    <Layout.Inset>
       <div className="Account">
         {/* Account keys */}
         <div className="AccountInfo">
@@ -141,11 +141,11 @@ export const AccountInfo = () => {
       )}
 
       <ToastBanner parentId="app-wrapper" visible={isPending}>
-        <div className="Inline">
+        <div className="Layout__inline">
           <span>Updating account</span>
           <Loader />
         </div>
       </ToastBanner>
-    </>
+    </Layout.Inset>
   );
 };

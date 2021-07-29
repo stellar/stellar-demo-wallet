@@ -24,11 +24,37 @@
     min-height: 50vh;
     position: absolute;
   }
+
+  code {
+    word-break: break-all;
+  }
 }
 
 // TODO: fix this in SDS
 body {
   overflow-x: auto !important;
+}
+
+// TODO: Add to SDS
+// We want to have smaller headings on modals
+.Modal {
+  h2 {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    line-height: 2.25rem;
+  }
+  h4 {
+    font-size: 1.25rem;
+    line-height: 1.88rem;
+  }
+  h5 {
+    font-size: 1.13rem;
+    line-height: 1.75rem;
+  }
 }
 
 .Layout__inline {
@@ -137,20 +163,6 @@ body {
   }
 }
 
-// TODO: OLD styles +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-.Announcement {
-  background-color: var(--color-note);
-  color: var(--color-text-contrast);
-  text-align: center;
-  width: 100%;
-  margin-bottom: 2rem;
-  padding: 1rem 0; //vertical padding
-  // change anchor text to reflect same color as the rest of the announcment
-  .TextLink {
-    color: inherit;
-  }
-}
-
 .LoadingBlock {
   margin-bottom: 1rem;
 }
@@ -166,14 +178,6 @@ body {
 }
 
 // Generic
-.error {
-  color: var(--color-error);
-}
-
-.success {
-  color: var(--color-success);
-}
-
 .vertical-spacing {
   & > * {
     margin-bottom: 1rem;
@@ -192,6 +196,7 @@ body {
   display: flex;
   flex-direction: column;
   margin-bottom: 1rem;
+  margin-top: 3rem;
 
   .AccountInfo {
     display: table;
@@ -248,15 +253,16 @@ body {
 }
 
 .Balances {
-  border-top: 1px solid var(--color-border-main);
+  border-top: 1px solid var(--pal-border-primary);
 
   .BalanceRow {
-    border-bottom: 1px solid var(--color-border-main);
+    border-bottom: 1px solid var(--pal-border-primary);
     padding-top: 1rem;
     padding-bottom: 1rem;
+    color: var(--pal-text-primary);
 
     &.disabled {
-      background-color: var(--color-background-off);
+      background-color: var(--pal-background-secondary);
       cursor: not-allowed;
 
       .BalanceCell.BalanceInfo {
@@ -269,7 +275,7 @@ body {
     }
 
     &.active {
-      background-color: #dfd8ff;
+      background-color: rgba(var(--pal-brand-primary-rgb), 0.2);
     }
 
     .RegulatedInfo {
@@ -367,6 +373,10 @@ body {
 
 .ClaimableBalances {
   margin-top: 3rem;
+
+  .CustomCell {
+    min-height: 2.75rem;
+  }
 }
 
 .BalancesButtons {
@@ -379,15 +389,11 @@ body {
   }
 }
 
-.CheckboxWrapper {
-  position: relative;
-}
-
 .PresetAssets {
-  border-top: 1px solid var(--color-border-main);
+  border-top: 1px solid var(--pal-border-primary);
 
   .PresetAssetRow {
-    border-bottom: 1px solid var(--color-border-main);
+    border-bottom: 1px solid var(--pal-border-primary);
     padding-top: 1rem;
     padding-bottom: 1rem;
     display: flex;
@@ -440,5 +446,22 @@ body {
 
   & > * {
     margin-right: 1rem;
+  }
+}
+
+.NotFoundPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 3rem;
+  padding-bottom: 2rem;
+
+  .Eyebrow {
+    color: var(--pal-brand-primary);
+  }
+
+  h1 {
+    text-align: center;
   }
 }

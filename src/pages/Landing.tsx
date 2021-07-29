@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Heading3, Loader, TextLink, Modal } from "@stellar/design-system";
+import {
+  Heading3,
+  Loader,
+  TextLink,
+  Modal,
+  Layout,
+} from "@stellar/design-system";
 import { metrics } from "@stellar/frontend-helpers";
 
 import { METRIC_NAMES } from "constants/metricNames";
@@ -45,42 +51,45 @@ export const Landing = () => {
     dispatch(createRandomAccount());
   };
 
+  const isPending = account.status === ActionStatus.PENDING;
+
   return (
-    <div className="Landing__container">
-      <Heading3>Import or generate keypair</Heading3>
+    <Layout.Inset>
+      <div className="Landing__container">
+        <Heading3>Import or generate keypair</Heading3>
 
-      <div className="Landing__buttons">
-        <TextLink
-          onClick={() => setIsConnectAccountModalVisible(true)}
-          variant={TextLink.variant.secondary}
-          disabled={account.status === ActionStatus.PENDING}
-          underline
-        >
-          Provide a secret key (testnet or mainnet)
-        </TextLink>
-
-        <div className="Layout__inline">
+        <div className="Landing__buttons">
           <TextLink
-            onClick={handleCreateAccount}
+            onClick={() => setIsConnectAccountModalVisible(true)}
             variant={TextLink.variant.secondary}
-            disabled={account.status === ActionStatus.PENDING}
+            disabled={isPending}
             underline
           >
-            Generate keypair for new account (testnet only)
+            Provide a secret key (testnet or mainnet)
           </TextLink>
 
-          {!isConnectAccountModalVisible &&
-            account.status === ActionStatus.PENDING && <Loader />}
-        </div>
-      </div>
+          <div className="Layout__inline">
+            <TextLink
+              onClick={handleCreateAccount}
+              variant={TextLink.variant.secondary}
+              disabled={isPending}
+              underline
+            >
+              Generate keypair for new account (testnet only)
+            </TextLink>
 
-      <Modal
-        visible={isConnectAccountModalVisible}
-        onClose={() => setIsConnectAccountModalVisible(false)}
-        parentId={CSS_MODAL_PARENT_ID}
-      >
-        <ConnectAccount />
-      </Modal>
-    </div>
+            {!isConnectAccountModalVisible && isPending && <Loader />}
+          </div>
+        </div>
+
+        <Modal
+          visible={isConnectAccountModalVisible}
+          onClose={() => setIsConnectAccountModalVisible(false)}
+          parentId={CSS_MODAL_PARENT_ID}
+        >
+          <ConnectAccount />
+        </Modal>
+      </div>
+    </Layout.Inset>
   );
 };

@@ -130,7 +130,7 @@ export const BalanceRow = ({
 
   return (
     <div
-      className={`BalanceRow Inset ${isActive ? "active" : ""} ${
+      className={`BalanceRow Layout__inset ${isActive ? "active" : ""} ${
         disabled ? "disabled" : ""
       }`}
       key={assetString}
@@ -145,9 +145,13 @@ export const BalanceRow = ({
             <div className="BalanceAmount">{`${
               total || "0"
             } ${assetCode}`}</div>
-            <div className="BalanceOptions Inline">
+            <div className="BalanceOptions Layout__inline">
               {homeDomain && (
-                <TextLink href={`//${homeDomain}/.well-known/stellar.toml`}>
+                <TextLink
+                  href={`//${homeDomain}/.well-known/stellar.toml`}
+                  variant={TextLink.variant.secondary}
+                  underline
+                >
                   {homeDomain}
                 </TextLink>
               )}

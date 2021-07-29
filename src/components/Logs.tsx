@@ -99,9 +99,10 @@ export const Logs = () => {
           <Layout.Inset>
             <div className="Logs__wrapper">
               {logs.items.length ? (
-                logs.items.map((log: LogItemProps) => (
+                logs.items.map((log: LogItemProps, index: number) => (
                   <LogItem
-                    key={log.timestamp}
+                    // eslint-disable-next-line react/no-array-index-key
+                    key={`${log.timestamp}-${index}`}
                     variant={log.type}
                     title={log.title}
                     body={log.body}

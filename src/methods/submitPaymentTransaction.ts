@@ -32,7 +32,7 @@ export const submitPaymentTransaction = async ({
     });
   } catch (error) {
     throw new Error(
-      `Failed to build transaction, error: ${getErrorString(error)})}`,
+      `Failed to build transaction, error: ${getErrorString(error)}`,
     );
   }
 

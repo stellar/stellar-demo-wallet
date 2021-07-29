@@ -55,19 +55,19 @@ export const App = () => (
                     </TextLink>{" "}
                     on GitHub.
                   </p>
-
-                  <Switch>
-                    <Route exact path="/">
-                      <Landing />
-                    </Route>
-
-                    <PrivateRoute exact path="/account">
-                      <Account />
-                    </PrivateRoute>
-
-                    <Route component={NotFound} />
-                  </Switch>
                 </Layout.Inset>
+
+                <Switch>
+                  <Route exact path="/">
+                    <Landing />
+                  </Route>
+
+                  <PrivateRoute exact path="/account">
+                    <Account />
+                  </PrivateRoute>
+
+                  <Route component={NotFound} />
+                </Switch>
               </Layout.Content>
 
               <Footer />
