@@ -2,9 +2,6 @@
   --layout-window-width-min: 800px;
   --layout-window-width-max: 1296px;
 
-  // TODO: fix this in SDS
-  overflow-x: auto !important;
-
   .Layout__inset {
     --Layout-inset-padding-horizontal: 1rem;
   }
@@ -27,33 +24,6 @@
 
   code {
     word-break: break-all;
-  }
-}
-
-// TODO: fix this in SDS
-body {
-  overflow-x: auto !important;
-}
-
-// TODO: Add to SDS
-// We want to have smaller headings on modals
-.Modal {
-  h2 {
-    font-size: 2rem;
-    line-height: 2.5rem;
-  }
-
-  h3 {
-    font-size: 1.5rem;
-    line-height: 2.25rem;
-  }
-  h4 {
-    font-size: 1.25rem;
-    line-height: 1.88rem;
-  }
-  h5 {
-    font-size: 1.13rem;
-    line-height: 1.75rem;
   }
 }
 
@@ -175,6 +145,10 @@ body {
 
 .Section {
   margin-top: 3rem;
+
+  h2 {
+    margin-bottom: 1.5rem;
+  }
 }
 
 // Generic
@@ -373,6 +347,10 @@ body {
 
 .ClaimableBalances {
   margin-top: 3rem;
+
+  h2 {
+    margin-bottom: 1.5rem;
+  }
 
   .CustomCell {
     min-height: 2.75rem;

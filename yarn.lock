@@ -2461,12 +2461,13 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@stellar/design-system@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@stellar/design-system/-/design-system-0.3.3.tgz#9ffeb6f613b98c3af1cc5d3e6167b50d93792491"
-  integrity sha512-R9sg2Lzstkr9jpQZ3hlSr7DZT3e7HzDW+UoV2Xl4wtHXW+xlF10iHoQ2FN1xRLJGa24m//uXoJVlFOOWQMRUOw==
+"@stellar/design-system@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@stellar/design-system/-/design-system-0.4.0.tgz#aee4d96dfb29c59a26cf6212b5db9cdc6df5447a"
+  integrity sha512-mNklETdxTP3BwYsjU3jK3eqXSO0IxGyr5+c8rB/jp3p1XSDYhI2Ef4M4IAadqlg1iXpyFzuY+VJsAaQPOz+kxw==
   dependencies:
     configurable-date-input-polyfill "^2.8.2"
+    react-copy-to-clipboard "^5.0.3"
     stellar-identicon-js "^1.0.0"
 
 "@stellar/eslint-config@^2.1.1":
