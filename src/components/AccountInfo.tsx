@@ -1,11 +1,16 @@
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Heading2, Loader, TextLink, Layout } from "@stellar/design-system";
+import {
+  Heading2,
+  Loader,
+  TextLink,
+  Layout,
+  CopyText,
+  DetailsTooltip,
+} from "@stellar/design-system";
 
 import { Json } from "components/Json";
 import { ToastBanner } from "components/ToastBanner";
-import { CopyText } from "components/CopyText";
-import { DetailsTooltip } from "components/DetailsTooltip";
 
 import { fetchAccountAction, fundTestnetAccount } from "ducks/account";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
@@ -55,7 +60,7 @@ export const AccountInfo = () => {
               {shortenStellarKey(account.data.id)}
             </div>
             <div className="AccountInfoCell CopyButton">
-              <CopyText copyText={account.data.id}>
+              <CopyText textToCopy={account.data.id}>
                 <TextLink>Copy</TextLink>
               </CopyText>
             </div>
@@ -66,7 +71,7 @@ export const AccountInfo = () => {
               {shortenStellarKey(account.secretKey)}
             </div>
             <div className="AccountInfoCell CopyButton">
-              <CopyText copyText={account.secretKey}>
+              <CopyText textToCopy={account.secretKey}>
                 <TextLink>Copy</TextLink>
               </CopyText>
             </div>

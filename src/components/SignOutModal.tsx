@@ -7,8 +7,8 @@ import {
   Icon,
   InfoBlock,
   Modal,
+  CopyText,
 } from "@stellar/design-system";
-import { CopyText } from "components/CopyText";
 import { resetStoreAction } from "config/store";
 import { getCurrentSessionParams } from "helpers/getCurrentSessionParams";
 import { SearchParams, StringObject } from "types/types.d";
@@ -56,7 +56,7 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
             </p>
             <div className="SessionParamsWrapper">
               <CopyText
-                copyText={window.location.toString()}
+                textToCopy={window.location.toString()}
                 tooltipPosition={CopyText.tooltipPosition.right}
                 showTooltip
               >

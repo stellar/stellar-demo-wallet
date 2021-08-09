@@ -6,8 +6,8 @@ import {
   TextLink,
   Modal,
   Input,
+  DetailsTooltip,
 } from "@stellar/design-system";
-import { DetailsTooltip } from "components/DetailsTooltip";
 import { getErrorMessage } from "helpers/getErrorMessage";
 import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { getValidatedUntrustedAsset } from "helpers/getValidatedUntrustedAsset";

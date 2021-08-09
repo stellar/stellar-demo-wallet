@@ -1,7 +1,6 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import { Select, TextLink } from "@stellar/design-system";
+import { Select, TextLink, DetailsTooltip } from "@stellar/design-system";
 import { HomeDomainOverrideButtons } from "components/HomeDomainOverrideButtons";
-import { DetailsTooltip } from "components/DetailsTooltip";
 import { shortenStellarKey } from "helpers/shortenStellarKey";
 import {
   Asset,

@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { TextLink } from "@stellar/design-system";
+import { TextLink, DetailsTooltip } from "@stellar/design-system";
 
 import { BalanceRow } from "components/BalanceRow";
-import { DetailsTooltip } from "components/DetailsTooltip";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
