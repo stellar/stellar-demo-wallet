@@ -16,7 +16,10 @@ import { Landing } from "pages/Landing";
 import { NotFound } from "pages/NotFound";
 import "./App.scss";
 
-errorReporting.reportErrors("demo-wallet");
+errorReporting.reportErrors({
+  projectName: "demo-wallet",
+  tracingOrigins: [],
+});
 
 export const App = () => (
   <Provider store={store}>

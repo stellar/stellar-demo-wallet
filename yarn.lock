@@ -2480,10 +2480,10 @@
   resolved "https://registry.yarnpkg.com/@stellar/freighter-api/-/freighter-api-1.0.0-beta.0.tgz#08c3f4ebb4d1b8c3e92039242ca5c877814864b4"
   integrity sha512-wngITwqu9h4yfgqXvJS27VEkrlPh/u6uTDOPI2Ct8pZzde3fVPYGK+42izhGAe5oOvbziZQqHkHIPh+rkl7YHg==
 
-"@stellar/frontend-helpers@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@stellar/frontend-helpers/-/frontend-helpers-1.1.2.tgz#056fa0a17a984ba8c1767f04b6474f886c241d42"
-  integrity sha512-i0wbBQWzrs0kKvWvWVE/7sC5LWivosxCIVKaf6+ZyPhJiqDzuQCUPbdlGEi9z6l6a+4msehdsYZX7okcfuuAPA==
+"@stellar/frontend-helpers@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@stellar/frontend-helpers/-/frontend-helpers-1.2.0.tgz#b21e137a8a8897507ab7c6ca117b605d4c97bd42"
+  integrity sha512-OqvioPHlGIY/HScMVUcKqhTyBK6tICVwvZrVgf0256m/Y7ra3BfQ7RM5GWlJ1r7dRFButz4oH8E16RpBl9JwDg==
   dependencies:
     "@sentry/browser" "^6.9.0"
     "@sentry/tracing" "^6.9.0"
