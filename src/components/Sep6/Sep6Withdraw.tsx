@@ -7,8 +7,8 @@ import {
   TextLink,
   Modal,
   Heading3,
+  DetailsTooltip,
 } from "@stellar/design-system";
-import { DetailsTooltip } from "components/DetailsTooltip";
 import { ErrorMessage } from "components/ErrorMessage";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";

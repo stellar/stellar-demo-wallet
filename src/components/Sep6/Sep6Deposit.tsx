@@ -7,9 +7,9 @@ import {
   Modal,
   Heading3,
   Input,
+  DetailsTooltip,
 } from "@stellar/design-system";
 
-import { DetailsTooltip } from "components/DetailsTooltip";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -286,12 +286,10 @@ export const Sep6Deposit = () => {
         <Modal.Heading>SEP-6 Deposit Success</Modal.Heading>
 
         <Modal.Body>
-          <div className="vertical-spacing">{depositResponse.how}</div>
+          <p>{depositResponse.how}</p>
 
           {depositResponse.extra_info?.message && (
-            <div className="vertical-spacing">
-              {depositResponse.extra_info.message}
-            </div>
+            <p>{depositResponse.extra_info.message}</p>
           )}
         </Modal.Body>
 

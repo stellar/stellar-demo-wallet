@@ -7,8 +7,8 @@ import {
   Modal,
   RadioButton,
   Heading3,
+  DetailsTooltip,
 } from "@stellar/design-system";
-import { DetailsTooltip } from "components/DetailsTooltip";
 import { CSS_MODAL_PARENT_ID } from "constants/settings";
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
