@@ -18,7 +18,7 @@ import "./App.scss";
 
 errorReporting.reportErrors({
   projectName: "demo-wallet",
-  tracingOrigins: [],
+  tracingOrigins: [/^\/[^/]/],
 });
 
 export const App = () => (

@@ -1,6 +1,6 @@
 {
   "name": "stellar-demo-wallet",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Stellar Demo Wallet",
   "repository": "https://github.com/stellar/stellar-demo-wallet",
   "license": "Apache-2.0",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.1",
     "@stellar/design-system": "^0.4.0",
-    "@stellar/frontend-helpers": "^1.2.0",
+    "@stellar/frontend-helpers": "^1.2.1",
     "@stellar/prettier-config": "^1.0.1",
     "@stellar/wallet-sdk": "^0.4.0-rc.0",
     "@testing-library/jest-dom": "^5.14.1",
