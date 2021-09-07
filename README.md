@@ -3,8 +3,8 @@
 This Stellar Demo Wallet is our newly rebuilt application for interactively
 testing anchor services. If you would like to automate testing of your anchor
 service, check out the SDF's
-[anchor validation suite](https://github.com/stellar/transfer-server-validator)
-viewable at [anchor-validator.stellar.org](anchor-validator.stellar.org).
+[anchor tests suite](https://github.com/stellar/stellar-anchor-tests)
+viewable at [https://anchor-tests.stellar.org/](https://anchor-tests.stellar.org/).
 
 This project was originally created for the
 [Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/)
