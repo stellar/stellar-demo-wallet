@@ -6,7 +6,7 @@ LABEL ?= $(shell git rev-parse --short HEAD)$(and $(shell git status -s),-dirty-
 # If TAG is not provided set default value
 TAG ?= stellar/stellar-demo-wallet:$(LABEL)
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md
-BUILD_DATE := $(shell date --utc --rfc-3339=seconds)
+BUILD_DATE := $(shell date -u +%FT%TZ)
 
 docker-build:
 	$(SUDO) docker build --pull --label org.opencontainers.image.created="$(BUILD_DATE)" \
