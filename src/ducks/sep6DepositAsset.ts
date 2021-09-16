@@ -297,7 +297,7 @@ export const sep6DepositAction = createAsyncThunk<
       const errorMessage = getErrorMessage(error);
 
       log.error({
-        title: "SEP-8 deposit failed",
+        title: "SEP-6 deposit failed",
         body: errorMessage,
       });
 
