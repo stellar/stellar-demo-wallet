@@ -1,3 +1,4 @@
+import { getCatchError } from "@stellar/frontend-helpers";
 import {
   Account,
   Asset,
@@ -21,6 +22,21 @@ interface SendPaymentProps {
   sendMemo: string;
   sendMemoType: MemoTypeString;
   receiverAddress: string;
+}
+
+interface SendPaymentError extends Error {
+  result?: {
+    data: {
+      status: string;
+      extras: {
+        // eslint-disable-next-line camelcase
+        result_codes: {
+          transaction: string;
+          operations: string[];
+        };
+      };
+    };
+  };
 }
 
 export const sendPayment = async ({
@@ -110,10 +126,11 @@ const submitTransaction = async ({ tx, server }: { tx: any; server: any }) => {
   try {
     result = await server.submitTransaction(tx);
   } catch (e) {
-    const data = e.result.data;
-    const status = data.status;
-    const txStatus = data.extras.result_codes.transaction;
-    const codes = data.extras.result_codes.operations;
+    const error: SendPaymentError = getCatchError(e);
+    const data = error?.result?.data;
+    const status = data?.status;
+    const txStatus = data?.extras.result_codes.transaction;
+    const codes = data?.extras.result_codes.operations;
     const codesList = codes ? codes.join(", ") : "";
 
     throw new Error(
