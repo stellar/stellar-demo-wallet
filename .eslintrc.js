@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ["@stellar/eslint-config"],
+  extends: ["@stellar/eslint-config", "plugin:import/typescript"],
   rules: {
     "no-console": "off",
     "import/no-unresolved": "off",

@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { DataProvider, Types } from "@stellar/wallet-sdk";
+import { getCatchError } from "@stellar/frontend-helpers";
 import { Keypair } from "stellar-sdk";
 
 import { RootState } from "config/store";
@@ -35,6 +36,10 @@ interface FetchAccountActionResponse extends AccountActionBaseResponse {
   secretKey: string;
 }
 
+interface ResponseError extends Error {
+  isUnfunded?: boolean;
+}
+
 export const fetchAccountAction = createAsyncThunk<
   FetchAccountActionResponse,
   AccountKeyPair,
@@ -66,7 +71,9 @@ export const fetchAccountAction = createAsyncThunk<
         balances: stellarAccount.balances,
         networkUrl: networkConfig.url,
       });
-    } catch (error) {
+    } catch (e) {
+      const error: ResponseError = getCatchError(e);
+
       if (error.isUnfunded) {
         log.instruction({ title: `Account is not funded` });
 
@@ -233,7 +240,5 @@ const accountSlice = createSlice({
 export const accountSelector = (state: RootState) => state.account;
 
 export const { reducer } = accountSlice;
-export const {
-  resetAccountAction,
-  resetAccountStatusAction,
-} = accountSlice.actions;
+export const { resetAccountAction, resetAccountStatusAction } =
+  accountSlice.actions;

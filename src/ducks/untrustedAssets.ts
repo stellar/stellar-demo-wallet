@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { getCatchError } from "@stellar/frontend-helpers";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
@@ -64,7 +65,8 @@ export const addUntrustedAssetAction = createAsyncThunk<
           accountAssets: accountData?.balances,
           networkUrl: getNetworkConfig(pubnet).url,
         });
-      } catch (error) {
+      } catch (e) {
+        const error = getCatchError(e);
         throw new Error(error.message);
       }
 
@@ -74,7 +76,8 @@ export const addUntrustedAssetAction = createAsyncThunk<
       }
 
       return response;
-    } catch (error) {
+    } catch (e) {
+      const error = getCatchError(e);
       log.error({ title: error.toString() });
       return rejectWithValue({
         errorString: getErrorMessage(error),
@@ -140,7 +143,5 @@ export const untrustedAssetsSelector = (state: RootState) =>
   state.untrustedAssets;
 
 export const { reducer } = untrustedAssetsSlice;
-export const {
-  resetUntrustedAssetStatusAction,
-  resetUntrustedAssetsAction,
-} = untrustedAssetsSlice.actions;
+export const { resetUntrustedAssetStatusAction, resetUntrustedAssetsAction } =
+  untrustedAssetsSlice.actions;
