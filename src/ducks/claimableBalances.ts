@@ -7,6 +7,7 @@ import { getNetworkConfig } from "helpers/getNetworkConfig";
 import { log } from "helpers/log";
 import {
   ActionStatus,
+  AssetType,
   ClaimableAsset,
   ClaimableBalancesInitialState,
   RejectMessage,
@@ -33,7 +34,14 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
 
       claimableBalanceResponse.records.forEach(
         (record: ServerApi.ClaimableBalanceRecord) => {
-          const [assetCode, assetIssuer] = record.asset.split(":");
+          let assetCode;
+          let assetIssuer;
+
+          if (record.asset === AssetType.NATIVE) {
+            assetCode = "XLM";
+          } else {
+            [assetCode, assetIssuer] = record.asset.split(":");
+          }
 
           const cleanedRecord = {
             id: record.id,

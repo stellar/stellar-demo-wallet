@@ -28,7 +28,7 @@ export const claimAssetAction = createAsyncThunk<
     const networkConfig = getNetworkConfig(pubnet);
     const { assetCode, assetIssuer } = balance;
     // Cannot use balance.assetString because it's an id
-    const assetString = `${assetCode}:${assetIssuer}`;
+    const assetString = assetIssuer ? `${assetCode}:${assetIssuer}` : assetCode;
 
     log.instruction({
       title: `Claiming asset \`${assetString}\``,
@@ -37,7 +37,7 @@ export const claimAssetAction = createAsyncThunk<
     let trustedAssetAdded;
 
     try {
-      if (!data?.balances[assetString]) {
+      if (assetString !== "XLM" && !data?.balances[assetString]) {
         log.instruction({
           title: "Not a trusted asset, need to add a trustline",
         });
