@@ -3,8 +3,8 @@
 This Stellar Demo Wallet is our newly rebuilt application for interactively
 testing anchor services. If you would like to automate testing of your anchor
 service, check out the SDF's
-[anchor tests suite](https://github.com/stellar/stellar-anchor-tests)
-viewable at [https://anchor-tests.stellar.org/](https://anchor-tests.stellar.org/).
+[anchor tests suite](https://github.com/stellar/stellar-anchor-tests) viewable
+at [https://anchor-tests.stellar.org/](https://anchor-tests.stellar.org/).
 
 This project was originally created for the
 [Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/)
@@ -86,6 +86,13 @@ between the Sending and the Receiving anchors._
 4. If the payment has been successfully sent you'll see "SEP-31 send payment
    completed" in the logs.
 
+### Using stellar.toml file from `localhost`
+
+You can serve asset `toml` files from `locahost`. When using locally hosted
+stellar.toml files on demo-wallet.stellar.org, some browsers might block them
+for security reasons, if you’re not using `https`. If you’re running demo wallet
+locally, this is not a problem.
+
 ## Getting Started Building A Wallet From This Demo
 
 To start building with this project clone this repo and install the deps:
@@ -132,20 +139,6 @@ yarn build
   - SEP-24 and SEP-31 are now found in the Asset action drop-down menus
 - Ablity to download logs
 - Claimable Balances supported
-
-## Roadmap
-
-- [x] Improve local development story
-- [x] Add config-by-url support
-- [x] Implement Claimable Balance support
-- [x] Add Pubnet Support
-- [x] Improve UX
-- [x] Implement SEP-31 support
-- [ ] Forward sep24.stellar.org traffic to demo-wallet.stellar.org
-- [ ] Deprecate older clients to use this tool instead
-      (sep31-demo-client.netlify.app, sep24.stellar.org, sep6.stellar.org)
-- [ ] Implement SEP-6 support
-- [ ] Implement SEP-8 support
 
 ### Helpful links
 
