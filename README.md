@@ -66,7 +66,7 @@ right of the screen will show every network call.
 7. Click “Skip confirmation” - skipping it won't be possible in live
    integrations but helps the process move ahead in the demo.
 8. Select the asset you would like to provide to the anchor. Note that there
-   is no real asset you actually need to provide off-chain, its just for 
+   is no real asset you actually need to provide off-chain, it's just for 
    demonstration.
 9. Enter a number into the amount and click "Submit".
 10. If you opted to provide "USD" in the previous form, you'll be asked to confirm
