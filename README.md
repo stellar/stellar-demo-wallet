@@ -65,9 +65,15 @@ right of the screen will show every network call.
    real, but the interface will want a valid email.
 7. Click “Skip confirmation” - skipping it won't be possible in live
    integrations but helps the process move ahead in the demo.
-8. Enter a number into the amount and click "Submit".
-9. Leave the pop-up window open while you wait to see the deposit of SRT go
-   through - you can close when you see “Status” is complete and you have SRT.
+8. Select the asset you would like to provide to the anchor. Note that there
+   is no real asset you actually need to provide off-chain, it's just for 
+   demonstration.
+9. Enter a number into the amount and click "Submit".
+10. If you opted to provide "USD" in the previous form, you'll be asked to confirm
+   the exchange rate from USD to SRT. Select "Confirm Transaction" to continue.
+11. Leave the pop-up window open while you wait to see the deposit of SRT made
+   to your account - you can close when you see “Status” is complete and you have 
+   SRT.
 
 ### Demo-ing Cross-Border Payments ([SEP-31]) on Testnet
 
