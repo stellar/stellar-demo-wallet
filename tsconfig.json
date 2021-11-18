@@ -1,14 +1,12 @@
 {
   "extends": "@stellar/tsconfig",
   "compilerOptions": {
-    "baseUrl": "src/",
-    "target": "es5",
+    "importHelpers": true,
+    "target": "ES2019",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "node",
-    "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "allowSyntheticDefaultImports": true
-  },
-  "include": ["src"]
+  }
 }

@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/static/css/main.8a25f1de.chunk.css",
+    "main.js": "/static/js/main.6df29935.chunk.js",
+    "main.js.map": "/static/js/main.6df29935.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.5c52992e.js",
+    "runtime-main.js.map": "/static/js/runtime-main.5c52992e.js.map",
+    "static/css/2.fda2039f.chunk.css": "/static/css/2.fda2039f.chunk.css",
+    "static/js/2.a2339547.chunk.js": "/static/js/2.a2339547.chunk.js",
+    "static/js/2.a2339547.chunk.js.map": "/static/js/2.a2339547.chunk.js.map",
+    "static/js/3.a174bdaf.chunk.js": "/static/js/3.a174bdaf.chunk.js",
+    "static/js/3.a174bdaf.chunk.js.map": "/static/js/3.a174bdaf.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.fda2039f.chunk.css.map": "/static/css/2.fda2039f.chunk.css.map",
+    "static/css/main.8a25f1de.chunk.css.map": "/static/css/main.8a25f1de.chunk.css.map",
+    "static/js/2.a2339547.chunk.js.LICENSE.txt": "/static/js/2.a2339547.chunk.js.LICENSE.txt",
+    "static/media/styles.min.css": "/static/media/IBMPlexSans-Regular-Latin3.2904863a.woff"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.5c52992e.js",
+    "static/css/2.fda2039f.chunk.css",
+    "static/js/2.a2339547.chunk.js",
+    "static/css/main.8a25f1de.chunk.css",
+    "static/js/main.6df29935.chunk.js"
+  ]
+}

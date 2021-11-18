@@ -1,0 +1,26 @@
+.ToastBanner {
+  background-color: var(--pal-example-code);
+  color: var(--pal-brand-primary-on);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  z-index: calc(var(--z-index-modal) + 3);
+  opacity: 0;
+  transition: all 300ms;
+
+  &.open {
+    opacity: 1;
+  }
+
+  .Layout__inset {
+    min-height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .Loader {
+    --Loader-color: var(--pal-brand-primary-on);
+  }
+}
