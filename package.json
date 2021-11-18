@@ -9,6 +9,7 @@
     "build": "run-s build:shared build:client",
     "start:client": "yarn workspace demo-wallet-client start",
     "start:shared": "yarn workspace demo-wallet-shared start",
+    "start:server": "yarn workspace demo-wallet-server start",
     "clean": "rm -rf node_modules && rm -rf */**/node_modules && rm -rf */**/build"
   },
   "dependencies": {
