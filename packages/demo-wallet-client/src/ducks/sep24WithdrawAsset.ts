@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { RootState } from "config/store";
+import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
@@ -81,13 +81,15 @@ export const withdrawAssetAction = createAsyncThunk<
         serverSigningKey: tomlResponse.SIGNING_KEY,
         publicKey,
         homeDomain,
+        clientDomain,
       });
 
       // SEP-10 sign
-      const signedChallengeTransaction = sep10AuthSign({
+      const signedChallengeTransaction = await sep10AuthSign({
         secretKey,
         networkPassphrase: networkConfig.network,
         challengeTransaction,
+        walletBackendEndpoint,
       });
 
       // SEP-10 send

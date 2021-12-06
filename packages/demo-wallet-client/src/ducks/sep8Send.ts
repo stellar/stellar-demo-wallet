@@ -1,6 +1,6 @@
 import { Horizon } from "stellar-sdk";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { RootState } from "config/store";
+import { RootState} from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getErrorString } from "demo-wallet-shared/build/helpers/getErrorString";

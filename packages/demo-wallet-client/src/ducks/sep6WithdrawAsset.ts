@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { RootState } from "config/store";
+import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
@@ -111,19 +111,22 @@ export const initiateWithdrawAction = createAsyncThunk<
           title:
             "SEP-6 withdrawal is enabled, and requires authentication so we should go through SEP-10",
         });
+
         // SEP-10 start
         const challengeTransaction = await sep10AuthStart({
           authEndpoint: webAuthTomlResponse.WEB_AUTH_ENDPOINT,
           serverSigningKey: webAuthTomlResponse.SIGNING_KEY,
           publicKey,
           homeDomain,
+          clientDomain,
         });
 
         // SEP-10 sign
-        const signedChallengeTransaction = sep10AuthSign({
+        const signedChallengeTransaction = await sep10AuthSign({
           secretKey,
           networkPassphrase: networkConfig.network,
           challengeTransaction,
+          walletBackendEndpoint,
         });
 
         // SEP-10 send

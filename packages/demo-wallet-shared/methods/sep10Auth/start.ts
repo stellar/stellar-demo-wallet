@@ -6,13 +6,15 @@ export const start = async ({
   serverSigningKey,
   publicKey,
   homeDomain,
+  clientDomain,
 }: {
   authEndpoint: string;
   serverSigningKey: string;
   publicKey: string;
   homeDomain: string;
+  clientDomain: string;
 }) => {
-  const params = { account: publicKey, home_domain: homeDomain };
+  const params = { account: publicKey, home_domain: homeDomain, client_domain: clientDomain };
 
   log.instruction({
     title:
