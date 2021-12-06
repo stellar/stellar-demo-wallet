@@ -10,7 +10,7 @@ server for verification.
 
 ### Running the Demo Wallet Server
 1. Create a keypair on the Stellar network (you can use the demo wallet for this).
-   Thekeypair will be used for the Demo Wallet Server
+   The keypair will be used for the Demo Wallet Server
 2. Create a .env file in the package/demo-wallet-server directory. 
    ```
    SERVER_PORT = 7000

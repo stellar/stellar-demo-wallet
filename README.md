@@ -111,7 +111,7 @@ create a **.env** file in *packages/demo-wallet-client* with the **REACT_APP_CLI
 (where stellar.toml is hosted) and the wallet backend **REACT_APP_WALLET_BACKEND_ENDPOINT**
 
 NOTE: if using a locally running test anchor (in docker) use *docker.for.mac.host.internal*,
-this will allow the anchor thats running in a docker container to access the host network where
+this will allow the anchor that's running in a docker container to access the host network where
 the client domain (server hosting the stellar.toml) is running.
 ex:
 ```

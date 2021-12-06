@@ -7,7 +7,7 @@ const PORT = process.env.SERVER_PORT;
 const SERVER_SIGNING_KEY = String(process.env.SERVER_SIGNING_KEY);
 const app = express();
 
-var bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
