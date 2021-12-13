@@ -3,7 +3,7 @@ import { Transaction, Keypair } from "stellar-sdk";
 
 require("dotenv").config({ path: require("find-config")(".env") });
 
-const PORT = process.env.SERVER_PORT;
+const PORT = process.env.SERVER_PORT ?? 7000;
 const SERVER_SIGNING_KEY = String(process.env.SERVER_SIGNING_KEY);
 const app = express();
 
@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //TODO: add logging middleware
 // Serve the sep-1 stellar.toml file
-app.use("/.well-known", express.static("src/static/well_known", {
+app.use("/.well-known", express.static("./src/static/well_known", {
     setHeaders: function(res, _) {
     res.set("Access-Control-Allow-Headers", "Content-Type,X-Requested-With");
     res.type("application/json");

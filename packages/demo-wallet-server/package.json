@@ -16,7 +16,9 @@
   },
   "scripts": {
     "clean": "rimraf ./build",
-    "start": "ts-node ./src/index.ts"
+    "start": "ts-node ./src/index.ts",
+    "build": "tsc && yarn copy-static-files",
+    "copy-static-files": "mkdir -p ./build/src/static/well-known/ && cp ./src/static/well_known/* ./build/src/static/well-known/"
   },
   "dependencies": {
     "express": "^4.17.1",
