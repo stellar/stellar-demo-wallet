@@ -9,7 +9,7 @@
   },
   "license": "Apache-2.0",
   "engines": {
-    "node": "14.x"
+    "node": ">=14.x"
   },
   "lint-staged": {
     "src/**/*.ts?(x)": [
