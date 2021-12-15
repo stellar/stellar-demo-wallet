@@ -76,5 +76,8 @@ export const store = configureStore({
   ],
 });
 
-export const walletBackendEndpoint: string = process.env.REACT_APP_WALLET_BACKEND_ENDPOINT ?? "";
+export const walletBackendEndpoint: string =
+  process.env.REACT_APP_WALLET_BACKEND_ENDPOINT ?? "";
+console.log(process.env.REACT_APP_WALLET_BACKEND_ENDPOINT);
+console.log(process.env.REACT_APP_AMPLITUDE_KEY);
 export const clientDomain: string = process.env.REACT_APP_CLIENT_DOMAIN ?? "";
