@@ -6,6 +6,7 @@ WORKDIR /app
 
 COPY . /app/
 RUN yarn workspace demo-wallet-server install
+RUN yarn build:shared
 RUN yarn build:server
 
 # Copy it all to a clean image to avoid cache artifacts elsewhere in the image

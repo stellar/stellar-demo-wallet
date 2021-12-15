@@ -57,7 +57,7 @@
     "prod:build": "docker image build --build-arg REACT_APP_AMPLITUDE_KEY=$AMPLITUDE_KEY --build-arg REACT_APP_SENTRY_KEY=$SENTRY_KEY -t stellar-demo-wallet:localbuild .",
     "prod:serve": "docker run -p 8000:80 stellar-demo-wallet:localbuild",
     "production": "yarn prod:build && yarn prod:serve",
-    "prepare": "husky install",
+    "prepare": "cd ../../ && husky install packages/demo-wallet-client/.husky",
     "pre-commit": "concurrently 'pretty-quick --staged' 'lint-staged' 'tsc --noEmit'"
   },
   "eslintConfig": {
