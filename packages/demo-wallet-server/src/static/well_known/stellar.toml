@@ -1,0 +1,18 @@
+ACCOUNTS = [ "GBM53YM5CUICEOTGY3N2UJLLZ4QXNCAANINBNLHSNTEULBQ3HENOUU2J", "GDRND2IUXVMHZ4XTB2RZ4AJ3AOLON3WTAOC23XEASB56NHDFW3ED57TW" ]
+VERSION = "0.1.0"
+SIGNING_KEY = "GBM53YM5CUICEOTGY3N2UJLLZ4QXNCAANINBNLHSNTEULBQ3HENOUU2J"
+NETWORK_PASSPHRASE = "Test SDF Network ; September 2015"
+
+[[PRINCIPALS]]
+name = "Stephen Fung"
+email = "stephen@stellar.org"
+keybase = "stfung77"
+github = "https://www.github.com/stfung77"
+
+[DOCUMENTATION]
+ORG_NAME = "Stellar Development Foundation"
+ORG_URL = "https://stellar.org"
+ORG_DESCRIPTION = "demo wallet backend server."
+ORG_KEYBASE = "stellar.public"
+ORG_TWITTER = "StellarOrg"
+ORG_GITHUB = "stellar"

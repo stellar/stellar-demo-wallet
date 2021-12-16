@@ -4,13 +4,22 @@ SUDO := $(shell docker version >/dev/null 2>&1 || echo "sudo")
 # If LABEL is not provided set default value
 LABEL ?= $(shell git rev-parse --short HEAD)$(and $(shell git status -s),-dirty-$(shell id -u -n))
 # If TAG is not provided set default value
-TAG ?= stellar/stellar-demo-wallet:$(LABEL)
+SERVER_TAG ?= stellar/stellar-demo-wallet-server:$(LABEL)
+CLIENT_TAG ?= stellar/stellar-demo-wallet-client:$(LABEL)
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md
 BUILD_DATE := $(shell date -u +%FT%TZ)
 
-docker-build:
-	$(SUDO) docker build --pull --label org.opencontainers.image.created="$(BUILD_DATE)" \
-	--build-arg REACT_APP_AMPLITUDE_KEY=$(AMPLITUDE_KEY) --build-arg REACT_APP_SENTRY_KEY=$(SENTRY_KEY) -t $(TAG) .
+docker-build-server:
+	$(SUDO) docker build -f Dockerfile-server --pull --label org.opencontainers.image.created="$(BUILD_DATE)" \
+	-t $(SERVER_TAG) .
 
-docker-push:
-	$(SUDO) docker push $(TAG)
+docker-push-server:
+	$(SUDO) docker push $(SERVER_TAG)
+
+docker-build-client:
+	$(SUDO) docker build -f Dockerfile-client --pull --label org.opencontainers.image.created="$(BUILD_DATE)" \
+	--build-arg REACT_APP_CLIENT_DOMAIN=$(REACT_APP_CLIENT_DOMAIN) --build-arg REACT_APP_WALLET_BACKEND_ENDPOINT=$(REACT_APP_WALLET_BACKEND_ENDPOINT) \
+	-t $(CLIENT_TAG) .
+
+docker-push-client:
+	$(SUDO) docker push $(CLIENT_TAG)

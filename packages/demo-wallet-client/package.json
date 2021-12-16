@@ -1,0 +1,111 @@
+{
+  "name": "demo-wallet-client",
+  "version": "1.2.4",
+  "description": "Stellar Demo Wallet client",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stellar/stellar-demo-wallet.git",
+    "directory": "packages/demo-wallet-client"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=14.x"
+  },
+  "lint-staged": {
+    "src/**/*.ts?(x)": [
+      "eslint --fix --max-warnings 0"
+    ]
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.6.2",
+    "@stellar/design-system": "^0.4.1",
+    "@stellar/frontend-helpers": "^2.1.3",
+    "@stellar/prettier-config": "^1.0.1",
+    "@stellar/wallet-sdk": "^0.5.0-rc.0",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.2.1",
+    "bignumber.js": "^9.0.1",
+    "crypto": "^1.0.1",
+    "dompurify": "^2.3.3",
+    "env-cmd": "^10.1.0",
+    "find-config": "^1.0.0",
+    "html-react-parser": "^1.4.0",
+    "lodash": "^4.17.21",
+    "marked": "^3.0.4",
+    "node-sass": "^6.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-json-view": "^1.21.3",
+    "react-redux": "^7.2.5",
+    "react-router-dom": "^5.3.0",
+    "react-scripts": "4.0.3",
+    "redux": "^4.1.1",
+    "stellar-sdk": "^9.1.0",
+    "styled-components": "^5.3.1",
+    "toml": "^3.0.0",
+    "tslib": "^2.3.1",
+    "typescript": "~4.4.3",
+    "web-vitals": "^2.1.0"
+  },
+  "scripts": {
+    "install-if-package-changed": "git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD | grep --quiet yarn.lock && yarn install || exit 0",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "prepare": "cd ../../ && husky install packages/demo-wallet-client/.husky",
+    "pre-commit": "concurrently 'pretty-quick --staged' 'lint-staged' 'tsc --noEmit'"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@stellar/eslint-config": "^2.1.1",
+    "@stellar/tsconfig": "^1.0.2",
+    "@types/jest": "^27.0.2",
+    "@types/lodash": "^4.14.175",
+    "@types/marked": "^3.0.1",
+    "@types/node": "^16.10.3",
+    "@types/react": "^17.0.27",
+    "@types/react-copy-to-clipboard": "^5.0.1",
+    "@types/react-dom": "^17.0.9",
+    "@types/react-redux": "^7.1.18",
+    "@types/react-router-dom": "^5.1.9",
+    "@types/redux": "^3.6.0",
+    "@types/styled-components": "^5.1.14",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "concurrently": "^6.3.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-react": "^1.1.7",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-flowtype": "^6.1.0",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-jsdoc": "^36.1.0",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
+    "eslint-plugin-react": "^7.26.1",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "husky": "^7.0.2",
+    "lint-staged": "^11.2.0",
+    "prettier": "^2.4.1",
+    "pretty-quick": "^3.1.1"
+  }
+}

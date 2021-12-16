@@ -1,0 +1,35 @@
+{
+  "name": "demo-wallet-server",
+  "main": "dist/index.js",
+  "version": "1.0.0",
+  "description": "Stellar Demo Wallet server",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stellar/stellar-demo-wallet.git",
+    "directory": "packages/demo-wallet-server"
+  },
+  "license": "Apache-2.0",
+  "lint-staged": {
+    "src/**/*.ts?(x)": [
+      "eslint --fix --max-warnings 0"
+    ]
+  },
+  "scripts": {
+    "clean": "rimraf ./build",
+    "dev": "ts-node ./src/index.ts",
+    "start": "node ./build/index.js",
+    "build": "tsc && yarn copy-static-files",
+    "copy-static-files": "mkdir -p ./build/src/static/well-known/ && cp ./src/static/well_known/* ./build/src/static/well-known/"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "stellar-sdk": "^9.1.0",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.11.8",
+    "ts-node": "^10.4.0"
+  }
+}

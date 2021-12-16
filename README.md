@@ -107,16 +107,28 @@ To start building with this project clone this repo and install the deps:
 yarn install
 ```
 
+create a **.env** file in *packages/demo-wallet-client* with the **REACT_APP_CLIENT_DOMAIN** 
+(where stellar.toml is hosted) and the wallet backend **REACT_APP_WALLET_BACKEND_ENDPOINT**
+
+NOTE: if using a locally running test anchor (in docker) use *docker.for.mac.host.internal*,
+this will allow the anchor that's running in a docker container to access the host network where
+the client domain (server hosting the stellar.toml) is running.
+ex:
+```
+REACT_APP_CLIENT_DOMAIN = docker.for.mac.host.internal:7000
+REACT_APP_WALLET_BACKEND_ENDPOINT = http://demo-wallet-server.stellar.org
+```
+
 and run:
 
 ```bash
-yarn start
+yarn start:client
 ```
 
 To build the app for production, run:
 
 ```bash
-yarn build
+yarn build:client
 ```
 
 ---
