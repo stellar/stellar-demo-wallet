@@ -28,7 +28,7 @@ app.post("/sign", (req, res) => {
     const network_passphrase = req.body.network_passphrase;
     const transaction = new Transaction(envelope_xdr, network_passphrase);
 
-    if (Number.parseInt(transaction.sequence, 10) != 0){
+    if (Number.parseInt(transaction.sequence, 10) !== 0){
         res.status(400);
         res.send("transaction sequence value must be '0'");
         return;

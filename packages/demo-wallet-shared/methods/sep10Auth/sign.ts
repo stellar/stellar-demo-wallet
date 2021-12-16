@@ -18,7 +18,7 @@ export const sign = async ({
   });
   
   for (const op of challengeTransaction.operations) {
-    if (op.type == "manageData" && op.name == "client_domain") {
+    if (op.type === "manageData" && op.name === "client_domain") {
       // The anchor server supports client attribution, get a signature from the demo wallet backend server
       log.instruction({title: "anchor supports SEP-10 client attribution, requesting signature from demo wallet backend..."});
       const params = {
@@ -27,7 +27,7 @@ export const sign = async ({
       };
       log.request({ title: "POST `/sign`", body: params });
       const urlParams = new URLSearchParams(params);
-      const walletBackendSignEndpoint = walletBackendEndpoint + "/sign";
+      const walletBackendSignEndpoint = `${walletBackendEndpoint}/sign`;
 
       const result = await fetch(walletBackendSignEndpoint, {
         method: "POST",

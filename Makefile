@@ -18,7 +18,6 @@ docker-push-server:
 
 docker-build-client:
 	$(SUDO) docker build -f Dockerfile-client --pull --label org.opencontainers.image.created="$(BUILD_DATE)" \
-	--build-arg REACT_APP_AMPLITUDE_KEY=$(AMPLITUDE_KEY) --build-arg REACT_APP_SENTRY_KEY=$(SENTRY_KEY) \
 	--build-arg REACT_APP_CLIENT_DOMAIN=$(REACT_APP_CLIENT_DOMAIN) --build-arg REACT_APP_WALLET_BACKEND_ENDPOINT=$(REACT_APP_WALLET_BACKEND_ENDPOINT) \
 	-t $(CLIENT_TAG) .
 
