@@ -4,6 +4,7 @@ import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import { getUrlHost } from "demo-wallet-shared/build/helpers/getUrlHost";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { checkDepositWithdrawInfo } from "demo-wallet-shared/build/methods/checkDepositWithdrawInfo";
 import {
@@ -117,7 +118,7 @@ export const initiateWithdrawAction = createAsyncThunk<
           authEndpoint: webAuthTomlResponse.WEB_AUTH_ENDPOINT,
           serverSigningKey: webAuthTomlResponse.SIGNING_KEY,
           publicKey,
-          homeDomain,
+          homeDomain: getUrlHost(tomlResponse.TRANSFER_SERVER),
           clientDomain,
         });
 

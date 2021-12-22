@@ -4,6 +4,7 @@ import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import { getUrlHost } from "demo-wallet-shared/build/helpers/getUrlHost";
 import { log } from "demo-wallet-shared/build/helpers/log";
 
 import {
@@ -107,7 +108,7 @@ export const initiateSendAction = createAsyncThunk<
 
       return {
         publicKey,
-        homeDomain,
+        homeDomain: getUrlHost(tomlResponse.DIRECT_PAYMENT_SERVER),
         assetCode,
         assetIssuer,
         fields: {
