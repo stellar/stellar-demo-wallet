@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import marked from "marked";
+import { marked } from "marked";
 import { Icon } from "@stellar/design-system";
 import { Json } from "components/Json";
 import { sanitizeHtml } from "demo-wallet-shared/build/helpers/sanitizeHtml";

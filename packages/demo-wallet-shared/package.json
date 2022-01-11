@@ -18,7 +18,7 @@
     "dompurify": "^2.3.4",
     "html-react-parser": "^1.4.5",
     "lodash": "^4.17.21",
-    "marked": "^3.0.4",
+    "marked": "^4.0.9",
     "rimraf": "^3.0.2",
     "stellar-sdk": "^9.1.0",
     "toml": "^3.0.0",
