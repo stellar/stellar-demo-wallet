@@ -111,13 +111,13 @@ export const SettingsHandler = ({
 
   // Go to /account page if fetching account was success
   useEffect(() => {
-    if (account.status === ActionStatus.SUCCESS) {
+    if (account.status === ActionStatus.SUCCESS && account.isAuthenticated) {
       navigate({
         pathname: "/account",
         search: location.search,
       });
     }
-  }, [account.status, navigate, location.search]);
+  }, [account.status, location.search, account.isAuthenticated, navigate]);
 
   return <>{children}</>;
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   Heading3,
@@ -24,7 +24,6 @@ export const Landing = () => {
     useState(false);
 
   const dispatch = useDispatch();
-  const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,13 +34,7 @@ export const Landing = () => {
     if (account.status === ActionStatus.SUCCESS && !account.isAuthenticated) {
       navigate(searchParam.update(SearchParams.SECRET_KEY, account.secretKey));
     }
-  }, [
-    account.secretKey,
-    account.status,
-    account.isAuthenticated,
-    location,
-    navigate,
-  ]);
+  }, [account.secretKey, account.status, account.isAuthenticated, navigate]);
 
   const handleCreateAccount = () => {
     // Make sure we are on testnet
