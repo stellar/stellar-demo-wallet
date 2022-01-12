@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   Button,
@@ -17,7 +17,7 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
   const [sessionParams, setSessionParams] = useState<SearchParams[]>([]);
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setSessionParams(getCurrentSessionParams());
@@ -25,7 +25,7 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleSignOut = () => {
     dispatch(resetStoreAction());
-    history.push({
+    navigate({
       pathname: "/",
     });
     onClose();

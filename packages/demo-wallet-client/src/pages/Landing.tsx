@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation, useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   Heading3,
@@ -25,7 +25,7 @@ export const Landing = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     metrics.emitMetric(METRIC_NAMES.viewHome);
@@ -33,21 +33,19 @@ export const Landing = () => {
 
   useEffect(() => {
     if (account.status === ActionStatus.SUCCESS && !account.isAuthenticated) {
-      history.push(
-        searchParam.update(SearchParams.SECRET_KEY, account.secretKey),
-      );
+      navigate(searchParam.update(SearchParams.SECRET_KEY, account.secretKey));
     }
   }, [
     account.secretKey,
     account.status,
     account.isAuthenticated,
-    history,
     location,
+    navigate,
   ]);
 
   const handleCreateAccount = () => {
     // Make sure we are on testnet
-    history.push(searchParam.update(SearchParams.PUBNET, "false"));
+    navigate(searchParam.update(SearchParams.PUBNET, "false"));
     dispatch(createRandomAccount());
   };
 

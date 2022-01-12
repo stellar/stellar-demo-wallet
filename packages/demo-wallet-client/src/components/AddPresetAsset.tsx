@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   Checkbox,
@@ -31,7 +31,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
   const [isValidating, setIsValidating] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setPresetAssets(getPresetAssets(allAssets.data));
@@ -83,7 +83,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
         SearchParams.UNTRUSTED_ASSETS,
         validatedAssetValues.join(","),
       );
-      history.push(newSearchQ);
+      navigate(newSearchQ);
     } catch (e) {
       const errorMsg = getErrorMessage(e);
       log.error({ title: errorMsg });

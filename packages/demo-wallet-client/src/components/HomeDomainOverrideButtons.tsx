@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Loader,
   TextLink,
@@ -27,7 +27,7 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
   const { assetOverrides } = useRedux("assetOverrides");
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   enum ModalType {
     REMOVE_ASSET_OVERRIDE = "REMOVE_ASSET_OVERRIDE",
@@ -66,7 +66,7 @@ export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {
   };
 
   const handleRemove = () => {
-    history.push(
+    navigate(
       searchParam.removeKeyPair({
         param: SearchParams.ASSET_OVERRIDES,
         itemId: asset.assetString,

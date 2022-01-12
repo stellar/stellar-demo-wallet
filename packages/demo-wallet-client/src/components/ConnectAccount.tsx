@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Checkbox, Input, Modal } from "@stellar/design-system";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
@@ -8,14 +8,14 @@ import { ActionStatus, SearchParams } from "types/types.d";
 export const ConnectAccount = () => {
   const { account, settings } = useRedux("account", "settings");
   const [secretKey, setSecretKey] = useState("");
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleSetSecretKey = () => {
-    history.push(searchParam.update(SearchParams.SECRET_KEY, secretKey));
+    navigate(searchParam.update(SearchParams.SECRET_KEY, secretKey));
   };
 
   const handleSwitchNetwork = () => {
-    history.push(
+    navigate(
       searchParam.update(SearchParams.PUBNET, (!settings.pubnet).toString()),
     );
   };

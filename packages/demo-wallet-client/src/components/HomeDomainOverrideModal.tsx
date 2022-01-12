@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button, Input, InfoBlock, Modal } from "@stellar/design-system";
 import { getAssetFromHomeDomain } from "demo-wallet-shared/build/helpers/getAssetFromHomeDomain";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
@@ -17,7 +17,7 @@ export const HomeDomainOverrideModal = ({
   onClose: () => void;
 }) => {
   const { settings } = useRedux("settings");
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [homeDomain, setHomeDomain] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -39,7 +39,7 @@ export const HomeDomainOverrideModal = ({
       });
 
       if (validAsset.homeDomain) {
-        history.push(
+        navigate(
           searchParam.updateKeyPair({
             param: SearchParams.ASSET_OVERRIDES,
             itemId: `${asset.assetCode}:${asset.assetIssuer}`,

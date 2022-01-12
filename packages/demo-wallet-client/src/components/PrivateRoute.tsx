@@ -1,25 +1,22 @@
-import { Route, Redirect, RouteProps, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useRedux } from "hooks/useRedux";
 
-export const PrivateRoute = ({ children, ...rest }: RouteProps) => {
+export const PrivateRoute = ({
+  children,
+}: {
+  children: React.ReactElement;
+}) => {
   const { account } = useRedux("account");
   const location = useLocation();
 
-  return (
-    <Route
-      {...rest}
-      render={() =>
-        account.isAuthenticated ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-              pathname: "/",
-              search: location.search,
-            }}
-          />
-        )
-      }
+  return account.isAuthenticated ? (
+    children
+  ) : (
+    <Navigate
+      to={{
+        pathname: "/",
+        search: location.search,
+      }}
     />
   );
 };

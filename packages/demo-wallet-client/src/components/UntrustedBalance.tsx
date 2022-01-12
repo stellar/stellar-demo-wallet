@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { TextLink, DetailsTooltip } from "@stellar/design-system";
 
 import { BalanceRow } from "components/BalanceRow";
@@ -45,7 +45,7 @@ export const UntrustedBalance = ({
   );
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const allUntrustedAssets = allAssets.data.filter(
     (a) => a.category === AssetCategory.UNTRUSTED,
@@ -75,9 +75,7 @@ export const UntrustedBalance = ({
   const handleRemoveAsset = (asset: Asset) => {
     const { assetString } = asset;
 
-    history.push(
-      searchParam.remove(SearchParams.UNTRUSTED_ASSETS, assetString),
-    );
+    navigate(searchParam.remove(SearchParams.UNTRUSTED_ASSETS, assetString));
     dispatch(removeUntrustedAssetAction(assetString));
     log.instruction({ title: `Untrusted asset \`${assetString}\` removed` });
 
