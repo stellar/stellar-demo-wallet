@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "express": "^4.17.2",
-    "stellar-sdk": "^9.1.0",
+    "stellar-sdk": "^10.0.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
   },
