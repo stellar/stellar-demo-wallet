@@ -164,21 +164,23 @@ export const BalanceRow = ({
       </div>
 
       {supportedActions?.sep8 && (
-        <DetailsTooltip
-          details={
-            <>
-              {
-                "Payments with regulated assets need to be approved by the asset issuer. For more information please refer to "
-              }
-              <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md">
-                SEP-8
-              </TextLink>
-              .
-            </>
-          }
-        >
-          <span>Regulated</span>
-        </DetailsTooltip>
+        <div className="BalanceCell RegulatedAsset">
+          <DetailsTooltip
+            details={
+              <>
+                {
+                  "Payments with regulated assets need to be approved by the asset issuer. For more information please refer to "
+                }
+                <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0008.md">
+                  SEP-8
+                </TextLink>
+                .
+              </>
+            }
+          >
+            <span>Regulated</span>
+          </DetailsTooltip>
+        </div>
       )}
 
       <div className="BalanceCell BalanceActions">

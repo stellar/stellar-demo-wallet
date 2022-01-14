@@ -298,6 +298,10 @@
       }
     }
 
+    &.RegulatedAsset {
+      display: flex;
+    }
+
     &.BalanceActions {
       .CustomCell {
         display: flex;

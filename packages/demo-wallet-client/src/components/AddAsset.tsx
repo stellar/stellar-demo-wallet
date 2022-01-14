@@ -126,7 +126,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
                 </>
               }
               isInline
-              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+              tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
             >
               <>Asset code</>
             </DetailsTooltip>
@@ -155,7 +155,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
                 </>
               }
               isInline
-              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+              tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
             >
               <>Anchor home domain</>
             </DetailsTooltip>
@@ -183,7 +183,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
                 </>
               }
               isInline
-              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+              tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
             >
               <>Issuer public key</>
             </DetailsTooltip>

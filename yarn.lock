@@ -2376,6 +2376,11 @@
     schema-utils "^2.6.5"
     source-map "^0.7.3"
 
+"@popperjs/core@^2.11.2":
+  version "2.11.2"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.2.tgz#830beaec4b4091a9e9398ac50f865ddea52186b9"
+  integrity sha512-92FRmppjjqz29VMJ2dn+xdyXZBrMlE42AV6Kq6BwjWV7CNUW1hs2FtxSNLQE+gJhaZ6AAmYuO9y8dshhcBl7vA==
+
 "@reduxjs/toolkit@^1.7.1":
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/@reduxjs/toolkit/-/toolkit-1.7.1.tgz#994962aeb7df3c77be343dd2ad1aa48221dbaa0c"
@@ -2491,12 +2496,14 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@stellar/design-system@^0.4.3":
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/@stellar/design-system/-/design-system-0.4.3.tgz#2ce44172b664ade348fa3885851cba52477b7dbb"
-  integrity sha512-4V7t/pFBwSlNt7F2pAB3WBYL9LpjAkDeiVEpVgYIK8EBYVt3wWwFAXX2wlacufgOddbQp4WP+rKtqsJyEGwzUw==
+"@stellar/design-system@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@stellar/design-system/-/design-system-0.5.0.tgz#b20838ecc2886a171b4340a0557e3a89421469f9"
+  integrity sha512-Vuvp7JWInqtXGoHmHErGa59bBlzus2BOAETZLCObnX8WvPQj+dbHi1OaoYT6goDsDe7ugNqK15obsT40QLUMiA==
   dependencies:
-    configurable-date-input-polyfill "^3.1.0"
+    "@popperjs/core" "^2.11.2"
+    bignumber.js "^9.0.2"
+    configurable-date-input-polyfill "^3.1.3"
     react-copy-to-clipboard "^5.0.4"
     stellar-identicon-js "^1.0.0"
     tslib "^2.3.1"
@@ -5164,10 +5171,10 @@ concurrently@^7.0.0:
     tree-kill "^1.2.2"
     yargs "^16.2.0"
 
-configurable-date-input-polyfill@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/configurable-date-input-polyfill/-/configurable-date-input-polyfill-3.1.0.tgz#4f10e67d5e258c6411ed9f14b6926b05145d758a"
-  integrity sha512-nlqYtBTOy3sjAKWcDXQVe9w/5ZtzazZCc+dXBiKjE2fMg8vG0wLjRi2PTp8QG2nsOChA8T32YnjGBhD48OsbxA==
+configurable-date-input-polyfill@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/configurable-date-input-polyfill/-/configurable-date-input-polyfill-3.1.3.tgz#0c60fd9c6742343e8d7bc762957b3f5cd23405d6"
+  integrity sha512-H/EyTkqrMxYvlPfOrV6WoCi0Ui4JsiXSMvD1XV/THfUedDvItFt9noXDOB+sBgLpZk4kAtg4XpNGiszkyxJTlw==
 
 confusing-browser-globals@^1.0.10:
   version "1.0.10"

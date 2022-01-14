@@ -57,7 +57,7 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
             <div className="SessionParamsWrapper">
               <CopyText
                 textToCopy={window.location.toString()}
-                tooltipPosition={CopyText.tooltipPosition.right}
+                tooltipPosition={CopyText.tooltipPosition.RIGHT}
                 showTooltip
               >
                 <TextLink iconLeft={<Icon.Copy />}>Copy URL</TextLink>

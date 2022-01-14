@@ -170,7 +170,7 @@ export const Sep6Withdraw = () => {
                 </>
               }
               isInline
-              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+              tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
             >
               <>SEP-6 Required Info</>
             </DetailsTooltip>
@@ -213,6 +213,7 @@ export const Sep6Withdraw = () => {
                   </>
                 }
                 isInline
+                tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
               >
                 <>SEP-12 Required Info</>
               </DetailsTooltip>

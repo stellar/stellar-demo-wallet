@@ -179,7 +179,7 @@ export const Sep6Deposit = () => {
                     </>
                   }
                   isInline
-                  tooltipPosition={DetailsTooltip.tooltipPosition.left}
+                  tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
                 >
                   <>Amount (optional)</>
                 </DetailsTooltip>
@@ -202,7 +202,7 @@ export const Sep6Deposit = () => {
                 </>
               }
               isInline
-              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+              tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
             >
               <>SEP-6 Required Info</>
             </DetailsTooltip>
@@ -250,6 +250,7 @@ export const Sep6Deposit = () => {
                   </>
                 }
                 isInline
+                tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
               >
                 <>SEP-12 Required Info</>
               </DetailsTooltip>
