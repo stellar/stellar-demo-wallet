@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { Layout, TextLink } from "@stellar/design-system";
 import { errorReporting } from "@stellar/frontend-helpers";
@@ -60,17 +60,20 @@ export const App = () => (
                   </p>
                 </Layout.Inset>
 
-                <Switch>
-                  <Route exact path="/">
-                    <Landing />
-                  </Route>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
 
-                  <PrivateRoute exact path="/account">
-                    <Account />
-                  </PrivateRoute>
+                  <Route
+                    path="/account"
+                    element={
+                      <PrivateRoute>
+                        <Account />
+                      </PrivateRoute>
+                    }
+                  />
 
-                  <Route component={NotFound} />
-                </Switch>
+                  <Route element={NotFound} />
+                </Routes>
               </Layout.Content>
 
               <Footer />

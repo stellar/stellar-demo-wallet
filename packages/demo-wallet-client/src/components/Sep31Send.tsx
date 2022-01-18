@@ -265,6 +265,7 @@ export const Sep31Send = () => {
                 </>
               }
               isInline
+              tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
             >
               <>Sender and receiver info</>
             </DetailsTooltip>

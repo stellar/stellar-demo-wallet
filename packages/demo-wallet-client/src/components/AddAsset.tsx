@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   InfoBlock,
@@ -30,7 +30,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
   const [issuerPublicKey, setIssuerPublicKey] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const resetState = () => {
     setAssetCode("");
@@ -89,7 +89,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
         });
       }
 
-      history.push(search);
+      navigate(search);
       setIsValidating(false);
     } catch (e) {
       const errorMsg = getErrorMessage(e);
@@ -126,7 +126,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
                 </>
               }
               isInline
-              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+              tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
             >
               <>Asset code</>
             </DetailsTooltip>
@@ -155,7 +155,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
                 </>
               }
               isInline
-              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+              tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
             >
               <>Anchor home domain</>
             </DetailsTooltip>
@@ -183,7 +183,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
                 </>
               }
               isInline
-              tooltipPosition={DetailsTooltip.tooltipPosition.left}
+              tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
             >
               <>Issuer public key</>
             </DetailsTooltip>

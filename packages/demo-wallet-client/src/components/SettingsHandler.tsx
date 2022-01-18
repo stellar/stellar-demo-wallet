@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useLocation, useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Keypair } from "stellar-sdk";
 import { fetchAccountAction } from "ducks/account";
@@ -18,7 +18,7 @@ export const SettingsHandler = ({
   const { account } = useRedux("account");
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
@@ -111,13 +111,13 @@ export const SettingsHandler = ({
 
   // Go to /account page if fetching account was success
   useEffect(() => {
-    if (account.status === ActionStatus.SUCCESS) {
-      history.push({
+    if (account.status === ActionStatus.SUCCESS && account.isAuthenticated) {
+      navigate({
         pathname: "/account",
-        search: history.location.search,
+        search: location.search,
       });
     }
-  }, [account.status, history]);
+  }, [account.status, location.search, account.isAuthenticated, navigate]);
 
   return <>{children}</>;
 };

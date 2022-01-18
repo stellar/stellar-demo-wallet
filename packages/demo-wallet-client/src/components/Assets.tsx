@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   Heading2,
@@ -93,7 +93,7 @@ export const Assets = ({
   const [toastMessage, setToastMessage] = useState<string | React.ReactNode>();
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   enum ModalType {
     ADD_ASSET = "ADD_ASSET",
@@ -104,13 +104,13 @@ export const Assets = ({
   const handleRemoveUntrustedAsset = useCallback(
     (removeAsset?: string) => {
       if (removeAsset) {
-        history.push(
+        navigate(
           searchParam.remove(SearchParams.UNTRUSTED_ASSETS, removeAsset),
         );
         dispatch(removeUntrustedAssetAction(removeAsset));
       }
     },
-    [history, dispatch],
+    [dispatch, navigate],
   );
 
   const handleRefreshAccount = useCallback(() => {
@@ -218,7 +218,7 @@ export const Assets = ({
   // Trust asset
   useEffect(() => {
     if (trustAsset.status === ActionStatus.SUCCESS) {
-      history.push(
+      navigate(
         searchParam.remove(
           SearchParams.UNTRUSTED_ASSETS,
           trustAsset.assetString,
@@ -239,7 +239,7 @@ export const Assets = ({
     handleRefreshAccount,
     setActiveAssetStatusAndToastMessage,
     dispatch,
-    history,
+    navigate,
   ]);
 
   // SEP-6 Deposit asset
@@ -320,7 +320,6 @@ export const Assets = ({
     handleRemoveUntrustedAsset,
     setActiveAssetStatusAndToastMessage,
     dispatch,
-    history,
   ]);
 
   // SEP-24 Withdraw asset
@@ -345,7 +344,6 @@ export const Assets = ({
     handleRefreshAccount,
     setActiveAssetStatusAndToastMessage,
     dispatch,
-    history,
   ]);
 
   // Claim asset

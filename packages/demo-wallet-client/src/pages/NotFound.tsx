@@ -1,11 +1,12 @@
-import { useHistory } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button, Heading1, Layout, Eyebrow } from "@stellar/design-system";
 
 export const NotFound = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleBack = () => {
-    history.push({ pathname: "/", search: history.location.search });
+    navigate({ pathname: "/", search: location.search });
   };
 
   return (
