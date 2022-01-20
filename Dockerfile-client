@@ -15,6 +15,7 @@ RUN yarn workspace demo-wallet-client install
 RUN yarn build:shared
 RUN yarn build:client
 
+
 # Copy the compiled static files out to an Nginx container, since we don't need any of the Node files.
 
 FROM nginx:1.17
