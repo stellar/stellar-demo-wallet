@@ -16,6 +16,7 @@ RUN yarn build:shared
 RUN yarn build:client
 
 # Copy the compiled static files out to an Nginx container, since we don't need any of the Node files.
+
 FROM nginx:1.17
 COPY --from=build /app/packages/demo-wallet-client/build/ /usr/share/nginx/html/
 COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
