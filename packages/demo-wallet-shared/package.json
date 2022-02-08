@@ -15,14 +15,14 @@
     "@stellar/wallet-sdk": "^0.6.0-rc.1",
     "bignumber.js": "^9.0.2",
     "crypto": "^1.0.1",
-    "dompurify": "^2.3.4",
-    "html-react-parser": "^1.4.5",
+    "dompurify": "^2.3.5",
+    "html-react-parser": "^1.4.8",
     "lodash": "^4.17.21",
-    "marked": "^4.0.9",
+    "marked": "^4.0.12",
     "rimraf": "^3.0.2",
-    "stellar-sdk": "^10.0.0",
+    "stellar-sdk": "^10.0.1",
     "toml": "^3.0.0",
     "tslib": "^2.3.1",
-    "typescript": "~4.5.4"
+    "typescript": "~4.5.5"
   }
 }
