@@ -21,6 +21,7 @@ import {
   pollTransactionUntilComplete,
 } from "demo-wallet-shared/build/methods/sep31Send";
 import { checkTomlForFields } from "demo-wallet-shared/build/methods/checkTomlForFields";
+import { Sep31GetTransaction } from "demo-wallet-shared/build/types/types";
 
 import {
   Asset,
@@ -324,7 +325,7 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
       });
 
       // Poll transaction until ready
-      const getSep31Tx = await pollTransactionUntilReady({
+      const getSep31Tx: Sep31GetTransaction = await pollTransactionUntilReady({
         sendServer,
         transactionId: postResponse.transactionId,
         token,
@@ -337,7 +338,7 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
 
       // Send payment
       await sendPayment({
-        amount: getSep31Tx!.transaction!.amount_in as string,
+        amount: amountIn,
         assetCode,
         assetIssuer,
         receiverAddress: postResponse.receiverAddress,
