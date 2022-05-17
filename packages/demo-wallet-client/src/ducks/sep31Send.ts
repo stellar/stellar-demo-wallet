@@ -21,6 +21,7 @@ import {
   pollTransactionUntilComplete,
 } from "demo-wallet-shared/build/methods/sep31Send";
 import { checkTomlForFields } from "demo-wallet-shared/build/methods/checkTomlForFields";
+import { Sep31GetTransaction } from "demo-wallet-shared/build/types/types";
 
 import {
   Asset,
@@ -324,15 +325,20 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
       });
 
       // Poll transaction until ready
-      await pollTransactionUntilReady({
+      const getSep31Tx: Sep31GetTransaction = await pollTransactionUntilReady({
         sendServer,
         transactionId: postResponse.transactionId,
         token,
       });
 
+      const amountIn = getSep31Tx?.transaction?.amount_in;
+      if (amountIn === undefined) {
+        throw new Error(`"amount_in" is missing from the GET /transaction response`);
+      }
+
       // Send payment
       await sendPayment({
-        amount: amount.amount,
+        amount: amountIn,
         assetCode,
         assetIssuer,
         receiverAddress: postResponse.receiverAddress,
