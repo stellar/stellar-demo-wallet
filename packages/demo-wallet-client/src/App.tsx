@@ -46,9 +46,9 @@ export const App = () => (
                       underline
                       href="https://github.com/stellar/stellar-demo-wallet#stellar-demo-wallet"
                     >
-                      Learn more
-                    </TextLink>{" "}
-                    about the tool and{" "}
+                      How to use this tool
+                    </TextLink>
+                    <br/>
                     <TextLink
                       variant={TextLink.variant.secondary}
                       underline
