@@ -54,9 +54,9 @@ export const App = () => (
                       underline
                       href="https://github.com/stellar/stellar-demo-wallet/issues"
                     >
-                      report issues or request features
+                      Report issues or request features
                     </TextLink>{" "}
-                    on GitHub.
+                    on GitHub
                   </p>
                 </Layout.Inset>
 
