@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
+import { custodialSelector } from "ducks/custodial";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
@@ -38,8 +39,25 @@ export const depositAssetAction = createAsyncThunk<
 
     const { data, secretKey } = accountSelector(getState());
     const { pubnet, claimableBalanceSupported } = settingsSelector(getState());
+    const {
+      isEnabled: custodialIsEnabled,
+      secretKey: custodialSecretKey,
+      publicKey: custodialPublicKey,
+      memoId: custodialMemoId,
+    } = custodialSelector(getState());
+
     const networkConfig = getNetworkConfig(pubnet);
     const publicKey = data?.id;
+
+    // This is unlikely
+    if (
+      custodialIsEnabled &&
+      !(custodialSecretKey && custodialPublicKey && custodialMemoId)
+    ) {
+      throw new Error(
+        "Custodial mode requires secret key, public key, and memo ID",
+      );
+    }
 
     // This is unlikely
     if (!publicKey) {
@@ -100,14 +118,15 @@ export const depositAssetAction = createAsyncThunk<
       const challengeTransaction = await sep10AuthStart({
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
         serverSigningKey: tomlResponse.SIGNING_KEY,
-        publicKey,
+        publicKey: custodialPublicKey || publicKey,
         homeDomain,
         clientDomain,
+        memoId: custodialMemoId,
       });
 
       // SEP-10 sign
       const signedChallengeTransaction = await sep10AuthSign({
-        secretKey,
+        secretKey: custodialSecretKey || secretKey,
         networkPassphrase: networkConfig.network,
         challengeTransaction,
         walletBackendEndpoint,

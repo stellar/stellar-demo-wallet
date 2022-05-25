@@ -21,7 +21,7 @@ const custodialSlice = createSlice({
   },
 });
 
-export const settingsSelector = (state: RootState) => state.custodial;
+export const custodialSelector = (state: RootState) => state.custodial;
 
 export const { reducer } = custodialSlice;
 export const { updateCustodialAction, resetCustodialAction } =
