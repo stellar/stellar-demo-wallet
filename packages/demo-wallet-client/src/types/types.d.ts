@@ -377,6 +377,7 @@ export interface ActiveAssetAction {
   description?: string | React.ReactNode;
   callback: (args?: any) => void;
   options?: ReactNode;
+  showCustodial?: boolean;
 }
 
 export interface AssetActionItem extends ActiveAssetAction {

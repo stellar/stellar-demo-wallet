@@ -1,5 +1,6 @@
 import { Button, Modal } from "@stellar/design-system";
 import { useRedux } from "hooks/useRedux";
+import { CustodialFields } from "components/CustodialFields";
 
 export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
   const { activeAsset } = useRedux("activeAsset");
@@ -8,7 +9,8 @@ export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
     return null;
   }
 
-  const { title, description, callback, options } = activeAsset.action;
+  const { title, description, callback, options, showCustodial } =
+    activeAsset.action;
 
   return (
     <>
@@ -21,7 +23,8 @@ export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
           ) : (
             description
           ))}
-        {options && <p>{options}</p>}
+        {options ? <p>{options}</p> : null}
+        {showCustodial ? <CustodialFields /> : null}
       </Modal.Body>
 
       <Modal.Footer>

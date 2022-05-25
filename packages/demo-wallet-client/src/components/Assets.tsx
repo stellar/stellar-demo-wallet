@@ -142,6 +142,7 @@ export const Assets = ({
     title,
     description,
     options,
+    showCustodial,
   }: AssetActionItem) => {
     setActiveModal(ModalType.CONFIRM_ACTION);
     dispatch(
@@ -154,6 +155,7 @@ export const Assets = ({
           callback(balance);
         },
         options,
+        showCustodial,
       }),
     );
   };
