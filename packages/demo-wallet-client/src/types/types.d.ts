@@ -145,6 +145,13 @@ export interface UntrustedAssetsInitialState {
   status: ActionStatus | undefined;
 }
 
+export interface CustodialInitialState {
+  isEnabled: boolean;
+  secretKey: string;
+  publicKey: string;
+  memoId: string;
+}
+
 export interface AnyObject {
   [key: string]: any;
 }

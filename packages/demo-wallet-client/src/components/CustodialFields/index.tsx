@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { Checkbox, Input } from "@stellar/design-system";
-import { Memo, StrKey } from "stellar-sdk";
+import { useDispatch } from "react-redux";
+import { Memo, StrKey, Keypair } from "stellar-sdk";
+
+import { updateCustodialAction, resetCustodialAction } from "ducks/custodial";
 import "./styles.scss";
 
 export const CustodialFields = ({
@@ -14,6 +17,8 @@ export const CustodialFields = ({
   const [errorSecretKey, setErrorSecretKey] = useState("");
   const [errorMemoId, setErrorMemoId] = useState("");
 
+  const dispatch = useDispatch();
+
   const isInputsValid =
     !!secretKeyValue && !errorSecretKey && !!memoIdValue && !errorMemoId;
 
@@ -24,6 +29,18 @@ export const CustodialFields = ({
       isValid(true);
     }
   }, [isCustodialMode, isInputsValid, isValid]);
+
+  useEffect(() => {
+    if (isCustodialMode) {
+      dispatch(
+        updateCustodialAction({
+          isEnabled: true,
+        }),
+      );
+    } else {
+      dispatch(resetCustodialAction());
+    }
+  }, [isCustodialMode, dispatch]);
 
   const resetLocalState = () => {
     setIsCustodialMode(false);
@@ -45,11 +62,16 @@ export const CustodialFields = ({
     setErrorSecretKey("");
     const isSecretKeyValid = StrKey.isValidEd25519SecretSeed(value);
 
-    if (!isSecretKeyValid) {
+    if (isSecretKeyValid) {
+      dispatch(
+        updateCustodialAction({
+          secretKey: value,
+          publicKey: Keypair.fromSecret(value).publicKey(),
+        }),
+      );
+    } else {
       setErrorSecretKey("Secret key is not valid");
     }
-
-    // TODO: set secret key in store
   };
 
   const validateMemoId = (value: string) => {
@@ -57,8 +79,11 @@ export const CustodialFields = ({
 
     try {
       const memoId = Memo.id(value);
-      // TODO: set memo id in store
-      console.log(">>> memoId: ", memoId);
+      dispatch(
+        updateCustodialAction({
+          memoId: memoId.value,
+        }),
+      );
     } catch (e) {
       setErrorMemoId("Memo ID must be a valid 64 bit unsigned integer");
     }

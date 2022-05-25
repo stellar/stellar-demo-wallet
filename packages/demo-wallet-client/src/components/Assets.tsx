@@ -42,6 +42,7 @@ import {
   resetUntrustedAssetStatusAction,
 } from "ducks/untrustedAssets";
 import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
+import { resetCustodialAction } from "ducks/custodial";
 
 import { getPresetAssets } from "demo-wallet-shared/build/helpers/getPresetAssets";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
@@ -133,6 +134,7 @@ export const Assets = ({
   const handleCloseModal = () => {
     setActiveModal("");
     dispatch(resetActiveAssetAction());
+    dispatch(resetCustodialAction());
   };
 
   const handleAssetAction = ({
@@ -174,6 +176,7 @@ export const Assets = ({
 
       if (status === ActionStatus.SUCCESS || status === ActionStatus.ERROR) {
         dispatch(resetActiveAssetAction());
+        dispatch(resetCustodialAction());
       }
 
       if (
