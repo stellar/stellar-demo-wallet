@@ -145,6 +145,7 @@ export const depositAssetAction = createAsyncThunk<
         sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
         token,
         claimableBalanceSupported,
+        isCustodialMode: custodialIsEnabled,
       });
 
       // Create popup
