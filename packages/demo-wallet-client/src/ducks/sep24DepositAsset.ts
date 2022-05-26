@@ -50,16 +50,6 @@ export const depositAssetAction = createAsyncThunk<
     const publicKey = data?.id;
 
     // This is unlikely
-    if (
-      custodialIsEnabled &&
-      !(custodialSecretKey && custodialPublicKey && custodialMemoId)
-    ) {
-      throw new Error(
-        "Custodial mode requires secret key, public key, and memo ID",
-      );
-    }
-
-    // This is unlikely
     if (!publicKey) {
       throw new Error("Something is wrong with Account, no public key.");
     }
@@ -67,6 +57,16 @@ export const depositAssetAction = createAsyncThunk<
     // This is unlikely
     if (!homeDomain) {
       throw new Error("Something went wrong, home domain is not defined.");
+    }
+
+    // This is unlikely
+    if (
+      custodialIsEnabled &&
+      !(custodialSecretKey && custodialPublicKey && custodialMemoId)
+    ) {
+      throw new Error(
+        "Custodial mode requires secret key, public key, and memo ID",
+      );
     }
 
     log.instruction({ title: "Initiating a SEP-24 deposit" });
