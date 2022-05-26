@@ -314,6 +314,7 @@ export enum LogType {
   RESPONSE = "response",
   INSTRUCTION = "instruction",
   ERROR = "error",
+  WARNING = "warning",
 }
 
 export interface LogItemProps {

@@ -279,6 +279,7 @@ export interface Sep31SendInitialState {
 
 export interface Sep31GetTransaction {
   transaction?: {
+    /* eslint-disable camelcase */
     id: string;
     status: string;
     status_eta?: number;
@@ -298,6 +299,7 @@ export interface Sep31GetTransaction {
     refunded?: boolean;
     required_info_message?: string;
     required_info_updates?: any;
+    /* eslint-enable camelcase */
   };
 }
 
@@ -331,6 +333,7 @@ export enum LogType {
   RESPONSE = "response",
   INSTRUCTION = "instruction",
   ERROR = "error",
+  WARNING = "warning",
 }
 
 export interface LogItemProps {

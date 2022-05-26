@@ -138,6 +138,10 @@ export const depositAssetAction = createAsyncThunk<
         signedChallengeTransaction,
       });
 
+      const generatedMemoId = custodialIsEnabled
+        ? Math.floor(Math.random() * 100).toString()
+        : undefined;
+
       // Interactive flow
       const interactiveResponse = await interactiveDepositFlow({
         assetCode,
@@ -145,7 +149,8 @@ export const depositAssetAction = createAsyncThunk<
         sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
         token,
         claimableBalanceSupported,
-        isCustodialMode: custodialIsEnabled,
+        memo: generatedMemoId,
+        memoType: custodialIsEnabled ? "id" : undefined,
       });
 
       // Create popup
@@ -159,6 +164,7 @@ export const depositAssetAction = createAsyncThunk<
           token,
           sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
           trustAssetCallback,
+          custodialMemoId: generatedMemoId,
         });
 
       return {

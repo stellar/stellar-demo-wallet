@@ -7,7 +7,8 @@ type InteractiveDepositFlowProps = {
   sep24TransferServerUrl: string;
   token: string;
   claimableBalanceSupported: boolean;
-  isCustodialMode?: boolean;
+  memo?: string;
+  memoType?: "text" | "id" | "hash";
 };
 
 type DepositParams = {
@@ -17,8 +18,6 @@ type DepositParams = {
   account: string;
   lang: string;
   claimable_balance_supported: string;
-  memo?: string;
-  memo_type?: "text" | "id" | "hash";
   /* eslint-enable camelcase */
 };
 
@@ -28,7 +27,8 @@ export const interactiveDepositFlow = async ({
   sep24TransferServerUrl,
   token,
   claimableBalanceSupported,
-  isCustodialMode,
+  memo,
+  memoType,
 }: InteractiveDepositFlowProps) => {
   log.instruction({ title: "Starting SEP-24 interactive flow for deposit" });
 
@@ -38,9 +38,7 @@ export const interactiveDepositFlow = async ({
     account: publicKey,
     lang: "en",
     claimable_balance_supported: claimableBalanceSupported.toString(),
-    ...(isCustodialMode
-      ? { memo: Math.floor(Math.random() * 100).toString(), memo_type: "id" }
-      : {}),
+    ...(memo && memoType ? { memo, memo_type: memoType } : {}),
   };
 
   each(postDepositParams, (value, key) => formData.append(key, value));

@@ -75,4 +75,21 @@ export const log = {
       body,
     });
   },
+
+  warning: ({
+    title,
+    body = "",
+  }: {
+    title: string;
+    body?: string | AnyObject;
+  }) => {
+    sentryCaptureMessage(title);
+    console.warn(title, body);
+    dispatchLog({
+      timestamp: new Date().getTime(),
+      type: LogType.WARNING,
+      title,
+      body,
+    });
+  },
 };
