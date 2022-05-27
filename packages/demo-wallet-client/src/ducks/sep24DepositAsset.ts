@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
+import { custodialSelector } from "ducks/custodial";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
@@ -38,6 +39,13 @@ export const depositAssetAction = createAsyncThunk<
 
     const { data, secretKey } = accountSelector(getState());
     const { pubnet, claimableBalanceSupported } = settingsSelector(getState());
+    const {
+      isEnabled: custodialIsEnabled,
+      secretKey: custodialSecretKey,
+      publicKey: custodialPublicKey,
+      memoId: custodialMemoId,
+    } = custodialSelector(getState());
+
     const networkConfig = getNetworkConfig(pubnet);
     const publicKey = data?.id;
 
@@ -49,6 +57,16 @@ export const depositAssetAction = createAsyncThunk<
     // This is unlikely
     if (!homeDomain) {
       throw new Error("Something went wrong, home domain is not defined.");
+    }
+
+    // This is unlikely
+    if (
+      custodialIsEnabled &&
+      !(custodialSecretKey && custodialPublicKey && custodialMemoId)
+    ) {
+      throw new Error(
+        "Custodial mode requires secret key, public key, and memo ID",
+      );
     }
 
     log.instruction({ title: "Initiating a SEP-24 deposit" });
@@ -100,14 +118,15 @@ export const depositAssetAction = createAsyncThunk<
       const challengeTransaction = await sep10AuthStart({
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
         serverSigningKey: tomlResponse.SIGNING_KEY,
-        publicKey,
+        publicKey: custodialPublicKey || publicKey,
         homeDomain,
         clientDomain,
+        memoId: custodialMemoId,
       });
 
       // SEP-10 sign
       const signedChallengeTransaction = await sep10AuthSign({
-        secretKey,
+        secretKey: custodialSecretKey || secretKey,
         networkPassphrase: networkConfig.network,
         challengeTransaction,
         walletBackendEndpoint,
@@ -119,6 +138,10 @@ export const depositAssetAction = createAsyncThunk<
         signedChallengeTransaction,
       });
 
+      const generatedMemoId = custodialIsEnabled
+        ? Math.floor(Math.random() * 100).toString()
+        : undefined;
+
       // Interactive flow
       const interactiveResponse = await interactiveDepositFlow({
         assetCode,
@@ -126,6 +149,8 @@ export const depositAssetAction = createAsyncThunk<
         sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
         token,
         claimableBalanceSupported,
+        memo: generatedMemoId,
+        memoType: custodialIsEnabled ? "id" : undefined,
       });
 
       // Create popup
@@ -139,6 +164,7 @@ export const depositAssetAction = createAsyncThunk<
           token,
           sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
           trustAssetCallback,
+          custodialMemoId: generatedMemoId,
         });
 
       return {

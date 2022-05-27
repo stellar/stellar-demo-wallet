@@ -45,7 +45,8 @@
 
   // Light box
   &--instruction,
-  &--error {
+  &--error,
+  &--warning {
     width: fit-content;
     background-color: var(--pal-background-primary);
     border: 1px solid var(--pal-border-primary);
@@ -105,6 +106,12 @@
   &--error {
     .LogItem__icon svg {
       stroke: var(--pal-error);
+    }
+  }
+
+  &--warning {
+    .LogItem__icon svg {
+      stroke: var(--pal-warning);
     }
   }
 

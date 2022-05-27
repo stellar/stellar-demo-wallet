@@ -7,14 +7,21 @@ export const start = async ({
   publicKey,
   homeDomain,
   clientDomain,
+  memoId,
 }: {
   authEndpoint: string;
   serverSigningKey: string;
   publicKey: string;
   homeDomain: string;
   clientDomain: string;
+  memoId?: string;
 }) => {
-  const params = { account: publicKey, home_domain: homeDomain, client_domain: clientDomain };
+  const params = {
+    account: publicKey,
+    home_domain: homeDomain,
+    client_domain: clientDomain,
+    ...(memoId ? { memo: memoId } : {}),
+  };
 
   log.instruction({
     title:

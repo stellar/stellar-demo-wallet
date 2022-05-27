@@ -145,6 +145,13 @@ export interface UntrustedAssetsInitialState {
   status: ActionStatus | undefined;
 }
 
+export interface CustodialInitialState {
+  isEnabled: boolean;
+  secretKey: string;
+  publicKey: string;
+  memoId: string;
+}
+
 export interface AnyObject {
   [key: string]: any;
 }
@@ -307,6 +314,7 @@ export enum LogType {
   RESPONSE = "response",
   INSTRUCTION = "instruction",
   ERROR = "error",
+  WARNING = "warning",
 }
 
 export interface LogItemProps {
@@ -377,6 +385,7 @@ export interface ActiveAssetAction {
   description?: string | React.ReactNode;
   callback: (args?: any) => void;
   options?: ReactNode;
+  showCustodial?: boolean;
 }
 
 export interface AssetActionItem extends ActiveAssetAction {

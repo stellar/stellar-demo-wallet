@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
+import { custodialSelector } from "ducks/custodial";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
@@ -36,6 +37,13 @@ export const withdrawAssetAction = createAsyncThunk<
     const { assetIssuer, assetCode, homeDomain } = asset;
     const { data, secretKey } = accountSelector(getState());
     const { pubnet } = settingsSelector(getState());
+    const {
+      isEnabled: custodialIsEnabled,
+      secretKey: custodialSecretKey,
+      publicKey: custodialPublicKey,
+      memoId: custodialMemoId,
+    } = custodialSelector(getState());
+
     const networkConfig = getNetworkConfig(pubnet);
     const publicKey = data?.id;
 
@@ -47,6 +55,16 @@ export const withdrawAssetAction = createAsyncThunk<
     // This is unlikely
     if (!homeDomain) {
       throw new Error("Something went wrong, home domain is not defined.");
+    }
+
+    // This is unlikely
+    if (
+      custodialIsEnabled &&
+      !(custodialSecretKey && custodialPublicKey && custodialMemoId)
+    ) {
+      throw new Error(
+        "Custodial mode requires secret key, public key, and memo ID",
+      );
     }
 
     try {
@@ -79,14 +97,15 @@ export const withdrawAssetAction = createAsyncThunk<
       const challengeTransaction = await sep10AuthStart({
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
         serverSigningKey: tomlResponse.SIGNING_KEY,
-        publicKey,
+        publicKey: custodialPublicKey || publicKey,
         homeDomain,
         clientDomain,
+        memoId: custodialMemoId,
       });
 
       // SEP-10 sign
       const signedChallengeTransaction = await sep10AuthSign({
-        secretKey,
+        secretKey: custodialSecretKey || secretKey,
         networkPassphrase: networkConfig.network,
         challengeTransaction,
         walletBackendEndpoint,

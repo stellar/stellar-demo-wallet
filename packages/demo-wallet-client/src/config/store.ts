@@ -25,6 +25,7 @@ import { reducer as sendPayment } from "ducks/sendPayment";
 import { reducer as settings } from "ducks/settings";
 import { reducer as trustAsset } from "ducks/trustAsset";
 import { reducer as untrustedAssets } from "ducks/untrustedAssets";
+import { reducer as custodial } from "ducks/custodial";
 
 const RESET_STORE_ACTION_TYPE = "RESET";
 export type RootState = ReturnType<typeof store.getState>;
@@ -43,8 +44,9 @@ const reducers = combineReducers({
   activeAsset,
   allAssets,
   assetOverrides,
-  claimAsset,
   claimableBalances,
+  claimAsset,
+  custodial,
   logs,
   sendPayment,
   sep6DepositAsset,
@@ -76,5 +78,6 @@ export const store = configureStore({
   ],
 });
 
-export const walletBackendEndpoint: string = process.env.REACT_APP_WALLET_BACKEND_ENDPOINT ?? "";
+export const walletBackendEndpoint: string =
+  process.env.REACT_APP_WALLET_BACKEND_ENDPOINT ?? "";
 export const clientDomain: string = process.env.REACT_APP_CLIENT_DOMAIN ?? "";

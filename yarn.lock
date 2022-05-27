@@ -2496,10 +2496,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@stellar/design-system@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@stellar/design-system/-/design-system-0.6.0.tgz#2d5034701cd163741763502ecfaa3f6aed5c87d0"
-  integrity sha512-2OXK8U3vDoeHiZW+3A+Xw5tSvaV8y8cio+RoeFMfl29iXPTikB3jNQis/20JSE/YHwvfq3MR0+nw09loYxMz4w==
+"@stellar/design-system@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@stellar/design-system/-/design-system-0.8.0.tgz#2dd8cd39f95231dfa61fcfb23dfb3ecb51f81e3d"
+  integrity sha512-3VNTh2qzNatSG4SEsXZfqfXAT0a+HSzyBIOYTHNNiCc1nAVZQ1p6QB9OOE90JrbDfBGIj8NMBI34LF3fRYpn+A==
   dependencies:
     "@popperjs/core" "^2.11.2"
     bignumber.js "^9.0.2"
@@ -2538,10 +2538,10 @@
   resolved "https://registry.yarnpkg.com/@stellar/tsconfig/-/tsconfig-1.0.2.tgz#18e9b1a1d6076e116bb405d11fc034401155292d"
   integrity sha512-lC51QSlYRM8K3oGe0/WGPq+p9+u+yPzwZXSKrZXKOe4sq79vzfiqFbQyp5enOffFzXlahcDyTgY67mBOkJytfw==
 
-"@stellar/wallet-sdk@^0.6.0-rc.1":
-  version "0.6.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@stellar/wallet-sdk/-/wallet-sdk-0.6.0-rc.1.tgz#c10e791c159269d93fe1130a422e5c3885aee536"
-  integrity sha512-VxTetX9JgGgENr0lWzvmC+OtxFVJSqq+5RtBtZgSF5fGNGpBqp90+i9hEi0WSdpiHob99sC2ODATvFzTpXeS6A==
+"@stellar/wallet-sdk@^0.7.0-rc.0":
+  version "0.7.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@stellar/wallet-sdk/-/wallet-sdk-0.7.0-rc.0.tgz#2cbd3a1f91cb33775cf5ffe34f008b581ce64865"
+  integrity sha512-7L59+QrPT8+0V57YuZZJYv0LmsiNwuAC9BFvgQwSfv4AHCvO+pM9mXW11xEOd1ew1SKFCupn0GSOjjm9mpjT3A==
   dependencies:
     "@albedo-link/intent" "^0.9.2"
     "@ledgerhq/hw-app-str" "^5.28.0"
@@ -13594,10 +13594,10 @@ stealthy-require@^1.1.1:
   resolved "https://registry.yarnpkg.com/stealthy-require/-/stealthy-require-1.1.1.tgz#35b09875b4ff49f26a777e509b3090a3226bf24b"
   integrity sha1-NbCYdbT/SfJqd35QmzCQoyJr8ks=
 
-stellar-base@^8.0.0:
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-8.0.0.tgz#619e5fb7951fa8abb26322e51e611169a5d1cf62"
-  integrity sha512-MH0V94Hn/Ekq/yZxd+EQijkvfU+21zuqJAyEP8X+fhRR0IQYwGNByY003oLqIkgwqXotyofEQ76W5MoNFZmlpw==
+stellar-base@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-8.0.1.tgz#094ba419c07eec9d698bdcdae0c777c959102eee"
+  integrity sha512-IB7GxyAF59jHmY0jyX5vxzD5k7AJLTGSelRIcjJZwsENsqa7tNWEh9HpnmYGvCgdeG2D+MxaeR5fouEvElaH8A==
   dependencies:
     base32.js "^0.1.0"
     bignumber.js "^4.0.0"
@@ -13616,10 +13616,10 @@ stellar-identicon-js@^1.0.0:
   dependencies:
     html-webpack-plugin "^3.2.0"
 
-stellar-sdk@^10.1.0:
-  version "10.1.0"
-  resolved "https://registry.yarnpkg.com/stellar-sdk/-/stellar-sdk-10.1.0.tgz#91cf9ed3c84c9a9d4c8aaa6cca29bd997b7c778a"
-  integrity sha512-8PTKuyrQ5bIbsyrLav+JE/c+rrLynBygiB4dpvG30ou7K8P6a5ainmGyVMbCzlz1OkKWoaAW5rJAkl3RhlTZkA==
+stellar-sdk@^10.1.1:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/stellar-sdk/-/stellar-sdk-10.1.1.tgz#aea93ee205336a8d238ba08059a626db6723de88"
+  integrity sha512-PhSk+vdZdgUvK+gNWsO9O0AsksddvWurD+9HlNhnnlJJ7rrJ2/QVcOrKHfk+u9z74XOwsQylk+4CZGq/2sjkVw==
   dependencies:
     "@types/eventsource" "^1.1.2"
     "@types/node" ">= 8"
@@ -13632,7 +13632,7 @@ stellar-sdk@^10.1.0:
     eventsource "^1.0.7"
     lodash "^4.17.21"
     randombytes "^2.1.0"
-    stellar-base "^8.0.0"
+    stellar-base "^8.0.1"
     toml "^2.3.0"
     tslib "^1.10.0"
     urijs "^1.19.1"

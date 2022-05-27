@@ -13,6 +13,7 @@ marked.setOptions({
 const LogItemIcon = {
   instruction: <Icon.MessageSquare />,
   error: <Icon.XCircle />,
+  warning: <Icon.AlertTriangle />,
   request: <Icon.ArrowRight />,
   response: <Icon.ArrowLeft />,
 };

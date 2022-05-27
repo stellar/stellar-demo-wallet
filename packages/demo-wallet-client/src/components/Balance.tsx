@@ -32,6 +32,7 @@ export const Balance = ({
     title,
     description,
     options,
+    showCustodial,
   }: AssetActionItem) => void;
   onSend: (asset?: Asset) => void;
 }) => {
@@ -160,6 +161,7 @@ export const Balance = ({
           title: `SEP-24 deposit ${balance.assetCode} (with Trusted Asset)`,
           description: `Start SEP-24 deposit of trusted asset ${balance.assetCode}?`,
           callback: () => handleSep24Deposit(balance),
+          showCustodial: true,
         };
         break;
       case AssetActionId.SEP24_WITHDRAW:
@@ -168,6 +170,7 @@ export const Balance = ({
           title: `SEP-24 withdrawal ${balance.assetCode}`,
           description: `Start SEP-24 withdrawal of ${balance.assetCode}?`,
           callback: () => handleSep24Withdraw(balance),
+          showCustodial: true,
         };
         break;
       case AssetActionId.SEP31_SEND: {

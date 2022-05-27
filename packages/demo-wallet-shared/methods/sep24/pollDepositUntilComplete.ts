@@ -8,12 +8,14 @@ export const pollDepositUntilComplete = async ({
   token,
   sep24TransferServerUrl,
   trustAssetCallback,
+  custodialMemoId,
 }: {
   popup: any;
   transactionId: string;
   token: string;
   sep24TransferServerUrl: string;
   trustAssetCallback: () => Promise<string>;
+  custodialMemoId?: string;
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
   let trustedAssetAdded;
@@ -50,6 +52,16 @@ export const pollDepositUntilComplete = async ({
 
       switch (currentStatus) {
         case TransactionStatus.PENDING_USER_TRANSFER_START: {
+          if (
+            custodialMemoId &&
+            transactionJson.transaction.deposit_memo !== custodialMemoId
+          ) {
+            log.warning({
+              title: "SEP-24 deposit custodial memo doesn’t match",
+              body: `Expected ${custodialMemoId}, got ${transactionJson.transaction.deposit_memo}`,
+            });
+          }
+
           log.instruction({
             title:
               "The anchor is waiting on you to take the action described in the popup",
