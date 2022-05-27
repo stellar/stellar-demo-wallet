@@ -118,6 +118,7 @@ export const UntrustedBalance = ({
           title: `SEP-24 deposit ${asset.assetCode} (with untrusted Asset)`,
           description: `Start SEP-24 deposit of untrusted asset ${asset.assetCode}? ${TRUSTED_ASSET_EXPLANATION}`,
           callback: () => handleDepositAsset(asset),
+          showCustodial: true,
         };
         break;
       case AssetActionId.TRUST_ASSET:
