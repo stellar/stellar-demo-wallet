@@ -19,8 +19,10 @@ export const start = async ({
   const params = {
     account: publicKey,
     home_domain: homeDomain,
-    client_domain: clientDomain,
+    // Memo ID is in custodial mode
     ...(memoId ? { memo: memoId } : {}),
+    // Don't send client domain in custodial mode
+    ...(!memoId ? { client_domain: clientDomain } : {}),
   };
 
   log.instruction({
