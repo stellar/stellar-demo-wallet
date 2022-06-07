@@ -1,5 +1,6 @@
 import { each } from "lodash";
 import { log } from "../../helpers/log";
+import { AnyObject } from "../../types/types";
 
 type InteractiveDepositFlowProps = {
   assetCode: string;
@@ -9,6 +10,7 @@ type InteractiveDepositFlowProps = {
   claimableBalanceSupported: boolean;
   memo?: string;
   memoType?: "text" | "id" | "hash";
+  sep9Fields?: AnyObject;
 };
 
 type DepositParams = {
@@ -29,6 +31,7 @@ export const interactiveDepositFlow = async ({
   claimableBalanceSupported,
   memo,
   memoType,
+  sep9Fields,
 }: InteractiveDepositFlowProps) => {
   log.instruction({ title: "Starting SEP-24 interactive flow for deposit" });
 
@@ -39,6 +42,7 @@ export const interactiveDepositFlow = async ({
     lang: "en",
     claimable_balance_supported: claimableBalanceSupported.toString(),
     ...(memo && memoType ? { memo, memo_type: memoType } : {}),
+    ...(sep9Fields ?? {}),
   };
 
   each(postDepositParams, (value, key) => formData.append(key, value));

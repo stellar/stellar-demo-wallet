@@ -26,6 +26,7 @@ import { reducer as settings } from "ducks/settings";
 import { reducer as trustAsset } from "ducks/trustAsset";
 import { reducer as untrustedAssets } from "ducks/untrustedAssets";
 import { reducer as custodial } from "ducks/custodial";
+import { reducer as extra } from "ducks/extra";
 
 const RESET_STORE_ACTION_TYPE = "RESET";
 export type RootState = ReturnType<typeof store.getState>;
@@ -47,6 +48,7 @@ const reducers = combineReducers({
   claimableBalances,
   claimAsset,
   custodial,
+  extra,
   logs,
   sendPayment,
   sep6DepositAsset,

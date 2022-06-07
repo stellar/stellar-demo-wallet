@@ -1,4 +1,6 @@
 import { Input, TextLink } from "@stellar/design-system";
+import { useDispatch } from "react-redux";
+import { updateExtraAction } from "ducks/extra";
 
 export const Sep9Fields = () => {
   const FIELDS = [
@@ -32,8 +34,18 @@ export const Sep9Fields = () => {
     },
   ];
 
+  const dispatch = useDispatch();
+
   const handleUpdateValue = (id: string, value: string) => {
-    console.log("update value: ", id, value.toString());
+    if (value) {
+      dispatch(
+        updateExtraAction({
+          category: "sep9Fields",
+          param: id,
+          value: value.toString(),
+        }),
+      );
+    }
   };
 
   return (

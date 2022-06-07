@@ -152,6 +152,12 @@ export interface CustodialInitialState {
   memoId: string;
 }
 
+export interface ExtraInitialState {
+  [cat: string]: {
+    [param: string]: any;
+  };
+}
+
 export interface AnyObject {
   [key: string]: any;
 }

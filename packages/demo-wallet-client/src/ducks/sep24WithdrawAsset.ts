@@ -3,6 +3,7 @@ import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
 import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { custodialSelector } from "ducks/custodial";
+import { extraSelector } from "ducks/extra";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
@@ -43,6 +44,7 @@ export const withdrawAssetAction = createAsyncThunk<
       publicKey: custodialPublicKey,
       memoId: custodialMemoId,
     } = custodialSelector(getState());
+    const { sep9Fields } = extraSelector(getState());
 
     const networkConfig = getNetworkConfig(pubnet);
     const publicKey = data?.id;
@@ -123,6 +125,7 @@ export const withdrawAssetAction = createAsyncThunk<
         publicKey,
         sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
         token,
+        sep9Fields,
       });
 
       // Create popup

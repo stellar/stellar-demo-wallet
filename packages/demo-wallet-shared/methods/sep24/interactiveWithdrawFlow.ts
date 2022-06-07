@@ -1,16 +1,19 @@
 import { each } from "lodash";
 import { log } from "../../helpers/log";
+import { AnyObject } from "../../types/types";
 
 export const interactiveWithdrawFlow = async ({
   assetCode,
   publicKey,
   sep24TransferServerUrl,
   token,
+  sep9Fields,
 }: {
   assetCode: string;
   publicKey: string;
   sep24TransferServerUrl: string;
   token: string;
+  sep9Fields?: AnyObject;
 }) => {
   log.instruction({ title: "Starting SEP-24 interactive flow for withdrawal" });
 
@@ -19,6 +22,7 @@ export const interactiveWithdrawFlow = async ({
     asset_code: assetCode,
     account: publicKey,
     lang: "en",
+    ...(sep9Fields ?? {}),
   };
 
   each(postWithdrawParams, (value, key) => formData.append(key, value));
