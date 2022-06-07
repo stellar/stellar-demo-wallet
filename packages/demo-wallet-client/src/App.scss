@@ -158,6 +158,12 @@
   }
 }
 
+.FormContainer {
+  & > * {
+    margin-top: 1rem;
+  }
+}
+
 .horizontal-spacing {
   & > *:not(:first-child),
   & > *:not(:last-child) {
