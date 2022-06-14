@@ -46,7 +46,7 @@ export const depositAssetAction = createAsyncThunk<
       publicKey: custodialPublicKey,
       memoId: custodialMemoId,
     } = custodialSelector(getState());
-    const { sep9Fields } = extraSelector(getState());
+    const { sep9Fields, memo } = extraSelector(getState());
 
     const networkConfig = getNetworkConfig(pubnet);
     const publicKey = data?.id;
@@ -151,8 +151,8 @@ export const depositAssetAction = createAsyncThunk<
         sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
         token,
         claimableBalanceSupported,
-        memo: generatedMemoId,
-        memoType: custodialIsEnabled ? "id" : undefined,
+        memo: memo?.memo || generatedMemoId,
+        memoType: custodialIsEnabled || memo?.memo ? "id" : undefined,
         sep9Fields,
       });
 

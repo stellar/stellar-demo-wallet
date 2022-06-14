@@ -36,11 +36,19 @@ export const Sep9Fields = () => {
 
   const dispatch = useDispatch();
 
-  const handleUpdateValue = (id: string, value: string) => {
+  const handleUpdateValue = ({
+    id,
+    value,
+    category = "sep9Fields",
+  }: {
+    id: string;
+    value: string;
+    category?: string;
+  }) => {
     if (value) {
       dispatch(
         updateExtraAction({
-          category: "sep9Fields",
+          category,
           param: id,
           value: value.toString(),
         }),
@@ -50,6 +58,19 @@ export const Sep9Fields = () => {
 
   return (
     <div className="FormContainer">
+      <Input
+        id="memo"
+        label="memo"
+        type="text"
+        onBlur={(e) =>
+          handleUpdateValue({
+            id: e.target.id,
+            value: e.target.value,
+            category: "memo",
+          })
+        }
+      />
+
       <p>
         Wallets can provide{" "}
         <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0009.md">
@@ -62,7 +83,9 @@ export const Sep9Fields = () => {
           id={f.id}
           label={f.id}
           type={f.type}
-          onBlur={(e) => handleUpdateValue(e.target.id, e.target.value)}
+          onBlur={(e) =>
+            handleUpdateValue({ id: e.target.id, value: e.target.value })
+          }
         />
       ))}
     </div>
