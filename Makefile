@@ -18,7 +18,7 @@ docker-push-server:
 
 docker-build-client:
 	$(SUDO) docker build -f Dockerfile-client --pull --label org.opencontainers.image.created="$(BUILD_DATE)" \
-	--build-arg REACT_APP_CLIENT_DOMAIN=$(REACT_APP_CLIENT_DOMAIN) --build-arg REACT_APP_WALLET_BACKEND_ENDPOINT=$(REACT_APP_WALLET_BACKEND_ENDPOINT) \
+	--build-arg REACT_APP_CLIENT_DOMAIN=$(REACT_APP_CLIENT_DOMAIN) --build-arg REACT_APP_WALLET_BACKEND_ENDPOINT=$(REACT_APP_WALLET_BACKEND_ENDPOINT) --build-arg REACT_APP_HORIZON_PASSPHRASE=$(REACT_APP_HORIZON_PASSPHRASE) --build-arg REACT_APP_HORIZON_URL=$(REACT_APP_HORIZON_URL) \
 	-t $(CLIENT_TAG) .
 
 docker-push-client:

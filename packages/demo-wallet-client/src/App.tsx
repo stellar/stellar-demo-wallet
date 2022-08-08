@@ -9,6 +9,7 @@ import { Footer } from "components/Footer";
 import { Logs } from "components/Logs";
 import { PrivateRoute } from "components/PrivateRoute";
 import { SettingsHandler } from "components/SettingsHandler";
+import { WarningBanner } from "components/WarningBanner";
 
 import { Account } from "pages/Account";
 import { Landing } from "pages/Landing";
@@ -44,6 +45,8 @@ export const App = () => (
   <Provider store={store}>
     <Router>
       <SettingsHandler>
+        <WarningBanner />
+
         <div id="app-wrapper" className="Wrapper">
           <div className="SplitContainer Main">
             <div className="Main__content">

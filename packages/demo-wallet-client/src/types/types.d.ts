@@ -344,11 +344,6 @@ export interface Store {
 
 export type StoreKey = keyof Store;
 
-export enum NetworkType {
-  PUBLIC = "public",
-  TESTNET = "testnet",
-}
-
 export enum ActionStatus {
   ERROR = "ERROR",
   PENDING = "PENDING",
