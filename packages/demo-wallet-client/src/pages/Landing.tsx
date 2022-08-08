@@ -17,6 +17,7 @@ import { ConnectAccount } from "components/ConnectAccount";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
+import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 
 export const Landing = () => {
   const { account } = useRedux("account");
@@ -28,6 +29,8 @@ export const Landing = () => {
 
   useEffect(() => {
     metrics.emitMetric(METRIC_NAMES.viewHome);
+
+    console.log("network: ", getNetworkConfig().network);
   }, []);
 
   useEffect(() => {

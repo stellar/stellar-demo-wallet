@@ -6,7 +6,7 @@ export const WarningBanner = () => {
   const { network } = getNetworkConfig();
 
   // Show banner if not on testnet (changed in .env)
-  if (network !== StellarSdk.Networks.TESTNET) {
+  if (network && network !== StellarSdk.Networks.TESTNET) {
     return (
       <StatusBar variant={StatusBar.variant.warning}>
         WARNING: You’ve connected a real account to this demo. You are not on
