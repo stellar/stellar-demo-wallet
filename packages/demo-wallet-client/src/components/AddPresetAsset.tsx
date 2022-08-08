@@ -18,10 +18,9 @@ import { ActionStatus, presetAsset, SearchParams } from "types/types.d";
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
 
 export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
-  const { account, allAssets, settings, untrustedAssets } = useRedux(
+  const { account, allAssets, untrustedAssets } = useRedux(
     "account",
     "allAssets",
-    "settings",
     "untrustedAssets",
   );
   const [presetAssets, setPresetAssets] = useState<presetAsset[]>([]);
@@ -72,7 +71,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
             homeDomain,
             issuerPublicKey,
             accountBalances: account.data?.balances,
-            networkUrl: getNetworkConfig(settings.pubnet).url,
+            networkUrl: getNetworkConfig().url,
           });
 
           return `${asset.assetCode}:${asset.assetIssuer}`;
@@ -102,10 +101,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
     const { homeDomain, issuerPublicKey: assetIssuer } = asset;
 
     const assetId = getAssetId(asset);
-    const networkUrl = getNetworkConfig(settings.pubnet).url.replace(
-      "https:",
-      "",
-    );
+    const networkUrl = getNetworkConfig().url.replace("https:", "");
 
     // if no home domain is provided, use horizon's /account endpoint:
     const issuerLink =

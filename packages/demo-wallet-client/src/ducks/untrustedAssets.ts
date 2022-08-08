@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getCatchError } from "@stellar/frontend-helpers";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
-import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getUntrustedAssetData } from "demo-wallet-shared/build/helpers/getUntrustedAssetData";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
@@ -42,7 +41,6 @@ export const addUntrustedAssetAction = createAsyncThunk<
   "untrustedAssets/addUntrustedAssetAction",
   async (assetsString, { rejectWithValue, getState }) => {
     const { data: accountData } = accountSelector(getState());
-    const { pubnet } = settingsSelector(getState());
     const { data } = untrustedAssetsSelector(getState());
 
     try {
@@ -63,7 +61,7 @@ export const addUntrustedAssetAction = createAsyncThunk<
         response = await getUntrustedAssetData({
           assetsToAdd: assetsListToAdd,
           accountAssets: accountData?.balances,
-          networkUrl: getNetworkConfig(pubnet).url,
+          networkUrl: getNetworkConfig().url,
         });
       } catch (e) {
         const error = getCatchError(e);

@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
-import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getAssetOverridesData } from "demo-wallet-shared/build/helpers/getAssetOverridesData";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
@@ -19,15 +18,13 @@ export const addAssetOverridesAction = createAsyncThunk<
   { rejectValue: RejectMessage; state: RootState }
 >(
   "assetOverrides/addAssetOverridesAction",
-  async (assetOverridesString, { rejectWithValue, getState }) => {
-    const { pubnet } = settingsSelector(getState());
-
+  async (assetOverridesString, { rejectWithValue }) => {
     try {
       const assetOverrides = searchKeyPairStringToArray(assetOverridesString);
 
       const response = await getAssetOverridesData({
         assetOverrides,
-        networkUrl: getNetworkConfig(pubnet).url,
+        networkUrl: getNetworkConfig().url,
       });
 
       return response;

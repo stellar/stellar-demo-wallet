@@ -37,8 +37,6 @@ export const Landing = () => {
   }, [account.secretKey, account.status, account.isAuthenticated, navigate]);
 
   const handleCreateAccount = () => {
-    // Make sure we are on testnet
-    navigate(searchParam.update(SearchParams.PUBNET, "false"));
     dispatch(createRandomAccount());
   };
 
@@ -56,7 +54,7 @@ export const Landing = () => {
             disabled={isPending}
             underline
           >
-            Provide a secret key (testnet or mainnet)
+            Provide a secret key (testnet only)
           </TextLink>
 
           <div className="Layout__inline">

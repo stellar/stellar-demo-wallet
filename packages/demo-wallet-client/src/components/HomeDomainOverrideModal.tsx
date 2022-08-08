@@ -6,7 +6,6 @@ import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessag
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
-import { useRedux } from "hooks/useRedux";
 import { Asset, SearchParams } from "types/types.d";
 
 export const HomeDomainOverrideModal = ({
@@ -16,7 +15,6 @@ export const HomeDomainOverrideModal = ({
   asset: Asset;
   onClose: () => void;
 }) => {
-  const { settings } = useRedux("settings");
   const navigate = useNavigate();
 
   const [homeDomain, setHomeDomain] = useState("");
@@ -28,7 +26,7 @@ export const HomeDomainOverrideModal = ({
     setIsPending(true);
 
     const { assetCode, assetIssuer } = asset;
-    const networkUrl = getNetworkConfig(settings.pubnet).url;
+    const networkUrl = getNetworkConfig().url;
 
     try {
       const validAsset = await getAssetFromHomeDomain({

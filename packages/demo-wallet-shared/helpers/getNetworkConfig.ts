@@ -7,7 +7,6 @@ interface NetworkItemConfig {
 }
 
 interface NetworkConfig {
-  public: NetworkItemConfig;
   testnet: NetworkItemConfig;
 }
 
@@ -16,13 +15,6 @@ const networkConfig: NetworkConfig = {
     network: StellarSdk.Networks.TESTNET,
     url: "https://horizon-testnet.stellar.org",
   },
-  public: {
-    network: StellarSdk.Networks.PUBLIC,
-    url: "https://horizon.stellar.org",
-  },
 };
 
-export const getNetworkConfig = (pubnet: boolean) => {
-  const network = pubnet ? NetworkType.PUBLIC : NetworkType.TESTNET;
-  return networkConfig[network];
-};
+export const getNetworkConfig = () => networkConfig[NetworkType.TESTNET];

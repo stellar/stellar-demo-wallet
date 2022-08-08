@@ -15,13 +15,6 @@ const update = (
   const currentParamValue = queryParams.get(param) || "";
 
   switch (param) {
-    case SearchParams.PUBNET:
-      if (value === "true") {
-        queryParams.set(SearchParams.PUBNET, value);
-      } else {
-        queryParams.delete(SearchParams.PUBNET);
-      }
-      break;
     case SearchParams.CLAIMABLE_BALANCE_SUPPORTED:
       if (value === "true") {
         queryParams.set(SearchParams.CLAIMABLE_BALANCE_SUPPORTED, value);

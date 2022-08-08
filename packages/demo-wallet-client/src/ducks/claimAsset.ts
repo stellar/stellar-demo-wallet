@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { BASE_FEE } from "stellar-sdk";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
-import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
@@ -23,9 +22,8 @@ export const claimAssetAction = createAsyncThunk<
   "claimAsset/claimAssetAction",
   async (balance, { rejectWithValue, getState }) => {
     const { data, secretKey } = accountSelector(getState());
-    const { pubnet } = settingsSelector(getState());
 
-    const networkConfig = getNetworkConfig(pubnet);
+    const networkConfig = getNetworkConfig();
     const { assetCode, assetIssuer } = balance;
     // Cannot use balance.assetString because it's an id
     const assetString = assetIssuer ? `${assetCode}:${assetIssuer}` : assetCode;
