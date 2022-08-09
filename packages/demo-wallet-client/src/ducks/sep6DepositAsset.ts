@@ -45,8 +45,7 @@ export const initiateDepositAction = createAsyncThunk<
   async (asset, { rejectWithValue, getState }) => {
     const { assetCode, assetIssuer, homeDomain } = asset;
     const { data, secretKey } = accountSelector(getState());
-    const { pubnet } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(pubnet);
+    const networkConfig = getNetworkConfig();
     const publicKey = data?.id;
 
     // This is unlikely
@@ -256,8 +255,7 @@ export const sep6DepositAction = createAsyncThunk<
   async (_, { rejectWithValue, getState }) => {
     try {
       const { secretKey } = accountSelector(getState());
-      const { pubnet } = settingsSelector(getState());
-      const networkConfig = getNetworkConfig(pubnet);
+      const networkConfig = getNetworkConfig();
       const { data: sep6Data } = sep6DepositSelector(getState());
 
       const {

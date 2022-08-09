@@ -4,7 +4,6 @@ import { getCatchError } from "@stellar/frontend-helpers";
 import { Keypair } from "stellar-sdk";
 
 import { RootState } from "config/store";
-import { settingsSelector } from "ducks/settings";
 import { getAssetData } from "demo-wallet-shared/build/helpers/getAssetData";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getErrorString } from "demo-wallet-shared/build/helpers/getErrorString";
@@ -46,9 +45,8 @@ export const fetchAccountAction = createAsyncThunk<
   { rejectValue: RejectMessage; state: RootState }
 >(
   "account/fetchAccountAction",
-  async ({ publicKey, secretKey }, { rejectWithValue, getState }) => {
-    const { pubnet } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(pubnet);
+  async ({ publicKey, secretKey }, { rejectWithValue }) => {
+    const networkConfig = getNetworkConfig();
 
     const dataProvider = new DataProvider({
       serverUrl: networkConfig.url,
@@ -128,50 +126,46 @@ export const fundTestnetAccount = createAsyncThunk<
   AccountActionBaseResponse,
   string,
   { rejectValue: RejectMessage; state: RootState }
->(
-  "account/fundTestnetAccount",
-  async (publicKey, { rejectWithValue, getState }) => {
-    log.instruction({
-      title: "The friendbot is funding testnet account",
-      body: `Public key: ${publicKey}`,
+>("account/fundTestnetAccount", async (publicKey, { rejectWithValue }) => {
+  log.instruction({
+    title: "The friendbot is funding testnet account",
+    body: `Public key: ${publicKey}`,
+  });
+
+  const networkConfig = getNetworkConfig();
+
+  const dataProvider = new DataProvider({
+    serverUrl: networkConfig.url,
+    accountOrKey: publicKey,
+    networkPassphrase: networkConfig.network,
+  });
+
+  try {
+    await fetch(`https://friendbot.stellar.org?addr=${publicKey}`);
+    const stellarAccount = await dataProvider.fetchAccountDetails();
+    const assets = await getAssetData({
+      balances: stellarAccount.balances,
+      networkUrl: networkConfig.url,
     });
 
-    const { pubnet } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(pubnet);
-
-    const dataProvider = new DataProvider({
-      serverUrl: networkConfig.url,
-      accountOrKey: publicKey,
-      networkPassphrase: networkConfig.network,
+    log.response({
+      title: "The friendbot funded account",
+      body: stellarAccount,
     });
 
-    try {
-      await fetch(`https://friendbot.stellar.org?addr=${publicKey}`);
-      const stellarAccount = await dataProvider.fetchAccountDetails();
-      const assets = await getAssetData({
-        balances: stellarAccount.balances,
-        networkUrl: networkConfig.url,
-      });
+    return { data: stellarAccount, assets, isUnfunded: false };
+  } catch (error) {
+    log.error({
+      title: "The friendbot funding of the account failed",
+      body: getErrorMessage(error),
+    });
 
-      log.response({
-        title: "The friendbot funded account",
-        body: stellarAccount,
-      });
-
-      return { data: stellarAccount, assets, isUnfunded: false };
-    } catch (error) {
-      log.error({
-        title: "The friendbot funding of the account failed",
-        body: getErrorMessage(error),
-      });
-
-      return rejectWithValue({
-        errorString:
-          "Something went wrong with funding the account, please try again.",
-      });
-    }
-  },
-);
+    return rejectWithValue({
+      errorString:
+        "Something went wrong with funding the account, please try again.",
+    });
+  }
+});
 
 const initialState: AccountInitialState = {
   data: null,

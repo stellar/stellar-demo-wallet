@@ -25,11 +25,7 @@ export const SendPayment = ({
   asset?: Asset;
   onClose: () => void;
 }) => {
-  const { account, sendPayment, settings } = useRedux(
-    "account",
-    "sendPayment",
-    "settings",
-  );
+  const { account, sendPayment } = useRedux("account", "sendPayment");
   const { data, secretKey } = account;
   const dispatch = useDispatch();
 
@@ -79,9 +75,9 @@ export const SendPayment = ({
     }
 
     const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig(settings.pubnet).url,
+      serverUrl: getNetworkConfig().url,
       accountOrKey: destination,
-      networkPassphrase: getNetworkConfig(settings.pubnet).network,
+      networkPassphrase: getNetworkConfig().network,
     });
 
     setIsDestinationFunded(await dataProvider.isAccountFunded());

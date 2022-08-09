@@ -12,18 +12,16 @@ export const submitRevisedTransaction = async ({
   amount,
   assetCode,
   destination,
-  isPubnet,
   revisedTxXdr,
   secretKey,
 }: {
   amount: string;
   assetCode: string;
   destination: string;
-  isPubnet: boolean;
   revisedTxXdr: string;
   secretKey: string;
 }) => {
-  const networkConfig = getNetworkConfig(isPubnet);
+  const networkConfig = getNetworkConfig();
   const server = new StellarSdk.Server(networkConfig.url);
   const transaction = TransactionBuilder.fromXDR(
     revisedTxXdr,

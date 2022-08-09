@@ -11,20 +11,17 @@ import {
 } from "../../types/types";
 
 export const revisePaymentTransaction = async ({
-  isPubnet,
   params,
 }: {
-  isPubnet: boolean;
   params: Sep8PaymentTransactionParams;
 }): Promise<Sep8ApprovalResponse> => {
-  const server = new StellarSdk.Server(getNetworkConfig(isPubnet).url);
+  const server = new StellarSdk.Server(getNetworkConfig().url);
   const { approvalServer } = params;
 
   // build transaction
   let transaction: Transaction;
   try {
     transaction = await buildPaymentTransaction({
-      isPubnet,
       params,
       server,
     });

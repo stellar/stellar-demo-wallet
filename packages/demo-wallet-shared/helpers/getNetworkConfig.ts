@@ -1,28 +1,9 @@
 import StellarSdk from "stellar-sdk";
-import { NetworkType } from "../types/types";
 
-interface NetworkItemConfig {
-  network: string;
-  url: string;
-}
-
-interface NetworkConfig {
-  public: NetworkItemConfig;
-  testnet: NetworkItemConfig;
-}
-
-const networkConfig: NetworkConfig = {
-  testnet: {
-    network: StellarSdk.Networks.TESTNET,
-    url: "https://horizon-testnet.stellar.org",
-  },
-  public: {
-    network: StellarSdk.Networks.PUBLIC,
-    url: "https://horizon.stellar.org",
-  },
-};
-
-export const getNetworkConfig = (pubnet: boolean) => {
-  const network = pubnet ? NetworkType.PUBLIC : NetworkType.TESTNET;
-  return networkConfig[network];
-};
+export const getNetworkConfig = () => ({
+  network:
+    process?.env?.REACT_APP_HORIZON_PASSPHRASE || StellarSdk.Networks.TESTNET,
+  url:
+    process?.env?.REACT_APP_HORIZON_URL ||
+    "https://horizon-testnet.stellar.org",
+});

@@ -65,15 +65,16 @@ right of the screen will show every network call.
    real, but the interface will want a valid email.
 7. Click “Skip confirmation” - skipping it won't be possible in live
    integrations but helps the process move ahead in the demo.
-8. Select the asset you would like to provide to the anchor. Note that there
-   is no real asset you actually need to provide off-chain, it's just for 
+8. Select the asset you would like to provide to the anchor. Note that there is
+   no real asset you actually need to provide off-chain, it's just for
    demonstration.
 9. Enter a number into the amount and click "Submit".
-10. If you opted to provide "USD" in the previous form, you'll be asked to confirm
-   the exchange rate from USD to SRT. Select "Confirm Transaction" to continue.
+10. If you opted to provide "USD" in the previous form, you'll be asked to
+    confirm the exchange rate from USD to SRT. Select "Confirm Transaction" to
+    continue.
 11. Leave the pop-up window open while you wait to see the deposit of SRT made
-   to your account - you can close when you see “Status” is complete and you have 
-   SRT.
+    to your account - you can close when you see “Status” is complete and you
+    have SRT.
 
 ### Demo-ing Cross-Border Payments ([SEP-31]) on Testnet
 
@@ -107,13 +108,15 @@ To start building with this project clone this repo and install the deps:
 yarn install
 ```
 
-create a **.env** file in *packages/demo-wallet-client* with the **REACT_APP_CLIENT_DOMAIN** 
-(where stellar.toml is hosted) and the wallet backend **REACT_APP_WALLET_BACKEND_ENDPOINT**
+create a **.env** file in _packages/demo-wallet-client_ with the
+**REACT_APP_CLIENT_DOMAIN** (where stellar.toml is hosted) and the wallet
+backend **REACT_APP_WALLET_BACKEND_ENDPOINT**
 
-NOTE: if using a locally running test anchor (in docker) use *docker.for.mac.host.internal*,
-this will allow the anchor that's running in a docker container to access the host network where
-the client domain (server hosting the stellar.toml) is running.
-ex:
+NOTE: if using a locally running test anchor (in docker) use
+_docker.for.mac.host.internal_, this will allow the anchor that's running in a
+docker container to access the host network where the client domain (server
+hosting the stellar.toml) is running. ex:
+
 ```
 REACT_APP_CLIENT_DOMAIN = docker.for.mac.host.internal:7000
 REACT_APP_WALLET_BACKEND_ENDPOINT = http://demo-wallet-server.stellar.org
@@ -129,6 +132,15 @@ To build the app for production, run:
 
 ```bash
 yarn build:client
+```
+
+NOTE: By default the demo wallet operates only on Stellar testnet network. To
+use mainnet or any other Stellar network, add below to the client **.env**
+(example for mainnet):
+
+```
+REACT_APP_HORIZON_PASSPHRASE = "Public Global Stellar Network ; September 2015"
+REACT_APP_HORIZON_URL = "https://horizon.stellar.org"
 ```
 
 ---

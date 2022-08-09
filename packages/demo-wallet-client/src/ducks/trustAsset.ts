@@ -23,8 +23,8 @@ export const trustAssetAction = createAsyncThunk<
 >(
   "trustAsset/trustAssetAction",
   async (untrustedAsset, { rejectWithValue, getState }) => {
-    const { pubnet, secretKey } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(pubnet);
+    const { secretKey } = settingsSelector(getState());
+    const networkConfig = getNetworkConfig();
 
     try {
       return {

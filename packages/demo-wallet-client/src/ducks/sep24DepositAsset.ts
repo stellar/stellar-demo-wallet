@@ -38,7 +38,7 @@ export const depositAssetAction = createAsyncThunk<
     const { assetCode, assetIssuer, homeDomain } = asset;
 
     const { data, secretKey } = accountSelector(getState());
-    const { pubnet, claimableBalanceSupported } = settingsSelector(getState());
+    const { claimableBalanceSupported } = settingsSelector(getState());
     const {
       isEnabled: custodialIsEnabled,
       secretKey: custodialSecretKey,
@@ -46,7 +46,7 @@ export const depositAssetAction = createAsyncThunk<
       memoId: custodialMemoId,
     } = custodialSelector(getState());
 
-    const networkConfig = getNetworkConfig(pubnet);
+    const networkConfig = getNetworkConfig();
     const publicKey = data?.id;
 
     // This is unlikely

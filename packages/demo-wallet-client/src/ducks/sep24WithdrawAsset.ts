@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
 import { accountSelector } from "ducks/account";
-import { settingsSelector } from "ducks/settings";
 import { custodialSelector } from "ducks/custodial";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
@@ -36,7 +35,6 @@ export const withdrawAssetAction = createAsyncThunk<
   async (asset, { rejectWithValue, getState }) => {
     const { assetIssuer, assetCode, homeDomain } = asset;
     const { data, secretKey } = accountSelector(getState());
-    const { pubnet } = settingsSelector(getState());
     const {
       isEnabled: custodialIsEnabled,
       secretKey: custodialSecretKey,
@@ -44,7 +42,7 @@ export const withdrawAssetAction = createAsyncThunk<
       memoId: custodialMemoId,
     } = custodialSelector(getState());
 
-    const networkConfig = getNetworkConfig(pubnet);
+    const networkConfig = getNetworkConfig();
     const publicKey = data?.id;
 
     // This is unlikely

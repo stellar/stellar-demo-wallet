@@ -19,14 +19,13 @@ export const sendPaymentAction = createAsyncThunk<
 >(
   "sendPayment/sendPaymentAction",
   async (params, { rejectWithValue, getState }) => {
-    const { pubnet, secretKey } = settingsSelector(getState());
+    const { secretKey } = settingsSelector(getState());
     let result;
 
     try {
       result = await submitPaymentTransaction({
         params,
         secretKey,
-        isPubnet: pubnet,
       });
     } catch (error) {
       const errorString = getErrorString(error);
