@@ -14,6 +14,14 @@ tutorial series.
 If you want to use parts or all of the project to kickstart your own wallet,
 feel free to clone or copy any pieces that may be helpful.
 
+## Mainnet vs. Testnet
+
+This application defaults to using the Stellar's testnet.
+
+This application can be used on Stellar's mainnet by specifying the `REACT_APP_HORIZON_PASSPHRASE` & `REACT_APP_HORIZON_URL` environment variables when building the project.
+
+**All accounts on mainnet that are used with this application should be considered compromised.** If you want to test services on mainnet with this tool, make sure to create a new account and fund it with the minimum assets required.
+
 ## Getting A Test Account Up and Running
 
 You can use the demo wallet to test Regulated Assets ([SEP-8]), Hosted Deposit
