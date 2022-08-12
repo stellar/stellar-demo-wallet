@@ -16,7 +16,7 @@ feel free to clone or copy any pieces that may be helpful.
 
 ## Mainnet vs. Testnet
 
-This application defaults to using the Stellar's testnet.
+This application defaults to using Stellar's testnet.
 
 This application can be used on Stellar's mainnet by specifying the `REACT_APP_HORIZON_PASSPHRASE` & `REACT_APP_HORIZON_URL` environment variables when building the project.
 
