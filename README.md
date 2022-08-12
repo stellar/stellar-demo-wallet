@@ -214,3 +214,5 @@ Note that the docker compose file defaults to using SDF's demo wallet server, bu
   https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0024.md
 [sep-31]:
   https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0031.md
+[sep-6]:
+  https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md
