@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  wallet-client:
+    build:
+      context: .
+      dockerfile: Dockerfile-client
+      args:
+        REACT_APP_CLIENT_DOMAIN: demo-wallet-server.stellar.org
+        REACT_APP_WALLET_BACKEND_ENDPOINT: https://demo-wallet-server.stellar.org
+    env_file:
+      - .env
+    ports:
+      - "8000:80"
