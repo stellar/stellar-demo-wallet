@@ -20,11 +20,7 @@ import { useRedux } from "hooks/useRedux";
 import { ActionStatus, Sep8Step } from "types/types.d";
 
 export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
-  const { account, sep8Send, settings } = useRedux(
-    "account",
-    "sep8Send",
-    "settings",
-  );
+  const { account, sep8Send } = useRedux("account", "sep8Send");
   const { approvalCriteria, approvalServer, assetCode, assetIssuer } =
     sep8Send.data;
   const [amount, setAmount] = useState(sep8Send.data.revisedTransaction.amount);
@@ -75,9 +71,9 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
     }
 
     const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig(settings.pubnet).url,
+      serverUrl: getNetworkConfig().url,
       accountOrKey: destination,
-      networkPassphrase: getNetworkConfig(settings.pubnet).network,
+      networkPassphrase: getNetworkConfig().network,
     });
 
     setIsDestinationFunded(await dataProvider.isAccountFunded());

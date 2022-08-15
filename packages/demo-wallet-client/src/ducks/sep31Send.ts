@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
 import { accountSelector } from "ducks/account";
-import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
@@ -62,9 +61,8 @@ export const initiateSendAction = createAsyncThunk<
   "sep31Send/initiateSendAction",
   async (asset, { rejectWithValue, getState }) => {
     try {
-      const { pubnet } = settingsSelector(getState());
       const { data } = accountSelector(getState());
-      const networkConfig = getNetworkConfig(pubnet);
+      const networkConfig = getNetworkConfig();
       const publicKey = data?.id;
 
       const { assetCode, assetIssuer, homeDomain } = asset;
@@ -193,10 +191,9 @@ export const fetchSendFieldsAction = createAsyncThunk<
   "sep31Send/fetchSendFieldsAction",
   async (_, { rejectWithValue, getState }) => {
     try {
-      const { pubnet } = settingsSelector(getState());
       const { secretKey } = accountSelector(getState());
       const { data } = sep31SendSelector(getState());
-      const networkConfig = getNetworkConfig(pubnet);
+      const networkConfig = getNetworkConfig();
 
       const {
         authEndpoint,
@@ -289,8 +286,7 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
     try {
       const { secretKey } = accountSelector(getState());
       const { data } = sep31SendSelector(getState());
-      const { pubnet } = settingsSelector(getState());
-      const networkConfig = getNetworkConfig(pubnet);
+      const networkConfig = getNetworkConfig();
       const {
         token,
         assetCode,
@@ -333,7 +329,9 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
 
       const amountIn = getSep31Tx?.transaction?.amount_in;
       if (amountIn === undefined) {
-        throw new Error(`"amount_in" is missing from the GET /transaction response`);
+        throw new Error(
+          `"amount_in" is missing from the GET /transaction response`,
+        );
       }
 
       // Send payment

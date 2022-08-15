@@ -421,7 +421,7 @@ export const Assets = ({
               Add asset
             </Button>
 
-            {!settings.pubnet && getPresetAssets(allAssets.data).length > 0 && (
+            {getPresetAssets(allAssets.data).length > 0 && (
               <TextLink
                 onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
                 disabled={Boolean(activeAsset.action)}

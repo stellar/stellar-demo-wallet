@@ -5,7 +5,6 @@ import { Sep9Field } from "../helpers/Sep9Fields";
 
 export enum SearchParams {
   SECRET_KEY = "secretKey",
-  PUBNET = "pubnet",
   UNTRUSTED_ASSETS = "untrustedAssets",
   ASSET_OVERRIDES = "assetOverrides",
   CLAIMABLE_BALANCE_SUPPORTED = "claimableBalanceSupported",
@@ -133,7 +132,6 @@ export interface SendPaymentInitialState {
 
 export interface SettingsInitialState {
   assetOverrides: string;
-  pubnet: boolean;
   secretKey: string;
   untrustedAssets: string;
   claimableBalanceSupported: boolean;
@@ -364,11 +362,6 @@ export interface Store {
 }
 
 export type StoreKey = keyof Store;
-
-export enum NetworkType {
-  PUBLIC = "public",
-  TESTNET = "testnet",
-}
 
 export enum ActionStatus {
   ERROR = "ERROR",

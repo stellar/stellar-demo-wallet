@@ -1,18 +1,22 @@
+import StellarSdk from "stellar-sdk";
 import { StatusBar } from "@stellar/design-system";
-import { useRedux } from "hooks/useRedux";
+import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 
 export const WarningBanner = () => {
-  const { account, settings } = useRedux("account", "settings");
+  const { network, url } = getNetworkConfig();
 
-  // Show the banner only if signed in
-  if (settings.pubnet && account.data?.id) {
-    return (
-      <StatusBar variant={StatusBar.variant.error}>
-        WARNING: You’ve connected a real account to this demo. You are not on
-        the test server. Any actions you take here will affect actual assets.
-      </StatusBar>
-    );
+  if (!network || network === StellarSdk.Networks.TESTNET) {
+    return null;
   }
 
-  return null;
+  const message =
+    network === StellarSdk.Networks.PUBLIC
+      ? "You’ve connected a real account to this demo. You are not on the test server. Any actions you take here will affect actual assets."
+      : `You’ve connected to ${url}`;
+
+  return (
+    <StatusBar
+      variant={StatusBar.variant.warning}
+    >{`WARNING: ${message}`}</StatusBar>
+  );
 };

@@ -1,26 +1,39 @@
 # Stellar Demo Wallet
 
-This Stellar Demo Wallet is our newly rebuilt application for interactively
-testing anchor services. If you would like to automate testing of your anchor
-service, check out the SDF's
+The Stellar Demo Wallet is our newly rebuilt application for interactively
+testing anchor services. 
+
+If you would like to automate testing of your anchor service, check out the SDF's
 [anchor tests suite](https://github.com/stellar/stellar-anchor-tests) viewable
 at [https://anchor-tests.stellar.org/](https://anchor-tests.stellar.org/).
 
-This project was originally created for the
-[Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/)
-tutorial series.
-([That repo has since moved over here](https://github.com/stellar/docs-wallet)).
+This repository was originally created for the [Build a Stellar Wallet](https://developers.stellar.org/docs/building-apps/) tutorial series.
+(That project has since moved over [here](https://github.com/stellar/docs-wallet)).
 
 If you want to use parts or all of the project to kickstart your own wallet,
 feel free to clone or copy any pieces that may be helpful.
 
+## Mainnet vs. Testnet
+
+This application defaults to using Stellar's testnet.
+
+This application can be used on Stellar's mainnet by specifying the `REACT_APP_HORIZON_PASSPHRASE` & `REACT_APP_HORIZON_URL` environment variables when building the project.
+
+**All accounts on mainnet that are used with this application should be considered compromised.** If you want to test services on mainnet with this tool, make sure to create a new account and fund it with the minimum assets required.
+
 ## Getting A Test Account Up and Running
 
-You can use the demo wallet to test Regulated Assets ([SEP-8]), Hosted Deposit
-and Withdrawal ([SEP-24]) and Cross-Border Payments ([SEP-31]) with any home
-domain that has a Stellar Info File (also known as [SEP-1], or a stellar.toml
-file). The instructions below are for demo-ing standard integrations supported
-by Stellar test server, testanchor.stellar.org or by the [SEP-8] reference
+You can use the demo wallet to interact with the following anchor services:
+
+* Regulated Assets API ([SEP-8])
+* Hosted Deposit and Withdrawals ([SEP-24])
+* Deposit & Withdrawal API ([SEP-6])
+* Cross-Border Payments API ([SEP-31])
+
+You can connect to any domain that has a Stellar Info File (also known as [SEP-1], or a stellar.toml file). 
+
+The instructions below are for demo-ing standard integrations supported
+by Stellar test server, testanchor.stellar.org, or by the [SEP-8] reference
 server, sep8-server.dev.stellar.org. For these integrations, the logs to the
 right of the screen will show every network call.
 
@@ -65,15 +78,16 @@ right of the screen will show every network call.
    real, but the interface will want a valid email.
 7. Click “Skip confirmation” - skipping it won't be possible in live
    integrations but helps the process move ahead in the demo.
-8. Select the asset you would like to provide to the anchor. Note that there
-   is no real asset you actually need to provide off-chain, it's just for 
+8. Select the asset you would like to provide to the anchor. Note that there is
+   no real asset you actually need to provide off-chain, it's just for
    demonstration.
 9. Enter a number into the amount and click "Submit".
-10. If you opted to provide "USD" in the previous form, you'll be asked to confirm
-   the exchange rate from USD to SRT. Select "Confirm Transaction" to continue.
+10. If you opted to provide "USD" in the previous form, you'll be asked to
+    confirm the exchange rate from USD to SRT. Select "Confirm Transaction" to
+    continue.
 11. Leave the pop-up window open while you wait to see the deposit of SRT made
-   to your account - you can close when you see “Status” is complete and you have 
-   SRT.
+    to your account - you can close when you see “Status” is complete and you
+    have SRT.
 
 ### Demo-ing Cross-Border Payments ([SEP-31]) on Testnet
 
@@ -92,31 +106,35 @@ between the Sending and the Receiving anchors._
 4. If the payment has been successfully sent you'll see "SEP-31 send payment
    completed" in the logs.
 
-### Using stellar.toml file from `localhost`
+### Hosting Anchor Services Locally
 
-You can serve asset `toml` files from `locahost`. When using locally hosted
+You can serve `stellar.toml` files from `localhost`. When using locally hosted
 stellar.toml files on demo-wallet.stellar.org, some browsers might block them
-for security reasons, if you’re not using `https`. If you’re running demo wallet
+for security reasons if you’re not using `https`. If you’re running the demo wallet
 locally, this is not a problem.
 
-## Getting Started Building A Wallet From This Demo
+## Running the Demo Wallet Locally
 
-To start building with this project clone this repo and install the deps:
+You can run the demo wallet locally, either by installing the application on your machine or by using Docker.
+
+### Local Installation
 
 ```bash
 yarn install
 ```
 
-create a **.env** file in *packages/demo-wallet-client* with the **REACT_APP_CLIENT_DOMAIN** 
-(where stellar.toml is hosted) and the wallet backend **REACT_APP_WALLET_BACKEND_ENDPOINT**
+create a **.env** file in _packages/demo-wallet-client_ with the
+**REACT_APP_CLIENT_DOMAIN** (where stellar.toml is hosted) and the wallet
+backend **REACT_APP_WALLET_BACKEND_ENDPOINT**
 
-NOTE: if using a locally running test anchor (in docker) use *docker.for.mac.host.internal*,
-this will allow the anchor that's running in a docker container to access the host network where
-the client domain (server hosting the stellar.toml) is running.
-ex:
-```
-REACT_APP_CLIENT_DOMAIN = docker.for.mac.host.internal:7000
-REACT_APP_WALLET_BACKEND_ENDPOINT = http://demo-wallet-server.stellar.org
+NOTE: if using a locally running test anchor (in docker) use
+_docker.for.mac.host.internal_, this will allow the anchor that's running in a
+docker container to access the host network where the client domain (server
+hosting the stellar.toml) is running. ex:
+
+```bash
+REACT_APP_CLIENT_DOMAIN=docker.for.mac.host.internal:7000
+REACT_APP_WALLET_BACKEND_ENDPOINT=http://demo-wallet-server.stellar.org
 ```
 
 and run:
@@ -130,6 +148,30 @@ To build the app for production, run:
 ```bash
 yarn build:client
 ```
+
+### Docker
+
+If you want to run the demo wallet on testnet, building the project is easy.
+
+```bash
+docker compose build
+```
+
+If you're looking to use the demo wallet to interact with mainnet services, specify the following build args.
+
+```bash
+docker compose build \
+    --build-arg REACT_APP_HORIZON_PASSPHRASE="Public Global Stellar Network ; September 2015" \
+    --build-arg REACT_APP_HORIZON_URL="https://horizon.stellar.org"
+```
+
+Then, launch the containers.
+
+```bash
+docker compose up
+```
+
+Note that the docker compose file defaults to using SDF's demo wallet server, but you are free to edit the compose file to use a local instance of the server.
 
 ---
 
@@ -172,3 +214,5 @@ yarn build:client
   https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0024.md
 [sep-31]:
   https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0031.md
+[sep-6]:
+  https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md

@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import StellarSdk, { ServerApi } from "stellar-sdk";
 import { RootState } from "config/store";
-import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
@@ -19,9 +18,8 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
   { rejectValue: RejectMessage; state: RootState }
 >(
   "claimableBalances/fetchClaimableBalancesAction",
-  async ({ publicKey }, { rejectWithValue, getState }) => {
-    const { pubnet } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(pubnet);
+  async ({ publicKey }, { rejectWithValue }) => {
+    const networkConfig = getNetworkConfig();
     const server = new StellarSdk.Server(networkConfig.url);
 
     try {

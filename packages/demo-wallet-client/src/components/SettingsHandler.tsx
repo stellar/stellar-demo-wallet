@@ -22,22 +22,12 @@ export const SettingsHandler = ({
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
-  const pubnetParam = queryParams.get(SearchParams.PUBNET);
   const secretKeyParam = queryParams.get(SearchParams.SECRET_KEY);
   const untrustedAssetsParam = queryParams.get(SearchParams.UNTRUSTED_ASSETS);
   const assetOverridesParam = queryParams.get(SearchParams.ASSET_OVERRIDES);
   const claimableBalanceSupportedParam = queryParams.get(
     SearchParams.CLAIMABLE_BALANCE_SUPPORTED,
   );
-
-  // Set network param (pubnet=true)
-  useEffect(() => {
-    dispatch(
-      updateSettingsAction({
-        [SearchParams.PUBNET]: pubnetParam === "true",
-      }),
-    );
-  }, [pubnetParam, dispatch]);
 
   // Set secret key param (secretKey=[SECRET_KEY]) and fetch account info
   // This will handle both: secret key submitted on Demo Wallet and directly

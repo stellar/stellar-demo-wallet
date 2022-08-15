@@ -17,11 +17,7 @@ import { useRedux } from "hooks/useRedux";
 import { ActionStatus, SearchParams } from "types/types.d";
 
 export const AddAsset = ({ onClose }: { onClose: () => void }) => {
-  const { account, settings, untrustedAssets } = useRedux(
-    "account",
-    "settings",
-    "untrustedAssets",
-  );
+  const { account, untrustedAssets } = useRedux("account", "untrustedAssets");
 
   const [isValidating, setIsValidating] = useState(false);
   // Form data
@@ -72,7 +68,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
         homeDomain,
         issuerPublicKey,
         accountBalances: account.data?.balances,
-        networkUrl: getNetworkConfig(settings.pubnet).url,
+        networkUrl: getNetworkConfig().url,
       });
 
       let search = searchParam.update(

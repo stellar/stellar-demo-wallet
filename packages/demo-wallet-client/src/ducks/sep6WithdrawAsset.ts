@@ -45,8 +45,7 @@ export const initiateWithdrawAction = createAsyncThunk<
   async (asset, { rejectWithValue, getState }) => {
     const { assetCode, assetIssuer, homeDomain } = asset;
     const { data, secretKey } = accountSelector(getState());
-    const { pubnet } = settingsSelector(getState());
-    const networkConfig = getNetworkConfig(pubnet);
+    const networkConfig = getNetworkConfig();
     const publicKey = data?.id;
 
     // This is unlikely
@@ -248,8 +247,7 @@ export const sep6WithdrawAction = createAsyncThunk<
   async (amount, { rejectWithValue, getState }) => {
     try {
       const { secretKey } = accountSelector(getState());
-      const { pubnet } = settingsSelector(getState());
-      const networkConfig = getNetworkConfig(pubnet);
+      const networkConfig = getNetworkConfig();
       const { data: sep6Data } = sepWithdrawSelector(getState());
 
       const {

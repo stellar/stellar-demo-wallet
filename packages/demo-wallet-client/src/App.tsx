@@ -16,9 +16,29 @@ import { Landing } from "pages/Landing";
 import { NotFound } from "pages/NotFound";
 import "./App.scss";
 
+const maskSecretKey = (text: string) =>
+  text.replace(/secretKey=S(.*?)([&]|$)/g, "secretKey=S***&");
+
 errorReporting.reportErrors({
   projectName: "demo-wallet",
   tracingOrigins: [/^\/[^/]/],
+  extra: {
+    beforeBreadcrumb: (breadcrumb: any) => {
+      if (breadcrumb.data) {
+        breadcrumb.data = {
+          ...breadcrumb.data,
+          ...(breadcrumb.data.from
+            ? { from: maskSecretKey(breadcrumb.data.from) }
+            : {}),
+          ...(breadcrumb.data.to
+            ? { to: maskSecretKey(breadcrumb.data.to) }
+            : {}),
+        };
+      }
+
+      return breadcrumb;
+    },
+  },
 });
 
 export const App = () => (
@@ -48,7 +68,7 @@ export const App = () => (
                     >
                       How to use this tool
                     </TextLink>
-                    <br/>
+                    <br />
                     <TextLink
                       variant={TextLink.variant.secondary}
                       underline

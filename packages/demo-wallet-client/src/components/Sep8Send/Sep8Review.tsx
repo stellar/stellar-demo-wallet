@@ -12,11 +12,7 @@ import { useRedux } from "hooks/useRedux";
 import { ActionStatus, Sep8Step } from "types/types.d";
 
 export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
-  const { account, sep8Send, settings } = useRedux(
-    "account",
-    "sep8Send",
-    "settings",
-  );
+  const { account, sep8Send } = useRedux("account", "sep8Send");
   const [submittedTx, setSubmittedTx] = useState<Transaction | undefined>();
   const [revisedTx, setRevisedTx] = useState<Transaction | undefined>();
   const [isApproved, setIsApproved] = useState(false);
@@ -46,7 +42,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
 
   // use effect: parse transaction XDRs
   useEffect(() => {
-    const networkPassphrase = getNetworkConfig(settings.pubnet).network;
+    const networkPassphrase = getNetworkConfig().network;
 
     if (submittedTxXdr) {
       const tx = TransactionBuilder.fromXDR(
@@ -63,7 +59,7 @@ export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
       ) as Transaction;
       setRevisedTx(tx);
     }
-  }, [revisedTxXdr, submittedTxXdr, settings.pubnet]);
+  }, [revisedTxXdr, submittedTxXdr]);
 
   const renderSendPayment = () => (
     <>

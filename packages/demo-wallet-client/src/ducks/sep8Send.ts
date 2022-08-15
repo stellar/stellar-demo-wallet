@@ -1,6 +1,6 @@
 import { Horizon } from "stellar-sdk";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { RootState} from "config/store";
+import { RootState } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getErrorString } from "demo-wallet-shared/build/helpers/getErrorString";
@@ -107,13 +107,10 @@ export const sep8ReviseTransactionAction = createAsyncThunk<
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep8Send/sep8ReviseTransactionAction",
-  async (params, { rejectWithValue, getState }) => {
-    const { pubnet: isPubnet } = settingsSelector(getState());
-
+  async (params, { rejectWithValue }) => {
     try {
       const result = await revisePaymentTransaction({
         params,
-        isPubnet,
       });
       return result;
     } catch (error) {
@@ -131,7 +128,7 @@ export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
 >(
   "sep8Send/sep8SubmitRevisedTransactionAction",
   async (_, { rejectWithValue, getState }) => {
-    const { pubnet: isPubnet, secretKey } = settingsSelector(getState());
+    const { secretKey } = settingsSelector(getState());
     const { data } = sep8SendSelector(getState());
     const { amount, destination, revisedTxXdr } = data.revisedTransaction;
 
@@ -141,7 +138,6 @@ export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
         destination,
         assetCode: data.assetCode,
         revisedTxXdr,
-        isPubnet,
         secretKey,
       });
       return result;

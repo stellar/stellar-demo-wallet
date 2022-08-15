@@ -6,15 +6,13 @@ import { log } from "../helpers/log";
 import { PaymentTransactionParams } from "../types/types";
 
 export const submitPaymentTransaction = async ({
-  isPubnet,
   params,
   secretKey,
 }: {
-  isPubnet: boolean;
   params: PaymentTransactionParams;
   secretKey: string;
 }) => {
-  const server = new StellarSdk.Server(getNetworkConfig(isPubnet).url);
+  const server = new StellarSdk.Server(getNetworkConfig().url);
 
   log.instruction({
     title: `Sending payment of ${params.amount} ${params.assetCode}`,
@@ -26,7 +24,6 @@ export const submitPaymentTransaction = async ({
   // Build transaction
   try {
     transaction = await buildPaymentTransaction({
-      isPubnet,
       params,
       server,
     });
@@ -63,11 +60,9 @@ export const submitPaymentTransaction = async ({
 };
 
 export const buildPaymentTransaction = async ({
-  isPubnet,
   params,
   server,
 }: {
-  isPubnet: boolean;
   params: PaymentTransactionParams;
   server: any;
 }) => {
@@ -113,7 +108,7 @@ export const buildPaymentTransaction = async ({
 
     transaction = new StellarSdk.TransactionBuilder(source, {
       fee: BASE_FEE,
-      networkPassphrase: getNetworkConfig(isPubnet).network,
+      networkPassphrase: getNetworkConfig().network,
       timebounds: await server.fetchTimebounds(100),
     }).addOperation(operation);
 
