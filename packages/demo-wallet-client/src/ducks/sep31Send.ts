@@ -205,7 +205,7 @@ export const fetchSendFieldsAction = createAsyncThunk<
         fields,
       } = data;
 
-      const serviceDomain = new URL(kycServer).hostname;
+      const serviceDomain = new URL(kycServer).host;
 
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
