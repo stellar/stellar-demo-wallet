@@ -116,12 +116,14 @@ export const initiateDepositAction = createAsyncThunk<
             "SEP-6 deposit is enabled, and requires authentication so we should go through SEP-10",
         });
 
+        const serviceDomain = new URL(tomlResponse.TRANSFER_SERVER).hostname;
+
         // SEP-10 start
         const challengeTransaction = await sep10AuthStart({
           authEndpoint: webAuthTomlResponse.WEB_AUTH_ENDPOINT,
           serverSigningKey: webAuthTomlResponse.SIGNING_KEY,
           publicKey,
-          homeDomain,
+          homeDomain: serviceDomain,
           clientDomain,
         });
 

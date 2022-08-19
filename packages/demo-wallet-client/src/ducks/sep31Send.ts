@@ -199,19 +199,20 @@ export const fetchSendFieldsAction = createAsyncThunk<
         authEndpoint,
         serverSigningKey,
         publicKey,
-        homeDomain,
         kycServer,
         senderType,
         receiverType,
         fields,
       } = data;
 
+      const serviceDomain = new URL(kycServer).hostname;
+
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint,
         serverSigningKey,
         publicKey,
-        homeDomain,
+        homeDomain: serviceDomain,
         clientDomain,
       });
 
