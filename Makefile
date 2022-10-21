@@ -6,7 +6,7 @@ LABEL ?= $(shell git rev-parse --short HEAD)$(and $(shell git status -s),-dirty-
 # If TAG is not provided set default value
 SERVER_TAG ?= stellar/stellar-demo-wallet-server:$(LABEL)
 CLIENT_TAG ?= stellar/stellar-demo-wallet-client:$(LABEL)
-# https://github.com/opencontainers/image-spec/blob/master/annotations.md
+#  https://github.com/opencontainers/image-spec/blob/master/annotations.md
 BUILD_DATE := $(shell date -u +%FT%TZ)
 
 docker-build-server:
