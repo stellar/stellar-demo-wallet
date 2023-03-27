@@ -18,6 +18,7 @@ export const pollDepositUntilComplete = async ({
   custodialMemoId?: string;
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
+  let popupOpened = false;
   let trustedAssetAdded;
 
   const transactionUrl = new URL(
@@ -44,8 +45,12 @@ export const pollDepositUntilComplete = async ({
 
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;
-      // eslint-disable-next-line no-param-reassign
-      popup.location.href = transactionJson.transaction.more_info_url;
+      if (!popupOpened && transactionJson.transaction.status !==
+          TransactionStatus.PENDING_ANCHOR) {
+        // eslint-disable-next-line no-param-reassign
+        popup.location.href = transactionJson.transaction.more_info_url;
+        popupOpened = true;
+      }
       log.instruction({
         title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status`,
       });
