@@ -33,10 +33,9 @@ export const pollDepositUntilComplete = async ({
     TransactionStatus.ERROR,
   ];
 
-  let moreInfoPopup = null;
+  let moreInfoLogged = false;
 
-  while (!popup.closed && (moreInfoPopup === null || !moreInfoPopup.closed) &&
-  !endStatuses.includes(currentStatus)) {
+  while (!popup.closed && !endStatuses.includes(currentStatus)) {
     // eslint-disable-next-line no-await-in-loop
     const response = await fetch(transactionUrl.toString(), {
       headers: { Authorization: `Bearer ${token}` },
@@ -48,13 +47,11 @@ export const pollDepositUntilComplete = async ({
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;
 
-      if (moreInfoPopup === null) {
-        // eslint-disable-next-line no-param-reassign
-        moreInfoPopup = open(
-          transactionJson.transaction.more_info_url,
-          "moreInfoPopup",
-          "width=500,height=800"
-        );
+      if (!moreInfoLogged) {
+        moreInfoLogged = true;
+        log.instruction({
+          title: `Transaction \`${transactionId}\` more info is available via url: ${transactionJson.transaction.more_info_url}`,
+        });
       }
       log.instruction({
         title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status`,
