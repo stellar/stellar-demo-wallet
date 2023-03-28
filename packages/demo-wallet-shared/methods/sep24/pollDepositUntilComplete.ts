@@ -18,7 +18,6 @@ export const pollDepositUntilComplete = async ({
   custodialMemoId?: string;
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
-  let popupOpened = false;
   let trustedAssetAdded;
 
   const transactionUrl = new URL(
@@ -34,7 +33,10 @@ export const pollDepositUntilComplete = async ({
     TransactionStatus.ERROR,
   ];
 
-  while (!popup.closed && !endStatuses.includes(currentStatus)) {
+  let moreInfoPopup = null;
+
+  while (!popup.closed && (moreInfoPopup === null || !moreInfoPopup.closed) &&
+  !endStatuses.includes(currentStatus)) {
     // eslint-disable-next-line no-await-in-loop
     const response = await fetch(transactionUrl.toString(), {
       headers: { Authorization: `Bearer ${token}` },
@@ -45,11 +47,14 @@ export const pollDepositUntilComplete = async ({
 
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;
-      if (!popupOpened && transactionJson.transaction.status !==
-          TransactionStatus.PENDING_ANCHOR) {
+
+      if (moreInfoPopup === null) {
         // eslint-disable-next-line no-param-reassign
-        popup.location.href = transactionJson.transaction.more_info_url;
-        popupOpened = true;
+        moreInfoPopup = open(
+          transactionJson.transaction.more_info_url,
+          "moreInfoPopup",
+          "width=500,height=800"
+        );
       }
       log.instruction({
         title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status`,
