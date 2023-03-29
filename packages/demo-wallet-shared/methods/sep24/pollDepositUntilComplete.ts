@@ -50,7 +50,7 @@ export const pollDepositUntilComplete = async ({
       if (!moreInfoLogged) {
         moreInfoLogged = true;
         log.instruction({
-          title: `Transaction \`${transactionId}\` more info is available via url: ${transactionJson.transaction.more_info_url}`,
+          title: `Transaction \`${transactionId}\` more info is available via url: \`${transactionJson.transaction.more_info_url}\``,
         });
       }
       log.instruction({
