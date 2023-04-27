@@ -54,7 +54,7 @@ export const pollDepositUntilComplete = async ({
         });
       }
       log.instruction({
-        title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status`,
+        title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status. Message: \`${transactionJson.transaction.message}\``,
       });
 
       switch (currentStatus) {
