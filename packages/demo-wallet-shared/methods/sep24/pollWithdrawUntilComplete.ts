@@ -59,7 +59,7 @@ export const pollWithdrawUntilComplete = async ({
 
       log.instruction({
         title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status. \n
-        Transaction body: \`${JSON.stringify(transactionJson.transaction)}\``,
+        Transaction body: \`\`\`${JSON.stringify(transactionJson.transaction)}\`\`\``,
       });
 
       switch (currentStatus) {
