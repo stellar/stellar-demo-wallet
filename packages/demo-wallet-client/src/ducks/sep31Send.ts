@@ -316,7 +316,8 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
         assetCode,
         senderId: putSep12FieldsResponse.senderSep12Id,
         receiverId: putSep12FieldsResponse.receiverSep12Id,
-        transactionFormData: transaction,
+        // We always need to submit transaction object
+        transactionFormData: transaction || {},
         sendServer,
         token,
       });
