@@ -53,9 +53,10 @@ export const pollDepositUntilComplete = async ({
           title: `Transaction \`${transactionId}\` more info is available via url: \`${transactionJson.transaction.more_info_url}\``,
         });
       }
-      log.instruction({
-        title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status. \n
-        Transaction body: \`\`\`${JSON.stringify(transactionJson.transaction)}\`\`\``,
+
+      log.response({
+        title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status.`,
+        body: transactionJson.transaction,
       });
 
       switch (currentStatus) {
