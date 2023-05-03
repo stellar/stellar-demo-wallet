@@ -272,7 +272,13 @@ export const Sep31Send = () => {
           </Modal.Heading>
 
           <Modal.Body>
-            {Object.entries(allFields).map(([sectionTitle, sectionItems]) => (
+            {Object.entries(allFields).map(([sectionTitle, sectionItems]) => {
+              // Don't render if section has no items
+              if (Object.values(sectionItems).length === 0) {
+                return null;
+              }
+
+              return (
               <div className="vertical-spacing" key={sectionTitle}>
                 <Heading3>{capitalizeString(sectionTitle)}</Heading3>
                 {Object.entries(sectionItems || {}).map(([id, input]) => (
@@ -286,7 +292,7 @@ export const Sep31Send = () => {
                   />
                 ))}
               </div>
-            ))}
+            )})}
           </Modal.Body>
 
           <Modal.Footer>
