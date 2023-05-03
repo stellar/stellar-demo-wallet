@@ -57,8 +57,9 @@ export const pollWithdrawUntilComplete = async ({
       // eslint-disable-next-line no-param-reassign
       popup.location.href = transactionJson.transaction.more_info_url;
 
-      log.instruction({
-        title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status`,
+      log.response({
+        title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status.`,
+        body: transactionJson.transaction,
       });
 
       switch (currentStatus) {
