@@ -130,11 +130,27 @@ export const checkInfo = async ({
     body: asset.fields,
   });
 
+  // SEP-38 quotes
+  const quotesSupported = Boolean(asset.quotes_supported);
+  const quotesRequired = Boolean(asset.quotes_required);
+
+  const quotesRequiredMessage = quotesSupported
+    ? `${quotesRequired ? ", and it is required" : ", but it is not required"}`
+    : "";
+
+  log.instruction({
+    title: `The receiving anchor ${
+      quotesSupported ? "supports" : "does not support"
+    } SEP-38 Anchor RFQ${quotesRequiredMessage}`,
+  });
+
   return {
     fields: asset.fields,
     senderType,
     receiverType,
     multipleSenderTypes,
     multipleReceiverTypes,
+    quotesSupported,
+    quotesRequired,
   };
 };

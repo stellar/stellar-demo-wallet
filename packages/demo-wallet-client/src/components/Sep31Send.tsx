@@ -10,6 +10,8 @@ import {
   DetailsTooltip,
 } from "@stellar/design-system";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
+import { AnchorQuotesModal } from "components/AnchorQuotesModal";
+
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -17,7 +19,10 @@ import {
   submitSep31SendTransactionAction,
   setCustomerTypesAction,
   fetchSendFieldsAction,
+  setStatusAction,
 } from "ducks/sep31Send";
+import { fetchSep38QuotesInfoAction } from "ducks/sep38Quotes";
+
 import { capitalizeString } from "demo-wallet-shared/build/helpers/capitalizeString";
 import { useRedux } from "hooks/useRedux";
 import { ActionStatus } from "types/types.d";
@@ -104,6 +109,23 @@ export const Sep31Send = () => {
   ) => {
     event.preventDefault();
     dispatch(submitSep31SendTransactionAction({ ...formData }));
+  };
+
+  const handleQuotes = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+
+    const { assetCode, assetIssuer } = sep31Send.data;
+
+    dispatch(
+      fetchSep38QuotesInfoAction({
+        anchorQuoteServerUrl: sep31Send.data?.anchorQuoteServer,
+        sellAsset: `stellar:${assetCode}:${assetIssuer}`,
+        sellAmount: formData.amount.amount,
+      }),
+    );
+    dispatch(setStatusAction(ActionStatus.ANCHOR_QUOTES));
   };
 
   const handleSelectTypes = (
@@ -199,6 +221,10 @@ export const Sep31Send = () => {
     ));
   };
 
+  if (sep31Send.status === ActionStatus.ANCHOR_QUOTES) {
+    return <AnchorQuotesModal onClose={handleClose} />;
+  }
+
   if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
     // Select customer types
     if (!data.isTypeSelected) {
@@ -279,24 +305,41 @@ export const Sep31Send = () => {
               }
 
               return (
-              <div className="vertical-spacing" key={sectionTitle}>
-                <Heading3>{capitalizeString(sectionTitle)}</Heading3>
-                {Object.entries(sectionItems || {}).map(([id, input]) => (
-                  // TODO: if input.choices, render Select
-                  <Input
-                    key={`${sectionTitle}#${id}`}
-                    id={`${sectionTitle}#${id}`}
-                    label={input.description}
-                    required={!input.optional}
-                    onChange={handleChange}
-                  />
-                ))}
-              </div>
-            )})}
+                <div className="vertical-spacing" key={sectionTitle}>
+                  <Heading3>{capitalizeString(sectionTitle)}</Heading3>
+                  {Object.entries(sectionItems || {}).map(([id, input]) => (
+                    // TODO: if input.choices, render Select
+                    <Input
+                      key={`${sectionTitle}#${id}`}
+                      id={`${sectionTitle}#${id}`}
+                      label={input.description}
+                      required={!input.optional}
+                      onChange={handleChange}
+                    />
+                  ))}
+                </div>
+              );
+            })}
           </Modal.Body>
 
           <Modal.Footer>
-            <Button onClick={handleSubmit}>Submit</Button>
+            {data.anchorQuoteSupported ? (
+              data.anchorQuoteRequired ? (
+                <Button onClick={handleQuotes}>Select quote</Button>
+              ) : (
+                <>
+                  <Button
+                    onClick={handleQuotes}
+                    variant={Button.variant.secondary}
+                  >
+                    Select quote
+                  </Button>
+                  <Button onClick={handleSubmit}>Submit</Button>
+                </>
+              )
+            ) : (
+              <Button onClick={handleSubmit}>Submit</Button>
+            )}
           </Modal.Footer>
         </Modal>
       );

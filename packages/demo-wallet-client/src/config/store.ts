@@ -1,6 +1,5 @@
 import {
   configureStore,
-  getDefaultMiddleware,
   isPlain,
   createAction,
   CombinedState,
@@ -20,6 +19,7 @@ import { reducer as sep8Send } from "ducks/sep8Send";
 import { reducer as sep24DepositAsset } from "ducks/sep24DepositAsset";
 import { reducer as sep24WithdrawAsset } from "ducks/sep24WithdrawAsset";
 import { reducer as sep31Send } from "ducks/sep31Send";
+import { reducer as sep38Quotes } from "ducks/sep38Quotes";
 import { reducer as logs } from "ducks/logs";
 import { reducer as sendPayment } from "ducks/sendPayment";
 import { reducer as settings } from "ducks/settings";
@@ -55,6 +55,7 @@ const reducers = combineReducers({
   sep24DepositAsset,
   sep24WithdrawAsset,
   sep31Send,
+  sep38Quotes,
   settings,
   trustAsset,
   untrustedAssets,
@@ -69,13 +70,12 @@ const rootReducer = (state: CombinedState<any>, action: Action) => {
 
 export const store = configureStore({
   reducer: rootReducer,
-  middleware: [
-    ...getDefaultMiddleware({
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
       serializableCheck: {
         isSerializable,
       },
     }),
-  ],
 });
 
 export const walletBackendEndpoint: string =
