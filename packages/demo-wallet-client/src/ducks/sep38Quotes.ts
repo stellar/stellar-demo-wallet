@@ -6,12 +6,15 @@ import { log } from "demo-wallet-shared/build/helpers/log";
 import {
   getInfo,
   getPrices,
+  postQuote,
 } from "demo-wallet-shared/build/methods/sep38Quotes";
 
 import {
   ActionStatus,
   AnchorBuyAsset,
+  AnchorQuote,
   AnchorQuoteAsset,
+  AnchorQuoteRequest,
   RejectMessage,
   Sep38QuotesInitialState,
 } from "types/types.d";
@@ -63,6 +66,7 @@ export const fetchSep38QuotesInfoAction = createAsyncThunk<
 export const fetchSep38QuotesPricesAction = createAsyncThunk<
   AnchorBuyAsset[],
   {
+    token: string;
     anchorQuoteServerUrl: string;
     options: {
       sellAsset: string;
@@ -75,7 +79,7 @@ export const fetchSep38QuotesPricesAction = createAsyncThunk<
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep38Quotes/fetchSep38QuotesPricesAction",
-  async ({ anchorQuoteServerUrl, options }, { rejectWithValue }) => {
+  async ({ token, anchorQuoteServerUrl, options }, { rejectWithValue }) => {
     const {
       sellAsset,
       sellAmount,
@@ -85,15 +89,70 @@ export const fetchSep38QuotesPricesAction = createAsyncThunk<
     } = options;
 
     try {
-      const result = await getPrices(anchorQuoteServerUrl, {
-        sell_asset: sellAsset,
-        sell_amount: sellAmount,
-        sell_delivery_method: sellDeliveryMethod,
-        buy_delivery_method: buyDeliveryMethod,
-        country_code: countryCode,
+      const result = await getPrices({
+        token,
+        anchorQuoteServerUrl,
+        options: {
+          sell_asset: sellAsset,
+          sell_amount: sellAmount,
+          sell_delivery_method: sellDeliveryMethod,
+          buy_delivery_method: buyDeliveryMethod,
+          country_code: countryCode,
+        },
       });
 
       return result.buy_assets;
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+
+      log.error({
+        title: errorMessage,
+      });
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
+export const postSep38QuoteAction = createAsyncThunk<
+  AnchorQuote,
+  AnchorQuoteRequest,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep38Quotes/postSep38QuoteAction",
+  async (
+    {
+      anchorQuoteServerUrl,
+      token,
+      sell_asset,
+      buy_asset,
+      sell_amount,
+      buy_amount,
+      expire_after,
+      sell_delivery_method,
+      buy_delivery_method,
+      country_code,
+      context,
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const result = await postQuote({
+        token,
+        anchorQuoteServerUrl,
+        sell_asset,
+        buy_asset,
+        sell_amount,
+        buy_amount,
+        expire_after,
+        sell_delivery_method,
+        buy_delivery_method,
+        country_code,
+        context,
+      });
+
+      return result;
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 
@@ -163,6 +222,21 @@ const sep38QuotesSlice = createSlice({
       state.status = ActionStatus.SUCCESS;
     });
     builder.addCase(fetchSep38QuotesPricesAction.rejected, (state, action) => {
+      state.errorString = action.payload?.errorString;
+      state.status = ActionStatus.ERROR;
+    });
+
+    builder.addCase(postSep38QuoteAction.pending, (state = initialState) => {
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(postSep38QuoteAction.fulfilled, (state, action) => {
+      state.data = {
+        ...state.data,
+        quote: action.payload,
+      };
+      state.status = ActionStatus.SUCCESS;
+    });
+    builder.addCase(postSep38QuoteAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });

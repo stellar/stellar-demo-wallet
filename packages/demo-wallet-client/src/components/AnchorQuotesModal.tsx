@@ -1,13 +1,23 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import BigNumber from "bignumber.js";
 import { Button, Loader, Modal, RadioButton } from "@stellar/design-system";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { useRedux } from "hooks/useRedux";
-import { fetchSep38QuotesPricesAction } from "ducks/sep38Quotes";
+import {
+  fetchSep38QuotesPricesAction,
+  postSep38QuoteAction,
+} from "ducks/sep38Quotes";
 import { ActionStatus } from "types/types.d";
 
 interface AnchorQuotesModalProps {
+  token: string;
   onClose: () => void;
+  onSubmit: (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    quoteId?: string,
+    destinationAsset?: string,
+  ) => void;
 }
 
 type QuoteAsset = {
@@ -17,7 +27,11 @@ type QuoteAsset = {
   countryCode?: string;
 };
 
-export const AnchorQuotesModal = ({ onClose }: AnchorQuotesModalProps) => {
+export const AnchorQuotesModal = ({
+  token,
+  onClose,
+  onSubmit,
+}: AnchorQuotesModalProps) => {
   const { sep38Quotes } = useRedux("sep38Quotes");
   const { data, status, errorString: errorMessage } = sep38Quotes;
 
@@ -29,6 +43,11 @@ export const AnchorQuotesModal = ({ onClose }: AnchorQuotesModalProps) => {
 
   const dispatch = useDispatch();
 
+  const calculateTotal = (amount: string | number, rate: string | number) => {
+    // TODO: Do we need to use precision from asset?
+    return new BigNumber(amount).div(rate).toFixed(2);
+  };
+
   // Exclude sell asset from quote assets
   const renderAssets = data.sellAsset
     ? data.assets.filter((a) => a.asset !== data.sellAsset)
@@ -38,6 +57,7 @@ export const AnchorQuotesModal = ({ onClose }: AnchorQuotesModalProps) => {
     if (data.serverUrl && data.sellAsset && data.sellAmount) {
       dispatch(
         fetchSep38QuotesPricesAction({
+          token,
           anchorQuoteServerUrl: data.serverUrl,
           options: {
             sellAsset: data.sellAsset,
@@ -51,28 +71,132 @@ export const AnchorQuotesModal = ({ onClose }: AnchorQuotesModalProps) => {
   };
 
   const handleGetQuote = () => {
-    // TODO:
+    if (
+      data.serverUrl &&
+      data.sellAsset &&
+      data.sellAmount &&
+      quoteAsset?.asset
+    ) {
+      dispatch(
+        postSep38QuoteAction({
+          token,
+          anchorQuoteServerUrl: data.serverUrl,
+          sell_asset: data.sellAsset,
+          buy_asset: quoteAsset.asset,
+          sell_amount: data.sellAmount,
+          buy_delivery_method: assetBuyDeliveryMethod,
+          country_code: assetCountryCode,
+          context: "sep31",
+        }),
+      );
+    }
   };
 
   const renderContent = () => {
     if (status === ActionStatus.SUCCESS) {
-      if (data.prices?.length > 0) {
+      if (data.quote) {
+        const {
+          id,
+          price,
+          expires_at,
+          sell_asset,
+          buy_asset,
+          sell_amount,
+          buy_amount,
+        } = data.quote;
+
         return (
           <>
             <Modal.Body>
+              <p>Quote details</p>
+
+              <div>
+                <div>
+                  <label>ID</label>
+                  <div>{id}</div>
+                </div>
+
+                <div>
+                  <label>Price</label>
+                  <div>{price}</div>
+                </div>
+
+                <div>
+                  <label>Expires at</label>
+                  <div>{expires_at}</div>
+                </div>
+
+                <div>
+                  <label>Sell asset</label>
+                  <div>{sell_asset}</div>
+                </div>
+
+                <div>
+                  <label>Sell amount</label>
+                  <div>{sell_amount}</div>
+                </div>
+
+                <div>
+                  <label>Buy asset</label>
+                  <div>{buy_asset}</div>
+                </div>
+
+                <div>
+                  <label>Buy amount</label>
+                  <div>{buy_amount}</div>
+                </div>
+
+                <div>
+                  <label></label>
+                  <div>{}</div>
+                </div>
+              </div>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button
+                onClick={(
+                  event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+                ) => onSubmit(event, data.quote?.id, data.quote?.buy_asset)}
+              >
+                Submit
+              </Button>
+            </Modal.Footer>
+          </>
+        );
+      }
+
+      if (data.prices?.length > 0) {
+        const sellAssetCode = data.sellAsset?.split(":")[1];
+        const buyAssetCode = quoteAsset?.asset.split(":")[1];
+
+        return (
+          <>
+            <Modal.Body>
+              <p>Rates (not final)</p>
+
               <div>
                 {data.prices.map((p) => (
                   <RadioButton
                     key={`${p.asset}-${p.price}`}
                     name="anchor-asset-price"
                     id={`${p.asset}-${p.price}`}
-                    label={`${p.price} ${p.asset.split(":")[1]}`}
+                    label={p.price}
                     onChange={() => {
                       setAssetPrice(p.price);
                     }}
                   />
                 ))}
               </div>
+
+              {data.sellAmount && assetPrice ? (
+                <div>{`Estimated total of ${calculateTotal(
+                  data.sellAmount,
+                  assetPrice,
+                )} ${buyAssetCode} for ${
+                  data.sellAmount
+                } ${sellAssetCode}`}</div>
+              ) : null}
             </Modal.Body>
 
             <Modal.Footer>
@@ -92,7 +216,7 @@ export const AnchorQuotesModal = ({ onClose }: AnchorQuotesModalProps) => {
                 {/* TODO: handle no assets case */}
                 {/* TODO: could pre-selected asset if there is only one */}
                 {renderAssets.map((a) => (
-                  <div>
+                  <div key={a.asset}>
                     <RadioButton
                       key={a.asset}
                       name="anchor-asset"
@@ -129,19 +253,17 @@ export const AnchorQuotesModal = ({ onClose }: AnchorQuotesModalProps) => {
                         <div>Buy delivery methods</div>
                         <div>
                           {a.buy_delivery_methods?.map((b) => (
-                            <div>
-                              <RadioButton
-                                key={b.name}
-                                name={`anchor-${a.asset}-delivery`}
-                                id={b.name}
-                                label={`${b.name} - ${b.description}`}
-                                disabled={a.asset !== quoteAsset?.asset}
-                                onChange={() => {
-                                  setAssetBuyDeliveryMethod(b.name);
-                                }}
-                                checked={b.name === assetBuyDeliveryMethod}
-                              />
-                            </div>
+                            <RadioButton
+                              key={b.name}
+                              name={`anchor-${a.asset}-delivery`}
+                              id={b.name}
+                              label={`${b.name} - ${b.description}`}
+                              disabled={a.asset !== quoteAsset?.asset}
+                              onChange={() => {
+                                setAssetBuyDeliveryMethod(b.name);
+                              }}
+                              checked={b.name === assetBuyDeliveryMethod}
+                            />
                           ))}
                         </div>
                       </>

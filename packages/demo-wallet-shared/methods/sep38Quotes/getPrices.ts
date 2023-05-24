@@ -1,8 +1,9 @@
 import { log } from "../../helpers/log";
 import { AnchorBuyAsset } from "../../types/types";
 
-export const getPrices = async (
-  anchorQuoteServerUrl: string | undefined,
+type Sep38Prices = {
+  token: string;
+  anchorQuoteServerUrl: string | undefined;
   options?: {
     /* eslint-disable camelcase */
     sell_asset: string;
@@ -11,9 +12,15 @@ export const getPrices = async (
     buy_delivery_method?: string;
     country_code?: string;
     /* eslint-enable camelcase */
-  },
-  // eslint-disable-next-line camelcase
-): Promise<{ buy_assets: AnchorBuyAsset[] }> => {
+  };
+};
+
+export const getPrices = async ({
+  token,
+  anchorQuoteServerUrl,
+  options,
+}: Sep38Prices): // eslint-disable-next-line camelcase
+Promise<{ buy_assets: AnchorBuyAsset[] }> => {
   if (!anchorQuoteServerUrl) {
     throw new Error("Anchor quote server URL is required");
   }
@@ -41,6 +48,12 @@ export const getPrices = async (
 
   const result = await fetch(
     `${anchorQuoteServerUrl}/prices?${urlParams?.toString()}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
   );
 
   if (result.status !== 200) {

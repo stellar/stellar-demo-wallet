@@ -290,6 +290,8 @@ interface SubmitSep31SendTransactionActionProps {
   transaction: AnyObject;
   sender: AnyObject;
   receiver: AnyObject;
+  quoteId?: string;
+  destinationAsset?: string;
 }
 
 export const submitSep31SendTransactionAction = createAsyncThunk<
@@ -299,7 +301,7 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
 >(
   "sep31Send/submitSep31SendTransactionAction",
   async (
-    { amount, transaction, sender, receiver },
+    { amount, transaction, sender, receiver, quoteId, destinationAsset },
     { rejectWithValue, getState },
   ) => {
     try {
@@ -338,6 +340,8 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
         transactionFormData: transaction || {},
         sendServer,
         token,
+        quoteId,
+        destinationAsset,
       });
 
       // Poll transaction until ready

@@ -618,3 +618,17 @@ export type AnchorFeeDetail = {
   description?: string;
   amount: string;
 };
+
+export type AnchorQuoteRequest = {
+  anchorQuoteServerUrl: string;
+  token: string;
+  sell_asset: string;
+  buy_asset: string;
+  sell_amount?: string;
+  buy_amount?: string;
+  expire_after?: string;
+  sell_delivery_method?: string;
+  buy_delivery_method?: string;
+  country_code?: string;
+  context: "sep6" | "sep31";
+};

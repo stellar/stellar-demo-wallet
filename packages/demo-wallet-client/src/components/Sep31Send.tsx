@@ -21,7 +21,10 @@ import {
   fetchSendFieldsAction,
   setStatusAction,
 } from "ducks/sep31Send";
-import { fetchSep38QuotesInfoAction } from "ducks/sep38Quotes";
+import {
+  fetchSep38QuotesInfoAction,
+  resetSep38QuotesAction,
+} from "ducks/sep38Quotes";
 
 import { capitalizeString } from "demo-wallet-shared/build/helpers/capitalizeString";
 import { useRedux } from "hooks/useRedux";
@@ -64,6 +67,7 @@ export const Sep31Send = () => {
           }),
         );
         dispatch(resetSep31SendAction());
+        dispatch(resetSep38QuotesAction());
       }
     }
   }, [
@@ -106,9 +110,17 @@ export const Sep31Send = () => {
 
   const handleSubmit = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    quoteId?: string,
+    destinationAsset?: string,
   ) => {
     event.preventDefault();
-    dispatch(submitSep31SendTransactionAction({ ...formData }));
+    dispatch(
+      submitSep31SendTransactionAction({
+        ...formData,
+        quoteId,
+        destinationAsset,
+      }),
+    );
   };
 
   const handleQuotes = (
@@ -155,6 +167,7 @@ export const Sep31Send = () => {
     resetLocalState();
     dispatch(resetSep31SendAction());
     dispatch(resetActiveAssetAction());
+    dispatch(resetSep38QuotesAction());
   };
 
   const renderSenderOptions = () => {
@@ -222,7 +235,13 @@ export const Sep31Send = () => {
   };
 
   if (sep31Send.status === ActionStatus.ANCHOR_QUOTES) {
-    return <AnchorQuotesModal onClose={handleClose} />;
+    return (
+      <AnchorQuotesModal
+        token={sep31Send.data.token}
+        onClose={handleClose}
+        onSubmit={handleSubmit}
+      />
+    );
   }
 
   if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
