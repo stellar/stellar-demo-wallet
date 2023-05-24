@@ -17,6 +17,7 @@ export enum AssetCategory {
 
 export enum TomlFields {
   ACCOUNTS = "ACCOUNTS",
+  ANCHOR_QUOTE_SERVER = "ANCHOR_QUOTE_SERVER",
   AUTH_SERVER = "AUTH_SERVER",
   DIRECT_PAYMENT_SERVER = "DIRECT_PAYMENT_SERVER",
   FEDERATION_SERVER = "FEDERATION_SERVER",
@@ -575,3 +576,50 @@ export enum Sep12CustomerFieldStatus {
   REJECTED = "REJECTED",
   VERIFICATION_REQUIRED = "VERIFICATION_REQUIRED",
 }
+
+// Anchor quotes
+export type AnchorDeliveryMethod = {
+  name: string;
+  description: string;
+};
+
+export type AnchorQuoteAsset = {
+  asset: string;
+  /* eslint-disable camelcase */
+  sell_delivery_methods?: AnchorDeliveryMethod[];
+  buy_delivery_methods?: AnchorDeliveryMethod[];
+  country_codes?: string[];
+  /* eslint-enable camelcase */
+};
+
+export type AnchorBuyAsset = {
+  asset: string;
+  price: string;
+  decimals: number;
+};
+
+export type AnchorQuote = {
+  id: string;
+  price: string;
+  fee: AnchorFee;
+  /* eslint-disable camelcase */
+  expires_at: string;
+  total_price: string;
+  sell_asset: string;
+  sell_amount: string;
+  buy_asset: string;
+  buy_amount: string;
+  /* eslint-enable camelcase */
+};
+
+export type AnchorFee = {
+  total: string;
+  asset: string;
+  details?: AnchorFeeDetail[];
+};
+
+export type AnchorFeeDetail = {
+  name: string;
+  description?: string;
+  amount: string;
+};

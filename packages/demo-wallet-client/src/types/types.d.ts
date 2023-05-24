@@ -17,6 +17,7 @@ export enum AssetCategory {
 
 export enum TomlFields {
   ACCOUNTS = "ACCOUNTS",
+  ANCHOR_QUOTE_SERVER = "ANCHOR_QUOTE_SERVER",
   AUTH_SERVER = "AUTH_SERVER",
   DIRECT_PAYMENT_SERVER = "DIRECT_PAYMENT_SERVER",
   FEDERATION_SERVER = "FEDERATION_SERVER",
@@ -277,6 +278,22 @@ export interface Sep31SendInitialState {
     sendServer: string;
     kycServer: string;
     serverSigningKey: string;
+    anchorQuoteSupported: boolean | undefined;
+    anchorQuoteRequired: boolean | undefined;
+    anchorQuoteServer: string | undefined;
+  };
+  errorString?: string;
+  status: ActionStatus | undefined;
+}
+
+export interface Sep38QuotesInitialState {
+  data: {
+    serverUrl: string | undefined;
+    sellAsset: string | undefined;
+    sellAmount: string | undefined;
+    assets: AnchorQuoteAsset[];
+    prices: AnchorBuyAsset[];
+    quote: AnchorQuote | undefined;
   };
   errorString?: string;
   status: ActionStatus | undefined;
@@ -335,6 +352,7 @@ export interface Store {
   sep6WithdrawAsset: Sep6WithdrawAssetInitialState;
   sep8Send: Sep8SendInitialState;
   sep31Send: Sep31SendInitialState;
+  sep38Quotes: Sep38QuotesInitialState;
   sep24DepositAsset: Sep24DepositAssetInitialState;
   sep24WithdrawAsset: Sep24WithdrawAssetInitialState;
   settings: SettingsInitialState;
@@ -350,6 +368,7 @@ export enum ActionStatus {
   SUCCESS = "SUCCESS",
   NEEDS_INPUT = "NEEDS_INPUT",
   CAN_PROCEED = "CAN_PROCEED",
+  ANCHOR_QUOTES = "ANCHOR_QUOTES",
 }
 
 export interface RejectMessage {
@@ -557,3 +576,59 @@ export enum Sep12CustomerFieldStatus {
   REJECTED = "REJECTED",
   VERIFICATION_REQUIRED = "VERIFICATION_REQUIRED",
 }
+
+export type AnchorDeliveryMethod = {
+  name: string;
+  description: string;
+};
+
+export type AnchorQuoteAsset = {
+  asset: string;
+  sell_delivery_methods?: AnchorDeliveryMethod[];
+  buy_delivery_methods?: AnchorDeliveryMethod[];
+  country_codes?: string[];
+};
+
+export type AnchorBuyAsset = {
+  asset: string;
+  price: string;
+  decimals: number;
+};
+
+export type AnchorQuote = {
+  id: string;
+  expires_at: string;
+  total_price: string;
+  price: string;
+  sell_asset: string;
+  sell_amount: string;
+  buy_asset: string;
+  buy_amount: string;
+  fee: AnchorFee;
+};
+
+export type AnchorFee = {
+  total: string;
+  asset: string;
+  details?: AnchorFeeDetail[];
+};
+
+export type AnchorFeeDetail = {
+  name: string;
+  description?: string;
+  amount: string;
+};
+
+export type AnchorQuoteRequest = {
+  anchorQuoteServerUrl: string;
+  token: string;
+  sell_asset: string;
+  buy_asset: string;
+  sell_amount?: string;
+  buy_amount?: string;
+  expire_after?: string;
+  sell_delivery_method?: string;
+  buy_delivery_method?: string;
+  country_code?: string;
+  context: "sep6" | "sep31";
+};

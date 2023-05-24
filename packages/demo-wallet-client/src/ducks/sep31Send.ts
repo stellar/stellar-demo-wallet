@@ -101,6 +101,21 @@ export const initiateSendAction = createAsyncThunk<
       // Check info
       const infoResponse = await checkInfo({ assetCode, sendServer });
 
+      let anchorQuoteServer;
+
+      // Check SEP-38 quote server key in toml, if supported
+      if (infoResponse.quotesSupported) {
+        const tomlSep38Response = await checkTomlForFields({
+          sepName: "SEP-38 Anchor RFQ",
+          assetIssuer,
+          requiredKeys: [TomlFields.ANCHOR_QUOTE_SERVER],
+          networkUrl: networkConfig.url,
+          homeDomain,
+        });
+
+        anchorQuoteServer = tomlSep38Response.ANCHOR_QUOTE_SERVER;
+      }
+
       // If there are multiple sender or receiver types the status will be
       // returned NEEDS_INPUT, which will show modal for user to select types.
 
@@ -126,6 +141,9 @@ export const initiateSendAction = createAsyncThunk<
           !infoResponse.multipleSenderTypes &&
             !infoResponse.multipleReceiverTypes,
         ),
+        anchorQuoteSupported: infoResponse.quotesSupported,
+        anchorQuoteRequired: infoResponse.quotesRequired,
+        anchorQuoteServer,
       };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
@@ -272,6 +290,8 @@ interface SubmitSep31SendTransactionActionProps {
   transaction: AnyObject;
   sender: AnyObject;
   receiver: AnyObject;
+  quoteId?: string;
+  destinationAsset?: string;
 }
 
 export const submitSep31SendTransactionAction = createAsyncThunk<
@@ -281,7 +301,7 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
 >(
   "sep31Send/submitSep31SendTransactionAction",
   async (
-    { amount, transaction, sender, receiver },
+    { amount, transaction, sender, receiver, quoteId, destinationAsset },
     { rejectWithValue, getState },
   ) => {
     try {
@@ -320,6 +340,8 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
         transactionFormData: transaction || {},
         sendServer,
         token,
+        quoteId,
+        destinationAsset,
       });
 
       // Poll transaction until ready
@@ -398,6 +420,9 @@ const initialState: Sep31SendInitialState = {
     sendServer: "",
     kycServer: "",
     serverSigningKey: "",
+    anchorQuoteSupported: undefined,
+    anchorQuoteRequired: undefined,
+    anchorQuoteServer: undefined,
   },
   errorString: undefined,
   status: undefined,
@@ -408,6 +433,9 @@ const sep31SendSlice = createSlice({
   initialState,
   reducers: {
     resetSep31SendAction: () => initialState,
+    setStatusAction: (state, action) => {
+      state.status = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(initiateSendAction.pending, (state = initialState) => {
@@ -468,4 +496,4 @@ const sep31SendSlice = createSlice({
 export const sep31SendSelector = (state: RootState) => state.sep31Send;
 
 export const { reducer } = sep31SendSlice;
-export const { resetSep31SendAction } = sep31SendSlice.actions;
+export const { resetSep31SendAction, setStatusAction } = sep31SendSlice.actions;
