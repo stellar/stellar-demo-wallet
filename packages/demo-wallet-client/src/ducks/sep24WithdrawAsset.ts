@@ -144,12 +144,15 @@ export const withdrawAssetAction = createAsyncThunk<
       return {
         currentStatus,
       };
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = getErrorMessage(error);
+      const resultCodes = error?.response?.data?.extras?.result_codes;
 
       log.error({
         title: "SEP-24 withdrawal failed",
-        body: errorMessage,
+        body: `${errorMessage} ${
+          resultCodes ? JSON.stringify(resultCodes) : ""
+        }`,
       });
 
       return rejectWithValue({
