@@ -41,7 +41,12 @@ export const collectSep12Fields = async ({
 
   log.response({ title: "GET `/customer`", body: resultJson });
 
-  if (isNewCustomer && resultJson.status !== Sep12CustomerStatus.NEEDS_INFO) {
+  if (
+    isNewCustomer &&
+    ![Sep12CustomerStatus.NEEDS_INFO, Sep12CustomerStatus.ACCEPTED].includes(
+      resultJson.status,
+    )
+  ) {
     throw new Error(
       `Unexpected status for new customer \`${resultJson.status}\``,
     );
