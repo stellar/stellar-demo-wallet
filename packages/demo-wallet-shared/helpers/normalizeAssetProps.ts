@@ -41,7 +41,7 @@ export const normalizeAssetProps = ({
   return {
     assetString:
       _assetType === AssetType.NATIVE
-        ? "native"
+        ? "XLM:native"
         : `${_assetCode}:${_assetIssuer}`,
     assetCode: _assetCode,
     assetIssuer: _assetIssuer,

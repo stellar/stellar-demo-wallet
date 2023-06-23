@@ -1,5 +1,6 @@
 import { each } from "lodash";
 import { log } from "../../helpers/log";
+import { isNativeAsset } from "../../helpers/isNativeAsset";
 
 export const interactiveWithdrawFlow = async ({
   assetCode,
@@ -16,7 +17,7 @@ export const interactiveWithdrawFlow = async ({
 
   const formData = new FormData();
   const postWithdrawParams = {
-    asset_code: assetCode,
+    asset_code: isNativeAsset(assetCode) ? "native" : assetCode,
     account: publicKey,
     lang: "en",
   };

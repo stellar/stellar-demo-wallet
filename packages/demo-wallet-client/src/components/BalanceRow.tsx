@@ -6,7 +6,6 @@ import {
   Asset,
   ActiveAssetAction,
   AssetActionId,
-  AssetType,
   ClaimableAsset,
 } from "types/types.d";
 
@@ -154,10 +153,9 @@ export const BalanceRow = ({
                   {homeDomain}
                 </TextLink>
               )}
-              {!asset.isClaimableBalance &&
-                asset.assetType !== AssetType.NATIVE && (
-                  <HomeDomainOverrideButtons asset={asset} />
-                )}
+              {!asset.isClaimableBalance && (
+                <HomeDomainOverrideButtons asset={asset} />
+              )}
             </div>
           </>
         )}

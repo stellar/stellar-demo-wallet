@@ -17,21 +17,14 @@ export const getAssetSettingsFromToml = async ({
   supportedActions: AssetSupportedActions | AnyObject;
 }> => {
   const server = new Server(networkUrl);
-
-  // Native (XLM) asset
-  if (assetId === AssetType.NATIVE) {
-    return {
-      homeDomain: undefined,
-      supportedActions: {},
-    };
-  }
+  const isNative = assetId === AssetType.NATIVE;
 
   // Other assets
   let supportedActions: AssetSupportedActions | AnyObject = {};
   const [, assetIssuer] = assetId.split(":");
   let homeDomain = homeDomainOverride;
 
-  if (!homeDomainOverride) {
+  if (!homeDomainOverride && !isNative) {
     const accountRecord = await server.loadAccount(assetIssuer);
     homeDomain = accountRecord.home_domain;
   }
@@ -47,7 +40,7 @@ export const getAssetSettingsFromToml = async ({
 
     supportedActions = {
       sep6: Boolean(TRANSFER_SERVER),
-      sep8: isSep8Asset({ assetId, currencies: CURRENCIES }),
+      sep8: !isNative && isSep8Asset({ assetId, currencies: CURRENCIES }),
       sep24: Boolean(TRANSFER_SERVER_SEP0024),
       sep31: Boolean(DIRECT_PAYMENT_SERVER),
     };
