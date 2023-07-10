@@ -6,6 +6,7 @@ import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessag
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
+import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import { Asset, SearchParams } from "types/types.d";
 
 export const HomeDomainOverrideModal = ({
@@ -36,11 +37,15 @@ export const HomeDomainOverrideModal = ({
         networkUrl,
       });
 
-      if (validAsset.homeDomain) {
+      const isNative = isNativeAsset(assetCode);
+
+      if (validAsset.homeDomain || isNative) {
         navigate(
           searchParam.updateKeyPair({
             param: SearchParams.ASSET_OVERRIDES,
-            itemId: `${asset.assetCode}:${asset.assetIssuer}`,
+            itemId: isNative
+              ? `XLM:native`
+              : `${asset.assetCode}:${asset.assetIssuer}`,
             keyPairs: { homeDomain },
           }),
         );

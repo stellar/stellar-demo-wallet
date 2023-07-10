@@ -46,49 +46,49 @@ export const depositAssetAction = createAsyncThunk<
       memoId: custodialMemoId,
     } = custodialSelector(getState());
 
-    const networkConfig = getNetworkConfig();
-    const publicKey = data?.id;
-
-    // This is unlikely
-    if (!publicKey) {
-      throw new Error("Something is wrong with Account, no public key.");
-    }
-
-    // This is unlikely
-    if (!homeDomain) {
-      throw new Error("Something went wrong, home domain is not defined.");
-    }
-
-    // This is unlikely
-    if (
-      custodialIsEnabled &&
-      !(custodialSecretKey && custodialPublicKey && custodialMemoId)
-    ) {
-      throw new Error(
-        "Custodial mode requires secret key, public key, and memo ID",
-      );
-    }
-
-    log.instruction({ title: "Initiating a SEP-24 deposit" });
-
-    const trustAssetCallback = async () => {
-      const assetString = `${assetCode}:${assetIssuer}`;
-
-      await trustAsset({
-        secretKey,
-        networkPassphrase: networkConfig.network,
-        networkUrl: networkConfig.url,
-        untrustedAsset: {
-          assetString,
-          assetCode,
-          assetIssuer,
-        },
-      });
-
-      return assetString;
-    };
-
     try {
+      const networkConfig = getNetworkConfig();
+      const publicKey = data?.id;
+
+      // This is unlikely
+      if (!publicKey) {
+        throw new Error("Something is wrong with Account, no public key.");
+      }
+
+      // This is unlikely (except for XLM)
+      if (!homeDomain) {
+        throw new Error("Something went wrong, home domain is not defined.");
+      }
+
+      // This is unlikely
+      if (
+        custodialIsEnabled &&
+        !(custodialSecretKey && custodialPublicKey && custodialMemoId)
+      ) {
+        throw new Error(
+          "Custodial mode requires secret key, public key, and memo ID",
+        );
+      }
+
+      log.instruction({ title: "Initiating a SEP-24 deposit" });
+
+      const trustAssetCallback = async () => {
+        const assetString = `${assetCode}:${assetIssuer}`;
+
+        await trustAsset({
+          secretKey,
+          networkPassphrase: networkConfig.network,
+          networkUrl: networkConfig.url,
+          untrustedAsset: {
+            assetString,
+            assetCode,
+            assetIssuer,
+          },
+        });
+
+        return assetString;
+      };
+
       // Check toml
       const tomlResponse = await checkTomlForFields({
         sepName: "SEP-24 deposit",

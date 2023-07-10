@@ -1,5 +1,6 @@
 import { get } from "lodash";
 import { log } from "../../helpers/log";
+import { isNativeAsset } from "../../helpers/isNativeAsset";
 import { AnchorActionType } from "../../types/types";
 
 export const checkInfo = async ({
@@ -21,9 +22,11 @@ export const checkInfo = async ({
 
   const info = await fetch(infoURL);
   const infoJson = await info.json();
+  const isNative = isNativeAsset(assetCode);
+
   log.response({ title: `GET \`${infoURL}\``, body: infoJson });
 
-  if (!get(infoJson, [type, assetCode, "enabled"])) {
+  if (!get(infoJson, [type, isNative ? "native" : assetCode, "enabled"])) {
     throw new Error("Asset is not enabled in the `/info` endpoint");
   }
 

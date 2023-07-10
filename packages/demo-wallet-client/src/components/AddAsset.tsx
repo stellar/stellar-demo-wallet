@@ -108,8 +108,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
         <Input
           id="aa-asset-code"
-          // TODO: change type in SDS
-          // @ts-ignore
           label={
             <DetailsTooltip
               details={
@@ -137,8 +135,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
         <Input
           id="aa-home-domain"
-          // TODO: change type in SDS
-          // @ts-ignore
           label={
             <DetailsTooltip
               details={
@@ -166,8 +162,6 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
 
         <Input
           id="aa-public-key"
-          // TODO: change type in SDS
-          // @ts-ignore
           label={
             <DetailsTooltip
               details={

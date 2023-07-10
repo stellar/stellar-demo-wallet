@@ -8,6 +8,7 @@ import { initiateSep8SendAction } from "ducks/sep8Send";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { initiateSendAction } from "ducks/sep31Send";
 import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
+import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import { useRedux } from "hooks/useRedux";
 import {
   Asset,
@@ -107,6 +108,8 @@ export const Balance = ({
       balance,
     };
 
+    const isNative = isNativeAsset(balance.assetCode);
+
     switch (actionId) {
       case AssetActionId.SEND_PAYMENT:
         props = {
@@ -158,8 +161,12 @@ export const Balance = ({
       case AssetActionId.SEP24_DEPOSIT:
         props = {
           ...defaultProps,
-          title: `SEP-24 deposit ${balance.assetCode} (with Trusted Asset)`,
-          description: `Start SEP-24 deposit of trusted asset ${balance.assetCode}?`,
+          title: `SEP-24 deposit ${balance.assetCode} ${
+            isNative ? "(with Native Asset)" : "(with Trusted Asset)"
+          }`,
+          description: `Start SEP-24 deposit of ${
+            isNative ? "native" : "trusted"
+          } asset ${balance.assetCode}?`,
           callback: () => handleSep24Deposit(balance),
           showCustodial: true,
         };

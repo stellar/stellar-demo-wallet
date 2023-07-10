@@ -3,6 +3,7 @@ import { Types } from "@stellar/wallet-sdk";
 import { checkAssetExists } from "./checkAssetExists";
 import { getCurrenciesFromDomain } from "./getCurrenciesFromDomain";
 import { getOverrideHomeDomain } from "./getOverrideHomeDomain";
+import { isNativeAsset } from "./isNativeAsset";
 
 const getAssetListString = (assetsArray: Asset[], key: "code" | "issuer") =>
   assetsArray && assetsArray.length
@@ -25,8 +26,11 @@ export const getAssetFromHomeDomain = async ({
   accountBalances,
 }: GetAssetFromHomeDomainProps) => {
   const tomlCurrencies = await getCurrenciesFromDomain(homeDomain);
+  const isNative = isNativeAsset(assetCode);
+  const _assetCode = isNative ? "native" : assetCode;
+
   const matchingAssets = tomlCurrencies.filter(
-    (currency) => currency.code === assetCode,
+    (currency) => currency.code === _assetCode,
   );
 
   const availableAssetsString = getAssetListString(tomlCurrencies, "code");
@@ -35,7 +39,9 @@ export const getAssetFromHomeDomain = async ({
   // No matching asset
   if (!matchingAssets.length) {
     throw new Error(
-      `Unable to find the ${assetCode} asset on \`${homeDomain}\` TOML file.
+      `Unable to find the ${
+        isNative ? `${assetCode} (native)` : assetCode
+      } asset on \`${homeDomain}\` TOML file.
       Available assets: ${availableAssetsString}.`,
     );
   }
@@ -75,21 +81,26 @@ export const getAssetFromHomeDomain = async ({
     if (matchingAssets.length === 1) {
       const { issuer } = matchingAssets[0];
 
-      await checkAssetExists({
-        assetCode,
-        assetIssuer: issuer,
-        networkUrl,
-        accountBalances,
-      });
+      // No need to check that XLM (native) asset exists
+      if (!isNative) {
+        await checkAssetExists({
+          assetCode,
+          assetIssuer: issuer,
+          networkUrl,
+          accountBalances,
+        });
+      }
 
       return {
         assetCode,
         assetIssuer: issuer,
-        homeDomain: await getOverrideHomeDomain({
-          assetIssuer: issuer,
-          homeDomain,
-          networkUrl,
-        }),
+        homeDomain: isNative
+          ? undefined
+          : await getOverrideHomeDomain({
+              assetIssuer: issuer,
+              homeDomain,
+              networkUrl,
+            }),
       };
     }
 

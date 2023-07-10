@@ -1,8 +1,9 @@
 import { Server } from "stellar-sdk";
 import { getAssetSettingsFromToml } from "./getAssetSettingsFromToml";
+import { isNativeAsset } from "./isNativeAsset";
 import { log } from "./log";
 import { normalizeAssetProps } from "./normalizeAssetProps";
-import { Asset, SearchParamAsset } from "../types/types";
+import { Asset, AssetType, SearchParamAsset } from "../types/types";
 
 type GetAssetOverridesDataProps = {
   assetOverrides: SearchParamAsset[];
@@ -25,19 +26,23 @@ export const getAssetOverridesData = async ({
     const [assetCode, assetIssuer] = assetString.split(":");
 
     const server = new Server(networkUrl);
+    const isNative = isNativeAsset(assetCode);
+    let assetResponse;
 
-    // eslint-disable-next-line no-await-in-loop
-    const assetResponse = await server
-      .assets()
-      .forCode(assetCode)
-      .forIssuer(assetIssuer)
-      .call();
+    if (!isNative) {
+      // eslint-disable-next-line no-await-in-loop
+      assetResponse = await server
+        .assets()
+        .forCode(assetCode)
+        .forIssuer(assetIssuer)
+        .call();
 
-    if (!assetResponse.records.length) {
-      log.error({
-        title: `Asset \`${assetString}\` does not exist.`,
-      });
-      break;
+      if (!assetResponse.records.length) {
+        log.error({
+          title: `Asset \`${assetString}\` does not exist.`,
+        });
+        break;
+      }
     }
 
     // eslint-disable-next-line no-await-in-loop
@@ -51,7 +56,9 @@ export const getAssetOverridesData = async ({
     const data = normalizeAssetProps({
       assetCode,
       assetIssuer,
-      assetType: assetResponse.records[0].asset_type,
+      assetType: isNative
+        ? AssetType.NATIVE
+        : assetResponse?.records[0]?.asset_type,
       homeDomain,
       supportedActions,
     });
