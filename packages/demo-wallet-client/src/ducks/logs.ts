@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
-import { ActionStatus, LogItemProps, LogsInitialState } from "types/types.d";
+import { ActionStatus, LogItemProps, LogsInitialState } from "types/types";
 
 const initialState: LogsInitialState = {
   errorString: "",

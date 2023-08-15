@@ -30,7 +30,7 @@ import {
   Sep31SendInitialState,
   RejectMessage,
   TomlFields,
-} from "types/types.d";
+} from "types/types";
 
 interface InitiateSendActionResponse {
   publicKey: string;

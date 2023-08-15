@@ -17,7 +17,8 @@ import {
 } from "ducks/sep8Send";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, Sep8Step } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus, Sep8Step } from "types/types";
 
 export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send } = useRedux("account", "sep8Send");
@@ -28,7 +29,7 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
     sep8Send.data.revisedTransaction.destination,
   );
   const [isDestinationFunded, setIsDestinationFunded] = useState(true);
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   const resetFormState = () => {
     setDestination("");

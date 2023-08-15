@@ -16,7 +16,8 @@ import { resetActiveAssetAction } from "ducks/activeAsset";
 import { sendPaymentAction, resetSendPaymentAction } from "ducks/sendPayment";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, Asset, AssetType } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus, Asset, AssetType } from "types/types";
 
 export const SendPayment = ({
   asset,
@@ -27,7 +28,7 @@ export const SendPayment = ({
 }) => {
   const { account, sendPayment } = useRedux("account", "sendPayment");
   const { data, secretKey } = account;
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   // Form data
   const [destination, setDestination] = useState("");

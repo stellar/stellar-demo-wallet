@@ -1,4 +1,4 @@
-import ReactJson, { ReactJsonViewProps } from "react-json-view";
+import ReactJson, { ReactJsonViewProps } from "@microlink/react-json-view";
 
 const defaultTheme = {
   base00: "var(--pal-background-primary)",
@@ -26,11 +26,13 @@ export const Json = ({
   collapsed = false,
   theme = defaultTheme,
 }: ReactJsonViewProps) => (
-  <ReactJson
-    src={src}
-    collapseStringsAfterLength={collapseStringsAfterLength}
-    displayDataTypes={displayDataTypes}
-    collapsed={collapsed}
-    theme={theme}
-  />
+  <>
+    <ReactJson
+      src={src}
+      collapseStringsAfterLength={collapseStringsAfterLength}
+      displayDataTypes={displayDataTypes}
+      collapsed={collapsed}
+      theme={theme}
+    />
+  </>
 );

@@ -174,7 +174,7 @@ export interface CustomerTypeItem {
   description: string;
 }
 
-interface Sep6DepositResponse {
+export interface Sep6DepositResponse {
   /* eslint-disable camelcase */
   how: string;
   id?: string;
@@ -210,7 +210,7 @@ export interface Sep6DepositAssetInitialState {
   status: ActionStatus;
 }
 
-interface Sep6WithdrawResponse {
+export interface Sep6WithdrawResponse {
   /* eslint-disable camelcase */
   account_id: string;
   id?: string;

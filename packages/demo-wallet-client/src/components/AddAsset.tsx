@@ -14,7 +14,7 @@ import { getValidatedUntrustedAsset } from "demo-wallet-shared/build/helpers/get
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, SearchParams } from "types/types.d";
+import { ActionStatus, SearchParams } from "types/types";
 
 export const AddAsset = ({ onClose }: { onClose: () => void }) => {
   const { account, untrustedAssets } = useRedux("account", "untrustedAssets");

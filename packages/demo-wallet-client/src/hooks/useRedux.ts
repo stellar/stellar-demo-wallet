@@ -2,7 +2,7 @@ import isEqual from "lodash/isEqual";
 import pick from "lodash/pick";
 import { useSelector } from "react-redux";
 
-import { Store, StoreKey } from "types/types.d";
+import { Store, StoreKey } from "types/types";
 
 /**
  * A React hook for accessing Redux state.
