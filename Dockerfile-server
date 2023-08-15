@@ -9,6 +9,6 @@ RUN yarn build:server
 
 # Copy it all to a clean image to avoid cache artifacts elsewhere in the image
 
-FROM node:16 COPY --from=build /app /app WORKDIR /app
+FROM node:18 COPY --from=build /app /app WORKDIR /app
 
 CMD ["yarn", "start:server"]
