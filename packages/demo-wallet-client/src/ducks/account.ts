@@ -14,7 +14,7 @@ import {
   Asset,
   RejectMessage,
   AccountInitialState,
-} from "types/types";
+} from "types/types.d";
 
 interface UnfundedAccount extends Types.AccountDetails {
   id: string;

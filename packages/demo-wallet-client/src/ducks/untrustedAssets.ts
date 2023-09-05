@@ -11,7 +11,7 @@ import {
   RejectMessage,
   Asset,
   UntrustedAssetsInitialState,
-} from "types/types";
+} from "types/types.d";
 
 const removeExistingAssets = ({
   assetsString,

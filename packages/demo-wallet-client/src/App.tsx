@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes as RouterRoutes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { Layout, TextLink } from "@stellar/design-system";
 import { errorReporting } from "@stellar/frontend-helpers";
@@ -43,7 +43,7 @@ errorReporting.reportErrors({
 
 export const App = () => (
   <Provider store={store}>
-    <BrowserRouter>
+    <Router>
       <SettingsHandler>
         <WarningBanner />
 
@@ -80,7 +80,7 @@ export const App = () => (
                   </p>
                 </Layout.Inset>
 
-                <RouterRoutes>
+                <Routes>
                   <Route path="/" element={<Landing />} />
 
                   <Route
@@ -92,8 +92,8 @@ export const App = () => (
                     }
                   />
 
-                  <Route element={<NotFound />} />
-                </RouterRoutes>
+                  <Route element={NotFound} />
+                </Routes>
               </Layout.Content>
 
               <Footer />
@@ -103,6 +103,6 @@ export const App = () => (
           <Logs />
         </div>
       </SettingsHandler>
-    </BrowserRouter>
+    </Router>
   </Provider>
 );

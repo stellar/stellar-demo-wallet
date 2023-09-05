@@ -24,7 +24,7 @@ import {
   Sep24WithdrawAssetInitialState,
   TomlFields,
   AnchorActionType,
-} from "types/types";
+} from "types/types.d";
 
 export const withdrawAssetAction = createAsyncThunk<
   { currentStatus: string },

@@ -10,7 +10,7 @@ import {
   Asset,
   AssetOverridesInitialState,
   RejectMessage,
-} from "types/types";
+} from "types/types.d";
 
 export const addAssetOverridesAction = createAsyncThunk<
   Asset[],

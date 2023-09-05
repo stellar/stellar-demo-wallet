@@ -13,12 +13,11 @@ import {
   Sep9FieldType,
 } from "demo-wallet-shared/build/helpers/Sep9Fields";
 import { useRedux } from "hooks/useRedux";
-import { AppDispatch } from "config/store";
 import {
   ActionStatus,
   Sep8ActionRequiredResultType,
   Sep8Step,
-} from "types/types";
+} from "types/types.d";
 
 export const Sep8ActionRequiredForm = ({
   onClose,
@@ -32,7 +31,7 @@ export const Sep8ActionRequiredForm = ({
   const { actionFields, message, actionMethod, actionUrl } =
     sep8Send.data.actionRequiredInfo;
   const { nextUrl, result } = sep8Send.data.actionRequiredResult;
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const shouldOpenActionUrl = actionMethod === "GET";

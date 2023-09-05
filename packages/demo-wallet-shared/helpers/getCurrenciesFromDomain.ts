@@ -1,9 +1,9 @@
-import { StellarTomlResolver } from "stellar-sdk";
+import { Asset, StellarTomlResolver } from "stellar-sdk";
 import { normalizeHomeDomainUrl } from "./normalizeHomeDomainUrl";
 
 export const getCurrenciesFromDomain = async (
   homeDomain: string,
-): Promise<StellarTomlResolver.Currency[]> => {
+): Promise<Asset[]> => {
   let domainURL;
 
   try {

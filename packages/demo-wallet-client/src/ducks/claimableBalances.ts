@@ -10,7 +10,7 @@ import {
   ClaimableAsset,
   ClaimableBalancesInitialState,
   RejectMessage,
-} from "types/types";
+} from "types/types.d";
 
 export const fetchClaimableBalancesAction = createAsyncThunk<
   { records: any[] },

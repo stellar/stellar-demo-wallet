@@ -3,7 +3,7 @@ import { Button, Input, Modal } from "@stellar/design-system";
 import { useNavigate } from "react-router-dom";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, SearchParams } from "types/types";
+import { ActionStatus, SearchParams } from "types/types.d";
 
 export const ConnectAccount = () => {
   const { account } = useRedux("account");

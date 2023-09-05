@@ -18,8 +18,7 @@ import {
   sep6DepositAction,
 } from "ducks/sep6DepositAsset";
 import { useRedux } from "hooks/useRedux";
-import { AppDispatch } from "config/store";
-import { ActionStatus } from "types/types";
+import { ActionStatus } from "types/types.d";
 
 export const Sep6Deposit = () => {
   const { sep6DepositAsset } = useRedux("sep6DepositAsset");
@@ -50,7 +49,7 @@ export const Sep6Deposit = () => {
   };
 
   const [formData, setFormData] = useState<FormData>(formInitialState);
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const depositTypeChoices = useMemo(
     () => sep6DepositAsset.data.infoFields?.type?.choices || [],
@@ -214,7 +213,7 @@ export const Sep6Deposit = () => {
                 id === "type" ? (
                   <div key={id}>
                     <Select
-                      label={(input as any).description}
+                      label={input.description}
                       id={id}
                       key={id}
                       onChange={handleDepositTypeChange}
@@ -230,7 +229,7 @@ export const Sep6Deposit = () => {
                   <Input
                     key={id}
                     id={id}
-                    label={(input as any).description}
+                    label={input.description}
                     required
                     onChange={handleInfoFieldChange}
                   />
@@ -263,7 +262,7 @@ export const Sep6Deposit = () => {
                 <Input
                   key={id}
                   id={id}
-                  label={(input as any).description}
+                  label={input.description}
                   required
                   onChange={handleCustomerFieldChange}
                 />

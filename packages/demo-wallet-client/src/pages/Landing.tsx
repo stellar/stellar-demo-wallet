@@ -16,15 +16,14 @@ import { createRandomAccount } from "ducks/account";
 import { ConnectAccount } from "components/ConnectAccount";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { AppDispatch } from "config/store";
-import { ActionStatus, SearchParams } from "types/types";
+import { ActionStatus, SearchParams } from "types/types.d";
 
 export const Landing = () => {
   const { account } = useRedux("account");
   const [isConnectAccountModalVisible, setIsConnectAccountModalVisible] =
     useState(false);
 
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
