@@ -3,7 +3,7 @@ import { marked } from "marked";
 import { Icon } from "@stellar/design-system";
 import { Json } from "components/Json";
 import { sanitizeHtml } from "demo-wallet-shared/build/helpers/sanitizeHtml";
-import { LogType, AnyObject } from "types/types";
+import { LogType, AnyObject } from "types/types.d";
 import "./styles.scss";
 
 marked.setOptions({

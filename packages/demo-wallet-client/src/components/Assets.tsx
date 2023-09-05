@@ -47,14 +47,13 @@ import { resetCustodialAction } from "ducks/custodial";
 import { getPresetAssets } from "demo-wallet-shared/build/helpers/getPresetAssets";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { AppDispatch } from "config/store";
 import {
   Asset,
   ActionStatus,
   AssetActionItem,
   SearchParams,
   TransactionStatus,
-} from "types/types";
+} from "types/types.d";
 
 export const Assets = ({
   onSendPayment,
@@ -94,7 +93,7 @@ export const Assets = ({
   const [activeModal, setActiveModal] = useState("");
   const [toastMessage, setToastMessage] = useState<string | React.ReactNode>();
 
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   enum ModalType {

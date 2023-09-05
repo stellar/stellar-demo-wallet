@@ -18,7 +18,7 @@ import {
 } from "ducks/activeAsset";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
-import { ActionStatus, Asset, SearchParams } from "types/types";
+import { ActionStatus, Asset, SearchParams } from "types/types.d";
 import { useRedux } from "hooks/useRedux";
 
 export const HomeDomainOverrideButtons = ({ asset }: { asset: Asset }) => {

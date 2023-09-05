@@ -11,7 +11,7 @@ import {
 } from "@stellar/design-system";
 import { resetStoreAction } from "config/store";
 import { getCurrentSessionParams } from "demo-wallet-shared/build/helpers/getCurrentSessionParams";
-import { SearchParams, StringObject } from "types/types";
+import { SearchParams, StringObject } from "types/types.d";
 
 export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
   const [sessionParams, setSessionParams] = useState<SearchParams[]>([]);

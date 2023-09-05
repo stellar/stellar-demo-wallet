@@ -12,7 +12,7 @@ import {
   ClaimAssetInitialState,
   ClaimableAsset,
   RejectMessage,
-} from "types/types";
+} from "types/types.d";
 
 export const claimAssetAction = createAsyncThunk<
   { result: any },

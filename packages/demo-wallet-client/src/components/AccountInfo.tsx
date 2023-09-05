@@ -17,14 +17,13 @@ import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
 
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
 import { useRedux } from "hooks/useRedux";
-import { AppDispatch } from "config/store";
-import { ActionStatus } from "types/types";
+import { ActionStatus } from "types/types.d";
 
 export const AccountInfo = () => {
   const { account } = useRedux("account");
   const [isAccountDetailsVisible, setIsAccountDetailsVisible] = useState(false);
 
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const handleRefreshAccount = useCallback(() => {
     if (account.data?.id) {

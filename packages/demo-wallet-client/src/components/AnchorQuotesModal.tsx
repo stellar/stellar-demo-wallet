@@ -8,8 +8,7 @@ import {
   fetchSep38QuotesPricesAction,
   postSep38QuoteAction,
 } from "ducks/sep38Quotes";
-import { AppDispatch } from "config/store";
-import { ActionStatus } from "types/types";
+import { ActionStatus } from "types/types.d";
 
 interface AnchorQuotesModalProps {
   token: string;
@@ -42,7 +41,7 @@ export const AnchorQuotesModal = ({
   const [assetCountryCode, setAssetCountryCode] = useState<string>();
   const [assetPrice, setAssetPrice] = useState<string>();
 
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const calculateTotal = (amount: string | number, rate: string | number) => {
     // TODO: Do we need to use precision from asset?

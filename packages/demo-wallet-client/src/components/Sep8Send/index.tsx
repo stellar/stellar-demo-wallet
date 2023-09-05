@@ -5,7 +5,7 @@ import { Sep8Review } from "components/Sep8Send/Sep8Review";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { resetSep8SendAction } from "ducks/sep8Send";
 import { useRedux } from "hooks/useRedux";
-import { Sep8Step } from "types/types";
+import { Sep8Step } from "types/types.d";
 
 export const Sep8Send = () => {
   const { sep8Send } = useRedux("sep8Send");

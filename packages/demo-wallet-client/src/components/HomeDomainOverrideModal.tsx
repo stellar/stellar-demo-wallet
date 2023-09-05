@@ -7,7 +7,7 @@ import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkCon
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
-import { Asset, SearchParams } from "types/types";
+import { Asset, SearchParams } from "types/types.d";
 
 export const HomeDomainOverrideModal = ({
   asset,

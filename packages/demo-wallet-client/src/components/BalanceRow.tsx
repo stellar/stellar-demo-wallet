@@ -7,7 +7,7 @@ import {
   ActiveAssetAction,
   AssetActionId,
   ClaimableAsset,
-} from "types/types";
+} from "types/types.d";
 
 interface BalanceRowProps {
   activeAction: ActiveAssetAction | undefined;

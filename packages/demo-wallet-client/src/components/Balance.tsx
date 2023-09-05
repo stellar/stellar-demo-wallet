@@ -10,14 +10,13 @@ import { initiateSendAction } from "ducks/sep31Send";
 import { withdrawAssetAction } from "ducks/sep24WithdrawAsset";
 import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import { useRedux } from "hooks/useRedux";
-import { AppDispatch } from "config/store";
 import {
   Asset,
   AssetActionItem,
   AssetActionId,
   AssetType,
   AssetCategory,
-} from "types/types";
+} from "types/types.d";
 
 interface SortedBalancesResult {
   native: Asset[];
@@ -43,7 +42,7 @@ export const Balance = ({
     (a) => a.category === AssetCategory.TRUSTED,
   );
 
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const groupBalances = () => {
     if (!allBalances) {

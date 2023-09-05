@@ -11,7 +11,7 @@ import {
   Asset,
   AllAssetsInitialState,
   AssetCategory,
-} from "types/types";
+} from "types/types.d";
 
 type IncludeAssetOverridesProps = {
   assets: Asset[];

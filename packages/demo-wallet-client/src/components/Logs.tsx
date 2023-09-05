@@ -6,12 +6,11 @@ import { LogItem } from "components/LogItem";
 import { LOG_MESSAGE_EVENT } from "demo-wallet-shared/build/constants/settings";
 import { clearLogsAction, addLogAction } from "ducks/logs";
 import { useRedux } from "hooks/useRedux";
-import { AppDispatch } from "config/store";
-import { LogItemProps } from "types/types";
+import { LogItemProps } from "types/types.d";
 
 export const Logs = () => {
   const { account, logs } = useRedux("account", "logs");
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const onLogEventMessage = (e: any) => {
