@@ -11,7 +11,7 @@ import { Sep31Send } from "components/Sep31Send";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { useRedux } from "hooks/useRedux";
-import { Asset } from "types/types.d";
+import { Asset } from "types/types";
 
 export const Account = () => {
   const { account } = useRedux("account");

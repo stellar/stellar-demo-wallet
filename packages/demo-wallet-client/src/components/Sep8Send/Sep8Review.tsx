@@ -9,14 +9,15 @@ import { fetchAccountAction } from "ducks/account";
 import { sep8SubmitRevisedTransactionAction } from "ducks/sep8Send";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, Sep8Step } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus, Sep8Step } from "types/types";
 
 export const Sep8Review = ({ onClose }: { onClose: () => void }) => {
   const { account, sep8Send } = useRedux("account", "sep8Send");
   const [submittedTx, setSubmittedTx] = useState<Transaction | undefined>();
   const [revisedTx, setRevisedTx] = useState<Transaction | undefined>();
   const [isApproved, setIsApproved] = useState(false);
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
   const { revisedTxXdr, submittedTxXdr } = sep8Send.data.revisedTransaction;
   const { sep8Step } = sep8Send.data;
 

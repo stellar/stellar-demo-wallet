@@ -17,7 +17,7 @@ import {
   AnchorQuoteRequest,
   RejectMessage,
   Sep38QuotesInitialState,
-} from "types/types.d";
+} from "types/types";
 
 export const fetchSep38QuotesInfoAction = createAsyncThunk<
   {

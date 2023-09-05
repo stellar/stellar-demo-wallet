@@ -10,7 +10,7 @@ import {
   PaymentTransactionParams,
   SendPaymentInitialState,
   RejectMessage,
-} from "types/types.d";
+} from "types/types";
 
 export const sendPaymentAction = createAsyncThunk<
   Horizon.TransactionResponse,

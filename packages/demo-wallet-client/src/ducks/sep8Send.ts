@@ -20,7 +20,7 @@ import {
   Sep8PaymentTransactionParams,
   Sep8SendInitialState,
   Sep8Step,
-} from "types/types.d";
+} from "types/types";
 
 interface InitiateSep8SendActionResponse {
   approvalCriteria: string;

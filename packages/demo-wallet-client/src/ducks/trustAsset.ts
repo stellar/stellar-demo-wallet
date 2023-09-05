@@ -9,7 +9,7 @@ import {
   RejectMessage,
   TrustAssetInitialState,
   TrustAssetParam,
-} from "types/types.d";
+} from "types/types";
 
 interface TrustAssetActionResponse {
   assetString: string;

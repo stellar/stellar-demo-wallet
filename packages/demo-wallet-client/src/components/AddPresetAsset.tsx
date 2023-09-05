@@ -14,7 +14,7 @@ import { getValidatedUntrustedAsset } from "demo-wallet-shared/build/helpers/get
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, presetAsset, SearchParams } from "types/types.d";
+import { ActionStatus, presetAsset, SearchParams } from "types/types";
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
 
 export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {

@@ -29,7 +29,7 @@ export const checkTomlForFields = async ({
     title: `Checking the \`stellar.toml\` to find the necessary information for the ${sepName} transaction`,
   });
 
-  const tomlResponse = await getToml(homeDomainParam);
+  const tomlResponse: AnyObject = await getToml(homeDomainParam);
   const missingKeys: string[] = [];
 
   const result = requiredKeys.reduce((res: AnyObject, key) => {

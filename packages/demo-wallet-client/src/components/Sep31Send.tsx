@@ -28,7 +28,8 @@ import {
 
 import { capitalizeString } from "demo-wallet-shared/build/helpers/capitalizeString";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus } from "types/types";
 
 enum CustomerType {
   SENDER = "sender",
@@ -48,7 +49,7 @@ export const Sep31Send = () => {
   });
 
   const { data } = sep31Send;
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
     if (sep31Send.status === ActionStatus.CAN_PROCEED) {
@@ -331,8 +332,8 @@ export const Sep31Send = () => {
                     <Input
                       key={`${sectionTitle}#${id}`}
                       id={`${sectionTitle}#${id}`}
-                      label={input.description}
-                      required={!input.optional}
+                      label={(input as any).description}
+                      required={!(input as any).optional}
                       onChange={handleChange}
                     />
                   ))}
