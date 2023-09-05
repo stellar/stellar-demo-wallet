@@ -80,5 +80,5 @@ export const store = configureStore({
 });
 
 export const walletBackendEndpoint: string =
-  process.env.REACT_APP_WALLET_BACKEND_ENDPOINT ?? "";
-export const clientDomain: string = process.env.REACT_APP_CLIENT_DOMAIN ?? "";
+  window._env_.WALLET_BACKEND_ENDPOINT ?? "";
+export const clientDomain: string = window._env_.CLIENT_DOMAIN ?? "";
