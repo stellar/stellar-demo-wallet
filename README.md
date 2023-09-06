@@ -24,7 +24,7 @@ This application can be used on Stellar's mainnet by setting
 **HORIZON_PASSPHRASE** & **HORIZON_URL** on `window._env_` object (this project
 uses _packages/demo-wallet-client/public/settings/env-config.js_ file).
 
-```json
+```typescript
 window._env_ = {
   HORIZON_PASSPHRASE: "Public Global Stellar Network ; September 2015",
   HORIZON_URL: "https://horizon.stellar.org",
@@ -149,10 +149,10 @@ _docker.for.mac.host.internal_, this will allow the anchor that's running in a
 docker container to access the host network where the client domain (server
 hosting the `stellar.toml`) is running. ex:
 
-```json
+```typescript
 window._env_ = {
   CLIENT_DOMAIN: "docker.for.mac.host.internal:7000",
-  WALLET_BACKEND_ENDPOINT: "http://demo-wallet-server.stellar.org"
+  WALLET_BACKEND_ENDPOINT: "http://demo-wallet-server.stellar.org",
 };
 ```
 
