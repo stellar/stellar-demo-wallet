@@ -12,17 +12,17 @@
   "dependencies": {
     "@stellar/frontend-helpers": "^2.1.4",
     "@stellar/prettier-config": "^1.0.1",
-    "@stellar/wallet-sdk": "^0.7.0-rc.0",
-    "bignumber.js": "^9.0.2",
+    "@stellar/wallet-sdk": "^0.9.1",
+    "bignumber.js": "^9.1.1",
     "crypto": "^1.0.1",
-    "dompurify": "^2.3.5",
-    "html-react-parser": "^1.4.8",
+    "dompurify": "^3.0.5",
+    "html-react-parser": "^4.2.1",
     "lodash": "^4.17.21",
-    "marked": "^4.0.12",
-    "rimraf": "^3.0.2",
-    "stellar-sdk": "^10.1.1",
+    "marked": "^7.0.3",
+    "rimraf": "^5.0.1",
+    "stellar-sdk": "^10.4.1",
     "toml": "^3.0.0",
-    "tslib": "^2.3.1",
-    "typescript": "~4.5.5"
+    "tslib": "^2.6.1",
+    "typescript": "~5.1.6"
   }
 }

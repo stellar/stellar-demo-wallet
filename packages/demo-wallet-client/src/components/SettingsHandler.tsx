@@ -8,7 +8,8 @@ import { updateSettingsAction } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, SearchParams } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus, SearchParams } from "types/types";
 
 export const SettingsHandler = ({
   children,
@@ -17,7 +18,7 @@ export const SettingsHandler = ({
 }) => {
   const { account } = useRedux("account");
 
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 

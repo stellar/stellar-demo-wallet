@@ -29,6 +29,7 @@ import { reducer as custodial } from "ducks/custodial";
 
 const RESET_STORE_ACTION_TYPE = "RESET";
 export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
 const isSerializable = (value: any) => {
   // activeAsset has callback function and description can be a component
@@ -79,5 +80,5 @@ export const store = configureStore({
 });
 
 export const walletBackendEndpoint: string =
-  process.env.REACT_APP_WALLET_BACKEND_ENDPOINT ?? "";
-export const clientDomain: string = process.env.REACT_APP_CLIENT_DOMAIN ?? "";
+  window._env_.WALLET_BACKEND_ENDPOINT ?? "";
+export const clientDomain: string = window._env_.CLIENT_DOMAIN ?? "";

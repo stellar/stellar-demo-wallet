@@ -16,6 +16,7 @@ import {
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
+import { AppDispatch } from "config/store";
 import {
   ActionStatus,
   Asset,
@@ -23,7 +24,7 @@ import {
   AssetActionId,
   SearchParams,
   AssetCategory,
-} from "types/types.d";
+} from "types/types";
 
 export const UntrustedBalance = ({
   onAssetAction,
@@ -44,7 +45,7 @@ export const UntrustedBalance = ({
     "trustAsset",
   );
 
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
 
   const allUntrustedAssets = allAssets.data.filter(

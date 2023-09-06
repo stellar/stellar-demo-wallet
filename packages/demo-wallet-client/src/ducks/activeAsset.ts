@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
-import { ActiveAssetInitialState } from "types/types.d";
+import { ActiveAssetInitialState } from "types/types";
 
 const initialState: ActiveAssetInitialState = {
   action: undefined,

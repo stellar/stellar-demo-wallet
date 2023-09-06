@@ -19,7 +19,8 @@ import {
 } from "ducks/sep6WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
-import { ActionStatus, AnyObject } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus, AnyObject } from "types/types";
 
 export const Sep6Withdraw = () => {
   const { sep6WithdrawAsset } = useRedux("sep6WithdrawAsset");
@@ -45,7 +46,7 @@ export const Sep6Withdraw = () => {
 
   const [formData, setFormData] = useState<FormData>(formInitialState);
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   const withdrawTypes = useMemo(
     () => sep6WithdrawAsset.data.withdrawTypes?.types || { fields: {} },
@@ -194,7 +195,7 @@ export const Sep6Withdraw = () => {
               <Input
                 key={field}
                 id={field}
-                label={fieldInfo?.description}
+                label={(fieldInfo as any)?.description}
                 required
                 onChange={handleInfoFieldChange}
               />
@@ -226,7 +227,7 @@ export const Sep6Withdraw = () => {
                 <Input
                   key={field}
                   id={field}
-                  label={fieldInfo?.description}
+                  label={(fieldInfo as any)?.description}
                   required
                   onChange={handleCustomerFieldChange}
                 />

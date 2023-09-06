@@ -3,6 +3,19 @@ import { Horizon } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 import { Sep9Field } from "demo-wallet-shared/build/helpers/Sep9Fields";
 
+declare global {
+  interface Window {
+    _env_: {
+      AMPLITUDE_API_KEY: string;
+      SENTRY_API_KEY: string;
+      HORIZON_PASSPHRASE?: string;
+      HORIZON_URL?: string;
+      WALLET_BACKEND_ENDPOINT?: string;
+      CLIENT_DOMAIN?: string;
+    };
+  }
+}
+
 export enum SearchParams {
   SECRET_KEY = "secretKey",
   UNTRUSTED_ASSETS = "untrustedAssets",
@@ -174,7 +187,7 @@ export interface CustomerTypeItem {
   description: string;
 }
 
-interface Sep6DepositResponse {
+export interface Sep6DepositResponse {
   /* eslint-disable camelcase */
   how: string;
   id?: string;
@@ -210,7 +223,7 @@ export interface Sep6DepositAssetInitialState {
   status: ActionStatus;
 }
 
-interface Sep6WithdrawResponse {
+export interface Sep6WithdrawResponse {
   /* eslint-disable camelcase */
   account_id: string;
   id?: string;

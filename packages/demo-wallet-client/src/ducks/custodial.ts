@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
-import { CustodialInitialState, AnyObject } from "types/types.d";
+import { CustodialInitialState, AnyObject } from "types/types";
 
 const initialState: CustodialInitialState = {
   isEnabled: false,

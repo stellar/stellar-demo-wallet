@@ -1,11 +1,14 @@
-import { Asset } from "stellar-sdk";
+import { Asset, StellarTomlResolver } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 import { checkAssetExists } from "./checkAssetExists";
 import { getCurrenciesFromDomain } from "./getCurrenciesFromDomain";
 import { getOverrideHomeDomain } from "./getOverrideHomeDomain";
 import { isNativeAsset } from "./isNativeAsset";
 
-const getAssetListString = (assetsArray: Asset[], key: "code" | "issuer") =>
+const getAssetListString = (
+  assetsArray: Asset[] | StellarTomlResolver.Currency[],
+  key: "code" | "issuer",
+) =>
   assetsArray && assetsArray.length
     ? assetsArray.map((a) => a[key]).join(", ")
     : "";
@@ -85,7 +88,7 @@ export const getAssetFromHomeDomain = async ({
       if (!isNative) {
         await checkAssetExists({
           assetCode,
-          assetIssuer: issuer,
+          assetIssuer: issuer!,
           networkUrl,
           accountBalances,
         });
@@ -93,11 +96,11 @@ export const getAssetFromHomeDomain = async ({
 
       return {
         assetCode,
-        assetIssuer: issuer,
+        assetIssuer: issuer!,
         homeDomain: isNative
           ? undefined
           : await getOverrideHomeDomain({
-              assetIssuer: issuer,
+              assetIssuer: issuer!,
               homeDomain,
               networkUrl,
             }),

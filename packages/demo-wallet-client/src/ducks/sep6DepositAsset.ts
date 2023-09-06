@@ -30,7 +30,7 @@ import {
   TomlFields,
   AnchorActionType,
   AnyObject,
-} from "types/types.d";
+} from "types/types";
 
 type InitiateDepositActionPayload = Sep6DepositAssetInitialState["data"] & {
   status: ActionStatus;

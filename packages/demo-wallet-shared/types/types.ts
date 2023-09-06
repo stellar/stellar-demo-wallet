@@ -3,6 +3,19 @@ import { Horizon } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 import { Sep9Field } from "../helpers/Sep9Fields";
 
+declare global {
+  interface Window {
+    _env_: {
+      AMPLITUDE_API_KEY: string;
+      SENTRY_API_KEY: string;
+      HORIZON_PASSPHRASE?: string;
+      HORIZON_URL?: string;
+      WALLET_BACKEND_ENDPOINT?: string;
+      CLIENT_DOMAIN?: string;
+    };
+  }
+}
+
 export enum SearchParams {
   SECRET_KEY = "secretKey",
   UNTRUSTED_ASSETS = "untrustedAssets",

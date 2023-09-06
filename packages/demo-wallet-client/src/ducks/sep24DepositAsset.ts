@@ -26,7 +26,7 @@ import {
   RejectMessage,
   TomlFields,
   AnchorActionType,
-} from "types/types.d";
+} from "types/types";
 
 export const depositAssetAction = createAsyncThunk<
   { currentStatus: string; trustedAssetAdded?: string },

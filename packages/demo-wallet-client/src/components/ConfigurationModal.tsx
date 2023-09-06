@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Modal, Toggle } from "@stellar/design-system";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { SearchParams } from "types/types.d";
+import { SearchParams } from "types/types";
 
 export const ConfigurationModal = ({ onClose }: { onClose: () => void }) => {
   const { settings } = useRedux("settings");

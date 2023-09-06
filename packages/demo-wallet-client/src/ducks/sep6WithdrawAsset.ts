@@ -30,7 +30,7 @@ import {
   AnchorActionType,
   AnyObject,
   TransactionStatus,
-} from "types/types.d";
+} from "types/types";
 
 type InitiateWithdrawActionPayload = Sep6WithdrawAssetInitialState["data"] & {
   status: ActionStatus;
