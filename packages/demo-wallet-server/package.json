@@ -22,6 +22,7 @@
     "copy-static-files": "mkdir -p ./build/src/static/well-known/ && cp ./src/static/well_known/* ./build/src/static/well-known/"
   },
   "dependencies": {
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "stellar-sdk": "^10.4.1",
     "ts-node": "^10.9.1",
