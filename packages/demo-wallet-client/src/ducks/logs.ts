@@ -27,7 +27,14 @@ const logsSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(addLogAction.fulfilled, (state, action) => {
-      state.items = [...state.items, action.payload];
+      // Make sure we're not duplicating logs
+      const currentLogId = `${action.payload.type}-${action.payload.title}`;
+      const previousLog = [...state.items]?.pop();
+      const previousLogId = `${previousLog?.type}-${previousLog?.title}`;
+
+      if (currentLogId !== previousLogId) {
+        state.items = [...state.items, action.payload];
+      }
       state.status = ActionStatus.SUCCESS;
     });
   },

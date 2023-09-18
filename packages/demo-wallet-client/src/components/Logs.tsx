@@ -29,11 +29,9 @@ export const Logs = () => {
 
     document.addEventListener(LOG_MESSAGE_EVENT, onLogEventMessage);
 
-    return document.removeEventListener(
-      LOG_MESSAGE_EVENT,
-      onLogEventMessage,
-      true,
-    );
+    return () => {
+      document.removeEventListener(LOG_MESSAGE_EVENT, onLogEventMessage);
+    };
   }, [dispatch]);
 
   const logsToMarkdown = (logItems: LogItemProps[]) => {
