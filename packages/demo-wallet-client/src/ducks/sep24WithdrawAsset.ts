@@ -4,6 +4,7 @@ import { accountSelector } from "ducks/account";
 import { custodialSelector } from "ducks/custodial";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import {
   sep10AuthStart,
@@ -91,14 +92,12 @@ export const withdrawAssetAction = createAsyncThunk<
           "SEP-24 withdrawal is enabled, and requires authentication so we should go through SEP-10",
       });
 
-      const serviceDomain = new URL(tomlResponse.TRANSFER_SERVER_SEP0024).host;
-
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
         serverSigningKey: tomlResponse.SIGNING_KEY,
         publicKey: custodialPublicKey || publicKey,
-        homeDomain: serviceDomain,
+        homeDomain: normalizeHomeDomainUrl(homeDomain).host,
         clientDomain,
         memoId: custodialMemoId,
       });
