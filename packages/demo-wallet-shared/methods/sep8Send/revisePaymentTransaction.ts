@@ -1,4 +1,4 @@
-import StellarSdk, { Transaction } from "stellar-sdk";
+import { Server, Transaction } from "stellar-sdk";
 import { getErrorString } from "../../helpers/getErrorString";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 import { log } from "../../helpers/log";
@@ -15,7 +15,7 @@ export const revisePaymentTransaction = async ({
 }: {
   params: Sep8PaymentTransactionParams;
 }): Promise<Sep8ApprovalResponse> => {
-  const server = new StellarSdk.Server(getNetworkConfig().url);
+  const server = new Server(getNetworkConfig().url);
   const { approvalServer } = params;
 
   // build transaction
