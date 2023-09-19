@@ -20,7 +20,7 @@
     "lodash": "^4.17.21",
     "marked": "^7.0.3",
     "rimraf": "^5.0.1",
-    "stellar-sdk": "^10.4.1",
+    "stellar-sdk": "^11.0.0-beta.3",
     "toml": "^3.0.0",
     "tslib": "^2.6.1",
     "typescript": "~5.1.6"

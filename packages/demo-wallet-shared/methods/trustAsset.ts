@@ -1,9 +1,10 @@
-import StellarSdk, {
+import {
   TransactionBuilder,
   BASE_FEE,
   Operation,
   Asset,
   Keypair,
+  Server,
 } from "stellar-sdk";
 import { getErrorMessage } from "../helpers/getErrorMessage";
 import { log } from "../helpers/log";
@@ -25,7 +26,7 @@ export const trustAsset = async ({
       title: `Adding \`${untrustedAsset.assetCode}:${untrustedAsset.assetIssuer}\` trustline`,
     });
     const keypair = Keypair.fromSecret(secretKey);
-    const server = new StellarSdk.Server(networkUrl);
+    const server = new Server(networkUrl);
 
     log.instruction({
       title:

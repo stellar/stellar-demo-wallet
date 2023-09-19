@@ -139,7 +139,7 @@ export interface LogsInitialState {
 }
 
 export interface SendPaymentInitialState {
-  data: Horizon.TransactionResponse | null;
+  data: Horizon.SubmitTransactionResponse | null;
   errorString?: string;
   status: ActionStatus | undefined;
 }

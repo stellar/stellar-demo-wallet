@@ -13,7 +13,7 @@ import {
 } from "types/types";
 
 export const sendPaymentAction = createAsyncThunk<
-  Horizon.TransactionResponse,
+  Horizon.SubmitTransactionResponse,
   PaymentTransactionParams,
   { rejectValue: RejectMessage; state: RootState }
 >(

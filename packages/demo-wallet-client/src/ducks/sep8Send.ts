@@ -122,7 +122,7 @@ export const sep8ReviseTransactionAction = createAsyncThunk<
 );
 
 export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
-  Horizon.TransactionResponse,
+  Horizon.SubmitTransactionResponse,
   undefined,
   { rejectValue: RejectMessage; state: RootState }
 >(
