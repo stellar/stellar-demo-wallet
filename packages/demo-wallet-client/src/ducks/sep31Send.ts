@@ -3,6 +3,7 @@ import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
 import { accountSelector } from "ducks/account";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
 import { log } from "demo-wallet-shared/build/helpers/log";
 
 import {
@@ -221,16 +222,15 @@ export const fetchSendFieldsAction = createAsyncThunk<
         senderType,
         receiverType,
         fields,
+        homeDomain,
       } = data;
-
-      const serviceDomain = new URL(kycServer).host;
 
       // SEP-10 start
       const challengeTransaction = await sep10AuthStart({
         authEndpoint,
         serverSigningKey,
         publicKey,
-        homeDomain: serviceDomain,
+        homeDomain: normalizeHomeDomainUrl(homeDomain).host,
         clientDomain,
       });
 
