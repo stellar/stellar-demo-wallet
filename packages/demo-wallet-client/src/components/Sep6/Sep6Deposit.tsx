@@ -11,6 +11,7 @@ import {
 } from "@stellar/design-system";
 
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
+import { KycField, KycFieldInput } from "components/KycFieldInput";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6DepositAction,
@@ -259,21 +260,13 @@ export const Sep6Deposit = () => {
           ) : null}
           <div className="vertical-spacing">
             {Object.entries(sep6DepositAsset.data.customerFields || {}).map(
-              ([id, input]) => {
-                const label = `${(input as any).description}${
-                  input.optional ? " (optional)" : ""
-                }`;
-
-                return (
-                  <Input
-                    key={id}
-                    id={id}
-                    label={label}
-                    required={!(input as any).optional}
-                    onChange={handleCustomerFieldChange}
-                  />
-                );
-              },
+              ([id, input]) => (
+                <KycFieldInput
+                  id={id}
+                  input={input as KycField}
+                  onChange={handleCustomerFieldChange}
+                />
+              ),
             )}
           </div>
         </Modal.Body>

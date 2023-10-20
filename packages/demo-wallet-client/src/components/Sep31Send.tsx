@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   Button,
-  Input,
   TextLink,
   Modal,
   RadioButton,
@@ -11,6 +10,7 @@ import {
 } from "@stellar/design-system";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { AnchorQuotesModal } from "components/AnchorQuotesModal";
+import { KycField, KycFieldInput } from "components/KycFieldInput";
 
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
@@ -327,22 +327,13 @@ export const Sep31Send = () => {
               return (
                 <div className="vertical-spacing" key={sectionTitle}>
                   <Heading3>{capitalizeString(sectionTitle)}</Heading3>
-                  {Object.entries(sectionItems || {}).map(([id, input]) => {
-                    const label = `${(input as any).description}${
-                      input.optional ? " (optional)" : ""
-                    }`;
-
-                    return (
-                      // TODO: if input.choices, render Select
-                      <Input
-                        key={`${sectionTitle}#${id}`}
-                        id={`${sectionTitle}#${id}`}
-                        label={label}
-                        required={!(input as any).optional}
-                        onChange={handleChange}
-                      />
-                    );
-                  })}
+                  {Object.entries(sectionItems || {}).map(([id, input]) => (
+                    <KycFieldInput
+                      id={`${sectionTitle}#${id}`}
+                      input={input as KycField}
+                      onChange={handleChange}
+                    />
+                  ))}
                 </div>
               );
             })}

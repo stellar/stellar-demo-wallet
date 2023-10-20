@@ -10,6 +10,7 @@ import {
   DetailsTooltip,
 } from "@stellar/design-system";
 import { ErrorMessage } from "components/ErrorMessage";
+import { KycField, KycFieldInput } from "components/KycFieldInput";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -223,21 +224,13 @@ export const Sep6Withdraw = () => {
 
           <div className="vertical-spacing">
             {Object.entries(sep6WithdrawAsset.data.fields || {}).map(
-              ([field, fieldInfo]) => {
-                const label = `${(fieldInfo as any).description}${
-                  fieldInfo.optional ? " (optional)" : ""
-                }`;
-
-                return (
-                  <Input
-                    key={field}
-                    id={field}
-                    label={label}
-                    required={!(fieldInfo as any).optional}
-                    onChange={handleCustomerFieldChange}
-                  />
-                );
-              },
+              ([field, fieldInfo]) => (
+                <KycFieldInput
+                  id={field}
+                  input={fieldInfo as KycField}
+                  onChange={handleCustomerFieldChange}
+                />
+              ),
             )}
           </div>
 
