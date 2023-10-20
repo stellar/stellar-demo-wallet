@@ -259,15 +259,21 @@ export const Sep6Deposit = () => {
           ) : null}
           <div className="vertical-spacing">
             {Object.entries(sep6DepositAsset.data.customerFields || {}).map(
-              ([id, input]) => (
-                <Input
-                  key={id}
-                  id={id}
-                  label={(input as any).description}
-                  required
-                  onChange={handleCustomerFieldChange}
-                />
-              ),
+              ([id, input]) => {
+                const label = `${(input as any).description}${
+                  input.optional ? " (optional)" : ""
+                }`;
+
+                return (
+                  <Input
+                    key={id}
+                    id={id}
+                    label={label}
+                    required={!(input as any).optional}
+                    onChange={handleCustomerFieldChange}
+                  />
+                );
+              },
             )}
           </div>
         </Modal.Body>

@@ -223,15 +223,21 @@ export const Sep6Withdraw = () => {
 
           <div className="vertical-spacing">
             {Object.entries(sep6WithdrawAsset.data.fields || {}).map(
-              ([field, fieldInfo]) => (
-                <Input
-                  key={field}
-                  id={field}
-                  label={(fieldInfo as any)?.description}
-                  required
-                  onChange={handleCustomerFieldChange}
-                />
-              ),
+              ([field, fieldInfo]) => {
+                const label = `${(fieldInfo as any).description}${
+                  fieldInfo.optional ? " (optional)" : ""
+                }`;
+
+                return (
+                  <Input
+                    key={field}
+                    id={field}
+                    label={label}
+                    required={!(fieldInfo as any).optional}
+                    onChange={handleCustomerFieldChange}
+                  />
+                );
+              },
             )}
           </div>
 

@@ -327,16 +327,22 @@ export const Sep31Send = () => {
               return (
                 <div className="vertical-spacing" key={sectionTitle}>
                   <Heading3>{capitalizeString(sectionTitle)}</Heading3>
-                  {Object.entries(sectionItems || {}).map(([id, input]) => (
-                    // TODO: if input.choices, render Select
-                    <Input
-                      key={`${sectionTitle}#${id}`}
-                      id={`${sectionTitle}#${id}`}
-                      label={(input as any).description}
-                      required={!(input as any).optional}
-                      onChange={handleChange}
-                    />
-                  ))}
+                  {Object.entries(sectionItems || {}).map(([id, input]) => {
+                    const label = `${(input as any).description}${
+                      input.optional ? " (optional)" : ""
+                    }`;
+
+                    return (
+                      // TODO: if input.choices, render Select
+                      <Input
+                        key={`${sectionTitle}#${id}`}
+                        id={`${sectionTitle}#${id}`}
+                        label={label}
+                        required={!(input as any).optional}
+                        onChange={handleChange}
+                      />
+                    );
+                  })}
                 </div>
               );
             })}
