@@ -23,7 +23,6 @@ const getInputType = (type: KycFieldType) => {
     case "number":
       return "number";
     case "string":
-      return;
     default:
       return "text";
   }
