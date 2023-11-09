@@ -21,7 +21,7 @@ import {
 } from "ducks/sep6DepositAsset";
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
-import { ActionStatus, SepInstructions } from "types/types";
+import { ActionStatus } from "types/types";
 
 export const Sep6Deposit = () => {
   const { sep6DepositAsset } = useRedux("sep6DepositAsset");
@@ -163,13 +163,6 @@ export const Sep6Deposit = () => {
     }
 
     return `Min: ${minAmount} | Max: ${maxAmount}`;
-  };
-
-  const renderInstructions = (instructions: SepInstructions) => {
-    if (instructions) {
-    }
-
-    return null;
   };
 
   if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
