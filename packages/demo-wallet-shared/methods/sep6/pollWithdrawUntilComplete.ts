@@ -35,6 +35,7 @@ export const pollWithdrawUntilComplete = async ({
   const keypair = Keypair.fromSecret(secretKey);
   const server = new Server(networkUrl);
   let currentStatus = TransactionStatus.INCOMPLETE;
+  let requiredCustomerInfoUpdates: string[] | undefined;
 
   const transactionUrl = new URL(
     `${transferServerUrl}/transaction?id=${transactionId}`,
@@ -43,7 +44,11 @@ export const pollWithdrawUntilComplete = async ({
     title: `Polling for updates \`${transactionUrl.toString()}\``,
   });
 
-  const endStatuses = [TransactionStatus.COMPLETED, TransactionStatus.ERROR];
+  const endStatuses = [
+    TransactionStatus.COMPLETED,
+    TransactionStatus.ERROR,
+    TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE,
+  ];
   let transactionJson = { transaction: {} as AnyObject };
 
   while (!endStatuses.includes(currentStatus)) {
@@ -146,6 +151,17 @@ export const pollWithdrawUntilComplete = async ({
           });
           break;
         }
+        case TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE: {
+          requiredCustomerInfoUpdates =
+            transactionJson.transaction.required_customer_info_updates;
+
+          log.instruction({
+            title:
+              "Certain pieces of information need to be updated by the user",
+            body: requiredCustomerInfoUpdates,
+          });
+          break;
+        }
         case TransactionStatus.ERROR: {
           log.instruction({
             title: "There was a problem processing your transaction",
@@ -161,6 +177,14 @@ export const pollWithdrawUntilComplete = async ({
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
-  log.instruction({ title: `Transaction status \`${currentStatus}\`` });
-  return { currentStatus, transaction: transactionJson.transaction };
+  // We are showing log for this status in switch
+  if (currentStatus !== TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE) {
+    log.instruction({ title: `Transaction status \`${currentStatus}\`` });
+  }
+
+  return {
+    currentStatus,
+    transaction: transactionJson.transaction,
+    requiredCustomerInfoUpdates,
+  };
 };

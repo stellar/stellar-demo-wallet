@@ -240,6 +240,7 @@ export const sep6WithdrawAction = createAsyncThunk<
     currentStatus: TransactionStatus;
     transactionResponse: AnyObject;
     status: ActionStatus;
+    requiredCustomerInfoUpdates: string[] | undefined;
   },
   string,
   { rejectValue: RejectMessage; state: RootState }
@@ -260,22 +261,27 @@ export const sep6WithdrawAction = createAsyncThunk<
       } = sep6Data;
 
       // Poll transaction until complete
-      const { currentStatus, transaction } = await pollWithdrawUntilComplete({
-        amount,
-        secretKey,
-        transactionId: withdrawResponse?.id || "",
-        token,
-        transferServerUrl,
-        networkPassphrase: networkConfig.network,
-        networkUrl: networkConfig.url,
-        assetCode,
-        assetIssuer,
-      });
+      const { currentStatus, transaction, requiredCustomerInfoUpdates } =
+        await pollWithdrawUntilComplete({
+          amount,
+          secretKey,
+          transactionId: withdrawResponse?.id || "",
+          token,
+          transferServerUrl,
+          networkPassphrase: networkConfig.network,
+          networkUrl: networkConfig.url,
+          assetCode,
+          assetIssuer,
+        });
 
       return {
         currentStatus,
         transactionResponse: transaction,
-        status: ActionStatus.SUCCESS,
+        status:
+          currentStatus === TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE
+            ? ActionStatus.NEEDS_INPUT
+            : ActionStatus.SUCCESS,
+        requiredCustomerInfoUpdates,
       };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
@@ -283,6 +289,44 @@ export const sep6WithdrawAction = createAsyncThunk<
       log.error({
         title: "SEP-6 withdrawal failed",
         body: errorMessage,
+      });
+
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
+export const submitSep6WithdrawCustomerInfoFields = createAsyncThunk<
+  { status: ActionStatus },
+  AnyObject,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep6WithdrawAsset/submitSep6WithdrawCustomerInfoFields",
+  async (customerFields, { rejectWithValue, getState }) => {
+    try {
+      const { secretKey } = accountSelector(getState());
+      const { data: sep6Data } = sepWithdrawSelector(getState());
+      const { kycServer, token } = sep6Data;
+
+      if (Object.keys(customerFields).length) {
+        await putSep12FieldsRequest({
+          fields: customerFields,
+          kycServer,
+          secretKey,
+          token,
+        });
+      }
+
+      return {
+        status: ActionStatus.CAN_PROCEED,
+      };
+    } catch (e) {
+      const errorMessage = getErrorMessage(e);
+
+      log.error({
+        title: errorMessage,
       });
 
       return rejectWithValue({
@@ -307,6 +351,7 @@ const initialState: Sep6WithdrawAssetInitialState = {
     token: "",
     transactionResponse: {},
     withdrawResponse: { account_id: "" },
+    requiredCustomerInfoUpdates: undefined,
   },
   status: undefined,
   errorString: undefined,
@@ -331,6 +376,7 @@ const sep6WithdrawAssetSlice = createSlice({
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
     builder.addCase(submitSep6WithdrawFields.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
@@ -343,6 +389,25 @@ const sep6WithdrawAssetSlice = createSlice({
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
+    builder.addCase(submitSep6WithdrawCustomerInfoFields.pending, (state) => {
+      state.errorString = undefined;
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(
+      submitSep6WithdrawCustomerInfoFields.fulfilled,
+      (state, action) => {
+        state.status = action.payload.status;
+      },
+    );
+    builder.addCase(
+      submitSep6WithdrawCustomerInfoFields.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
+
     builder.addCase(sep6WithdrawAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
@@ -351,6 +416,11 @@ const sep6WithdrawAssetSlice = createSlice({
       state.status = action.payload.status;
       state.data.currentStatus = action.payload.currentStatus;
       state.data.transactionResponse = action.payload.transactionResponse;
+      state.data.requiredCustomerInfoUpdates =
+        action.payload.requiredCustomerInfoUpdates?.map((field) => ({
+          ...state.data.fields[field],
+          id: field,
+        }));
     });
     builder.addCase(sep6WithdrawAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;

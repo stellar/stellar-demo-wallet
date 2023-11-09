@@ -17,6 +17,7 @@ import {
   resetSep6WithdrawAction,
   submitSep6WithdrawFields,
   sep6WithdrawAction,
+  submitSep6WithdrawCustomerInfoFields,
 } from "ducks/sep6WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
@@ -154,7 +155,45 @@ export const Sep6Withdraw = () => {
     dispatch(sep6WithdrawAction(withdrawAmount));
   };
 
+  const handleSubmitCustomerInfo = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    dispatch(submitSep6WithdrawCustomerInfoFields(formData.customerFields));
+  };
+
   if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {
+    if (
+      sep6WithdrawAsset.data.requiredCustomerInfoUpdates &&
+      sep6WithdrawAsset.data.requiredCustomerInfoUpdates.length
+    ) {
+      return (
+        <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+          <Modal.Heading>SEP-6 Update Customer Info</Modal.Heading>
+          <Modal.Body>
+            <div className="vertical-spacing">
+              {sep6WithdrawAsset.data.requiredCustomerInfoUpdates.map(
+                (input) => (
+                  <KycFieldInput
+                    id={input.id}
+                    input={input as KycField}
+                    onChange={handleCustomerFieldChange}
+                    isRequired={true}
+                  />
+                ),
+              )}
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={handleSubmitCustomerInfo}>Submit</Button>
+            <Button onClick={handleClose} variant={Button.variant.secondary}>
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      );
+    }
+
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
         <Modal.Heading>SEP-6 Withdrawal Info</Modal.Heading>
@@ -245,6 +284,54 @@ export const Sep6Withdraw = () => {
   }
 
   if (sep6WithdrawAsset.status === ActionStatus.CAN_PROCEED) {
+    if (sep6WithdrawAsset.data.requiredCustomerInfoUpdates) {
+      return (
+        <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+          <Modal.Heading>Complete withdrawal</Modal.Heading>
+
+          <Modal.Body>
+            <div className="vertical-spacing">
+              <strong>Sending Payment To: </strong>
+
+              {shortenStellarKey(withdrawResponse.account_id)}
+            </div>
+
+            {withdrawResponse.id && (
+              <div className="vertical-spacing">
+                <strong>Transaction ID: </strong>
+                {withdrawResponse.id}
+              </div>
+            )}
+            {withdrawResponse.extra_info?.message && (
+              <div className="vertical-spacing">
+                {withdrawResponse.extra_info.message}
+              </div>
+            )}
+
+            {withdrawResponse.memo_type && (
+              <div className="vertical-spacing">
+                <strong>Memo Type: </strong>
+
+                {withdrawResponse.memo_type}
+              </div>
+            )}
+
+            {withdrawResponse.memo && (
+              <div className="vertical-spacing">
+                <strong>Memo: </strong>
+
+                {withdrawResponse.memo}
+              </div>
+            )}
+          </Modal.Body>
+
+          <Modal.Footer>
+            <Button onClick={handleAmountSubmit}>Submit</Button>
+          </Modal.Footer>
+        </Modal>
+      );
+    }
+
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
         <Modal.Heading>Payment Sending</Modal.Heading>
