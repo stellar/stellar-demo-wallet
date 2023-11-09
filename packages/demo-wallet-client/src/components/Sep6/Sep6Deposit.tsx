@@ -343,30 +343,23 @@ export const Sep6Deposit = () => {
     );
   }
 
-  if (
-    sep6DepositAsset.status === ActionStatus.SUCCESS &&
-    sep6DepositAsset.data.instructions
-  ) {
+  if (sep6DepositAsset.data.instructions) {
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>SEP-6 Deposit Success</Modal.Heading>
+        <Modal.Heading>SEP-6 Deposit Instructions</Modal.Heading>
 
         <Modal.Body>
-          {sep6DepositAsset.data.instructions ? (
-            <>
-              <p>Transfer your offchain funds to the following destination:</p>
-              <div className="vertical-spacing">
-                {Object.entries(sep6DepositAsset.data.instructions).map(
-                  ([key, instr]) => (
-                    <div key={key}>
-                      <label>{instr.description}</label>
-                      <span>{instr.value}</span>
-                    </div>
-                  ),
-                )}
-              </div>
-            </>
-          ) : null}
+          <p>Transfer your offchain funds to the following destination:</p>
+          <div className="vertical-spacing">
+            {Object.entries(sep6DepositAsset.data.instructions).map(
+              ([key, instr]) => (
+                <div key={key}>
+                  <label>{instr.description}</label>
+                  <span>{instr.value}</span>
+                </div>
+              ),
+            )}
+          </div>
         </Modal.Body>
 
         <Modal.Footer>

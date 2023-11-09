@@ -290,13 +290,12 @@ export const sep6DepositAction = createAsyncThunk<
     status: ActionStatus;
     trustedAssetAdded: string;
     requiredCustomerInfoUpdates: string[] | undefined;
-    instructions: SepInstructions | undefined;
   },
   undefined,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep6DepositAsset/sep6DepositAction",
-  async (_, { rejectWithValue, getState }) => {
+  async (_, { rejectWithValue, getState, dispatch }) => {
     try {
       const { secretKey } = accountSelector(getState());
       const networkConfig = getNetworkConfig();
@@ -332,12 +331,13 @@ export const sep6DepositAction = createAsyncThunk<
         currentStatus = "",
         trustedAssetAdded = "",
         requiredCustomerInfoUpdates,
-        instructions,
       } = await pollDepositUntilComplete({
         transactionId: depositResponse.id || "",
         token,
         transferServerUrl,
         trustAssetCallback,
+        dispatchInstructions: (instructions: SepInstructions) =>
+          dispatch(updateInstructionsAction(instructions)),
       });
 
       return {
@@ -348,7 +348,6 @@ export const sep6DepositAction = createAsyncThunk<
             : ActionStatus.SUCCESS,
         trustedAssetAdded,
         requiredCustomerInfoUpdates,
-        instructions,
       };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
@@ -395,6 +394,9 @@ const sep6DepositAssetSlice = createSlice({
   initialState,
   reducers: {
     resetSep6DepositAction: () => initialState,
+    updateInstructionsAction: (state, action) => {
+      state.data.instructions = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(initiateDepositAction.pending, (state) => {
@@ -447,7 +449,6 @@ const sep6DepositAssetSlice = createSlice({
           ...state.data.customerFields[field],
           id: field,
         }));
-      state.data.instructions = action.payload.instructions;
     });
     builder.addCase(sep6DepositAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
@@ -459,4 +460,5 @@ const sep6DepositAssetSlice = createSlice({
 export const sep6DepositSelector = (state: RootState) => state.sep6DepositAsset;
 
 export const { reducer } = sep6DepositAssetSlice;
-export const { resetSep6DepositAction } = sep6DepositAssetSlice.actions;
+export const { resetSep6DepositAction, updateInstructionsAction } =
+  sep6DepositAssetSlice.actions;

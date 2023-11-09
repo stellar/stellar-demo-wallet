@@ -7,16 +7,17 @@ export const pollDepositUntilComplete = async ({
   token,
   transferServerUrl,
   trustAssetCallback,
+  dispatchInstructions,
 }: {
   transactionId: string;
   token: string;
   transferServerUrl: string;
   trustAssetCallback: () => Promise<string>;
+  dispatchInstructions: (instructions: SepInstructions) => void;
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
   let trustedAssetAdded;
   let requiredCustomerInfoUpdates: string[] | undefined;
-  let instructions: SepInstructions | undefined;
 
   const transactionUrl = new URL(
     `${transferServerUrl}/transaction?id=${transactionId}`,
@@ -41,8 +42,6 @@ export const pollDepositUntilComplete = async ({
     // eslint-disable-next-line no-await-in-loop
     const transactionJson = await response.json();
 
-    instructions = transactionJson.transaction.instructions;
-
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;
 
@@ -58,6 +57,11 @@ export const pollDepositUntilComplete = async ({
             title:
               "The anchor is waiting on you to take the action described in the popup",
           });
+
+          if (transactionJson.transaction.instructions) {
+            dispatchInstructions(transactionJson.transaction.instructions);
+          }
+
           break;
         }
         case TransactionStatus.PENDING_ANCHOR: {
@@ -135,6 +139,5 @@ export const pollDepositUntilComplete = async ({
     currentStatus,
     trustedAssetAdded,
     requiredCustomerInfoUpdates,
-    instructions,
   };
 };
