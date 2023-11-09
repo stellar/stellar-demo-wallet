@@ -1,6 +1,6 @@
 import { getErrorMessage } from "../../helpers/getErrorMessage";
 import { log } from "../../helpers/log";
-import { TransactionStatus } from "../../types/types";
+import { SepInstructions, TransactionStatus } from "../../types/types";
 
 export const pollDepositUntilComplete = async ({
   transactionId,
@@ -15,6 +15,8 @@ export const pollDepositUntilComplete = async ({
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
   let trustedAssetAdded;
+  let requiredCustomerInfoUpdates: string[] | undefined;
+  let instructions: SepInstructions | undefined;
 
   const transactionUrl = new URL(
     `${transferServerUrl}/transaction?id=${transactionId}`,
@@ -27,6 +29,7 @@ export const pollDepositUntilComplete = async ({
     TransactionStatus.PENDING_EXTERNAL,
     TransactionStatus.COMPLETED,
     TransactionStatus.ERROR,
+    TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE,
   ];
 
   while (!endStatuses.includes(currentStatus)) {
@@ -38,8 +41,11 @@ export const pollDepositUntilComplete = async ({
     // eslint-disable-next-line no-await-in-loop
     const transactionJson = await response.json();
 
+    instructions = transactionJson.transaction.instructions;
+
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;
+
       // eslint-disable-next-line no-param-reassign
       // popup.location.href = transactionJson.transaction.more_info_url;
       log.instruction({
@@ -93,6 +99,17 @@ export const pollDepositUntilComplete = async ({
           });
           break;
         }
+        case TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE: {
+          requiredCustomerInfoUpdates =
+            transactionJson.transaction.required_customer_info_updates;
+
+          log.instruction({
+            title:
+              "Certain pieces of information need to be updated by the user",
+            body: requiredCustomerInfoUpdates,
+          });
+          break;
+        }
         case TransactionStatus.ERROR: {
           log.instruction({
             title: "There was a problem processing your transaction",
@@ -109,6 +126,15 @@ export const pollDepositUntilComplete = async ({
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
-  log.instruction({ title: `Transaction status \`${currentStatus}\`` });
-  return { currentStatus, trustedAssetAdded };
+  // We are showing log for this status in switch
+  if (currentStatus !== TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE) {
+    log.instruction({ title: `Transaction status \`${currentStatus}\`` });
+  }
+
+  return {
+    currentStatus,
+    trustedAssetAdded,
+    requiredCustomerInfoUpdates,
+    instructions,
+  };
 };

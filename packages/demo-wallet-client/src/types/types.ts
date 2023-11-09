@@ -200,6 +200,13 @@ export interface Sep6DepositResponse {
   /* eslint-enable camelcase */
 }
 
+export type SepInstructions = {
+  [key: string]: {
+    description: string;
+    value: string;
+  };
+};
+
 export interface Sep6DepositAssetInitialState {
   data: {
     assetCode: string;
@@ -218,6 +225,8 @@ export interface Sep6DepositAssetInitialState {
     };
     depositResponse: Sep6DepositResponse;
     trustedAssetAdded: string;
+    requiredCustomerInfoUpdates: AnyObject[] | undefined;
+    instructions: SepInstructions | undefined;
   };
   errorString?: string;
   status: ActionStatus;

@@ -117,7 +117,7 @@ export const Sep6Withdraw = () => {
   };
 
   const handleCustomerFieldChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { id, value } = event.target;
 

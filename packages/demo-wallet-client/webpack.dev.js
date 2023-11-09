@@ -8,7 +8,7 @@ module.exports = merge(common, {
   devServer: {
     static: path.join(__dirname, "build"),
     historyApiFallback: true,
-    port: 3000,
+    port: 4000,
     open: true,
     hot: true,
   },

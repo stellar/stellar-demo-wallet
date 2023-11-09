@@ -1,4 +1,4 @@
-import { Input } from "@stellar/design-system";
+import { Input, Select } from "@stellar/design-system";
 
 type KycFieldType = "string" | "binary" | "number" | "date";
 
@@ -6,12 +6,16 @@ export type KycField = {
   type: KycFieldType;
   description: string;
   optional?: boolean;
+  choices?: string[];
 };
 
 type KycFieldInputProps = {
   id: string;
   input: KycField;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => void;
+  isRequired?: boolean;
 };
 
 const getInputType = (type: KycFieldType) => {
@@ -28,8 +32,31 @@ const getInputType = (type: KycFieldType) => {
   }
 };
 
-export const KycFieldInput = ({ id, input, onChange }: KycFieldInputProps) => {
-  const label = `${input.description}${input.optional ? " (optional)" : ""}`;
+export const KycFieldInput = ({
+  id,
+  input,
+  onChange,
+  isRequired,
+}: KycFieldInputProps) => {
+  const _isRequired = isRequired || !input.optional;
+  const label = `${input.description}${_isRequired ? "" : " (optional)"}`;
+
+  if (input.choices?.length) {
+    return (
+      <Select
+        key={id}
+        id={id}
+        label={label}
+        required={_isRequired}
+        onChange={onChange}
+      >
+        <option></option>
+        {input.choices.map((val) => (
+          <option value={val}>{val}</option>
+        ))}
+      </Select>
+    );
+  }
 
   return (
     <Input
