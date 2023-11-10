@@ -284,86 +284,51 @@ export const Sep6Withdraw = () => {
   }
 
   if (sep6WithdrawAsset.status === ActionStatus.CAN_PROCEED) {
-    if (sep6WithdrawAsset.data.requiredCustomerInfoUpdates) {
-      return (
-        <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-          <Modal.Heading>Complete withdrawal</Modal.Heading>
-
-          <Modal.Body>
-            <div className="vertical-spacing">
-              <strong>Sending Payment To: </strong>
-
-              {shortenStellarKey(withdrawResponse.account_id)}
-            </div>
-
-            {withdrawResponse.id && (
-              <div className="vertical-spacing">
-                <strong>Transaction ID: </strong>
-                {withdrawResponse.id}
-              </div>
-            )}
-            {withdrawResponse.extra_info?.message && (
-              <div className="vertical-spacing">
-                {withdrawResponse.extra_info.message}
-              </div>
-            )}
-
-            {withdrawResponse.memo_type && (
-              <div className="vertical-spacing">
-                <strong>Memo Type: </strong>
-
-                {withdrawResponse.memo_type}
-              </div>
-            )}
-
-            {withdrawResponse.memo && (
-              <div className="vertical-spacing">
-                <strong>Memo: </strong>
-
-                {withdrawResponse.memo}
-              </div>
-            )}
-          </Modal.Body>
-
-          <Modal.Footer>
-            <Button onClick={handleAmountSubmit}>Submit</Button>
-          </Modal.Footer>
-        </Modal>
-      );
-    }
+    const isRequiredCustomerInfo = Boolean(
+      sep6WithdrawAsset.data.requiredCustomerInfoUpdates,
+    );
+    const sendToAccount =
+      withdrawResponse.account_id || withdrawResponse.withdraw_anchor_account;
 
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>Payment Sending</Modal.Heading>
+        <Modal.Heading>
+          {isRequiredCustomerInfo ? "Complete Withdrawal" : "Payment Sending"}
+        </Modal.Heading>
 
         <Modal.Body>
-          <div className="vertical-spacing">
-            <strong>Sending Payment To: </strong>
-
-            {shortenStellarKey(withdrawResponse.account_id)}
-          </div>
-
-          <Input
-            id="withdraw-amount"
-            label="Amount to Withdraw"
-            required
-            onChange={handleAmountFieldChange}
-          />
-          {withdrawResponse.min_amount || withdrawResponse.max_amount ? (
+          {sendToAccount ? (
             <div className="vertical-spacing">
-              {withdrawResponse.min_amount && (
-                <p>
-                  <strong>Min Amount: </strong>
-                  {withdrawResponse.min_amount}
-                </p>
-              )}
-              {withdrawResponse.max_amount && (
-                <p>
-                  <strong>Max Amount: </strong>
-                  {withdrawResponse.max_amount}
-                </p>
-              )}
+              <strong>Sending Payment To: </strong>
+              {shortenStellarKey(sendToAccount)}
             </div>
+          ) : null}
+
+          {!isRequiredCustomerInfo ? (
+            <>
+              <Input
+                id="withdraw-amount"
+                label="Amount to Withdraw"
+                required
+                onChange={handleAmountFieldChange}
+              />
+              {withdrawResponse.min_amount || withdrawResponse.max_amount ? (
+                <div className="vertical-spacing">
+                  {withdrawResponse.min_amount && (
+                    <p>
+                      <strong>Min Amount: </strong>
+                      {withdrawResponse.min_amount}
+                    </p>
+                  )}
+                  {withdrawResponse.max_amount && (
+                    <p>
+                      <strong>Max Amount: </strong>
+                      {withdrawResponse.max_amount}
+                    </p>
+                  )}
+                </div>
+              ) : null}
+            </>
           ) : null}
 
           {withdrawResponse.id && (
@@ -372,6 +337,7 @@ export const Sep6Withdraw = () => {
               {withdrawResponse.id}
             </div>
           )}
+
           {withdrawResponse.extra_info?.message && (
             <div className="vertical-spacing">
               {withdrawResponse.extra_info.message}
