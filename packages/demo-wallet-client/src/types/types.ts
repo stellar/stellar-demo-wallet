@@ -235,7 +235,6 @@ export interface Sep6DepositAssetInitialState {
 export interface Sep6WithdrawResponse {
   /* eslint-disable camelcase */
   account_id?: string;
-  withdraw_anchor_account?: string;
   id?: string;
   eta?: number;
   memo_type?: string;

@@ -48,6 +48,8 @@ export const Sep6Withdraw = () => {
 
   const [formData, setFormData] = useState<FormData>(formInitialState);
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(true);
+
   const dispatch: AppDispatch = useDispatch();
 
   const withdrawTypes = useMemo(
@@ -287,8 +289,6 @@ export const Sep6Withdraw = () => {
     const isRequiredCustomerInfo = Boolean(
       sep6WithdrawAsset.data.requiredCustomerInfoUpdates,
     );
-    const sendToAccount =
-      withdrawResponse.account_id || withdrawResponse.withdraw_anchor_account;
 
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
@@ -297,10 +297,10 @@ export const Sep6Withdraw = () => {
         </Modal.Heading>
 
         <Modal.Body>
-          {sendToAccount ? (
+          {withdrawResponse.account_id ? (
             <div className="vertical-spacing">
               <strong>Sending Payment To: </strong>
-              {shortenStellarKey(sendToAccount)}
+              {shortenStellarKey(withdrawResponse.account_id)}
             </div>
           ) : null}
 
@@ -370,7 +370,11 @@ export const Sep6Withdraw = () => {
 
   if (sep6WithdrawAsset.status === ActionStatus.SUCCESS) {
     return (
-      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+      <Modal
+        visible={isInfoModalVisible}
+        onClose={() => setIsInfoModalVisible(false)}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
         <Modal.Heading>SEP-6 Withdrawal Completed</Modal.Heading>
 
         <Modal.Body>

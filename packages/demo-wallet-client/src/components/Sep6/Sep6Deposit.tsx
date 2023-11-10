@@ -52,6 +52,8 @@ export const Sep6Deposit = () => {
   };
 
   const [formData, setFormData] = useState<FormData>(formInitialState);
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(true);
+
   const dispatch: AppDispatch = useDispatch();
 
   const depositTypeChoices = useMemo(
@@ -345,7 +347,11 @@ export const Sep6Deposit = () => {
 
   if (sep6DepositAsset.data.instructions) {
     return (
-      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+      <Modal
+        visible={isInfoModalVisible}
+        onClose={() => setIsInfoModalVisible(false)}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
         <Modal.Heading>SEP-6 Deposit Instructions</Modal.Heading>
 
         <Modal.Body>
@@ -361,12 +367,6 @@ export const Sep6Deposit = () => {
             )}
           </div>
         </Modal.Body>
-
-        <Modal.Footer>
-          <Button onClick={handleClose} variant={Button.variant.secondary}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
     );
   }
