@@ -38,6 +38,7 @@ export const KycFieldInput = ({
   onChange,
   isRequired,
 }: KycFieldInputProps) => {
+  // isRequired param allows to override optional setting returned from the API
   const _isRequired = isRequired || !input.optional;
   const label = `${input.description}${_isRequired ? "" : " (optional)"}`;
 
