@@ -636,3 +636,10 @@ export type AnchorFeeDetail = {
   description?: string;
   amount: string;
 };
+
+export type SepInstructions = {
+  [key: string]: {
+    description: string;
+    value: string;
+  };
+};

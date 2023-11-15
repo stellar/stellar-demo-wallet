@@ -200,6 +200,13 @@ export interface Sep6DepositResponse {
   /* eslint-enable camelcase */
 }
 
+export type SepInstructions = {
+  [key: string]: {
+    description: string;
+    value: string;
+  };
+};
+
 export interface Sep6DepositAssetInitialState {
   data: {
     assetCode: string;
@@ -218,6 +225,8 @@ export interface Sep6DepositAssetInitialState {
     };
     depositResponse: Sep6DepositResponse;
     trustedAssetAdded: string;
+    requiredCustomerInfoUpdates: AnyObject[] | undefined;
+    instructions: SepInstructions | undefined;
   };
   errorString?: string;
   status: ActionStatus;
@@ -225,7 +234,7 @@ export interface Sep6DepositAssetInitialState {
 
 export interface Sep6WithdrawResponse {
   /* eslint-disable camelcase */
-  account_id: string;
+  account_id?: string;
   id?: string;
   eta?: number;
   memo_type?: string;
@@ -263,6 +272,7 @@ export interface Sep6WithdrawAssetInitialState {
     };
     transactionResponse: AnyObject;
     withdrawResponse: Sep6WithdrawResponse;
+    requiredCustomerInfoUpdates: AnyObject[] | undefined;
   };
   errorString?: string;
   status: ActionStatus | undefined;

@@ -85,7 +85,9 @@ export const Sep31Send = () => {
     setFormData({});
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { id, value } = event.target;
     const [section, field] = id.split("#");
 

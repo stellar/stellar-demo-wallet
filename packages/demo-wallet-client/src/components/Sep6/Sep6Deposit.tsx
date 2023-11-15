@@ -17,6 +17,7 @@ import {
   resetSep6DepositAction,
   submitSep6DepositFields,
   sep6DepositAction,
+  submitSep6CustomerInfoFields,
 } from "ducks/sep6DepositAsset";
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
@@ -51,6 +52,8 @@ export const Sep6Deposit = () => {
   };
 
   const [formData, setFormData] = useState<FormData>(formInitialState);
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(true);
+
   const dispatch: AppDispatch = useDispatch();
 
   const depositTypeChoices = useMemo(
@@ -114,7 +117,7 @@ export const Sep6Deposit = () => {
   };
 
   const handleCustomerFieldChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { id, value } = event.target;
 
@@ -147,6 +150,13 @@ export const Sep6Deposit = () => {
     dispatch(submitSep6DepositFields({ ...formData }));
   };
 
+  const handleSubmitCustomerInfo = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    dispatch(submitSep6CustomerInfoFields(formData.customerFields));
+  };
+
   const renderMinMaxAmount = () => {
     const { minAmount, maxAmount } = sep6DepositAsset.data;
 
@@ -158,6 +168,37 @@ export const Sep6Deposit = () => {
   };
 
   if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
+    if (
+      sep6DepositAsset.data.requiredCustomerInfoUpdates &&
+      sep6DepositAsset.data.requiredCustomerInfoUpdates.length
+    ) {
+      return (
+        <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+          <Modal.Heading>SEP-6 Update Customer Info</Modal.Heading>
+          <Modal.Body>
+            <div className="vertical-spacing">
+              {sep6DepositAsset.data.requiredCustomerInfoUpdates.map(
+                (input) => (
+                  <KycFieldInput
+                    id={input.id}
+                    input={input as KycField}
+                    onChange={handleCustomerFieldChange}
+                    isRequired={true}
+                  />
+                ),
+              )}
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={handleSubmitCustomerInfo}>Submit</Button>
+            <Button onClick={handleClose} variant={Button.variant.secondary}>
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      );
+    }
+
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
         <Modal.Heading>SEP-6 Deposit Info</Modal.Heading>
@@ -284,7 +325,7 @@ export const Sep6Deposit = () => {
   if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED) {
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>SEP-6 Deposit Success</Modal.Heading>
+        <Modal.Heading>SEP-6 Deposit Details</Modal.Heading>
 
         <Modal.Body>
           <p>{depositResponse.how}</p>
@@ -300,6 +341,32 @@ export const Sep6Deposit = () => {
             Close
           </Button>
         </Modal.Footer>
+      </Modal>
+    );
+  }
+
+  if (sep6DepositAsset.data.instructions) {
+    return (
+      <Modal
+        visible={isInfoModalVisible}
+        onClose={() => setIsInfoModalVisible(false)}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
+        <Modal.Heading>SEP-6 Deposit Instructions</Modal.Heading>
+
+        <Modal.Body>
+          <p>Transfer your offchain funds to the following destination:</p>
+          <div className="vertical-spacing">
+            {Object.entries(sep6DepositAsset.data.instructions).map(
+              ([key, instr]) => (
+                <div key={key}>
+                  <label>{instr.description}</label>
+                  <span>{instr.value}</span>
+                </div>
+              ),
+            )}
+          </div>
+        </Modal.Body>
       </Modal>
     );
   }
