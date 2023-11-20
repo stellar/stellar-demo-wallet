@@ -165,50 +165,12 @@ export const initiateDepositAction = createAsyncThunk<
   },
 );
 
-export const getKycFieldsAction = createAsyncThunk<
-  { [key: string]: AnyObject },
-  undefined,
-  { rejectValue: RejectMessage; state: RootState }
->(
-  "sep6DepositAsset/getKycFieldsAction",
-  async (_, { rejectWithValue, getState }) => {
-    const { data } = accountSelector(getState());
-    const publicKey = data?.id;
-    const { token, kycServer } = sep6DepositSelector(getState()).data;
-
-    // This is unlikely
-    if (!publicKey) {
-      throw new Error("Something is wrong with Account, no public key.");
-    }
-
-    try {
-      // Get SEP-12 fields
-      log.instruction({
-        title: "Making GET `/customer` request for user",
-      });
-
-      return await collectSep12Fields({
-        publicKey,
-        token,
-        kycServer,
-      });
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-
-      log.error({
-        title: "SEP-6 KYC fields failed",
-        body: errorMessage,
-      });
-
-      return rejectWithValue({
-        errorString: errorMessage,
-      });
-    }
-  },
-);
-
 export const submitSep6DepositFields = createAsyncThunk<
-  { status: ActionStatus; depositResponse: Sep6DepositResponse },
+  {
+    status: ActionStatus;
+    depositResponse: Sep6DepositResponse;
+    customerFields?: AnyObject;
+  },
   {
     amount?: string;
     depositType: AnyObject;
@@ -220,7 +182,7 @@ export const submitSep6DepositFields = createAsyncThunk<
   "sep6DepositAsset/submitSep6DepositFields",
   async (
     { amount, depositType, customerFields, infoFields },
-    { rejectWithValue, getState, dispatch },
+    { rejectWithValue, getState },
   ) => {
     try {
       const { data } = accountSelector(getState());
@@ -259,11 +221,21 @@ export const submitSep6DepositFields = createAsyncThunk<
           title: "Anchor requires additional customer information (KYC)",
         });
 
-        dispatch(getKycFieldsAction());
+        // Get SEP-12 fields
+        log.instruction({
+          title: "Making GET `/customer` request for user",
+        });
+
+        const customerFields = await collectSep12Fields({
+          publicKey: data?.id!,
+          token,
+          kycServer,
+        });
 
         return {
           status: ActionStatus.NEEDS_KYC,
           depositResponse,
+          customerFields,
         };
       }
 
@@ -478,25 +450,12 @@ const sep6DepositAssetSlice = createSlice({
     builder.addCase(submitSep6DepositFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
       state.data.depositResponse = action.payload.depositResponse;
+      state.data.customerFields = {
+        ...state.data.customerFields,
+        ...action.payload.customerFields,
+      };
     });
     builder.addCase(submitSep6DepositFields.rejected, (state, action) => {
-      state.errorString = action.payload?.errorString;
-      state.status = ActionStatus.ERROR;
-    });
-
-    builder.addCase(getKycFieldsAction.pending, (state) => {
-      state.errorString = undefined;
-      state.status = ActionStatus.PENDING;
-    });
-    builder.addCase(getKycFieldsAction.fulfilled, (state, action) => {
-      state.data.customerFields = action.payload.customerFields;
-
-      // Trigger KYC field input modal
-      if (action.payload.requestKycInput) {
-        state.status = ActionStatus.NEEDS_KYC;
-      }
-    });
-    builder.addCase(getKycFieldsAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
@@ -521,18 +480,19 @@ const sep6DepositAssetSlice = createSlice({
       state.data.currentStatus = action.payload.currentStatus;
       state.data.trustedAssetAdded = action.payload.trustedAssetAdded;
 
-      const customerFields = Object.keys(state.data.customerFields).length
-        ? state.data.customerFields
-        : action.payload.customerFields;
+      const customerFields = {
+        ...state.data.customerFields,
+        ...action.payload.customerFields,
+      };
 
       state.data.requiredCustomerInfoUpdates =
         action.payload.requiredCustomerInfoUpdates?.map((field) => ({
-          ...customerFields?.[field],
+          ...customerFields[field],
           id: field,
         }));
 
       if (action.payload.customerFields) {
-        state.data.customerFields = action.payload.customerFields;
+        state.data.customerFields = customerFields;
       }
     });
     builder.addCase(sep6DepositAction.rejected, (state, action) => {
