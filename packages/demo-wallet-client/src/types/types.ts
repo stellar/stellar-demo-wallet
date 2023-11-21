@@ -245,6 +245,7 @@ export interface Sep6WithdrawResponse {
   fee_fixed?: number;
   fee_percent?: number;
   extra_info?: { message?: string };
+  type?: string;
   /* eslint-enable camelcase */
 }
 

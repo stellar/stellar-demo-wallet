@@ -1,6 +1,6 @@
 import { each } from "lodash";
 import { log } from "../../helpers/log";
-import { AnyObject } from "../../types/types";
+import { AnyObject, TransactionStatus } from "../../types/types";
 
 type ProgrammaticWithdrawFlowProps = {
   assetCode: string;
@@ -53,14 +53,19 @@ export const programmaticWithdrawFlow = async ({
 
   const withdrawJson = await response.json();
 
-  if (response.status !== 200) {
-    throw new Error(withdrawJson.error);
+  // "non_interactive_customer_info_needed" (403) case is handled later
+  if (
+    withdrawJson.type ===
+      TransactionStatus.NON_INTERACTIVE_CUSTOMER_INFO_NEEDED ||
+    response.status === 200
+  ) {
+    log.response({
+      title: `${API_METHOD} \`${REQUEST_URL_STR}\``,
+      body: withdrawJson,
+    });
+
+    return withdrawJson;
   }
 
-  log.response({
-    title: `${API_METHOD} \`${REQUEST_URL_STR}\``,
-    body: withdrawJson,
-  });
-
-  return withdrawJson;
+  throw new Error(withdrawJson.error);
 };
