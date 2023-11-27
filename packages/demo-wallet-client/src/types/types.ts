@@ -197,6 +197,7 @@ export interface Sep6DepositResponse {
   fee_fixed?: number;
   fee_percent?: number;
   extra_info?: { message?: string };
+  type?: string;
   /* eslint-enable camelcase */
 }
 
@@ -244,6 +245,7 @@ export interface Sep6WithdrawResponse {
   fee_fixed?: number;
   fee_percent?: number;
   extra_info?: { message?: string };
+  type?: string;
   /* eslint-enable camelcase */
 }
 
@@ -390,6 +392,7 @@ export enum ActionStatus {
   PENDING = "PENDING",
   SUCCESS = "SUCCESS",
   NEEDS_INPUT = "NEEDS_INPUT",
+  NEEDS_KYC = "NEEDS_KYC",
   CAN_PROCEED = "CAN_PROCEED",
   ANCHOR_QUOTES = "ANCHOR_QUOTES",
 }
@@ -449,6 +452,7 @@ export enum TransactionStatus {
   COMPLETED = "completed",
   ERROR = "error",
   INCOMPLETE = "incomplete",
+  NON_INTERACTIVE_CUSTOMER_INFO_NEEDED = "non_interactive_customer_info_needed",
   PENDING_ANCHOR = "pending_anchor",
   PENDING_CUSTOMER_INFO_UPDATE = "pending_customer_info_update",
   PENDING_EXTERNAL = "pending_external",

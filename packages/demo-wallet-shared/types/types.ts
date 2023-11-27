@@ -439,6 +439,7 @@ export enum TransactionStatus {
   COMPLETED = "completed",
   ERROR = "error",
   INCOMPLETE = "incomplete",
+  NON_INTERACTIVE_CUSTOMER_INFO_NEEDED = "non_interactive_customer_info_needed",
   PENDING_ANCHOR = "pending_anchor",
   PENDING_CUSTOMER_INFO_UPDATE = "pending_customer_info_update",
   PENDING_EXTERNAL = "pending_external",

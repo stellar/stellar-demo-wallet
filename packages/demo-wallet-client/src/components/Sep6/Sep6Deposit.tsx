@@ -167,6 +167,52 @@ export const Sep6Deposit = () => {
     return `Min: ${minAmount} | Max: ${maxAmount}`;
   };
 
+  if (sep6DepositAsset.status === ActionStatus.NEEDS_KYC) {
+    return (
+      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+        <Modal.Heading>SEP-6 Customer Info</Modal.Heading>
+        <Modal.Body>
+          {Object.keys(sep6DepositAsset.data.customerFields).length ? (
+            <Heading3>
+              <DetailsTooltip
+                details={
+                  <>
+                    These are the fields the receiving anchor requires. The
+                    sending client obtains them from the /customer endpoint.{" "}
+                    <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
+                      Learn more
+                    </TextLink>
+                  </>
+                }
+                isInline
+                tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
+              >
+                <>SEP-12 Required Info</>
+              </DetailsTooltip>
+            </Heading3>
+          ) : null}
+          <div className="vertical-spacing">
+            {Object.entries(sep6DepositAsset.data.customerFields || {}).map(
+              ([id, input]) => (
+                <KycFieldInput
+                  id={id}
+                  input={input as KycField}
+                  onChange={handleCustomerFieldChange}
+                />
+              ),
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={handleSubmit}>Submit</Button>
+          <Button onClick={handleClose} variant={Button.variant.secondary}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
   if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
     if (
       sep6DepositAsset.data.requiredCustomerInfoUpdates &&
@@ -277,37 +323,6 @@ export const Sep6Deposit = () => {
                     onChange={handleInfoFieldChange}
                   />
                 ),
-            )}
-          </div>
-
-          {Object.keys(sep6DepositAsset.data.customerFields).length ? (
-            <Heading3>
-              <DetailsTooltip
-                details={
-                  <>
-                    These are the fields the receiving anchor requires. The
-                    sending client obtains them from the /customer endpoint.{" "}
-                    <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
-                      Learn more
-                    </TextLink>
-                  </>
-                }
-                isInline
-                tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
-              >
-                <>SEP-12 Required Info</>
-              </DetailsTooltip>
-            </Heading3>
-          ) : null}
-          <div className="vertical-spacing">
-            {Object.entries(sep6DepositAsset.data.customerFields || {}).map(
-              ([id, input]) => (
-                <KycFieldInput
-                  id={id}
-                  input={input as KycField}
-                  onChange={handleCustomerFieldChange}
-                />
-              ),
             )}
           </div>
         </Modal.Body>
