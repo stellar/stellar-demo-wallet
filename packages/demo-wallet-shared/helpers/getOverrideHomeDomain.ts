@@ -1,4 +1,4 @@
-import { Server } from "stellar-sdk";
+import { Horizon } from "stellar-sdk";
 import { log } from "./log";
 
 type GetOverrideHomeDomainProps = {
@@ -12,7 +12,7 @@ export const getOverrideHomeDomain = async ({
   homeDomain,
   networkUrl,
 }: GetOverrideHomeDomainProps) => {
-  const server = new Server(networkUrl);
+  const server = new Horizon.Server(networkUrl);
   const accountRecord = await server.loadAccount(assetIssuer);
   const assetHomeDomain = accountRecord.home_domain;
 

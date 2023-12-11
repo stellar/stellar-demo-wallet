@@ -4,7 +4,7 @@ import {
   BASE_FEE,
   Keypair,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
 } from "stellar-sdk";
 import { log } from "../../helpers/log";
@@ -33,7 +33,7 @@ export const pollWithdrawUntilComplete = async ({
   assetIssuer: string;
 }) => {
   const keypair = Keypair.fromSecret(secretKey);
-  const server = new Server(networkUrl);
+  const server = new Horizon.Server(networkUrl);
   let currentStatus = TransactionStatus.INCOMPLETE;
 
   const transactionUrl = new URL(

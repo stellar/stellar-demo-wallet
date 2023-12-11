@@ -128,8 +128,9 @@ export function getErrorCodes(err: any): string[] {
   // first, try to parse the errors in extras
   // eslint-disable-next-line camelcase
   if (e?.data?.extras?.result_codes) {
-    const { result_codes: resultCodes }: Horizon.TransactionFailedExtras =
-      e.data.extras;
+    const {
+      result_codes: resultCodes,
+    }: Horizon.HorizonApi.TransactionFailedExtras = e.data.extras;
 
     if (resultCodes.operations) {
       const codes = resultCodes.operations;

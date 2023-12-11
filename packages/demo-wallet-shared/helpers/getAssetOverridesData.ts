@@ -1,4 +1,4 @@
-import { Server } from "stellar-sdk";
+import { Horizon } from "stellar-sdk";
 import { getAssetSettingsFromToml } from "./getAssetSettingsFromToml";
 import { isNativeAsset } from "./isNativeAsset";
 import { log } from "./log";
@@ -25,7 +25,7 @@ export const getAssetOverridesData = async ({
     const { assetString, homeDomain } = assetOverrides[i];
     const [assetCode, assetIssuer] = assetString.split(":");
 
-    const server = new Server(networkUrl);
+    const server = new Horizon.Server(networkUrl);
     const isNative = isNativeAsset(assetCode);
     let assetResponse;
 

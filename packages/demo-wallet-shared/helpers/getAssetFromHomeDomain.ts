@@ -1,4 +1,4 @@
-import { Asset, StellarTomlResolver } from "stellar-sdk";
+import { Asset, StellarToml } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 import { checkAssetExists } from "./checkAssetExists";
 import { getCurrenciesFromDomain } from "./getCurrenciesFromDomain";
@@ -6,7 +6,7 @@ import { getOverrideHomeDomain } from "./getOverrideHomeDomain";
 import { isNativeAsset } from "./isNativeAsset";
 
 const getAssetListString = (
-  assetsArray: Asset[] | StellarTomlResolver.Currency[],
+  assetsArray: Asset[] | StellarToml.Api.Currency[],
   key: "code" | "issuer",
 ) =>
   assetsArray && assetsArray.length

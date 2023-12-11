@@ -6,7 +6,7 @@ import {
   Keypair,
   Memo,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
 } from "stellar-sdk";
 import { log } from "../../helpers/log";
@@ -53,7 +53,7 @@ export const sendPayment = async ({
   log.instruction({ title: "Sending Stellar payment to the receiving anchor" });
 
   const keypair = Keypair.fromSecret(secretKey);
-  const server = new Server(networkUrl);
+  const server = new Horizon.Server(networkUrl);
   const asset = new Asset(assetCode, assetIssuer);
   const publicKey = keypair.publicKey();
   const account = await server.loadAccount(publicKey);

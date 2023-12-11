@@ -1,10 +1,4 @@
-import {
-  Horizon,
-  Keypair,
-  Server,
-  Transaction,
-  TransactionBuilder,
-} from "stellar-sdk";
+import { Horizon, Keypair, Transaction, TransactionBuilder } from "stellar-sdk";
 import { getErrorString } from "../../helpers/getErrorString";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 import { log } from "../../helpers/log";
@@ -23,7 +17,7 @@ export const submitRevisedTransaction = async ({
   secretKey: string;
 }) => {
   const networkConfig = getNetworkConfig();
-  const server = new Server(networkConfig.url);
+  const server = new Horizon.Server(networkConfig.url);
   const transaction = TransactionBuilder.fromXDR(
     revisedTxXdr,
     networkConfig.network,
@@ -44,7 +38,7 @@ export const submitRevisedTransaction = async ({
     title: "Submitting send payment transaction",
     body: transaction,
   });
-  const result: Horizon.SubmitTransactionResponse =
+  const result: Horizon.HorizonApi.SubmitTransactionResponse =
     await server.submitTransaction(transaction);
   log.response({ title: "Submitted send payment transaction", body: result });
   log.instruction({

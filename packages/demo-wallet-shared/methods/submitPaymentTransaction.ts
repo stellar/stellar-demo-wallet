@@ -1,7 +1,7 @@
 import {
   BASE_FEE,
   Keypair,
-  Server,
+  Horizon,
   Account,
   Asset,
   Operation,
@@ -20,7 +20,7 @@ export const submitPaymentTransaction = async ({
   params: PaymentTransactionParams;
   secretKey: string;
 }) => {
-  const server = new Server(getNetworkConfig().url);
+  const server = new Horizon.Server(getNetworkConfig().url);
 
   log.instruction({
     title: `Sending payment of ${params.amount} ${params.assetCode}`,
