@@ -1,4 +1,4 @@
-import { Utils } from "stellar-sdk";
+import { WebAuth } from "stellar-sdk";
 import { log } from "../../helpers/log";
 
 export const start = async ({
@@ -45,7 +45,7 @@ export const start = async ({
     throw new Error("The response didn’t contain a transaction");
   }
 
-  const { tx } = Utils.readChallengeTx(
+  const { tx } = WebAuth.readChallengeTx(
     resultJson.transaction,
     serverSigningKey,
     resultJson.network_passphrase,

@@ -4,7 +4,7 @@ import {
   Operation,
   Asset,
   Keypair,
-  Server,
+  Horizon,
 } from "stellar-sdk";
 import { getErrorMessage } from "../helpers/getErrorMessage";
 import { log } from "../helpers/log";
@@ -26,7 +26,7 @@ export const trustAsset = async ({
       title: `Adding \`${untrustedAsset.assetCode}:${untrustedAsset.assetIssuer}\` trustline`,
     });
     const keypair = Keypair.fromSecret(secretKey);
-    const server = new Server(networkUrl);
+    const server = new Horizon.Server(networkUrl);
 
     log.instruction({
       title:

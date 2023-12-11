@@ -1,4 +1,4 @@
-import { Server } from "stellar-sdk";
+import { Horizon } from "stellar-sdk";
 import { getToml } from "../methods/getToml";
 import { AssetSupportedActions, AnyObject, AssetType } from "../types/types";
 
@@ -16,7 +16,7 @@ export const getAssetSettingsFromToml = async ({
   homeDomain: string | undefined;
   supportedActions: AssetSupportedActions | AnyObject;
 }> => {
-  const server = new Server(networkUrl);
+  const server = new Horizon.Server(networkUrl);
   const isNative = assetId === AssetType.NATIVE;
 
   // Other assets

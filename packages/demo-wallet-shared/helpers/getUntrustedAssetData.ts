@@ -1,4 +1,4 @@
-import { Server } from "stellar-sdk";
+import { Horizon } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 import { getAssetSettingsFromToml } from "./getAssetSettingsFromToml";
 import { normalizeAssetProps } from "./normalizeAssetProps";
@@ -35,7 +35,7 @@ export const getUntrustedAssetData = async ({
 
     log.request({ title: `Fetching asset \`${assetString}\` record` });
 
-    const server = new Server(networkUrl);
+    const server = new Horizon.Server(networkUrl);
 
     // eslint-disable-next-line no-await-in-loop
     const assetResponse = await server
