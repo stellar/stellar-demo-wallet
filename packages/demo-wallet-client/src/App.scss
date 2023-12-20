@@ -384,6 +384,10 @@
     display: flex;
     flex-direction: row;
 
+    &__content {
+      flex: 1;
+    }
+
     .PresetAssetCode {
       font-size: 1.1em;
       font-weight: var(--font-weight-medium);
@@ -391,6 +395,9 @@
 
     .PresetAssetIssuer {
       margin-top: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
   }
 }

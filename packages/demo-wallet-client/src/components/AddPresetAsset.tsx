@@ -6,6 +6,9 @@ import {
   InfoBlock,
   TextLink,
   Modal,
+  IconButton,
+  Icon,
+  Input,
 } from "@stellar/design-system";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
@@ -14,7 +17,7 @@ import { getValidatedUntrustedAsset } from "demo-wallet-shared/build/helpers/get
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, presetAsset, SearchParams } from "types/types";
+import { ActionStatus, PresetAsset, SearchParams } from "types/types";
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
 
 export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
@@ -23,12 +26,15 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
     "allAssets",
     "untrustedAssets",
   );
-  const [presetAssets, setPresetAssets] = useState<presetAsset[]>([]);
+  const [presetAssets, setPresetAssets] = useState<PresetAsset[]>([]);
   const [checkedAssets, setCheckedAssets] = useState<{
     [key: string]: boolean;
   }>({});
   const [isValidating, setIsValidating] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [customDomainAssets, setCustomDomainAssets] = useState<{
+    [assetId: string]: { isInputActive: boolean; customDomain: string };
+  }>();
 
   const navigate = useNavigate();
 
@@ -46,13 +52,13 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
     }
   }, [onClose, untrustedAssets.errorString, untrustedAssets.status]);
 
-  const getAssetId = (asset: presetAsset) =>
+  const getAssetId = (asset: PresetAsset) =>
     `${asset.assetCode}:${asset.homeDomain || asset.issuerPublicKey}`;
 
   const hasAnySelectedAsset = () =>
     Object.values(checkedAssets).some((isChecked) => isChecked === true);
 
-  const handleAddUntrustedAssets = async (assetList: presetAsset[]) => {
+  const handleAddUntrustedAssets = async (assetList: PresetAsset[]) => {
     setErrorMessage("");
     setIsValidating(true);
 
@@ -97,18 +103,88 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
   const isPending =
     isValidating || untrustedAssets.status === ActionStatus.PENDING;
 
-  const renderAssetRow = (asset: presetAsset) => {
+  const renderAssetRow = (asset: PresetAsset) => {
     const { homeDomain, issuerPublicKey: assetIssuer } = asset;
 
     const assetId = getAssetId(asset);
     const networkUrl = getNetworkConfig().url.replace("https:", "");
+    const updatedAsset = customDomainAssets?.[assetId];
 
-    // if no home domain is provided, use horizon's /account endpoint:
-    const issuerLink =
-      (homeDomain && `//${homeDomain}/.well-known/stellar.toml`) ||
-      (assetIssuer && `${networkUrl}/accounts/${assetIssuer}`);
-    const displayLink =
-      homeDomain || (assetIssuer && shortenStellarKey(assetIssuer));
+    const showCustomDomainInput = () => {
+      setErrorMessage("");
+      setCustomDomainAssets({
+        ...customDomainAssets,
+        [assetId]: { isInputActive: true, customDomain: homeDomain || "" },
+      });
+    };
+
+    const hideCustomDomainInput = () => {
+      const updated = { ...customDomainAssets };
+      delete updated[assetId];
+
+      setErrorMessage("");
+      setCustomDomainAssets({
+        ...updated,
+      });
+    };
+
+    const updateCustomDomainValue = (value: string) => {
+      setErrorMessage("");
+
+      if (value) {
+        const assetState = customDomainAssets?.[assetId];
+
+        if (!assetState) {
+          return;
+        }
+
+        setCustomDomainAssets({
+          ...customDomainAssets,
+          [assetId]: { ...assetState, customDomain: value },
+        });
+      }
+    };
+
+    const renderHomeDomain = () => {
+      if (updatedAsset?.isInputActive) {
+        return (
+          <div className="PresetAssetIssuer">
+            <Input
+              id={`custom-domain-${assetId}`}
+              value={updatedAsset?.customDomain || ""}
+              onChange={(e) => updateCustomDomainValue(e.currentTarget.value)}
+            />
+            <IconButton
+              icon={<Icon.XCircle />}
+              altText="Remove home domain override"
+              onClick={hideCustomDomainInput}
+              variant={IconButton.variant.error}
+            />
+          </div>
+        );
+      }
+
+      return (
+        <div className="PresetAssetIssuer">
+          {homeDomain ? (
+            <>
+              <TextLink href={`//${homeDomain}/.well-known/stellar.toml`}>
+                {homeDomain}
+              </TextLink>
+              <IconButton
+                icon={<Icon.Edit2 />}
+                altText="Override home domain"
+                onClick={showCustomDomainInput}
+              />
+            </>
+          ) : (
+            <TextLink onClick={showCustomDomainInput}>
+              Override home domain
+            </TextLink>
+          )}
+        </div>
+      );
+    };
 
     return (
       <div key={`preset-asset-${assetId}`} className="PresetAssetRow">
@@ -123,13 +199,17 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
           }}
           disabled={isPending}
         />
-        <div>
+        <div className="PresetAssetRow__content">
           <div className="PresetAssetCode">{asset.assetCode}</div>
-          <div className="PresetAssetIssuer">
-            {displayLink && (
-              <TextLink href={issuerLink}>{displayLink}</TextLink>
-            )}
-          </div>
+          {assetIssuer ? (
+            <div className="PresetAssetIssuer">
+              {/* if no home domain is provided, use horizon's /account endpoint: */}
+              <TextLink href={`${networkUrl}/accounts/${assetIssuer}`}>
+                {shortenStellarKey(assetIssuer)}
+              </TextLink>
+            </div>
+          ) : null}
+          {renderHomeDomain()}
         </div>
       </div>
     );
@@ -155,7 +235,12 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
           onClick={() => {
             const assetsToAdd = presetAssets.flatMap((pAsset) => {
               const assetId = getAssetId(pAsset);
-              return checkedAssets[assetId] ? pAsset : [];
+              const customHomeDomain =
+                customDomainAssets?.[assetId]?.customDomain;
+              const assetData = customHomeDomain
+                ? { ...pAsset, homeDomain: customHomeDomain }
+                : pAsset;
+              return checkedAssets[assetId] ? assetData : [];
             });
             handleAddUntrustedAssets(assetsToAdd);
           }}
