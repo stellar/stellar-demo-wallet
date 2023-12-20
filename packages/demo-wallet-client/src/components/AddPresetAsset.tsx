@@ -16,9 +16,14 @@ import { getPresetAssets } from "demo-wallet-shared/build/helpers/getPresetAsset
 import { getValidatedUntrustedAsset } from "demo-wallet-shared/build/helpers/getValidatedUntrustedAsset";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
-import { useRedux } from "hooks/useRedux";
-import { ActionStatus, PresetAsset, SearchParams } from "types/types";
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
+import { useRedux } from "hooks/useRedux";
+import {
+  ActionStatus,
+  AnyObject,
+  PresetAsset,
+  SearchParams,
+} from "types/types";
 
 export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
   const { account, allAssets, untrustedAssets } = useRedux(
@@ -63,32 +68,57 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
     setIsValidating(true);
 
     try {
-      const validatedAssetValues = await Promise.all(
-        assetList.map(async (pAsset) => {
-          const { assetCode, issuerPublicKey, homeDomain } = pAsset;
+      const params: {
+        untrustedAssets: string[];
+        assetOverrides: AnyObject[];
+      } = {
+        untrustedAssets: [],
+        assetOverrides: [],
+      };
 
-          if (!(homeDomain || issuerPublicKey)) {
-            const errorMsg = `Home domain OR issuer public key is required with asset code ${assetCode}`;
-            throw new Error(errorMsg);
-          }
+      for (let i = 0; i < assetList.length; i++) {
+        const { assetCode, issuerPublicKey, homeDomain } = assetList[i];
 
-          const asset = await getValidatedUntrustedAsset({
-            assetCode,
-            homeDomain,
-            issuerPublicKey,
-            accountBalances: account.data?.balances,
-            networkUrl: getNetworkConfig().url,
+        if (!(homeDomain || issuerPublicKey)) {
+          const errorMsg = `Home domain OR issuer public key is required with asset code ${assetCode}`;
+          throw new Error(errorMsg);
+        }
+
+        const asset = await getValidatedUntrustedAsset({
+          assetCode,
+          homeDomain,
+          issuerPublicKey,
+          accountBalances: account.data?.balances,
+          networkUrl: getNetworkConfig().url,
+        });
+
+        const itemId = `${asset.assetCode}:${asset.assetIssuer}`;
+        params.untrustedAssets.push(itemId);
+
+        // Home domain override
+        if (asset.homeDomain) {
+          params.assetOverrides.push({
+            itemId,
+            keyPairs: { homeDomain: asset.homeDomain },
           });
+        }
+      }
 
-          return `${asset.assetCode}:${asset.assetIssuer}`;
-        }),
-      );
-
-      const newSearchQ = searchParam.update(
+      let search = searchParam.update(
         SearchParams.UNTRUSTED_ASSETS,
-        validatedAssetValues.join(","),
+        params.untrustedAssets.join(","),
       );
-      navigate(newSearchQ);
+
+      params.assetOverrides.forEach((a) => {
+        search = searchParam.updateKeyPair({
+          param: SearchParams.ASSET_OVERRIDES,
+          itemId: a.itemId,
+          keyPairs: a.keyPairs,
+          urlSearchParams: new URLSearchParams(search),
+        });
+      });
+
+      navigate(search);
     } catch (e) {
       const errorMsg = getErrorMessage(e);
       log.error({ title: errorMsg });
