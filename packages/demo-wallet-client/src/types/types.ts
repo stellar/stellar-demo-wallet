@@ -45,7 +45,7 @@ export enum TomlFields {
   WEB_AUTH_ENDPOINT = "WEB_AUTH_ENDPOINT",
 }
 
-export interface presetAsset {
+export interface PresetAsset {
   assetCode: string;
   homeDomain?: string;
   issuerPublicKey?: string;

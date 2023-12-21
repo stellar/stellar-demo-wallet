@@ -116,7 +116,11 @@ const untrustedAssetsSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(addUntrustedAssetAction.fulfilled, (state, action) => {
-      state.data = [...state.data, ...action.payload];
+      const newAssets = action.payload.filter(
+        (n) => !state.data.find((a) => a.assetString === n.assetString),
+      );
+
+      state.data = [...state.data, ...newAssets];
       state.status = ActionStatus.SUCCESS;
     });
     builder.addCase(addUntrustedAssetAction.rejected, (state, action) => {
