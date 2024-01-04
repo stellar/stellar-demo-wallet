@@ -32,6 +32,7 @@ import {
 import {
   addAssetOverridesAction,
   resetAssetOverridesStatusAction,
+  updateAssetOverrideAction,
 } from "ducks/assetOverrides";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
@@ -231,6 +232,12 @@ export const Assets = ({
         ),
       );
       dispatch(removeUntrustedAssetAction(trustAsset.assetString));
+      dispatch(
+        updateAssetOverrideAction({
+          assetString: trustAsset.assetString,
+          updatedProperties: { isUntrusted: false },
+        }),
+      );
       dispatch(resetTrustAssetAction());
       handleRefreshAccount();
     }
@@ -247,6 +254,18 @@ export const Assets = ({
     dispatch,
     navigate,
   ]);
+
+  // Remove untrusted asset
+  useEffect(() => {
+    if (
+      untrustedAssets.status === ActionStatus.SUCCESS ||
+      untrustedAssets.status === ActionStatus.ERROR
+    ) {
+      dispatch(getAllAssetsAction());
+      dispatch(resetActiveAssetAction());
+      dispatch(resetUntrustedAssetStatusAction());
+    }
+  }, [untrustedAssets.status, dispatch]);
 
   // SEP-6 Deposit asset
   useEffect(() => {
@@ -383,18 +402,6 @@ export const Assets = ({
       message: "SEP-31 send in progress",
     });
   }, [sep31Send.status, setActiveAssetStatusAndToastMessage]);
-
-  // Remove untrusted asset
-  useEffect(() => {
-    if (
-      untrustedAssets.status === ActionStatus.SUCCESS ||
-      untrustedAssets.status === ActionStatus.ERROR
-    ) {
-      dispatch(getAllAssetsAction());
-      dispatch(resetUntrustedAssetStatusAction());
-      dispatch(resetActiveAssetAction());
-    }
-  }, [untrustedAssets.status, dispatch]);
 
   return (
     <>

@@ -11,6 +11,7 @@ interface NormalizeAssetProps {
   homeDomain?: string;
   supportedActions?: AssetSupportedActions | AnyObject;
   isUntrusted?: boolean;
+  isOverride?: boolean;
   assetCode?: string;
   assetIssuer?: string;
   assetType?: string;
@@ -21,6 +22,7 @@ export const normalizeAssetProps = ({
   homeDomain,
   supportedActions,
   isUntrusted = false,
+  isOverride = false,
   assetCode = "",
   assetIssuer = "",
   assetType = "",
@@ -50,6 +52,7 @@ export const normalizeAssetProps = ({
     homeDomain,
     supportedActions,
     isUntrusted,
+    isOverride,
     source,
   };
 };

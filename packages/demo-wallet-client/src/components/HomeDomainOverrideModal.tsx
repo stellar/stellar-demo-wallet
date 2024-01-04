@@ -8,6 +8,10 @@ import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import { Asset, SearchParams } from "types/types";
+import { useDispatch } from "react-redux";
+import { removeUntrustedAssetAction } from "ducks/untrustedAssets";
+import { AppDispatch } from "config/store";
+import { useRedux } from "hooks/useRedux";
 
 export const HomeDomainOverrideModal = ({
   asset,
@@ -16,7 +20,9 @@ export const HomeDomainOverrideModal = ({
   asset: Asset;
   onClose: () => void;
 }) => {
+  const { untrustedAssets } = useRedux("untrustedAssets");
   const navigate = useNavigate();
+  const dispatch: AppDispatch = useDispatch();
 
   const [homeDomain, setHomeDomain] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -40,12 +46,24 @@ export const HomeDomainOverrideModal = ({
       const isNative = isNativeAsset(assetCode);
 
       if (validAsset.homeDomain || isNative) {
+        const assetString = isNative
+          ? `XLM:native`
+          : `${asset.assetCode}:${asset.assetIssuer}`;
+
+        const isUntrustedAsset = untrustedAssets.data.find(
+          (a) => a.assetString === assetString,
+        );
+
+        // Need to remove asset from untrustedAssets in store because it will be
+        // added to assetOverrides
+        if (isUntrustedAsset) {
+          dispatch(removeUntrustedAssetAction(assetString));
+        }
+
         navigate(
           searchParam.updateKeyPair({
             param: SearchParams.ASSET_OVERRIDES,
-            itemId: isNative
-              ? `XLM:native`
-              : `${asset.assetCode}:${asset.assetIssuer}`,
+            itemId: assetString,
             keyPairs: { homeDomain },
           }),
         );

@@ -58,7 +58,8 @@ export const UntrustedBalance = ({
     }
 
     dispatch(addUntrustedAssetAction(settings.untrustedAssets));
-  }, [settings.untrustedAssets, dispatch]);
+    // Update when asset overrides change as well
+  }, [settings.untrustedAssets, settings.assetOverrides, dispatch]);
 
   const handleTrustAsset = (asset: Asset) => {
     const { assetString, assetCode, assetIssuer } = asset;
