@@ -62,15 +62,17 @@ const assetOverridesSlice = createSlice({
     },
     resetAssetOverridesAction: () => initialState,
     updateAssetOverrideAction: (state, action) => {
-      const updated = state.data.map((a) => {
-        if (a.assetString === action.payload.assetString) {
-          return { ...a, ...action.payload.updatedProperties };
-        }
+      if (state.data.length) {
+        const updated = state.data.map((a) => {
+          if (a.assetString === action.payload.assetString) {
+            return { ...a, ...action.payload.updatedProperties };
+          }
 
-        return a;
-      });
+          return a;
+        });
 
-      state.data = updated;
+        state.data = updated;
+      }
     },
   },
   extraReducers: (builder) => {

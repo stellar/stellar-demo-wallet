@@ -104,16 +104,35 @@ export const Assets = ({
     CONFIRM_ACTION = "CONFIRM_ACTION",
   }
 
+  const updateAssetOverride = useCallback(
+    (assetString: string) => {
+      const hasOverride = assetOverrides.data.find(
+        (a) => a.assetString === assetString,
+      );
+
+      if (hasOverride) {
+        dispatch(
+          updateAssetOverrideAction({
+            assetString: assetString,
+            updatedProperties: { isUntrusted: false },
+          }),
+        );
+      }
+    },
+    [assetOverrides.data, dispatch],
+  );
+
   const handleRemoveUntrustedAsset = useCallback(
     (removeAsset?: string) => {
       if (removeAsset) {
         navigate(
           searchParam.remove(SearchParams.UNTRUSTED_ASSETS, removeAsset),
         );
+        updateAssetOverride(removeAsset);
         dispatch(removeUntrustedAssetAction(removeAsset));
       }
     },
-    [dispatch, navigate],
+    [dispatch, navigate, updateAssetOverride],
   );
 
   const handleRefreshAccount = useCallback(() => {
@@ -232,12 +251,7 @@ export const Assets = ({
         ),
       );
       dispatch(removeUntrustedAssetAction(trustAsset.assetString));
-      dispatch(
-        updateAssetOverrideAction({
-          assetString: trustAsset.assetString,
-          updatedProperties: { isUntrusted: false },
-        }),
-      );
+      updateAssetOverride(trustAsset.assetString);
       dispatch(resetTrustAssetAction());
       handleRefreshAccount();
     }
@@ -250,6 +264,7 @@ export const Assets = ({
     trustAsset.status,
     trustAsset.assetString,
     handleRefreshAccount,
+    updateAssetOverride,
     setActiveAssetStatusAndToastMessage,
     dispatch,
     navigate,
