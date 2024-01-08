@@ -32,6 +32,7 @@ import {
 import {
   addAssetOverridesAction,
   resetAssetOverridesStatusAction,
+  updateAssetOverrideAction,
 } from "ducks/assetOverrides";
 import { resetClaimAssetAction } from "ducks/claimAsset";
 import { fetchClaimableBalancesAction } from "ducks/claimableBalances";
@@ -103,16 +104,35 @@ export const Assets = ({
     CONFIRM_ACTION = "CONFIRM_ACTION",
   }
 
+  const updateAssetOverride = useCallback(
+    (assetString: string) => {
+      const hasOverride = assetOverrides.data.find(
+        (a) => a.assetString === assetString,
+      );
+
+      if (hasOverride) {
+        dispatch(
+          updateAssetOverrideAction({
+            assetString: assetString,
+            updatedProperties: { isUntrusted: false },
+          }),
+        );
+      }
+    },
+    [assetOverrides.data, dispatch],
+  );
+
   const handleRemoveUntrustedAsset = useCallback(
     (removeAsset?: string) => {
       if (removeAsset) {
         navigate(
           searchParam.remove(SearchParams.UNTRUSTED_ASSETS, removeAsset),
         );
+        updateAssetOverride(removeAsset);
         dispatch(removeUntrustedAssetAction(removeAsset));
       }
     },
-    [dispatch, navigate],
+    [dispatch, navigate, updateAssetOverride],
   );
 
   const handleRefreshAccount = useCallback(() => {
@@ -231,6 +251,7 @@ export const Assets = ({
         ),
       );
       dispatch(removeUntrustedAssetAction(trustAsset.assetString));
+      updateAssetOverride(trustAsset.assetString);
       dispatch(resetTrustAssetAction());
       handleRefreshAccount();
     }
@@ -243,10 +264,23 @@ export const Assets = ({
     trustAsset.status,
     trustAsset.assetString,
     handleRefreshAccount,
+    updateAssetOverride,
     setActiveAssetStatusAndToastMessage,
     dispatch,
     navigate,
   ]);
+
+  // Remove untrusted asset
+  useEffect(() => {
+    if (
+      untrustedAssets.status === ActionStatus.SUCCESS ||
+      untrustedAssets.status === ActionStatus.ERROR
+    ) {
+      dispatch(getAllAssetsAction());
+      dispatch(resetActiveAssetAction());
+      dispatch(resetUntrustedAssetStatusAction());
+    }
+  }, [untrustedAssets.status, dispatch]);
 
   // SEP-6 Deposit asset
   useEffect(() => {
@@ -383,18 +417,6 @@ export const Assets = ({
       message: "SEP-31 send in progress",
     });
   }, [sep31Send.status, setActiveAssetStatusAndToastMessage]);
-
-  // Remove untrusted asset
-  useEffect(() => {
-    if (
-      untrustedAssets.status === ActionStatus.SUCCESS ||
-      untrustedAssets.status === ActionStatus.ERROR
-    ) {
-      dispatch(getAllAssetsAction());
-      dispatch(resetUntrustedAssetStatusAction());
-      dispatch(resetActiveAssetAction());
-    }
-  }, [untrustedAssets.status, dispatch]);
 
   return (
     <>

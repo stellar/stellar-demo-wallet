@@ -8,11 +8,13 @@ import { Asset, AssetType, SearchParamAsset } from "../types/types";
 type GetAssetOverridesDataProps = {
   assetOverrides: SearchParamAsset[];
   networkUrl: string;
+  untrustedAssets: string[];
 };
 
 export const getAssetOverridesData = async ({
   assetOverrides,
   networkUrl,
+  untrustedAssets,
 }: GetAssetOverridesDataProps) => {
   if (!assetOverrides.length) {
     return [];
@@ -60,6 +62,8 @@ export const getAssetOverridesData = async ({
         ? AssetType.NATIVE
         : assetResponse?.records[0]?.asset_type,
       homeDomain,
+      isOverride: true,
+      isUntrusted: untrustedAssets.includes(assetString),
       supportedActions,
     });
 

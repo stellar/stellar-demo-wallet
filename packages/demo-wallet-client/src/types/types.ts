@@ -81,7 +81,6 @@ export interface AssetSupportedActions {
 
 export interface AccountInitialState {
   data: Types.AccountDetails | null;
-  assets: Asset[];
   errorString?: string;
   isAuthenticated: boolean;
   isUnfunded: boolean;

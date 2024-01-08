@@ -1,10 +1,16 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { Types } from "@stellar/wallet-sdk";
+
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { assetOverridesSelector } from "ducks/assetOverrides";
 import { untrustedAssetsSelector } from "ducks/untrustedAssets";
+import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { log } from "demo-wallet-shared/build/helpers/log";
+import { getAssetData } from "demo-wallet-shared/build/helpers/getAssetData";
+import { searchKeyPairStringToArray } from "demo-wallet-shared/build/helpers/searchKeyPairStringToArray";
+import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import {
   ActionStatus,
   RejectMessage,
@@ -15,43 +21,62 @@ import {
 
 type IncludeAssetOverridesProps = {
   assets: Asset[];
+  balances?: Types.BalanceMap;
   assetCategory: AssetCategory;
   assetOverrides: Asset[];
 };
 
 const includeAssetOverrides = ({
   assets,
+  balances,
   assetCategory,
   assetOverrides,
-}: IncludeAssetOverridesProps) =>
-  assets.reduce((result: Asset[], asset) => {
-    const overrideAsset = assetOverrides.find(
-      (ao) => ao.assetString === asset.assetString,
-    );
-    const updatedAsset = overrideAsset
-      ? {
-          ...overrideAsset,
-          category: assetCategory,
-          isUntrusted: asset.isUntrusted,
-          isOverride: true,
-          total: asset.total,
-        }
-      : { ...asset, category: assetCategory };
+}: IncludeAssetOverridesProps) => {
+  const isUntrusted = assetCategory === AssetCategory.UNTRUSTED;
+  const overrides = assetOverrides.filter((o) => o.isUntrusted === isUntrusted);
 
-    return [...result, updatedAsset];
-  }, []);
+  return [...assets, ...overrides].map((a) => ({
+    ...a,
+    category: assetCategory,
+    // Use balance from account balances
+    total: balances?.[a.assetString]?.available?.toString() || a.total || "0",
+  }));
+};
 
+// All assets (from account balances, assetOverrides, and untrustedAssets) are
+// aggregated here to display on the UI.
+
+// Assets with overrides will be removed from untrustedAssets and will be skipped
+// in account balances to avoid making API calls with on-chain home domain. All
+// assets with overrides will be added to assetOverrides in store and picked from
+// there in this action.
 export const getAllAssetsAction = createAsyncThunk<
   Asset[],
   undefined,
   { rejectValue: RejectMessage; state: RootState }
->("allAssets/getAllAssetsAction", (_, { rejectWithValue, getState }) => {
-  const { assets } = accountSelector(getState());
+>("allAssets/getAllAssetsAction", async (_, { rejectWithValue, getState }) => {
+  const networkConfig = getNetworkConfig();
+
+  const { data } = accountSelector(getState());
   const { data: untrustedAssets } = untrustedAssetsSelector(getState());
   const { data: assetOverrides } = assetOverridesSelector(getState());
+  const { assetOverrides: asssetOverrideSetting } = settingsSelector(
+    getState(),
+  );
+
+  const overrideIds = searchKeyPairStringToArray(asssetOverrideSetting).map(
+    (a) => a.assetString,
+  );
+
+  const assets = await getAssetData({
+    balances: data?.balances,
+    networkUrl: networkConfig.url,
+    overrideIds,
+  });
 
   const trusted = includeAssetOverrides({
     assets,
+    balances: data?.balances,
     assetCategory: AssetCategory.TRUSTED,
     assetOverrides,
   });
@@ -63,7 +88,21 @@ export const getAllAssetsAction = createAsyncThunk<
   });
 
   try {
-    return [...trusted, ...untrusted];
+    // Sort to make sure the order doesn't change when adding/removing overrides
+    return [...trusted, ...untrusted].sort((a, b) => {
+      const assetA = a.assetString;
+      const assetB = b.assetString;
+
+      if (assetA < assetB) {
+        return -1;
+      }
+
+      if (assetA > assetB) {
+        return 1;
+      }
+
+      return 0;
+    });
   } catch (error) {
     const errorMessage = getErrorMessage(error);
     log.error({ title: errorMessage });

@@ -30,6 +30,33 @@ export const SettingsHandler = ({
     SearchParams.CLAIMABLE_BALANCE_SUPPORTED,
   );
 
+  // Asset overrides
+  useEffect(() => {
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.ASSET_OVERRIDES]: assetOverridesParam || "",
+      }),
+    );
+  }, [assetOverridesParam, dispatch]);
+
+  // Untrusted assets
+  useEffect(() => {
+    const cleanedAssets = untrustedAssetsParam
+      ?.split(",")
+      .reduce(
+        (unique: string[], item: string) =>
+          unique.includes(item) ? unique : [...unique, item],
+        [],
+      )
+      .join(",");
+
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.UNTRUSTED_ASSETS]: cleanedAssets || "",
+      }),
+    );
+  }, [untrustedAssetsParam, dispatch]);
+
   // Set secret key param (secretKey=[SECRET_KEY]) and fetch account info
   // This will handle both: secret key submitted on Demo Wallet and directly
   // from the URL
@@ -62,33 +89,6 @@ export const SettingsHandler = ({
       }
     }
   }, [secretKeyParam, dispatch]);
-
-  // Untrusted assets
-  useEffect(() => {
-    const cleanedAssets = untrustedAssetsParam
-      ?.split(",")
-      .reduce(
-        (unique: string[], item: string) =>
-          unique.includes(item) ? unique : [...unique, item],
-        [],
-      )
-      .join(",");
-
-    dispatch(
-      updateSettingsAction({
-        [SearchParams.UNTRUSTED_ASSETS]: cleanedAssets || "",
-      }),
-    );
-  }, [untrustedAssetsParam, dispatch]);
-
-  // Asset overrides
-  useEffect(() => {
-    dispatch(
-      updateSettingsAction({
-        [SearchParams.ASSET_OVERRIDES]: assetOverridesParam || "",
-      }),
-    );
-  }, [assetOverridesParam, dispatch]);
 
   // Claimabable balance supported
   useEffect(() => {

@@ -2,10 +2,12 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getCatchError } from "@stellar/frontend-helpers";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
+import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getUntrustedAssetData } from "demo-wallet-shared/build/helpers/getUntrustedAssetData";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
+import { searchKeyPairStringToArray } from "demo-wallet-shared/build/helpers/searchKeyPairStringToArray";
 import {
   ActionStatus,
   RejectMessage,
@@ -42,12 +44,17 @@ export const addUntrustedAssetAction = createAsyncThunk<
   async (assetsString, { rejectWithValue, getState }) => {
     const { data: accountData } = accountSelector(getState());
     const { data } = untrustedAssetsSelector(getState());
+    const { assetOverrides } = settingsSelector(getState());
 
     try {
+      const overrideIds = searchKeyPairStringToArray(assetOverrides).map(
+        (a) => a.assetString,
+      );
+
       const assetsListToAdd = removeExistingAssets({
         assetsString,
         untrustedAssets: data,
-      });
+      }).filter((a) => !overrideIds.includes(a));
 
       if (!assetsListToAdd.length) {
         return [];
