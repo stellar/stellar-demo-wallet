@@ -1,7 +1,6 @@
 import {
   Account,
   Asset,
-  BASE_FEE,
   Keypair,
   Operation,
   Horizon,
@@ -10,6 +9,7 @@ import {
 import { log } from "../../helpers/log";
 import { createMemoFromType } from "../createMemoFromType";
 import { AnyObject, TransactionStatus } from "../../types/types";
+import {getNetworkConfig} from "../../helpers/getNetworkConfig";
 
 export const pollWithdrawUntilComplete = async ({
   amount,
@@ -95,7 +95,7 @@ export const pollWithdrawUntilComplete = async ({
 
           const account = new Account(keypair.publicKey(), sequence);
           const txn = new TransactionBuilder(account, {
-            fee: BASE_FEE,
+            fee: getNetworkConfig().baseFee,
             networkPassphrase,
           })
             .addOperation(

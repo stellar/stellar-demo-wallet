@@ -36,6 +36,8 @@ considered compromised.** If you want to test services on mainnet with this
 tool, make sure to create a new account and fund it with the minimum assets
 required.
 
+Note, that dy default base fee is 100 stroops. That may not be enough for mainnet application, and base fee can be changed via `REACT_APP_BASE_FEE` environment variable
+
 ## Getting A Test Account Up and Running
 
 You can use the demo wallet to interact with the following anchor services:

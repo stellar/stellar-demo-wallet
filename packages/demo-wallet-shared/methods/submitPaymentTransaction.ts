@@ -1,5 +1,4 @@
 import {
-  BASE_FEE,
   Keypair,
   Horizon,
   Account,
@@ -115,7 +114,7 @@ export const buildPaymentTransaction = async ({
     }
 
     transaction = new TransactionBuilder(source, {
-      fee: BASE_FEE,
+      fee: getNetworkConfig().baseFee,
       networkPassphrase: getNetworkConfig().network,
       timebounds: await server.fetchTimebounds(100),
     }).addOperation(operation);
