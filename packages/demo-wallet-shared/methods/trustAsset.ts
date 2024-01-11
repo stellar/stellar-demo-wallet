@@ -1,6 +1,5 @@
 import {
   TransactionBuilder,
-  BASE_FEE,
   Operation,
   Asset,
   Keypair,
@@ -9,6 +8,7 @@ import {
 import { getErrorMessage } from "../helpers/getErrorMessage";
 import { log } from "../helpers/log";
 import { TrustAssetParam } from "../types/types";
+import {getNetworkConfig} from "../helpers/getNetworkConfig";
 
 export const trustAsset = async ({
   secretKey,
@@ -36,7 +36,7 @@ export const trustAsset = async ({
 
     log.instruction({ title: "Building add trustline transaction" });
     const transaction = new TransactionBuilder(account, {
-      fee: BASE_FEE,
+      fee: getNetworkConfig().baseFee,
       networkPassphrase,
     })
       .addOperation(
