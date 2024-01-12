@@ -36,7 +36,9 @@ considered compromised.** If you want to test services on mainnet with this
 tool, make sure to create a new account and fund it with the minimum assets
 required.
 
-Note, that dy default base fee is 100 stroops. That may not be enough for mainnet application, and base fee can be changed via `REACT_APP_BASE_FEE` environment variable
+Note, that dy default base fee is 100 stroops. That may not be enough for
+mainnet application, and base fee can be changed via `REACT_APP_BASE_FEE`
+environment variable
 
 ## Getting A Test Account Up and Running
 
@@ -158,16 +160,34 @@ window._env_ = {
 };
 ```
 
-and run:
+Build `shared` files that are consumed by both the client and server.
+
+```bash
+yarn build:shared
+```
+
+And run the client:
 
 ```bash
 yarn start:client
 ```
 
-To build the app for production, run:
+To build the client app for production, run:
 
 ```bash
 yarn build:client
+```
+
+To run the server locally:
+
+```bash
+yarn start:server
+```
+
+And build the server for production:
+
+```bash
+yarn build:server
 ```
 
 ### Docker
