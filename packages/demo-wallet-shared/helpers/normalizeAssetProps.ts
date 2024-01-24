@@ -4,6 +4,7 @@ import {
   AssetSupportedActions,
   AnyObject,
   AssetType,
+  XLM_NATIVE_ASSET,
 } from "../types/types";
 
 interface NormalizeAssetProps {
@@ -43,7 +44,7 @@ export const normalizeAssetProps = ({
   return {
     assetString:
       _assetType === AssetType.NATIVE
-        ? "XLM:native"
+        ? XLM_NATIVE_ASSET
         : `${_assetCode}:${_assetIssuer}`,
     assetCode: _assetCode,
     assetIssuer: _assetIssuer,

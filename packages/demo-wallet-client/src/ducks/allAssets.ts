@@ -11,6 +11,7 @@ import { log } from "demo-wallet-shared/build/helpers/log";
 import { getAssetData } from "demo-wallet-shared/build/helpers/getAssetData";
 import { searchKeyPairStringToArray } from "demo-wallet-shared/build/helpers/searchKeyPairStringToArray";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import { XLM_NATIVE_ASSET } from "demo-wallet-shared/build/types/types";
 import {
   ActionStatus,
   RejectMessage,
@@ -26,6 +27,9 @@ type IncludeAssetOverridesProps = {
   assetOverrides: Asset[];
 };
 
+const excludeXlm = (assets: Asset[]) =>
+  assets.filter((a) => a.assetString !== XLM_NATIVE_ASSET);
+
 const includeAssetOverrides = ({
   assets,
   balances,
@@ -35,7 +39,31 @@ const includeAssetOverrides = ({
   const isUntrusted = assetCategory === AssetCategory.UNTRUSTED;
   const overrides = assetOverrides.filter((o) => o.isUntrusted === isUntrusted);
 
-  return [...assets, ...overrides].map((a) => ({
+  let xlmBalance = assets.find((a) => a.assetString === XLM_NATIVE_ASSET);
+  const xlmOverride = overrides.find((a) => a.assetString === XLM_NATIVE_ASSET);
+
+  // If there is XLM override, merge XLM balance and asset override asset data.
+  // Note: XLM override can be added only to an active account, so there must be
+  // XLM balance.
+  if (xlmBalance && xlmOverride) {
+    const { assetIssuer, homeDomain, isOverride, supportedActions } =
+      xlmOverride;
+    xlmBalance = {
+      ...xlmBalance,
+      assetIssuer,
+      homeDomain,
+      isOverride,
+      supportedActions,
+    };
+  }
+
+  // Becase xlmBalance is handled separately, we need to exclude it from both
+  // arrays.
+  return [
+    ...(xlmBalance ? [xlmBalance] : []),
+    ...excludeXlm(assets),
+    ...excludeXlm(overrides),
+  ].map((a) => ({
     ...a,
     category: assetCategory,
     // Use balance from account balances

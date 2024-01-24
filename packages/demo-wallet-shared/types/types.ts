@@ -16,6 +16,8 @@ declare global {
   }
 }
 
+export const XLM_NATIVE_ASSET = "XLM:native";
+
 export enum SearchParams {
   SECRET_KEY = "secretKey",
   UNTRUSTED_ASSETS = "untrustedAssets",
