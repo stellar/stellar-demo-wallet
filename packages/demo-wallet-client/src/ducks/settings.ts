@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
-import { SettingsInitialState, Setting } from "types/types.d";
+import { SettingsInitialState, Setting } from "types/types";
 
 const initialState: SettingsInitialState = {
   assetOverrides: "",

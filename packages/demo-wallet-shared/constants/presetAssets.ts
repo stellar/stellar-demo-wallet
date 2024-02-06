@@ -1,6 +1,6 @@
-import { presetAsset } from "../types/types";
+import { PresetAsset } from "../types/types";
 
-export const PRESET_ASSETS: presetAsset[] = [
+export const PRESET_ASSETS: PresetAsset[] = [
   {
     assetCode: "USDC",
     issuerPublicKey: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",

@@ -10,16 +10,19 @@ import {
   DetailsTooltip,
 } from "@stellar/design-system";
 import { ErrorMessage } from "components/ErrorMessage";
+import { KycField, KycFieldInput } from "components/KycFieldInput";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6WithdrawAction,
   submitSep6WithdrawFields,
   sep6WithdrawAction,
+  submitSep6WithdrawCustomerInfoFields,
 } from "ducks/sep6WithdrawAsset";
 import { useRedux } from "hooks/useRedux";
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
-import { ActionStatus, AnyObject } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus, AnyObject } from "types/types";
 
 export const Sep6Withdraw = () => {
   const { sep6WithdrawAsset } = useRedux("sep6WithdrawAsset");
@@ -45,7 +48,9 @@ export const Sep6Withdraw = () => {
 
   const [formData, setFormData] = useState<FormData>(formInitialState);
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const dispatch = useDispatch();
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(true);
+
+  const dispatch: AppDispatch = useDispatch();
 
   const withdrawTypes = useMemo(
     () => sep6WithdrawAsset.data.withdrawTypes?.types || { fields: {} },
@@ -115,7 +120,7 @@ export const Sep6Withdraw = () => {
   };
 
   const handleCustomerFieldChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { id, value } = event.target;
 
@@ -152,7 +157,92 @@ export const Sep6Withdraw = () => {
     dispatch(sep6WithdrawAction(withdrawAmount));
   };
 
+  const handleSubmitCustomerInfo = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    dispatch(submitSep6WithdrawCustomerInfoFields(formData.customerFields));
+  };
+
+  if (sep6WithdrawAsset.status === ActionStatus.NEEDS_KYC) {
+    return (
+      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+        <Modal.Heading>SEP-6 Customer Info</Modal.Heading>
+        <Modal.Body>
+          {Object.keys(sep6WithdrawAsset.data.fields).length ? (
+            <Heading3>
+              <DetailsTooltip
+                details={
+                  <>
+                    These are the fields the receiving anchor requires. The
+                    sending client obtains them from the /customer endpoint.{" "}
+                    <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
+                      Learn more
+                    </TextLink>
+                  </>
+                }
+                isInline
+                tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
+              >
+                <>SEP-12 Required Info</>
+              </DetailsTooltip>
+            </Heading3>
+          ) : null}
+
+          <div className="vertical-spacing">
+            {Object.entries(sep6WithdrawAsset.data.fields || {}).map(
+              ([field, fieldInfo]) => (
+                <KycFieldInput
+                  id={field}
+                  input={fieldInfo as KycField}
+                  onChange={handleCustomerFieldChange}
+                />
+              ),
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={handleFieldsSubmit}>Submit</Button>
+          <Button onClick={handleClose} variant={Button.variant.secondary}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
   if (sep6WithdrawAsset.status === ActionStatus.NEEDS_INPUT) {
+    if (
+      sep6WithdrawAsset.data.requiredCustomerInfoUpdates &&
+      sep6WithdrawAsset.data.requiredCustomerInfoUpdates.length
+    ) {
+      return (
+        <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+          <Modal.Heading>SEP-6 Update Customer Info</Modal.Heading>
+          <Modal.Body>
+            <div className="vertical-spacing">
+              {sep6WithdrawAsset.data.requiredCustomerInfoUpdates.map(
+                (input) => (
+                  <KycFieldInput
+                    id={input.id}
+                    input={input as KycField}
+                    onChange={handleCustomerFieldChange}
+                    isRequired={true}
+                  />
+                ),
+              )}
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={handleSubmitCustomerInfo}>Submit</Button>
+            <Button onClick={handleClose} variant={Button.variant.secondary}>
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      );
+    }
+
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
         <Modal.Heading>SEP-6 Withdrawal Info</Modal.Heading>
@@ -194,46 +284,12 @@ export const Sep6Withdraw = () => {
               <Input
                 key={field}
                 id={field}
-                label={fieldInfo?.description}
+                label={(fieldInfo as any)?.description}
                 required
                 onChange={handleInfoFieldChange}
               />
             ))}
           </div>
-          {Object.keys(sep6WithdrawAsset.data.fields).length ? (
-            <Heading3>
-              <DetailsTooltip
-                details={
-                  <>
-                    These are the fields the receiving anchor requires. The
-                    sending client obtains them from the /customer endpoint.{" "}
-                    <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
-                      Learn more
-                    </TextLink>
-                  </>
-                }
-                isInline
-                tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
-              >
-                <>SEP-12 Required Info</>
-              </DetailsTooltip>
-            </Heading3>
-          ) : null}
-
-          <div className="vertical-spacing">
-            {Object.entries(sep6WithdrawAsset.data.fields || {}).map(
-              ([field, fieldInfo]) => (
-                <Input
-                  key={field}
-                  id={field}
-                  label={fieldInfo?.description}
-                  required
-                  onChange={handleCustomerFieldChange}
-                />
-              ),
-            )}
-          </div>
-
           <ErrorMessage message={sep6WithdrawAsset.errorString} />
         </Modal.Body>
 
@@ -245,38 +301,49 @@ export const Sep6Withdraw = () => {
   }
 
   if (sep6WithdrawAsset.status === ActionStatus.CAN_PROCEED) {
+    const isRequiredCustomerInfo = Boolean(
+      sep6WithdrawAsset.data.requiredCustomerInfoUpdates,
+    );
+
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>Payment Sending</Modal.Heading>
+        <Modal.Heading>
+          {isRequiredCustomerInfo ? "Complete Withdrawal" : "Payment Sending"}
+        </Modal.Heading>
 
         <Modal.Body>
-          <div className="vertical-spacing">
-            <strong>Sending Payment To: </strong>
-
-            {shortenStellarKey(withdrawResponse.account_id)}
-          </div>
-
-          <Input
-            id="withdraw-amount"
-            label="Amount to Withdraw"
-            required
-            onChange={handleAmountFieldChange}
-          />
-          {withdrawResponse.min_amount || withdrawResponse.max_amount ? (
+          {withdrawResponse.account_id ? (
             <div className="vertical-spacing">
-              {withdrawResponse.min_amount && (
-                <p>
-                  <strong>Min Amount: </strong>
-                  {withdrawResponse.min_amount}
-                </p>
-              )}
-              {withdrawResponse.max_amount && (
-                <p>
-                  <strong>Max Amount: </strong>
-                  {withdrawResponse.max_amount}
-                </p>
-              )}
+              <strong>Sending Payment To: </strong>
+              {shortenStellarKey(withdrawResponse.account_id)}
             </div>
+          ) : null}
+
+          {!isRequiredCustomerInfo ? (
+            <>
+              <Input
+                id="withdraw-amount"
+                label="Amount to Withdraw"
+                required
+                onChange={handleAmountFieldChange}
+              />
+              {withdrawResponse.min_amount || withdrawResponse.max_amount ? (
+                <div className="vertical-spacing">
+                  {withdrawResponse.min_amount && (
+                    <p>
+                      <strong>Min Amount: </strong>
+                      {withdrawResponse.min_amount}
+                    </p>
+                  )}
+                  {withdrawResponse.max_amount && (
+                    <p>
+                      <strong>Max Amount: </strong>
+                      {withdrawResponse.max_amount}
+                    </p>
+                  )}
+                </div>
+              ) : null}
+            </>
           ) : null}
 
           {withdrawResponse.id && (
@@ -285,6 +352,7 @@ export const Sep6Withdraw = () => {
               {withdrawResponse.id}
             </div>
           )}
+
           {withdrawResponse.extra_info?.message && (
             <div className="vertical-spacing">
               {withdrawResponse.extra_info.message}
@@ -317,7 +385,11 @@ export const Sep6Withdraw = () => {
 
   if (sep6WithdrawAsset.status === ActionStatus.SUCCESS) {
     return (
-      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+      <Modal
+        visible={isInfoModalVisible}
+        onClose={() => setIsInfoModalVisible(false)}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
         <Modal.Heading>SEP-6 Withdrawal Completed</Modal.Heading>
 
         <Modal.Body>

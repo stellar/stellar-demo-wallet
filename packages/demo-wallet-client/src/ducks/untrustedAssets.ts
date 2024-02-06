@@ -2,16 +2,18 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getCatchError } from "@stellar/frontend-helpers";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
+import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getUntrustedAssetData } from "demo-wallet-shared/build/helpers/getUntrustedAssetData";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
+import { searchKeyPairStringToArray } from "demo-wallet-shared/build/helpers/searchKeyPairStringToArray";
 import {
   ActionStatus,
   RejectMessage,
   Asset,
   UntrustedAssetsInitialState,
-} from "types/types.d";
+} from "types/types";
 
 const removeExistingAssets = ({
   assetsString,
@@ -42,12 +44,17 @@ export const addUntrustedAssetAction = createAsyncThunk<
   async (assetsString, { rejectWithValue, getState }) => {
     const { data: accountData } = accountSelector(getState());
     const { data } = untrustedAssetsSelector(getState());
+    const { assetOverrides } = settingsSelector(getState());
 
     try {
+      const overrideIds = searchKeyPairStringToArray(assetOverrides).map(
+        (a) => a.assetString,
+      );
+
       const assetsListToAdd = removeExistingAssets({
         assetsString,
         untrustedAssets: data,
-      });
+      }).filter((a) => !overrideIds.includes(a));
 
       if (!assetsListToAdd.length) {
         return [];
@@ -116,7 +123,11 @@ const untrustedAssetsSlice = createSlice({
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(addUntrustedAssetAction.fulfilled, (state, action) => {
-      state.data = [...state.data, ...action.payload];
+      const newAssets = action.payload.filter(
+        (n) => !state.data.find((a) => a.assetString === n.assetString),
+      );
+
+      state.data = [...state.data, ...newAssets];
       state.status = ActionStatus.SUCCESS;
     });
     builder.addCase(addUntrustedAssetAction.rejected, (state, action) => {

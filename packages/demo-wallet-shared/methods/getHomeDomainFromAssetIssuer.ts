@@ -1,4 +1,4 @@
-import StellarSdk from "stellar-sdk";
+import { Horizon } from "stellar-sdk";
 import { log } from "../helpers/log";
 
 export const getHomeDomainFromAssetIssuer = async ({
@@ -13,7 +13,7 @@ export const getHomeDomainFromAssetIssuer = async ({
     body: `Asset issuer ${assetIssuer}`,
   });
 
-  const server = new StellarSdk.Server(networkUrl);
+  const server = new Horizon.Server(networkUrl);
   const accountRecord = await server.loadAccount(assetIssuer);
   const homeDomain: string | undefined = accountRecord.home_domain;
 

@@ -5,6 +5,7 @@ import { custodialSelector } from "ducks/custodial";
 import { extraSelector } from "ducks/extra";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import {
   sep10AuthStart,
@@ -25,7 +26,7 @@ import {
   Sep24WithdrawAssetInitialState,
   TomlFields,
   AnchorActionType,
-} from "types/types.d";
+} from "types/types";
 
 export const withdrawAssetAction = createAsyncThunk<
   { currentStatus: string },
@@ -98,7 +99,7 @@ export const withdrawAssetAction = createAsyncThunk<
         authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
         serverSigningKey: tomlResponse.SIGNING_KEY,
         publicKey: custodialPublicKey || publicKey,
-        homeDomain,
+        homeDomain: normalizeHomeDomainUrl(homeDomain).host,
         clientDomain,
         memoId: custodialMemoId,
       });
@@ -145,12 +146,15 @@ export const withdrawAssetAction = createAsyncThunk<
       return {
         currentStatus,
       };
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = getErrorMessage(error);
+      const resultCodes = error?.response?.data?.extras?.result_codes;
 
       log.error({
         title: "SEP-24 withdrawal failed",
-        body: errorMessage,
+        body: `${errorMessage} ${
+          resultCodes ? JSON.stringify(resultCodes) : ""
+        }`,
       });
 
       return rejectWithValue({

@@ -1,8 +1,9 @@
-import StellarSdk, {
+import {
   Account,
   Keypair,
   Operation,
   TransactionBuilder,
+  Horizon,
 } from "stellar-sdk";
 import { getErrorMessage } from "../helpers/getErrorMessage";
 import { log } from "../helpers/log";
@@ -32,7 +33,7 @@ export const claimClaimableBalance = async ({
 
   try {
     const keypair = Keypair.fromSecret(secretKey);
-    const server = new StellarSdk.Server(networkUrl);
+    const server = new Horizon.Server(networkUrl);
     const accountRecord = await server
       .accounts()
       .accountId(keypair.publicKey())

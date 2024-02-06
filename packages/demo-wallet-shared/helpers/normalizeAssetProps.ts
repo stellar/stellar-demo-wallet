@@ -4,6 +4,7 @@ import {
   AssetSupportedActions,
   AnyObject,
   AssetType,
+  XLM_NATIVE_ASSET,
 } from "../types/types";
 
 interface NormalizeAssetProps {
@@ -11,6 +12,7 @@ interface NormalizeAssetProps {
   homeDomain?: string;
   supportedActions?: AssetSupportedActions | AnyObject;
   isUntrusted?: boolean;
+  isOverride?: boolean;
   assetCode?: string;
   assetIssuer?: string;
   assetType?: string;
@@ -21,6 +23,7 @@ export const normalizeAssetProps = ({
   homeDomain,
   supportedActions,
   isUntrusted = false,
+  isOverride = false,
   assetCode = "",
   assetIssuer = "",
   assetType = "",
@@ -41,7 +44,7 @@ export const normalizeAssetProps = ({
   return {
     assetString:
       _assetType === AssetType.NATIVE
-        ? "native"
+        ? XLM_NATIVE_ASSET
         : `${_assetCode}:${_assetIssuer}`,
     assetCode: _assetCode,
     assetIssuer: _assetIssuer,
@@ -50,6 +53,7 @@ export const normalizeAssetProps = ({
     homeDomain,
     supportedActions,
     isUntrusted,
+    isOverride,
     source,
   };
 };

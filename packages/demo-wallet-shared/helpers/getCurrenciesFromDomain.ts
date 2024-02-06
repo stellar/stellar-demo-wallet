@@ -1,9 +1,9 @@
-import { Asset, StellarTomlResolver } from "stellar-sdk";
+import { StellarToml } from "stellar-sdk";
 import { normalizeHomeDomainUrl } from "./normalizeHomeDomainUrl";
 
 export const getCurrenciesFromDomain = async (
   homeDomain: string,
-): Promise<Asset[]> => {
+): Promise<StellarToml.Api.Currency[]> => {
   let domainURL;
 
   try {
@@ -15,10 +15,10 @@ export const getCurrenciesFromDomain = async (
   try {
     const toml =
       domainURL.protocol === "http:"
-        ? await StellarTomlResolver.resolve(domainURL.host, {
+        ? await StellarToml.Resolver.resolve(domainURL.host, {
             allowHttp: true,
           })
-        : await StellarTomlResolver.resolve(domainURL.host);
+        : await StellarToml.Resolver.resolve(domainURL.host);
 
     if (!toml.CURRENCIES) {
       throw new Error(

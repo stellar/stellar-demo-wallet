@@ -1,5 +1,6 @@
 import { each } from "lodash";
 import { log } from "../../helpers/log";
+import { isNativeAsset } from "../../helpers/isNativeAsset";
 import { AnyObject } from "../../types/types";
 
 type InteractiveDepositFlowProps = {
@@ -37,7 +38,7 @@ export const interactiveDepositFlow = async ({
 
   const formData = new FormData();
   const postDepositParams: DepositParams = {
-    asset_code: assetCode,
+    asset_code: isNativeAsset(assetCode) ? "native" : assetCode,
     account: publicKey,
     lang: "en",
     claimable_balance_supported: claimableBalanceSupported.toString(),

@@ -4,17 +4,11 @@ import { getCatchError } from "@stellar/frontend-helpers";
 import { Keypair } from "stellar-sdk";
 
 import { RootState } from "config/store";
-import { getAssetData } from "demo-wallet-shared/build/helpers/getAssetData";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getErrorString } from "demo-wallet-shared/build/helpers/getErrorString";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
-import {
-  ActionStatus,
-  Asset,
-  RejectMessage,
-  AccountInitialState,
-} from "types/types.d";
+import { ActionStatus, RejectMessage, AccountInitialState } from "types/types";
 
 interface UnfundedAccount extends Types.AccountDetails {
   id: string;
@@ -27,7 +21,6 @@ interface AccountKeyPair {
 
 interface AccountActionBaseResponse {
   data: Types.AccountDetails | UnfundedAccount;
-  assets: Asset[];
   isUnfunded: boolean;
 }
 
@@ -55,7 +48,6 @@ export const fetchAccountAction = createAsyncThunk<
     });
 
     let stellarAccount: Types.AccountDetails | null = null;
-    let assets: Asset[] = [];
     let isUnfunded = false;
 
     log.request({
@@ -65,10 +57,6 @@ export const fetchAccountAction = createAsyncThunk<
 
     try {
       stellarAccount = await dataProvider.fetchAccountDetails();
-      assets = await getAssetData({
-        balances: stellarAccount.balances,
-        networkUrl: networkConfig.url,
-      });
     } catch (e) {
       const error: ResponseError = getCatchError(e);
 
@@ -97,7 +85,7 @@ export const fetchAccountAction = createAsyncThunk<
       body: stellarAccount,
     });
 
-    return { data: stellarAccount, assets, isUnfunded, secretKey };
+    return { data: stellarAccount, isUnfunded, secretKey };
   },
 );
 
@@ -143,17 +131,13 @@ export const fundTestnetAccount = createAsyncThunk<
   try {
     await fetch(`https://friendbot.stellar.org?addr=${publicKey}`);
     const stellarAccount = await dataProvider.fetchAccountDetails();
-    const assets = await getAssetData({
-      balances: stellarAccount.balances,
-      networkUrl: networkConfig.url,
-    });
 
     log.response({
       title: "The friendbot funded account",
       body: stellarAccount,
     });
 
-    return { data: stellarAccount, assets, isUnfunded: false };
+    return { data: stellarAccount, isUnfunded: false };
   } catch (error) {
     log.error({
       title: "The friendbot funding of the account failed",
@@ -169,7 +153,6 @@ export const fundTestnetAccount = createAsyncThunk<
 
 const initialState: AccountInitialState = {
   data: null,
-  assets: [],
   errorString: undefined,
   isAuthenticated: false,
   isUnfunded: false,
@@ -192,7 +175,6 @@ const accountSlice = createSlice({
     });
     builder.addCase(fetchAccountAction.fulfilled, (state, action) => {
       state.data = action.payload.data;
-      state.assets = action.payload.assets;
       state.isAuthenticated = Boolean(action.payload.data);
       state.isUnfunded = action.payload.isUnfunded;
       state.secretKey = action.payload.secretKey;
@@ -220,7 +202,6 @@ const accountSlice = createSlice({
     });
     builder.addCase(fundTestnetAccount.fulfilled, (state, action) => {
       state.data = action.payload.data;
-      state.assets = action.payload.assets;
       state.isUnfunded = action.payload.isUnfunded;
       state.status = ActionStatus.SUCCESS;
     });

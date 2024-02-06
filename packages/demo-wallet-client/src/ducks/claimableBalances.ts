@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import StellarSdk, { ServerApi } from "stellar-sdk";
+import { Horizon } from "stellar-sdk";
 import { RootState } from "config/store";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
@@ -10,7 +10,7 @@ import {
   ClaimableAsset,
   ClaimableBalancesInitialState,
   RejectMessage,
-} from "types/types.d";
+} from "types/types";
 
 export const fetchClaimableBalancesAction = createAsyncThunk<
   { records: any[] },
@@ -20,7 +20,7 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
   "claimableBalances/fetchClaimableBalancesAction",
   async ({ publicKey }, { rejectWithValue }) => {
     const networkConfig = getNetworkConfig();
-    const server = new StellarSdk.Server(networkConfig.url);
+    const server = new Horizon.Server(networkConfig.url);
 
     try {
       const claimableBalanceResponse = await server
@@ -31,7 +31,7 @@ export const fetchClaimableBalancesAction = createAsyncThunk<
       const cleanedRecords: ClaimableAsset[] = [];
 
       claimableBalanceResponse.records.forEach(
-        (record: ServerApi.ClaimableBalanceRecord) => {
+        (record: Horizon.ServerApi.ClaimableBalanceRecord) => {
           let assetCode;
           let assetIssuer;
 

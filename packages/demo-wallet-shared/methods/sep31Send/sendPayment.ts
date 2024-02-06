@@ -2,15 +2,15 @@ import { getCatchError } from "@stellar/frontend-helpers";
 import {
   Account,
   Asset,
-  BASE_FEE,
   Keypair,
   Memo,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
 } from "stellar-sdk";
 import { log } from "../../helpers/log";
 import { MemoTypeString } from "../../types/types";
+import {getNetworkConfig} from "../../helpers/getNetworkConfig";
 
 interface SendPaymentProps {
   secretKey: string;
@@ -53,7 +53,7 @@ export const sendPayment = async ({
   log.instruction({ title: "Sending Stellar payment to the receiving anchor" });
 
   const keypair = Keypair.fromSecret(secretKey);
-  const server = new Server(networkUrl);
+  const server = new Horizon.Server(networkUrl);
   const asset = new Asset(assetCode, assetIssuer);
   const publicKey = keypair.publicKey();
   const account = await server.loadAccount(publicKey);
@@ -100,7 +100,7 @@ export const sendPayment = async ({
   }
 
   const tx = new TransactionBuilder(new Account(publicKey, sequence), {
-    fee: (Number(BASE_FEE) * 5).toString(),
+    fee: (Number(getNetworkConfig().baseFee) * 5).toString(),
     networkPassphrase,
   })
     .addOperation(

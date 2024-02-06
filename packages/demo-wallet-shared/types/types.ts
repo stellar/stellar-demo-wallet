@@ -3,6 +3,21 @@ import { Horizon } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 import { Sep9Field } from "../helpers/Sep9Fields";
 
+declare global {
+  interface Window {
+    _env_: {
+      AMPLITUDE_API_KEY: string;
+      SENTRY_API_KEY: string;
+      HORIZON_PASSPHRASE?: string;
+      HORIZON_URL?: string;
+      WALLET_BACKEND_ENDPOINT?: string;
+      CLIENT_DOMAIN?: string;
+    };
+  }
+}
+
+export const XLM_NATIVE_ASSET = "XLM:native";
+
 export enum SearchParams {
   SECRET_KEY = "secretKey",
   UNTRUSTED_ASSETS = "untrustedAssets",
@@ -17,6 +32,7 @@ export enum AssetCategory {
 
 export enum TomlFields {
   ACCOUNTS = "ACCOUNTS",
+  ANCHOR_QUOTE_SERVER = "ANCHOR_QUOTE_SERVER",
   AUTH_SERVER = "AUTH_SERVER",
   DIRECT_PAYMENT_SERVER = "DIRECT_PAYMENT_SERVER",
   FEDERATION_SERVER = "FEDERATION_SERVER",
@@ -31,7 +47,7 @@ export enum TomlFields {
   WEB_AUTH_ENDPOINT = "WEB_AUTH_ENDPOINT",
 }
 
-export interface presetAsset {
+export interface PresetAsset {
   assetCode: string;
   homeDomain?: string;
   issuerPublicKey?: string;
@@ -125,7 +141,7 @@ export interface LogsInitialState {
 }
 
 export interface SendPaymentInitialState {
-  data: Horizon.TransactionResponse | null;
+  data: Horizon.HorizonApi.SubmitTransactionResponse | null;
   errorString?: string;
   status: ActionStatus | undefined;
 }
@@ -425,6 +441,7 @@ export enum TransactionStatus {
   COMPLETED = "completed",
   ERROR = "error",
   INCOMPLETE = "incomplete",
+  NON_INTERACTIVE_CUSTOMER_INFO_NEEDED = "non_interactive_customer_info_needed",
   PENDING_ANCHOR = "pending_anchor",
   PENDING_CUSTOMER_INFO_UPDATE = "pending_customer_info_update",
   PENDING_EXTERNAL = "pending_external",
@@ -575,3 +592,57 @@ export enum Sep12CustomerFieldStatus {
   REJECTED = "REJECTED",
   VERIFICATION_REQUIRED = "VERIFICATION_REQUIRED",
 }
+
+// Anchor quotes
+export type AnchorDeliveryMethod = {
+  name: string;
+  description: string;
+};
+
+export type AnchorQuoteAsset = {
+  asset: string;
+  /* eslint-disable camelcase */
+  sell_delivery_methods?: AnchorDeliveryMethod[];
+  buy_delivery_methods?: AnchorDeliveryMethod[];
+  country_codes?: string[];
+  /* eslint-enable camelcase */
+};
+
+export type AnchorBuyAsset = {
+  asset: string;
+  price: string;
+  decimals: number;
+};
+
+export type AnchorQuote = {
+  id: string;
+  price: string;
+  fee: AnchorFee;
+  /* eslint-disable camelcase */
+  expires_at: string;
+  total_price: string;
+  sell_asset: string;
+  sell_amount: string;
+  buy_asset: string;
+  buy_amount: string;
+  /* eslint-enable camelcase */
+};
+
+export type AnchorFee = {
+  total: string;
+  asset: string;
+  details?: AnchorFeeDetail[];
+};
+
+export type AnchorFeeDetail = {
+  name: string;
+  description?: string;
+  amount: string;
+};
+
+export type SepInstructions = {
+  [key: string]: {
+    description: string;
+    value: string;
+  };
+};

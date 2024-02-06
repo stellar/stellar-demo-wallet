@@ -1,6 +1,5 @@
 import {
   configureStore,
-  getDefaultMiddleware,
   isPlain,
   createAction,
   CombinedState,
@@ -20,6 +19,7 @@ import { reducer as sep8Send } from "ducks/sep8Send";
 import { reducer as sep24DepositAsset } from "ducks/sep24DepositAsset";
 import { reducer as sep24WithdrawAsset } from "ducks/sep24WithdrawAsset";
 import { reducer as sep31Send } from "ducks/sep31Send";
+import { reducer as sep38Quotes } from "ducks/sep38Quotes";
 import { reducer as logs } from "ducks/logs";
 import { reducer as sendPayment } from "ducks/sendPayment";
 import { reducer as settings } from "ducks/settings";
@@ -30,6 +30,7 @@ import { reducer as extra } from "ducks/extra";
 
 const RESET_STORE_ACTION_TYPE = "RESET";
 export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
 const isSerializable = (value: any) => {
   // activeAsset has callback function and description can be a component
@@ -57,6 +58,7 @@ const reducers = combineReducers({
   sep24DepositAsset,
   sep24WithdrawAsset,
   sep31Send,
+  sep38Quotes,
   settings,
   trustAsset,
   untrustedAssets,
@@ -71,15 +73,14 @@ const rootReducer = (state: CombinedState<any>, action: Action) => {
 
 export const store = configureStore({
   reducer: rootReducer,
-  middleware: [
-    ...getDefaultMiddleware({
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
       serializableCheck: {
         isSerializable,
       },
     }),
-  ],
 });
 
 export const walletBackendEndpoint: string =
-  process.env.REACT_APP_WALLET_BACKEND_ENDPOINT ?? "";
-export const clientDomain: string = process.env.REACT_APP_CLIENT_DOMAIN ?? "";
+  window._env_.WALLET_BACKEND_ENDPOINT ?? "";
+export const clientDomain: string = window._env_.CLIENT_DOMAIN ?? "";

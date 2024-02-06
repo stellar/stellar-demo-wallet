@@ -1,14 +1,15 @@
-import StellarSdk, {
+import {
   Account,
   Asset,
-  BASE_FEE,
   Keypair,
   Operation,
+  Horizon,
   TransactionBuilder,
 } from "stellar-sdk";
 import { log } from "../../helpers/log";
 import { createMemoFromType } from "../createMemoFromType";
 import { TransactionStatus } from "../../types/types";
+import {getNetworkConfig} from "../../helpers/getNetworkConfig";
 
 export const pollWithdrawUntilComplete = async ({
   secretKey,
@@ -32,7 +33,7 @@ export const pollWithdrawUntilComplete = async ({
   assetIssuer: string;
 }) => {
   const keypair = Keypair.fromSecret(secretKey);
-  const server = new StellarSdk.Server(networkUrl);
+  const server = new Horizon.Server(networkUrl);
   let currentStatus = TransactionStatus.INCOMPLETE;
 
   const transactionUrl = new URL(
@@ -57,8 +58,9 @@ export const pollWithdrawUntilComplete = async ({
       // eslint-disable-next-line no-param-reassign
       popup.location.href = transactionJson.transaction.more_info_url;
 
-      log.instruction({
-        title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status`,
+      log.response({
+        title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status.`,
+        body: transactionJson.transaction,
       });
 
       switch (currentStatus) {
@@ -91,7 +93,7 @@ export const pollWithdrawUntilComplete = async ({
 
           const account = new Account(keypair.publicKey(), sequence);
           const txn = new TransactionBuilder(account, {
-            fee: BASE_FEE,
+            fee: getNetworkConfig().baseFee,
             networkPassphrase,
           })
             .addOperation(

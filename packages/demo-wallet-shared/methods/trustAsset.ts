@@ -1,13 +1,14 @@
-import StellarSdk, {
+import {
   TransactionBuilder,
-  BASE_FEE,
   Operation,
   Asset,
   Keypair,
+  Horizon,
 } from "stellar-sdk";
 import { getErrorMessage } from "../helpers/getErrorMessage";
 import { log } from "../helpers/log";
 import { TrustAssetParam } from "../types/types";
+import {getNetworkConfig} from "../helpers/getNetworkConfig";
 
 export const trustAsset = async ({
   secretKey,
@@ -25,7 +26,7 @@ export const trustAsset = async ({
       title: `Adding \`${untrustedAsset.assetCode}:${untrustedAsset.assetIssuer}\` trustline`,
     });
     const keypair = Keypair.fromSecret(secretKey);
-    const server = new StellarSdk.Server(networkUrl);
+    const server = new Horizon.Server(networkUrl);
 
     log.instruction({
       title:
@@ -35,7 +36,7 @@ export const trustAsset = async ({
 
     log.instruction({ title: "Building add trustline transaction" });
     const transaction = new TransactionBuilder(account, {
-      fee: BASE_FEE,
+      fee: getNetworkConfig().baseFee,
       networkPassphrase,
     })
       .addOperation(

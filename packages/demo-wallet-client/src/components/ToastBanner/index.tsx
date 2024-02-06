@@ -42,10 +42,14 @@ export const ToastBanner = ({
     return null;
   }
 
-  return ReactDOM.createPortal(
-    <div className={`ToastBanner ${isFadeReady ? "open" : ""}`}>
-      <Layout.Inset>{children}</Layout.Inset>
-    </div>,
-    parent,
+  return (
+    <>
+      {ReactDOM.createPortal(
+        <div className={`ToastBanner ${isFadeReady ? "open" : ""}`}>
+          <Layout.Inset>{children}</Layout.Inset>
+        </div>,
+        parent,
+      )}
+    </>
   );
 };

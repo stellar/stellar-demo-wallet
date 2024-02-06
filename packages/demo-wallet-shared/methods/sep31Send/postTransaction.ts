@@ -8,6 +8,8 @@ interface PostTransactionProps {
   transactionFormData: any;
   assetCode: string;
   amount: string;
+  quoteId?: string;
+  destinationAsset?: string;
 }
 
 export const postTransaction = async ({
@@ -18,6 +20,8 @@ export const postTransaction = async ({
   transactionFormData,
   assetCode,
   amount,
+  quoteId,
+  destinationAsset,
 }: PostTransactionProps) => {
   log.instruction({
     title: "POST relevant field info to create a new payment",
@@ -29,7 +33,10 @@ export const postTransaction = async ({
     fields: { transaction: transactionFormData },
     asset_code: assetCode,
     amount,
+    quote_id: quoteId,
+    destination_asset: destinationAsset,
   };
+
   log.request({ title: "POST `/transactions`", body });
 
   const result = await fetch(`${sendServer}/transactions`, {

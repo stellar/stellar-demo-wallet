@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { BASE_FEE } from "stellar-sdk";
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
@@ -12,7 +11,7 @@ import {
   ClaimAssetInitialState,
   ClaimableAsset,
   RejectMessage,
-} from "types/types.d";
+} from "types/types";
 
 export const claimAssetAction = createAsyncThunk<
   { result: any },
@@ -65,7 +64,7 @@ export const claimAssetAction = createAsyncThunk<
           assetCode,
           networkPassphrase: networkConfig.network,
           networkUrl: networkConfig.url,
-          fee: BASE_FEE,
+          fee: networkConfig.baseFee,
         });
 
         return { result, trustedAssetAdded };

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   Button,
-  Input,
   TextLink,
   Modal,
   RadioButton,
@@ -10,6 +9,9 @@ import {
   DetailsTooltip,
 } from "@stellar/design-system";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
+import { AnchorQuotesModal } from "components/AnchorQuotesModal";
+import { KycField, KycFieldInput } from "components/KycFieldInput";
+
 import { fetchAccountAction } from "ducks/account";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
@@ -17,10 +19,17 @@ import {
   submitSep31SendTransactionAction,
   setCustomerTypesAction,
   fetchSendFieldsAction,
+  setStatusAction,
 } from "ducks/sep31Send";
+import {
+  fetchSep38QuotesInfoAction,
+  resetSep38QuotesAction,
+} from "ducks/sep38Quotes";
+
 import { capitalizeString } from "demo-wallet-shared/build/helpers/capitalizeString";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus } from "types/types";
 
 enum CustomerType {
   SENDER = "sender",
@@ -40,7 +49,7 @@ export const Sep31Send = () => {
   });
 
   const { data } = sep31Send;
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
     if (sep31Send.status === ActionStatus.CAN_PROCEED) {
@@ -59,6 +68,7 @@ export const Sep31Send = () => {
           }),
         );
         dispatch(resetSep31SendAction());
+        dispatch(resetSep38QuotesAction());
       }
     }
   }, [
@@ -75,7 +85,9 @@ export const Sep31Send = () => {
     setFormData({});
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { id, value } = event.target;
     const [section, field] = id.split("#");
 
@@ -101,9 +113,34 @@ export const Sep31Send = () => {
 
   const handleSubmit = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    quoteId?: string,
+    destinationAsset?: string,
   ) => {
     event.preventDefault();
-    dispatch(submitSep31SendTransactionAction({ ...formData }));
+    dispatch(
+      submitSep31SendTransactionAction({
+        ...formData,
+        quoteId,
+        destinationAsset,
+      }),
+    );
+  };
+
+  const handleQuotes = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+
+    const { assetCode, assetIssuer } = sep31Send.data;
+
+    dispatch(
+      fetchSep38QuotesInfoAction({
+        anchorQuoteServerUrl: sep31Send.data?.anchorQuoteServer,
+        sellAsset: `stellar:${assetCode}:${assetIssuer}`,
+        sellAmount: formData.amount.amount,
+      }),
+    );
+    dispatch(setStatusAction(ActionStatus.ANCHOR_QUOTES));
   };
 
   const handleSelectTypes = (
@@ -133,6 +170,7 @@ export const Sep31Send = () => {
     resetLocalState();
     dispatch(resetSep31SendAction());
     dispatch(resetActiveAssetAction());
+    dispatch(resetSep38QuotesAction());
   };
 
   const renderSenderOptions = () => {
@@ -198,6 +236,16 @@ export const Sep31Send = () => {
       />
     ));
   };
+
+  if (sep31Send.status === ActionStatus.ANCHOR_QUOTES) {
+    return (
+      <AnchorQuotesModal
+        token={sep31Send.data.token}
+        onClose={handleClose}
+        onSubmit={handleSubmit}
+      />
+    );
+  }
 
   if (sep31Send.status === ActionStatus.NEEDS_INPUT) {
     // Select customer types
@@ -272,25 +320,45 @@ export const Sep31Send = () => {
           </Modal.Heading>
 
           <Modal.Body>
-            {Object.entries(allFields).map(([sectionTitle, sectionItems]) => (
-              <div className="vertical-spacing" key={sectionTitle}>
-                <Heading3>{capitalizeString(sectionTitle)}</Heading3>
-                {Object.entries(sectionItems || {}).map(([id, input]) => (
-                  // TODO: if input.choices, render Select
-                  <Input
-                    key={`${sectionTitle}#${id}`}
-                    id={`${sectionTitle}#${id}`}
-                    label={input.description}
-                    required={!input.optional}
-                    onChange={handleChange}
-                  />
-                ))}
-              </div>
-            ))}
+            {Object.entries(allFields).map(([sectionTitle, sectionItems]) => {
+              // Don't render if section has no items
+              if (Object.values(sectionItems).length === 0) {
+                return null;
+              }
+
+              return (
+                <div className="vertical-spacing" key={sectionTitle}>
+                  <Heading3>{capitalizeString(sectionTitle)}</Heading3>
+                  {Object.entries(sectionItems || {}).map(([id, input]) => (
+                    <KycFieldInput
+                      id={`${sectionTitle}#${id}`}
+                      input={input as KycField}
+                      onChange={handleChange}
+                    />
+                  ))}
+                </div>
+              );
+            })}
           </Modal.Body>
 
           <Modal.Footer>
-            <Button onClick={handleSubmit}>Submit</Button>
+            {data.anchorQuoteSupported ? (
+              data.anchorQuoteRequired ? (
+                <Button onClick={handleQuotes}>Select quote</Button>
+              ) : (
+                <>
+                  <Button
+                    onClick={handleQuotes}
+                    variant={Button.variant.secondary}
+                  >
+                    Select quote
+                  </Button>
+                  <Button onClick={handleSubmit}>Submit</Button>
+                </>
+              )
+            ) : (
+              <Button onClick={handleSubmit}>Submit</Button>
+            )}
           </Modal.Footer>
         </Modal>
       );

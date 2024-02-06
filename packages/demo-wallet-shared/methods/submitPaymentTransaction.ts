@@ -1,4 +1,11 @@
-import StellarSdk, { BASE_FEE, Keypair } from "stellar-sdk";
+import {
+  Keypair,
+  Horizon,
+  Account,
+  Asset,
+  Operation,
+  TransactionBuilder,
+} from "stellar-sdk";
 import { getErrorMessage } from "../helpers/getErrorMessage";
 import { getErrorString } from "../helpers/getErrorString";
 import { getNetworkConfig } from "../helpers/getNetworkConfig";
@@ -12,7 +19,7 @@ export const submitPaymentTransaction = async ({
   params: PaymentTransactionParams;
   secretKey: string;
 }) => {
-  const server = new StellarSdk.Server(getNetworkConfig().url);
+  const server = new Horizon.Server(getNetworkConfig().url);
 
   log.instruction({
     title: `Sending payment of ${params.amount} ${params.assetCode}`,
@@ -79,16 +86,16 @@ export const buildPaymentTransaction = async ({
       publicKey,
     } = params;
     const { sequence } = await server.loadAccount(publicKey);
-    const source = await new StellarSdk.Account(publicKey, sequence);
+    const source = await new Account(publicKey, sequence);
     let operation;
 
     if (isDestinationFunded) {
       const asset =
         !assetCode || assetCode === "XLM"
-          ? StellarSdk.Asset.native()
-          : new StellarSdk.Asset(assetCode, assetIssuer);
+          ? Asset.native()
+          : new Asset(assetCode, assetIssuer);
 
-      operation = StellarSdk.Operation.payment({
+      operation = Operation.payment({
         destination,
         asset,
         amount: amount.toString(),
@@ -100,14 +107,14 @@ export const buildPaymentTransaction = async ({
       });
 
       // If destination account is not funded, create and fund it
-      operation = StellarSdk.Operation.createAccount({
+      operation = Operation.createAccount({
         destination,
         startingBalance: amount.toString(),
       });
     }
 
-    transaction = new StellarSdk.TransactionBuilder(source, {
-      fee: BASE_FEE,
+    transaction = new TransactionBuilder(source, {
+      fee: getNetworkConfig().baseFee,
       networkPassphrase: getNetworkConfig().network,
       timebounds: await server.fetchTimebounds(100),
     }).addOperation(operation);

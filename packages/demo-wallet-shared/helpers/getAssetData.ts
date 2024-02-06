@@ -1,4 +1,5 @@
 import { Types } from "@stellar/wallet-sdk";
+import { omit } from "lodash";
 import { getAssetSettingsFromToml } from "./getAssetSettingsFromToml";
 import { normalizeAssetProps } from "./normalizeAssetProps";
 import { Asset } from "../types/types";
@@ -6,15 +7,17 @@ import { Asset } from "../types/types";
 export const getAssetData = async ({
   balances,
   networkUrl,
+  overrideIds,
 }: {
-  balances: Types.BalanceMap;
+  balances: Types.BalanceMap | undefined;
   networkUrl: string;
+  overrideIds: string[];
 }) => {
-  const allAssets = Object.entries(balances);
+  const allAssets = Object.entries(omit(balances || {}, overrideIds));
   const assets: Asset[] = [];
 
   if (!allAssets?.length) {
-    return assets;
+    return [];
   }
 
   // eslint-disable-next-line @typescript-eslint/prefer-for-of
@@ -29,7 +32,7 @@ export const getAssetData = async ({
 
     assets.push(
       normalizeAssetProps({
-        source: data,
+        source: data as Types.AssetBalance,
         homeDomain,
         supportedActions,
       }),

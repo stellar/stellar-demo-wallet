@@ -20,7 +20,7 @@ import {
   Sep8PaymentTransactionParams,
   Sep8SendInitialState,
   Sep8Step,
-} from "types/types.d";
+} from "types/types";
 
 interface InitiateSep8SendActionResponse {
   approvalCriteria: string;
@@ -122,7 +122,7 @@ export const sep8ReviseTransactionAction = createAsyncThunk<
 );
 
 export const sep8SubmitRevisedTransactionAction = createAsyncThunk<
-  Horizon.TransactionResponse,
+  Horizon.HorizonApi.SubmitTransactionResponse,
   undefined,
   { rejectValue: RejectMessage; state: RootState }
 >(

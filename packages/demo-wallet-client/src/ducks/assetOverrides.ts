@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
+import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getAssetOverridesData } from "demo-wallet-shared/build/helpers/getAssetOverridesData";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
@@ -10,7 +11,7 @@ import {
   Asset,
   AssetOverridesInitialState,
   RejectMessage,
-} from "types/types.d";
+} from "types/types";
 
 export const addAssetOverridesAction = createAsyncThunk<
   Asset[],
@@ -18,13 +19,21 @@ export const addAssetOverridesAction = createAsyncThunk<
   { rejectValue: RejectMessage; state: RootState }
 >(
   "assetOverrides/addAssetOverridesAction",
-  async (assetOverridesString, { rejectWithValue }) => {
+  async (assetOverridesString, { rejectWithValue, getState }) => {
+    const { untrustedAssets: untrustedAssetsSetting } = settingsSelector(
+      getState(),
+    );
+
     try {
       const assetOverrides = searchKeyPairStringToArray(assetOverridesString);
+      const untrustedAssets = searchKeyPairStringToArray(
+        untrustedAssetsSetting,
+      ).map((u) => u.assetString);
 
       const response = await getAssetOverridesData({
         assetOverrides,
         networkUrl: getNetworkConfig().url,
+        untrustedAssets,
       });
 
       return response;
@@ -52,6 +61,19 @@ const assetOverridesSlice = createSlice({
       state.status = undefined;
     },
     resetAssetOverridesAction: () => initialState,
+    updateAssetOverrideAction: (state, action) => {
+      if (state.data.length) {
+        const updated = state.data.map((a) => {
+          if (a.assetString === action.payload.assetString) {
+            return { ...a, ...action.payload.updatedProperties };
+          }
+
+          return a;
+        });
+
+        state.data = updated;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(addAssetOverridesAction.pending, (state = initialState) => {
@@ -72,5 +94,8 @@ export const assetOverridesSelector = (state: RootState) =>
   state.assetOverrides;
 
 export const { reducer } = assetOverridesSlice;
-export const { resetAssetOverridesStatusAction, resetAssetOverridesAction } =
-  assetOverridesSlice.actions;
+export const {
+  resetAssetOverridesStatusAction,
+  resetAssetOverridesAction,
+  updateAssetOverrideAction,
+} = assetOverridesSlice.actions;

@@ -4,6 +4,7 @@ import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { checkDepositWithdrawInfo } from "demo-wallet-shared/build/methods/checkDepositWithdrawInfo";
 import {
@@ -30,7 +31,9 @@ import {
   TomlFields,
   AnchorActionType,
   AnyObject,
-} from "types/types.d";
+  TransactionStatus,
+  SepInstructions,
+} from "types/types";
 
 type InitiateDepositActionPayload = Sep6DepositAssetInitialState["data"] & {
   status: ActionStatus;
@@ -121,7 +124,7 @@ export const initiateDepositAction = createAsyncThunk<
           authEndpoint: webAuthTomlResponse.WEB_AUTH_ENDPOINT,
           serverSigningKey: webAuthTomlResponse.SIGNING_KEY,
           publicKey,
-          homeDomain,
+          homeDomain: normalizeHomeDomainUrl(homeDomain).host,
           clientDomain,
         });
 
@@ -139,29 +142,11 @@ export const initiateDepositAction = createAsyncThunk<
           signedChallengeTransaction,
         });
 
-        // Get SEP-12 fields
-        log.instruction({
-          title: "Making GET `/customer` request for user",
-        });
-
-        const sep12Fields = await collectSep12Fields({
-          publicKey,
-          token,
-          kycServer: webAuthTomlResponse.KYC_SERVER,
-        });
-
         payload = {
           ...payload,
           kycServer: webAuthTomlResponse.KYC_SERVER,
           token,
         };
-
-        if (sep12Fields) {
-          payload = {
-            ...payload,
-            customerFields: { ...payload.customerFields, ...sep12Fields },
-          };
-        }
       }
 
       return payload;
@@ -181,7 +166,11 @@ export const initiateDepositAction = createAsyncThunk<
 );
 
 export const submitSep6DepositFields = createAsyncThunk<
-  { status: ActionStatus; depositResponse: Sep6DepositResponse },
+  {
+    status: ActionStatus;
+    depositResponse: Sep6DepositResponse;
+    customerFields?: AnyObject;
+  },
   {
     amount?: string;
     depositType: AnyObject;
@@ -197,8 +186,8 @@ export const submitSep6DepositFields = createAsyncThunk<
   ) => {
     try {
       const { data } = accountSelector(getState());
-      const { claimableBalanceSupported } = settingsSelector(getState());
       const publicKey = data?.id || "";
+      const { claimableBalanceSupported } = settingsSelector(getState());
       const { secretKey } = accountSelector(getState());
       const { data: sep6Data } = sep6DepositSelector(getState());
 
@@ -224,9 +213,74 @@ export const submitSep6DepositFields = createAsyncThunk<
         claimableBalanceSupported,
       })) as Sep6DepositResponse;
 
+      if (
+        depositResponse.type ===
+        TransactionStatus.NON_INTERACTIVE_CUSTOMER_INFO_NEEDED
+      ) {
+        log.instruction({
+          title: "Anchor requires additional customer information (KYC)",
+        });
+
+        // Get SEP-12 fields
+        log.instruction({
+          title: "Making GET `/customer` request for user",
+        });
+
+        const customerFields = await collectSep12Fields({
+          publicKey: data?.id!,
+          token,
+          kycServer,
+        });
+
+        return {
+          status: ActionStatus.NEEDS_KYC,
+          depositResponse,
+          customerFields,
+        };
+      }
+
       return {
         status: ActionStatus.CAN_PROCEED,
         depositResponse,
+      };
+    } catch (e) {
+      const errorMessage = getErrorMessage(e);
+
+      log.error({
+        title: errorMessage,
+      });
+
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
+export const submitSep6CustomerInfoFields = createAsyncThunk<
+  { status: ActionStatus },
+  AnyObject,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep6DepositAsset/submitSep6CustomerInfoFields",
+  async (customerFields, { rejectWithValue, getState }) => {
+    try {
+      const { secretKey } = accountSelector(getState());
+      const { data: sep6Data } = sep6DepositSelector(getState());
+
+      const { kycServer, token } = sep6Data;
+
+      if (Object.keys(customerFields).length) {
+        await putSep12FieldsRequest({
+          fields: customerFields,
+          kycServer,
+          secretKey,
+          token,
+        });
+      }
+
+      return {
+        status: ActionStatus.CAN_PROCEED,
       };
     } catch (e) {
       const errorMessage = getErrorMessage(e);
@@ -247,14 +301,16 @@ export const sep6DepositAction = createAsyncThunk<
     currentStatus: string;
     status: ActionStatus;
     trustedAssetAdded: string;
+    requiredCustomerInfoUpdates: string[] | undefined;
+    customerFields?: { [key: string]: AnyObject };
   },
   undefined,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep6DepositAsset/sep6DepositAction",
-  async (_, { rejectWithValue, getState }) => {
+  async (_, { rejectWithValue, getState, dispatch }) => {
     try {
-      const { secretKey } = accountSelector(getState());
+      const { secretKey, data } = accountSelector(getState());
       const networkConfig = getNetworkConfig();
       const { data: sep6Data } = sep6DepositSelector(getState());
 
@@ -264,6 +320,7 @@ export const sep6DepositAction = createAsyncThunk<
         depositResponse,
         transferServerUrl,
         token,
+        kycServer,
       } = sep6Data;
 
       const trustAssetCallback = async () => {
@@ -284,18 +341,44 @@ export const sep6DepositAction = createAsyncThunk<
       };
 
       // Poll transaction until complete
-      const { currentStatus = "", trustedAssetAdded = "" } =
-        await pollDepositUntilComplete({
-          transactionId: depositResponse.id || "",
-          token,
-          transferServerUrl,
-          trustAssetCallback,
+      const {
+        currentStatus = "",
+        trustedAssetAdded = "",
+        requiredCustomerInfoUpdates,
+      } = await pollDepositUntilComplete({
+        transactionId: depositResponse.id || "",
+        token,
+        transferServerUrl,
+        trustAssetCallback,
+        dispatchInstructions: (instructions: SepInstructions) =>
+          dispatch(updateInstructionsAction(instructions)),
+      });
+
+      let customerFields;
+
+      // Need to get KYC fields to get field info
+      if (currentStatus === TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE) {
+        // Get SEP-12 fields
+        log.instruction({
+          title: "Making GET `/customer` request for user",
         });
+
+        customerFields = await collectSep12Fields({
+          publicKey: data?.id!,
+          token,
+          kycServer,
+        });
+      }
 
       return {
         currentStatus,
-        status: ActionStatus.SUCCESS,
+        status:
+          currentStatus === TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE
+            ? ActionStatus.NEEDS_INPUT
+            : ActionStatus.SUCCESS,
         trustedAssetAdded,
+        requiredCustomerInfoUpdates,
+        customerFields,
       };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
@@ -330,6 +413,8 @@ const initialState: Sep6DepositAssetInitialState = {
     token: "",
     transferServerUrl: "",
     trustedAssetAdded: "",
+    requiredCustomerInfoUpdates: undefined,
+    instructions: undefined,
   },
   status: "" as ActionStatus,
   errorString: undefined,
@@ -340,6 +425,9 @@ const sep6DepositAssetSlice = createSlice({
   initialState,
   reducers: {
     resetSep6DepositAction: () => initialState,
+    updateInstructionsAction: (state, action) => {
+      state.data.instructions = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(initiateDepositAction.pending, (state) => {
@@ -354,6 +442,7 @@ const sep6DepositAssetSlice = createSlice({
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
     builder.addCase(submitSep6DepositFields.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
@@ -361,11 +450,28 @@ const sep6DepositAssetSlice = createSlice({
     builder.addCase(submitSep6DepositFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
       state.data.depositResponse = action.payload.depositResponse;
+      state.data.customerFields = {
+        ...state.data.customerFields,
+        ...action.payload.customerFields,
+      };
     });
     builder.addCase(submitSep6DepositFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
+    builder.addCase(submitSep6CustomerInfoFields.pending, (state) => {
+      state.errorString = undefined;
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(submitSep6CustomerInfoFields.fulfilled, (state, action) => {
+      state.status = action.payload.status;
+    });
+    builder.addCase(submitSep6CustomerInfoFields.rejected, (state, action) => {
+      state.errorString = action.payload?.errorString;
+      state.status = ActionStatus.ERROR;
+    });
+
     builder.addCase(sep6DepositAction.pending, (state) => {
       state.status = ActionStatus.PENDING;
     });
@@ -373,6 +479,21 @@ const sep6DepositAssetSlice = createSlice({
       state.status = action.payload.status;
       state.data.currentStatus = action.payload.currentStatus;
       state.data.trustedAssetAdded = action.payload.trustedAssetAdded;
+
+      const customerFields = {
+        ...state.data.customerFields,
+        ...action.payload.customerFields,
+      };
+
+      state.data.requiredCustomerInfoUpdates =
+        action.payload.requiredCustomerInfoUpdates?.map((field) => ({
+          ...customerFields[field],
+          id: field,
+        }));
+
+      if (action.payload.customerFields) {
+        state.data.customerFields = customerFields;
+      }
     });
     builder.addCase(sep6DepositAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
@@ -384,4 +505,5 @@ const sep6DepositAssetSlice = createSlice({
 export const sep6DepositSelector = (state: RootState) => state.sep6DepositAsset;
 
 export const { reducer } = sep6DepositAssetSlice;
-export const { resetSep6DepositAction } = sep6DepositAssetSlice.actions;
+export const { resetSep6DepositAction, updateInstructionsAction } =
+  sep6DepositAssetSlice.actions;

@@ -11,14 +11,17 @@ import {
 } from "@stellar/design-system";
 
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
+import { KycField, KycFieldInput } from "components/KycFieldInput";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6DepositAction,
   submitSep6DepositFields,
   sep6DepositAction,
+  submitSep6CustomerInfoFields,
 } from "ducks/sep6DepositAsset";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus } from "types/types";
 
 export const Sep6Deposit = () => {
   const { sep6DepositAsset } = useRedux("sep6DepositAsset");
@@ -49,7 +52,9 @@ export const Sep6Deposit = () => {
   };
 
   const [formData, setFormData] = useState<FormData>(formInitialState);
-  const dispatch = useDispatch();
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(true);
+
+  const dispatch: AppDispatch = useDispatch();
 
   const depositTypeChoices = useMemo(
     () => sep6DepositAsset.data.infoFields?.type?.choices || [],
@@ -112,7 +117,7 @@ export const Sep6Deposit = () => {
   };
 
   const handleCustomerFieldChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { id, value } = event.target;
 
@@ -145,6 +150,13 @@ export const Sep6Deposit = () => {
     dispatch(submitSep6DepositFields({ ...formData }));
   };
 
+  const handleSubmitCustomerInfo = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    dispatch(submitSep6CustomerInfoFields(formData.customerFields));
+  };
+
   const renderMinMaxAmount = () => {
     const { minAmount, maxAmount } = sep6DepositAsset.data;
 
@@ -155,7 +167,84 @@ export const Sep6Deposit = () => {
     return `Min: ${minAmount} | Max: ${maxAmount}`;
   };
 
+  if (sep6DepositAsset.status === ActionStatus.NEEDS_KYC) {
+    return (
+      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+        <Modal.Heading>SEP-6 Customer Info</Modal.Heading>
+        <Modal.Body>
+          {Object.keys(sep6DepositAsset.data.customerFields).length ? (
+            <Heading3>
+              <DetailsTooltip
+                details={
+                  <>
+                    These are the fields the receiving anchor requires. The
+                    sending client obtains them from the /customer endpoint.{" "}
+                    <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
+                      Learn more
+                    </TextLink>
+                  </>
+                }
+                isInline
+                tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
+              >
+                <>SEP-12 Required Info</>
+              </DetailsTooltip>
+            </Heading3>
+          ) : null}
+          <div className="vertical-spacing">
+            {Object.entries(sep6DepositAsset.data.customerFields || {}).map(
+              ([id, input]) => (
+                <KycFieldInput
+                  id={id}
+                  input={input as KycField}
+                  onChange={handleCustomerFieldChange}
+                />
+              ),
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={handleSubmit}>Submit</Button>
+          <Button onClick={handleClose} variant={Button.variant.secondary}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
   if (sep6DepositAsset.status === ActionStatus.NEEDS_INPUT) {
+    if (
+      sep6DepositAsset.data.requiredCustomerInfoUpdates &&
+      sep6DepositAsset.data.requiredCustomerInfoUpdates.length
+    ) {
+      return (
+        <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
+          <Modal.Heading>SEP-6 Update Customer Info</Modal.Heading>
+          <Modal.Body>
+            <div className="vertical-spacing">
+              {sep6DepositAsset.data.requiredCustomerInfoUpdates.map(
+                (input) => (
+                  <KycFieldInput
+                    id={input.id}
+                    input={input as KycField}
+                    onChange={handleCustomerFieldChange}
+                    isRequired={true}
+                  />
+                ),
+              )}
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={handleSubmitCustomerInfo}>Submit</Button>
+            <Button onClick={handleClose} variant={Button.variant.secondary}>
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      );
+    }
+
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
         <Modal.Heading>SEP-6 Deposit Info</Modal.Heading>
@@ -213,7 +302,7 @@ export const Sep6Deposit = () => {
                 id === "type" ? (
                   <div key={id}>
                     <Select
-                      label={input.description}
+                      label={(input as any).description}
                       id={id}
                       key={id}
                       onChange={handleDepositTypeChange}
@@ -229,44 +318,11 @@ export const Sep6Deposit = () => {
                   <Input
                     key={id}
                     id={id}
-                    label={input.description}
+                    label={(input as any).description}
                     required
                     onChange={handleInfoFieldChange}
                   />
                 ),
-            )}
-          </div>
-
-          {Object.keys(sep6DepositAsset.data.customerFields).length ? (
-            <Heading3>
-              <DetailsTooltip
-                details={
-                  <>
-                    These are the fields the receiving anchor requires. The
-                    sending client obtains them from the /customer endpoint.{" "}
-                    <TextLink href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0012.md#customer-get">
-                      Learn more
-                    </TextLink>
-                  </>
-                }
-                isInline
-                tooltipPosition={DetailsTooltip.tooltipPosition.BOTTOM}
-              >
-                <>SEP-12 Required Info</>
-              </DetailsTooltip>
-            </Heading3>
-          ) : null}
-          <div className="vertical-spacing">
-            {Object.entries(sep6DepositAsset.data.customerFields || {}).map(
-              ([id, input]) => (
-                <Input
-                  key={id}
-                  id={id}
-                  label={input.description}
-                  required
-                  onChange={handleCustomerFieldChange}
-                />
-              ),
             )}
           </div>
         </Modal.Body>
@@ -284,7 +340,7 @@ export const Sep6Deposit = () => {
   if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED) {
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>SEP-6 Deposit Success</Modal.Heading>
+        <Modal.Heading>SEP-6 Deposit Details</Modal.Heading>
 
         <Modal.Body>
           <p>{depositResponse.how}</p>
@@ -300,6 +356,32 @@ export const Sep6Deposit = () => {
             Close
           </Button>
         </Modal.Footer>
+      </Modal>
+    );
+  }
+
+  if (sep6DepositAsset.data.instructions) {
+    return (
+      <Modal
+        visible={isInfoModalVisible}
+        onClose={() => setIsInfoModalVisible(false)}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
+        <Modal.Heading>SEP-6 Deposit Instructions</Modal.Heading>
+
+        <Modal.Body>
+          <p>Transfer your offchain funds to the following destination:</p>
+          <div className="vertical-spacing">
+            {Object.entries(sep6DepositAsset.data.instructions).map(
+              ([key, instr]) => (
+                <div key={key}>
+                  <label>{instr.description}</label>
+                  <span>{instr.value}</span>
+                </div>
+              ),
+            )}
+          </div>
+        </Modal.Body>
       </Modal>
     );
   }

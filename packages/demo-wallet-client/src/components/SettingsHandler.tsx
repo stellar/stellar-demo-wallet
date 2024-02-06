@@ -8,7 +8,8 @@ import { updateSettingsAction } from "ducks/settings";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { useRedux } from "hooks/useRedux";
-import { ActionStatus, SearchParams } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { ActionStatus, SearchParams } from "types/types";
 
 export const SettingsHandler = ({
   children,
@@ -17,7 +18,7 @@ export const SettingsHandler = ({
 }) => {
   const { account } = useRedux("account");
 
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,6 +29,33 @@ export const SettingsHandler = ({
   const claimableBalanceSupportedParam = queryParams.get(
     SearchParams.CLAIMABLE_BALANCE_SUPPORTED,
   );
+
+  // Asset overrides
+  useEffect(() => {
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.ASSET_OVERRIDES]: assetOverridesParam || "",
+      }),
+    );
+  }, [assetOverridesParam, dispatch]);
+
+  // Untrusted assets
+  useEffect(() => {
+    const cleanedAssets = untrustedAssetsParam
+      ?.split(",")
+      .reduce(
+        (unique: string[], item: string) =>
+          unique.includes(item) ? unique : [...unique, item],
+        [],
+      )
+      .join(",");
+
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.UNTRUSTED_ASSETS]: cleanedAssets || "",
+      }),
+    );
+  }, [untrustedAssetsParam, dispatch]);
 
   // Set secret key param (secretKey=[SECRET_KEY]) and fetch account info
   // This will handle both: secret key submitted on Demo Wallet and directly
@@ -61,33 +89,6 @@ export const SettingsHandler = ({
       }
     }
   }, [secretKeyParam, dispatch]);
-
-  // Untrusted assets
-  useEffect(() => {
-    const cleanedAssets = untrustedAssetsParam
-      ?.split(",")
-      .reduce(
-        (unique: string[], item: string) =>
-          unique.includes(item) ? unique : [...unique, item],
-        [],
-      )
-      .join(",");
-
-    dispatch(
-      updateSettingsAction({
-        [SearchParams.UNTRUSTED_ASSETS]: cleanedAssets || "",
-      }),
-    );
-  }, [untrustedAssetsParam, dispatch]);
-
-  // Asset overrides
-  useEffect(() => {
-    dispatch(
-      updateSettingsAction({
-        [SearchParams.ASSET_OVERRIDES]: assetOverridesParam || "",
-      }),
-    );
-  }, [assetOverridesParam, dispatch]);
 
   // Claimabable balance supported
   useEffect(() => {

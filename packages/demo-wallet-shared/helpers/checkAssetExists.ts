@@ -1,4 +1,4 @@
-import { Server } from "stellar-sdk";
+import { Horizon } from "stellar-sdk";
 import { Types } from "@stellar/wallet-sdk";
 
 type CheckAssetExistsProps = {
@@ -20,7 +20,7 @@ export const checkAssetExists = async ({
     throw new Error(`Asset \`${asset}\` is already trusted`);
   }
 
-  const server = new Server(networkUrl);
+  const server = new Horizon.Server(networkUrl);
   const assetResponse = await server
     .assets()
     .forCode(assetCode)

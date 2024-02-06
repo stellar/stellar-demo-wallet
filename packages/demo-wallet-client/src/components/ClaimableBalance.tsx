@@ -3,7 +3,8 @@ import { useDispatch } from "react-redux";
 import { BalanceRow } from "components/BalanceRow";
 import { claimAssetAction } from "ducks/claimAsset";
 import { useRedux } from "hooks/useRedux";
-import { AssetActionItem, ClaimableAsset } from "types/types.d";
+import { AppDispatch } from "config/store";
+import { AssetActionItem, ClaimableAsset } from "types/types";
 
 export const ClaimableBalance = ({
   onAssetAction,
@@ -22,7 +23,7 @@ export const ClaimableBalance = ({
   );
   const balances = claimableBalances.data.records;
 
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   const handleClaim = (balance: ClaimableAsset) => {
     onAssetAction({
