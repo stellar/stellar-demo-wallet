@@ -1,8 +1,9 @@
 import { Input, TextLink } from "@stellar/design-system";
 import { useDispatch } from "react-redux";
 import { updateExtraAction } from "ducks/extra";
+import { ExtraCategory } from "types/types";
 
-export const Sep9Fields = () => {
+export const ExtraSep9Fields = () => {
   const FIELDS = [
     {
       id: "amount",
@@ -43,7 +44,7 @@ export const Sep9Fields = () => {
   }: {
     id: string;
     value: string;
-    category?: string;
+    category?: ExtraCategory;
   }) => {
     if (value) {
       dispatch(

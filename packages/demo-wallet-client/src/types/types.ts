@@ -163,11 +163,16 @@ export interface CustodialInitialState {
   memoId: string;
 }
 
-export interface ExtraInitialState {
-  [cat: string]: {
-    [param: string]: any;
-  };
-}
+export type ExtraCategory = "sep9Fields" | "memo";
+
+export type ExtraInitialState = Partial<
+  Record<
+    ExtraCategory,
+    {
+      [param: string]: any;
+    }
+  >
+>;
 
 export interface AnyObject {
   [key: string]: any;

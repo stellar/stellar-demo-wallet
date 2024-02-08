@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "config/store";
-import { ExtraInitialState } from "types/types";
+import { ExtraCategory, ExtraInitialState } from "types/types";
 
 const initialState: ExtraInitialState = {};
 
@@ -10,7 +10,11 @@ const extraSlice = createSlice({
   reducers: {
     updateExtraAction: (
       state,
-      action: PayloadAction<{ category: string; param: string; value: string }>,
+      action: PayloadAction<{
+        category: ExtraCategory;
+        param: string;
+        value: string;
+      }>,
     ) => {
       const currentCatItems = state[action.payload.category] || {};
 
@@ -22,12 +26,14 @@ const extraSlice = createSlice({
         },
       };
     },
-    removeExtraAction: (state, action: PayloadAction<string>) => {
+    removeExtraAction: (state, action: PayloadAction<ExtraCategory[]>) => {
       const newState = { ...state };
 
-      if (newState[action.payload]) {
-        delete newState[action.payload];
-      }
+      action.payload.forEach((a) => {
+        if (newState[a]) {
+          delete newState[a];
+        }
+      });
 
       return newState;
     },

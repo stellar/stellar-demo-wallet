@@ -157,7 +157,7 @@ export const Assets = ({
     setActiveModal("");
     dispatch(resetActiveAssetAction());
     dispatch(resetCustodialAction());
-    dispatch(removeExtraAction("sep9Fields"));
+    dispatch(removeExtraAction(["sep9Fields", "memo"]));
   };
 
   const handleAssetAction = ({
@@ -202,7 +202,7 @@ export const Assets = ({
       if (status === ActionStatus.SUCCESS || status === ActionStatus.ERROR) {
         dispatch(resetActiveAssetAction());
         dispatch(resetCustodialAction());
-        dispatch(removeExtraAction("sep9Fields"));
+        dispatch(removeExtraAction(["sep9Fields", "memo"]));
       }
 
       if (
