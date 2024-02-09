@@ -16,13 +16,29 @@ const extraSlice = createSlice({
         value: string;
       }>,
     ) => {
-      const currentCatItems = state[action.payload.category] || {};
+      let currentCatItems = state[action.payload.category] || {};
+
+      // Removing param from the category if it has no value
+      if (!action.payload.value) {
+        currentCatItems = Object.entries(currentCatItems).reduce(
+          (prev, [param, value]) => {
+            if (param !== action.payload.param) {
+              return { ...prev, [param]: value };
+            }
+
+            return prev;
+          },
+          {},
+        );
+      }
 
       return {
         ...state,
         [action.payload.category]: {
           ...currentCatItems,
-          [action.payload.param]: action.payload.value,
+          ...(action.payload.value
+            ? { [action.payload.param]: action.payload.value }
+            : {}),
         },
       };
     },

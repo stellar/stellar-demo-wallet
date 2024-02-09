@@ -381,6 +381,7 @@ export interface Store {
   assetOverrides: AssetOverridesInitialState;
   claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
+  extra: ExtraInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
   sep6DepositAsset: Sep6DepositAssetInitialState;
