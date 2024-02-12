@@ -163,6 +163,17 @@ export interface CustodialInitialState {
   memoId: string;
 }
 
+export type ExtraCategory = "sep9Fields" | "memo";
+
+export type ExtraInitialState = Partial<
+  Record<
+    ExtraCategory,
+    {
+      [param: string]: any;
+    }
+  >
+>;
+
 export interface AnyObject {
   [key: string]: any;
 }
@@ -370,6 +381,7 @@ export interface Store {
   assetOverrides: AssetOverridesInitialState;
   claimAsset: ClaimAssetInitialState;
   claimableBalances: ClaimableBalancesInitialState;
+  extra: ExtraInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
   sep6DepositAsset: Sep6DepositAssetInitialState;
@@ -423,6 +435,7 @@ export interface ActiveAssetAction {
   callback: (args?: any) => void;
   options?: ReactNode;
   showCustodial?: boolean;
+  showExtra?: boolean;
 }
 
 export interface AssetActionItem extends ActiveAssetAction {

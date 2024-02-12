@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Modal } from "@stellar/design-system";
 import { useRedux } from "hooks/useRedux";
 import { CustodialFields } from "components/CustodialFields";
+import { ExtraSep9Fields } from "components/ExtraSep9Fields";
 
 export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
   const { activeAsset } = useRedux("activeAsset");
@@ -11,7 +12,7 @@ export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
     return null;
   }
 
-  const { title, description, callback, options, showCustodial } =
+  const { title, description, callback, options, showCustodial, showExtra } =
     activeAsset.action;
 
   const isStartDisabled = showCustodial && !isCustodialFieldsValid;
@@ -33,6 +34,8 @@ export const ConfirmAssetAction = ({ onClose }: { onClose: () => void }) => {
             isValid={(isValid: boolean) => setIsCustodialFieldsValid(isValid)}
           />
         ) : null}
+
+        {showExtra ? <ExtraSep9Fields /> : null}
       </Modal.Body>
 
       <Modal.Footer>

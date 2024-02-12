@@ -44,6 +44,7 @@ import {
 } from "ducks/untrustedAssets";
 import { resetSep24WithdrawAssetAction } from "ducks/sep24WithdrawAsset";
 import { resetCustodialAction } from "ducks/custodial";
+import { removeExtraAction } from "ducks/extra";
 
 import { getPresetAssets } from "demo-wallet-shared/build/helpers/getPresetAssets";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
@@ -156,6 +157,7 @@ export const Assets = ({
     setActiveModal("");
     dispatch(resetActiveAssetAction());
     dispatch(resetCustodialAction());
+    dispatch(removeExtraAction(["sep9Fields", "memo"]));
   };
 
   const handleAssetAction = ({
@@ -166,6 +168,7 @@ export const Assets = ({
     description,
     options,
     showCustodial,
+    showExtra,
   }: AssetActionItem) => {
     setActiveModal(ModalType.CONFIRM_ACTION);
     dispatch(
@@ -179,6 +182,7 @@ export const Assets = ({
         },
         options,
         showCustodial,
+        showExtra,
       }),
     );
   };
@@ -198,6 +202,7 @@ export const Assets = ({
       if (status === ActionStatus.SUCCESS || status === ActionStatus.ERROR) {
         dispatch(resetActiveAssetAction());
         dispatch(resetCustodialAction());
+        dispatch(removeExtraAction(["sep9Fields", "memo"]));
       }
 
       if (
