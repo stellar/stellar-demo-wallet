@@ -33,8 +33,6 @@ export const pollDepositUntilComplete = async ({
     TransactionStatus.ERROR,
   ];
 
-  let moreInfoLogged = false;
-
   while (!popup.closed && !endStatuses.includes(currentStatus)) {
     // eslint-disable-next-line no-await-in-loop
     const response = await fetch(transactionUrl.toString(), {
@@ -47,12 +45,9 @@ export const pollDepositUntilComplete = async ({
     if (transactionJson.transaction.status !== currentStatus) {
       currentStatus = transactionJson.transaction.status;
 
-      if (!moreInfoLogged) {
-        moreInfoLogged = true;
-        log.instruction({
-          title: `Transaction \`${transactionId}\` more info is available via url: \`${transactionJson.transaction.more_info_url}\``,
-        });
-      }
+      log.instruction({
+        title: `Transaction MORE INFO URL: \`${transactionJson.transaction.more_info_url}\``,
+      });
 
       log.response({
         title: `Transaction \`${transactionId}\` is in \`${transactionJson.transaction.status}\` status.`,
