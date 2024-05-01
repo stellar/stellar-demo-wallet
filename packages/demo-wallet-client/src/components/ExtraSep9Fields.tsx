@@ -39,6 +39,11 @@ const FIELDS = [
     type: "text",
   },
   {
+    id: "mobile_number_format",
+    label: "Mobile number format",
+    type: "text",
+  },
+  {
     id: "email_address",
     label: "Email address",
     type: "email",
@@ -48,6 +53,11 @@ const FIELDS = [
     label: "Address",
     type: "text",
   },
+  {
+    id: "customer_id",
+    label: "Customer ID",
+    type: "test",
+  }
 ];
 
 export const ExtraSep9Fields = () => {
