@@ -28,10 +28,17 @@
     }
   }
 
-  &__title {
+  &__title,
+  &__link {
     font-size: 1rem;
     line-height: 1.25rem;
     word-break: break-word;
+  }
+
+  &__link {
+    padding: 1rem;
+    padding-top: 0;
+    margin-top: -0.8rem;
   }
 
   &__body {

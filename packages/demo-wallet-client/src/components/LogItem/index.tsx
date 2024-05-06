@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { marked } from "marked";
-import { Icon } from "@stellar/design-system";
+import { Icon, TextLink } from "@stellar/design-system";
 import { Json } from "components/Json";
 import { sanitizeHtml } from "demo-wallet-shared/build/helpers/sanitizeHtml";
 import { LogType, AnyObject } from "types/types";
@@ -22,6 +22,7 @@ interface LogItemProps {
   title: string;
   variant: LogType;
   body?: string | AnyObject;
+  link?: string;
 }
 
 const theme = {
@@ -63,7 +64,7 @@ const theme = {
   },
 };
 
-export const LogItem = ({ title, variant, body }: LogItemProps) => {
+export const LogItem = ({ title, variant, body, link }: LogItemProps) => {
   const [isFadeReady, setIsFadeReady] = useState(false);
 
   useEffect(() => {
@@ -85,6 +86,13 @@ export const LogItem = ({ title, variant, body }: LogItemProps) => {
         <div className="LogItem__icon">{LogItemIcon[variant]}</div>
         <div className="LogItem__title">{sanitizeHtml(marked(title))}</div>
       </div>
+      {link ? (
+        <div className="LogItem__link">
+          <TextLink href={link} variant={TextLink.variant.secondary}>
+            {link}
+          </TextLink>
+        </div>
+      ) : null}
       {bodyParsed && (
         <div className="LogItem__body">
           {typeof bodyParsed === "object" ? (

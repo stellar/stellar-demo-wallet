@@ -46,16 +46,19 @@ export const log = {
   instruction: ({
     title,
     body = "",
+    link,
   }: {
     title: string;
     body?: string | AnyObject;
+    link?: string;
   }) => {
-    console.info("💬", title, body);
+    console.info("💬", title, body, link || "");
     dispatchLog({
       timestamp: new Date().getTime(),
       type: LogType.INSTRUCTION,
       title,
       body,
+      link,
     });
   },
 
