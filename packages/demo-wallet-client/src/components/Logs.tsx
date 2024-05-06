@@ -15,7 +15,7 @@ export const Logs = () => {
 
   useEffect(() => {
     const onLogEventMessage = (e: any) => {
-      const { timestamp, type, title, body } = e.detail;
+      const { timestamp, type, title, body, link } = e.detail;
 
       dispatch(
         addLogAction({
@@ -23,6 +23,7 @@ export const Logs = () => {
           type,
           title,
           body: JSON.stringify(body),
+          link,
         }),
       );
     };
@@ -105,6 +106,7 @@ export const Logs = () => {
                     variant={log.type}
                     title={log.title}
                     body={log.body}
+                    link={log.link}
                   />
                 ))
               ) : (

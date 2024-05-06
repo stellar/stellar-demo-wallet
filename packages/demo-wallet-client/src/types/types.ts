@@ -372,6 +372,7 @@ export interface LogItemProps {
   type: LogType;
   title: string;
   body?: string | AnyObject;
+  link?: string;
 }
 
 export interface Store {

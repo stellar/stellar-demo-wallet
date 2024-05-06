@@ -33,6 +33,19 @@ export const pollDepositUntilComplete = async ({
     TransactionStatus.ERROR,
   ];
 
+  const initResponse = await fetch(transactionUrl.toString(), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const initTransactionJson = await initResponse.json();
+
+  if (initTransactionJson?.transaction?.more_info_url) {
+    log.instruction({
+      title: "Transaction MORE INFO URL:",
+      link: initTransactionJson.transaction.more_info_url,
+    });
+  }
+
   while (!popup.closed && !endStatuses.includes(currentStatus)) {
     // eslint-disable-next-line no-await-in-loop
     const response = await fetch(transactionUrl.toString(), {
@@ -46,7 +59,8 @@ export const pollDepositUntilComplete = async ({
       currentStatus = transactionJson.transaction.status;
 
       log.instruction({
-        title: `Transaction MORE INFO URL: \`${transactionJson.transaction.more_info_url}\``,
+        title: "Transaction MORE INFO URL:",
+        link: initTransactionJson.transaction.more_info_url,
       });
 
       log.response({
