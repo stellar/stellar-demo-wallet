@@ -58,10 +58,11 @@
   },
   "scripts": {
     "install-if-package-changed": "git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD | grep --quiet yarn.lock && yarn install || exit 0",
-    "start": "webpack serve --open --config webpack.dev.js",
-    "build": "NODE_ENV=production webpack --config webpack.prod.js",
+    "start": "yarn git-info && webpack serve --open --config webpack.dev.js",
+    "build": "yarn git-info && NODE_ENV=production webpack --config webpack.prod.js",
     "prepare": "cd ../../ && husky install packages/demo-wallet-client/.husky",
-    "pre-commit": "concurrently 'pretty-quick --staged' 'lint-staged' 'tsc --noEmit'"
+    "pre-commit": "concurrently 'pretty-quick --staged' 'lint-staged' 'tsc --noEmit'",
+    "git-info": "rm -rf src/generated/ && mkdir src/generated/ && echo \"export const gitInfo = { commitHash: \\\"$(git rev-parse --short HEAD)\\\", version: \\\"$(git describe --tags --always)\\\" };\" > src/generated/gitInfo.ts"
   },
   "eslintConfig": {
     "extends": [
