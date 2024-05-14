@@ -1,13 +1,12 @@
 import { Horizon } from "stellar-sdk";
-import { Types } from "@stellar/wallet-sdk";
 import { getAssetSettingsFromToml } from "./getAssetSettingsFromToml";
 import { normalizeAssetProps } from "./normalizeAssetProps";
 import { log } from "./log";
-import { Asset } from "../types/types";
+import { Asset, BalanceMap } from "../types/types";
 
 interface GetUntrustedAssetDataProps {
   assetsToAdd: string[];
-  accountAssets?: Types.BalanceMap;
+  accountAssets?: BalanceMap;
   networkUrl: string;
 }
 

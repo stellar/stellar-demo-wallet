@@ -1,14 +1,14 @@
-import { Types } from "@stellar/wallet-sdk";
 import { checkAssetExists } from "./checkAssetExists";
 import { getErrorMessage } from "./getErrorMessage";
 import { getAssetFromHomeDomain } from "./getAssetFromHomeDomain";
 import { log } from "./log";
+import { BalanceMap } from "../types/types";
 
 interface GetUntrustedAssetProps {
   assetCode: string;
   homeDomain?: string;
   issuerPublicKey?: string;
-  accountBalances?: Types.BalanceMap;
+  accountBalances?: BalanceMap;
   networkUrl: string;
 }
 

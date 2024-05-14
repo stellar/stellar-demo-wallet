@@ -1,11 +1,11 @@
 import { Horizon } from "stellar-sdk";
-import { Types } from "@stellar/wallet-sdk";
+import { BalanceMap } from "../types/types";
 
 type CheckAssetExistsProps = {
   assetCode: string;
   assetIssuer: string;
   networkUrl: string;
-  accountBalances?: Types.BalanceMap;
+  accountBalances?: BalanceMap;
 };
 
 export const checkAssetExists = async ({
