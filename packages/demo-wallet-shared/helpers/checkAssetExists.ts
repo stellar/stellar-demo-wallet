@@ -1,4 +1,4 @@
-import { Horizon } from "stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk";
 import { BalanceMap } from "../types/types";
 
 type CheckAssetExistsProps = {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Checkbox, Input } from "@stellar/design-system";
 import { useDispatch } from "react-redux";
-import { Memo, StrKey, Keypair } from "stellar-sdk";
+import { Memo, StrKey, Keypair } from "@stellar/stellar-sdk";
 
 import { updateCustodialAction, resetCustodialAction } from "ducks/custodial";
 import "./styles.scss";

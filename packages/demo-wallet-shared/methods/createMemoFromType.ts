@@ -1,4 +1,4 @@
-import { Memo, MemoHash, MemoID, MemoText } from "stellar-sdk";
+import { Memo, MemoHash, MemoID, MemoText } from "@stellar/stellar-sdk";
 
 export const createMemoFromType = (
   memoString: string,

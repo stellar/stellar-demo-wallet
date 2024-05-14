@@ -1,4 +1,4 @@
-import { Networks } from "stellar-sdk";
+import { Networks } from "@stellar/stellar-sdk";
 import { StatusBar } from "@stellar/design-system";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 

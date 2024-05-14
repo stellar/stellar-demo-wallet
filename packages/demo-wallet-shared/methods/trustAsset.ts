@@ -4,11 +4,11 @@ import {
   Asset,
   Keypair,
   Horizon,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import { getErrorMessage } from "../helpers/getErrorMessage";
 import { log } from "../helpers/log";
 import { TrustAssetParam } from "../types/types";
-import {getNetworkConfig} from "../helpers/getNetworkConfig";
+import { getNetworkConfig } from "../helpers/getNetworkConfig";
 
 export const trustAsset = async ({
   secretKey,

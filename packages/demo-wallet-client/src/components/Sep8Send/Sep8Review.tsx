@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Transaction, TransactionBuilder } from "stellar-sdk";
+import { Transaction, TransactionBuilder } from "@stellar/stellar-sdk";
 import { Button, Checkbox, Modal, Heading3 } from "@stellar/design-system";
 import { ErrorMessage } from "components/ErrorMessage";
 import { Json } from "components/Json";

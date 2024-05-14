@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Horizon } from "stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk";
 import BigNumber from "bignumber.js";
 import { Sep9Field } from "../helpers/Sep9Fields";
 

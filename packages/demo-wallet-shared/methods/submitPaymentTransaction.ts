@@ -5,7 +5,7 @@ import {
   Asset,
   Operation,
   TransactionBuilder,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import { getErrorMessage } from "../helpers/getErrorMessage";
 import { getErrorString } from "../helpers/getErrorString";
 import { getNetworkConfig } from "../helpers/getNetworkConfig";

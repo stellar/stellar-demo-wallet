@@ -7,7 +7,7 @@ import {
   TextLink,
   Modal,
 } from "@stellar/design-system";
-import { StrKey } from "stellar-sdk";
+import { StrKey } from "@stellar/stellar-sdk";
 
 import { ErrorMessage } from "components/ErrorMessage";
 import { fetchAccountAction } from "ducks/account";

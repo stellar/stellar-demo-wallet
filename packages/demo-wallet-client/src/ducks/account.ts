@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Keypair } from "stellar-sdk";
+import { Keypair } from "@stellar/stellar-sdk";
 
 import { RootState } from "config/store";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";

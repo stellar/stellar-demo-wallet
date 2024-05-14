@@ -4,7 +4,7 @@ import {
   Operation,
   TransactionBuilder,
   Horizon,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import { getErrorMessage } from "../helpers/getErrorMessage";
 import { log } from "../helpers/log";
 import { ClaimableAsset } from "../types/types";

@@ -7,10 +7,10 @@ import {
   Operation,
   Horizon,
   TransactionBuilder,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import { log } from "../../helpers/log";
 import { MemoTypeString } from "../../types/types";
-import {getNetworkConfig} from "../../helpers/getNetworkConfig";
+import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 
 interface SendPaymentProps {
   secretKey: string;

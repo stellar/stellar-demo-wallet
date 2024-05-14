@@ -4,7 +4,7 @@ import {
   Horizon,
   NetworkError,
   NotFoundError,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import BigNumber from "bignumber.js";
 import { Sep9Field } from "demo-wallet-shared/build/helpers/Sep9Fields";
 

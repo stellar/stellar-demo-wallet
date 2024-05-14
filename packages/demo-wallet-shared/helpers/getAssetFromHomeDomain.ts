@@ -1,4 +1,4 @@
-import { Asset, StellarToml } from "stellar-sdk";
+import { Asset, StellarToml } from "@stellar/stellar-sdk";
 import { checkAssetExists } from "./checkAssetExists";
 import { getCurrenciesFromDomain } from "./getCurrenciesFromDomain";
 import { getOverrideHomeDomain } from "./getOverrideHomeDomain";
