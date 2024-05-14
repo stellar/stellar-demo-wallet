@@ -8,7 +8,6 @@ import {
   TextLink,
   Modal,
 } from "@stellar/design-system";
-import { DataProvider } from "@stellar/wallet-sdk";
 import { ErrorMessage } from "components/ErrorMessage";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import {
@@ -16,6 +15,7 @@ import {
   sep8ReviseTransactionAction,
 } from "ducks/sep8Send";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import { fetchAccountDetails } from "helpers/fetchAccountDetails";
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
 import { ActionStatus, Sep8Step } from "types/types";
@@ -71,13 +71,9 @@ export const Sep8Approval = ({ onClose }: { onClose: () => void }) => {
       return;
     }
 
-    const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig().url,
-      accountOrKey: destination,
-      networkPassphrase: getNetworkConfig().network,
-    });
-
-    setIsDestinationFunded(await dataProvider.isAccountFunded());
+    setIsDestinationFunded(
+      Boolean(await fetchAccountDetails(getNetworkConfig().url, destination)),
+    );
   };
 
   const renderApprovePayment = () => (

@@ -1,6 +1,11 @@
 import React, { ReactNode } from "react";
-import { Horizon } from "stellar-sdk";
-import { Types } from "@stellar/wallet-sdk";
+import {
+  BadRequestError,
+  Horizon,
+  NetworkError,
+  NotFoundError,
+} from "stellar-sdk";
+import BigNumber from "bignumber.js";
 import { Sep9Field } from "demo-wallet-shared/build/helpers/Sep9Fields";
 
 declare global {
@@ -80,7 +85,7 @@ export interface AssetSupportedActions {
 }
 
 export interface AccountInitialState {
-  data: Types.AccountDetails | null;
+  data: AccountDetails | null;
   errorString?: string;
   isAuthenticated: boolean;
   isUnfunded: boolean;
@@ -672,3 +677,78 @@ export type AnchorQuoteRequest = {
   country_code?: string;
   context: "sep6" | "sep31";
 };
+
+// js-stellar-wallets types
+export interface Issuer {
+  key: string;
+  name?: string;
+  url?: string;
+  hostName?: string;
+}
+
+export interface NativeToken {
+  type: AssetType;
+  code: string;
+}
+
+export interface AssetToken {
+  type: AssetType;
+  code: string;
+  issuer: Issuer;
+  anchorAsset?: string;
+  numAccounts?: BigNumber;
+  amount?: BigNumber;
+  bidCount?: BigNumber;
+  askCount?: BigNumber;
+  spread?: BigNumber;
+}
+
+export type Token = NativeToken | AssetToken;
+export interface Balance {
+  token: Token;
+
+  // for non-native tokens, this should be total - sellingLiabilities
+  // for native, it should also subtract the minimumBalance
+  available: BigNumber;
+  total: BigNumber;
+  buyingLiabilities: BigNumber;
+  sellingLiabilities: BigNumber;
+}
+
+export interface AssetBalance extends Balance {
+  token: AssetToken;
+  sponsor?: string;
+}
+
+export interface NativeBalance extends Balance {
+  token: NativeToken;
+  minimumBalance: BigNumber;
+}
+
+export interface BalanceMap {
+  [key: string]: AssetBalance | NativeBalance;
+  native: NativeBalance;
+}
+
+export interface AccountDetails {
+  id: string;
+  subentryCount: number;
+  sponsoringCount: number;
+  sponsoredCount: number;
+  sponsor?: string;
+  inflationDestination?: string;
+  thresholds: Horizon.HorizonApi.AccountThresholds;
+  signers: Horizon.ServerApi.AccountRecordSigners[];
+  flags: Horizon.HorizonApi.Flags;
+  balances: BalanceMap;
+  sequenceNumber: string;
+}
+
+interface NotFundedError {
+  isUnfunded: boolean;
+}
+
+export type FetchAccountError =
+  | BadRequestError
+  | NetworkError
+  | (NotFoundError & NotFundedError);

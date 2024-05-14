@@ -7,7 +7,6 @@ import {
   TextLink,
   Modal,
 } from "@stellar/design-system";
-import { DataProvider } from "@stellar/wallet-sdk";
 import { StrKey } from "stellar-sdk";
 
 import { ErrorMessage } from "components/ErrorMessage";
@@ -18,6 +17,7 @@ import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkCon
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
 import { ActionStatus, Asset, AssetType } from "types/types";
+import { fetchAccountDetails } from "helpers/fetchAccountDetails";
 
 export const SendPayment = ({
   asset,
@@ -75,13 +75,9 @@ export const SendPayment = ({
       return;
     }
 
-    const dataProvider = new DataProvider({
-      serverUrl: getNetworkConfig().url,
-      accountOrKey: destination,
-      networkPassphrase: getNetworkConfig().network,
-    });
-
-    setIsDestinationFunded(await dataProvider.isAccountFunded());
+    setIsDestinationFunded(
+      Boolean(await fetchAccountDetails(getNetworkConfig().url, destination)),
+    );
   };
 
   const handleSubmit = () => {
