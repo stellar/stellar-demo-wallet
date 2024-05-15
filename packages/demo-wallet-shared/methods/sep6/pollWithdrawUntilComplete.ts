@@ -5,11 +5,11 @@ import {
   Operation,
   Horizon,
   TransactionBuilder,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import { log } from "../../helpers/log";
 import { createMemoFromType } from "../createMemoFromType";
 import { AnyObject, TransactionStatus } from "../../types/types";
-import {getNetworkConfig} from "../../helpers/getNetworkConfig";
+import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 
 export const pollWithdrawUntilComplete = async ({
   amount,

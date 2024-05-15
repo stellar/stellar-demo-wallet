@@ -1,4 +1,4 @@
-import { Horizon } from "stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk";
 import { getAssetSettingsFromToml } from "./getAssetSettingsFromToml";
 import { isNativeAsset } from "./isNativeAsset";
 import { log } from "./log";

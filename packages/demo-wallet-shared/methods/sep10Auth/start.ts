@@ -1,4 +1,4 @@
-import { WebAuth } from "stellar-sdk";
+import { WebAuth } from "@stellar/stellar-sdk";
 import { log } from "../../helpers/log";
 
 export const start = async ({

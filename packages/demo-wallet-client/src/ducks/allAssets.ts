@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Types } from "@stellar/wallet-sdk";
 
 import { RootState } from "config/store";
 import { accountSelector } from "ducks/account";
@@ -11,7 +10,10 @@ import { log } from "demo-wallet-shared/build/helpers/log";
 import { getAssetData } from "demo-wallet-shared/build/helpers/getAssetData";
 import { searchKeyPairStringToArray } from "demo-wallet-shared/build/helpers/searchKeyPairStringToArray";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
-import { XLM_NATIVE_ASSET } from "demo-wallet-shared/build/types/types";
+import {
+  BalanceMap,
+  XLM_NATIVE_ASSET,
+} from "demo-wallet-shared/build/types/types";
 import {
   ActionStatus,
   RejectMessage,
@@ -22,7 +24,7 @@ import {
 
 type IncludeAssetOverridesProps = {
   assets: Asset[];
-  balances?: Types.BalanceMap;
+  balances?: BalanceMap;
   assetCategory: AssetCategory;
   assetOverrides: Asset[];
 };

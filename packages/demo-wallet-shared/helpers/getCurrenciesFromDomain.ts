@@ -1,4 +1,4 @@
-import { StellarToml } from "stellar-sdk";
+import { StellarToml } from "@stellar/stellar-sdk";
 import { normalizeHomeDomainUrl } from "./normalizeHomeDomainUrl";
 
 export const getCurrenciesFromDomain = async (

@@ -1,4 +1,4 @@
-import { Horizon, Transaction } from "stellar-sdk";
+import { Horizon, Transaction } from "@stellar/stellar-sdk";
 import { getErrorString } from "../../helpers/getErrorString";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 import { log } from "../../helpers/log";

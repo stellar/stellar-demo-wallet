@@ -1,14 +1,15 @@
-import { Types } from "@stellar/wallet-sdk";
 import {
   Asset,
   AssetSupportedActions,
   AnyObject,
   AssetType,
   XLM_NATIVE_ASSET,
+  AssetBalance,
+  NativeBalance,
 } from "../types/types";
 
 interface NormalizeAssetProps {
-  source?: Types.AssetBalance | Types.NativeBalance;
+  source?: AssetBalance | NativeBalance;
   homeDomain?: string;
   supportedActions?: AssetSupportedActions | AnyObject;
   isUntrusted?: boolean;
@@ -38,7 +39,7 @@ export const normalizeAssetProps = ({
   let _assetIssuer = assetIssuer;
 
   if (!_assetIssuer && _assetType !== AssetType.NATIVE) {
-    _assetIssuer = (source as Types.AssetBalance).token.issuer.key;
+    _assetIssuer = (source as AssetBalance).token.issuer.key;
   }
 
   return {

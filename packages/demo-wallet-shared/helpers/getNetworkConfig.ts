@@ -1,4 +1,4 @@
-import {Networks, BASE_FEE} from "stellar-sdk";
+import { Networks, BASE_FEE } from "@stellar/stellar-sdk";
 
 export const getNetworkConfig = () => {
   return {

@@ -1,9 +1,9 @@
-import { Asset, StellarToml } from "stellar-sdk";
-import { Types } from "@stellar/wallet-sdk";
+import { Asset, StellarToml } from "@stellar/stellar-sdk";
 import { checkAssetExists } from "./checkAssetExists";
 import { getCurrenciesFromDomain } from "./getCurrenciesFromDomain";
 import { getOverrideHomeDomain } from "./getOverrideHomeDomain";
 import { isNativeAsset } from "./isNativeAsset";
+import { BalanceMap } from "../types/types";
 
 const getAssetListString = (
   assetsArray: Asset[] | StellarToml.Api.Currency[],
@@ -17,7 +17,7 @@ type GetAssetFromHomeDomainProps = {
   assetCode: string;
   homeDomain: string;
   issuerPublicKey?: string;
-  accountBalances?: Types.BalanceMap;
+  accountBalances?: BalanceMap;
   networkUrl: string;
 };
 

@@ -1,4 +1,4 @@
-import { Horizon } from "stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk";
 import { getToml } from "../methods/getToml";
 import { AssetSupportedActions, AnyObject, AssetType } from "../types/types";
 

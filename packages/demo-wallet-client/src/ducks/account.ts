@@ -1,16 +1,20 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { DataProvider, Types } from "@stellar/wallet-sdk";
-import { getCatchError } from "@stellar/frontend-helpers";
-import { Keypair } from "stellar-sdk";
+import { Keypair } from "@stellar/stellar-sdk";
 
 import { RootState } from "config/store";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getErrorString } from "demo-wallet-shared/build/helpers/getErrorString";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
-import { ActionStatus, RejectMessage, AccountInitialState } from "types/types";
+import { fetchAccountDetails } from "helpers/fetchAccountDetails";
+import {
+  ActionStatus,
+  RejectMessage,
+  AccountInitialState,
+  AccountDetails,
+} from "types/types";
 
-interface UnfundedAccount extends Types.AccountDetails {
+interface UnfundedAccount extends AccountDetails {
   id: string;
 }
 
@@ -20,16 +24,12 @@ interface AccountKeyPair {
 }
 
 interface AccountActionBaseResponse {
-  data: Types.AccountDetails | UnfundedAccount;
+  data: AccountDetails | UnfundedAccount;
   isUnfunded: boolean;
 }
 
 interface FetchAccountActionResponse extends AccountActionBaseResponse {
   secretKey: string;
-}
-
-interface ResponseError extends Error {
-  isUnfunded?: boolean;
 }
 
 export const fetchAccountAction = createAsyncThunk<
@@ -41,13 +41,7 @@ export const fetchAccountAction = createAsyncThunk<
   async ({ publicKey, secretKey }, { rejectWithValue }) => {
     const networkConfig = getNetworkConfig();
 
-    const dataProvider = new DataProvider({
-      serverUrl: networkConfig.url,
-      accountOrKey: publicKey,
-      networkPassphrase: networkConfig.network,
-    });
-
-    let stellarAccount: Types.AccountDetails | null = null;
+    let stellarAccount: AccountDetails | null = null;
     let isUnfunded = false;
 
     log.request({
@@ -56,11 +50,9 @@ export const fetchAccountAction = createAsyncThunk<
     });
 
     try {
-      stellarAccount = await dataProvider.fetchAccountDetails();
-    } catch (e) {
-      const error: ResponseError = getCatchError(e);
+      stellarAccount = await fetchAccountDetails(networkConfig.url, publicKey);
 
-      if (error.isUnfunded) {
+      if (!stellarAccount) {
         log.instruction({ title: `Account is not funded` });
 
         stellarAccount = {
@@ -68,16 +60,16 @@ export const fetchAccountAction = createAsyncThunk<
         } as UnfundedAccount;
 
         isUnfunded = true;
-      } else {
-        const errorMessage = getErrorString(error);
-        log.error({
-          title: `Fetching account \`${publicKey}\` failed`,
-          body: errorMessage,
-        });
-        return rejectWithValue({
-          errorString: errorMessage,
-        });
       }
+    } catch (e) {
+      const errorMessage = getErrorString(e);
+      log.error({
+        title: `Fetching account \`${publicKey}\` failed`,
+        body: errorMessage,
+      });
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
     }
 
     log.response({
@@ -122,15 +114,17 @@ export const fundTestnetAccount = createAsyncThunk<
 
   const networkConfig = getNetworkConfig();
 
-  const dataProvider = new DataProvider({
-    serverUrl: networkConfig.url,
-    accountOrKey: publicKey,
-    networkPassphrase: networkConfig.network,
-  });
-
   try {
     await fetch(`https://friendbot.stellar.org?addr=${publicKey}`);
-    const stellarAccount = await dataProvider.fetchAccountDetails();
+
+    const stellarAccount = await fetchAccountDetails(
+      networkConfig.url,
+      publicKey,
+    );
+
+    if (!stellarAccount) {
+      throw Error(`Error fetching account: ${publicKey}`);
+    }
 
     log.response({
       title: "The friendbot funded account",

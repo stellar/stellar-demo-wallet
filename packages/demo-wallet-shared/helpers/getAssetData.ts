@@ -1,15 +1,14 @@
-import { Types } from "@stellar/wallet-sdk";
 import { omit } from "lodash";
 import { getAssetSettingsFromToml } from "./getAssetSettingsFromToml";
 import { normalizeAssetProps } from "./normalizeAssetProps";
-import { Asset } from "../types/types";
+import { Asset, AssetBalance, BalanceMap } from "../types/types";
 
 export const getAssetData = async ({
   balances,
   networkUrl,
   overrideIds,
 }: {
-  balances: Types.BalanceMap | undefined;
+  balances: BalanceMap | undefined;
   networkUrl: string;
   overrideIds: string[];
 }) => {
@@ -32,7 +31,7 @@ export const getAssetData = async ({
 
     assets.push(
       normalizeAssetProps({
-        source: data as Types.AssetBalance,
+        source: data as AssetBalance,
         homeDomain,
         supportedActions,
       }),
