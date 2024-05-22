@@ -57,6 +57,11 @@ const FIELDS = [
     id: "customer_id",
     label: "Customer ID",
     type: "test",
+  },
+  {
+    id: "lang",
+    label: "Language",
+    type: "test",
   }
 ];
 
