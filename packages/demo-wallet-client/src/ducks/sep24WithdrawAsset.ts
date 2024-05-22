@@ -118,6 +118,8 @@ export const withdrawAssetAction = createAsyncThunk<
         signedChallengeTransaction,
       });
 
+      console.log("Sep 9 fields: " + sep9Fields)
+
       // Interactive flow
       const interactiveResponse = await interactiveWithdrawFlow({
         assetCode,
