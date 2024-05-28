@@ -169,6 +169,7 @@ export const depositAssetAction = createAsyncThunk<
           sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
           trustAssetCallback,
           custodialMemoId: generatedMemoId,
+          sep9Fields,
         });
 
       return {

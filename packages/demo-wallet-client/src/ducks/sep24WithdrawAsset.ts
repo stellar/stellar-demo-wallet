@@ -141,6 +141,7 @@ export const withdrawAssetAction = createAsyncThunk<
         networkUrl: networkConfig.url,
         assetCode,
         assetIssuer,
+        sep9Fields,
       });
 
       return {
