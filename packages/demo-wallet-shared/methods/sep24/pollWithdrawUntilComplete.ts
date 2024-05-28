@@ -8,7 +8,7 @@ import {
 } from "@stellar/stellar-sdk";
 import { log } from "../../helpers/log";
 import { createMemoFromType } from "../createMemoFromType";
-import { TransactionStatus } from "../../types/types";
+import { AnyObject, TransactionStatus } from "../../types/types";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 
 export const pollWithdrawUntilComplete = async ({
@@ -21,6 +21,7 @@ export const pollWithdrawUntilComplete = async ({
   networkUrl,
   assetCode,
   assetIssuer,
+  sep9Fields,
 }: {
   secretKey: string;
   popup: any;
@@ -31,13 +32,16 @@ export const pollWithdrawUntilComplete = async ({
   networkUrl: string;
   assetCode: string;
   assetIssuer: string;
+  sep9Fields?: AnyObject;
 }) => {
   const keypair = Keypair.fromSecret(secretKey);
   const server = new Horizon.Server(networkUrl);
   let currentStatus = TransactionStatus.INCOMPLETE;
 
   const transactionUrl = new URL(
-    `${sep24TransferServerUrl}/transaction?id=${transactionId}`,
+    `${sep24TransferServerUrl}/transaction?id=${transactionId}&lang=${
+      sep9Fields?.lang || "en"
+    }`,
   );
   log.instruction({
     title: `Polling for updates \`${transactionUrl.toString()}\``,

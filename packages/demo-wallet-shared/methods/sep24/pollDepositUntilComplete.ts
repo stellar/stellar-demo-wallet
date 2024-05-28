@@ -1,6 +1,6 @@
 import { getErrorMessage } from "../../helpers/getErrorMessage";
 import { log } from "../../helpers/log";
-import { TransactionStatus } from "../../types/types";
+import { AnyObject, TransactionStatus } from "../../types/types";
 
 export const pollDepositUntilComplete = async ({
   popup,
@@ -9,6 +9,7 @@ export const pollDepositUntilComplete = async ({
   sep24TransferServerUrl,
   trustAssetCallback,
   custodialMemoId,
+  sep9Fields,
 }: {
   popup: any;
   transactionId: string;
@@ -16,12 +17,15 @@ export const pollDepositUntilComplete = async ({
   sep24TransferServerUrl: string;
   trustAssetCallback: () => Promise<string>;
   custodialMemoId?: string;
+  sep9Fields?: AnyObject;
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
   let trustedAssetAdded;
 
   const transactionUrl = new URL(
-    `${sep24TransferServerUrl}/transaction?id=${transactionId}`,
+    `${sep24TransferServerUrl}/transaction?id=${transactionId}&lang=${
+      sep9Fields?.lang || "en"
+    }`,
   );
   log.instruction({
     title: `Polling for updates \`${transactionUrl.toString()}\``,
