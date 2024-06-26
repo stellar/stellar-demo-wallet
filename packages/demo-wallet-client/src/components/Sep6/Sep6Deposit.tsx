@@ -204,7 +204,7 @@ export const Sep6Deposit = () => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleSubmit}>Submit</Button>
+          <Button onClick={handleSubmitCustomerInfo}>Submit</Button>
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Cancel
           </Button>
@@ -337,7 +337,7 @@ export const Sep6Deposit = () => {
     );
   }
 
-  if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED) {
+  if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED && depositResponse) {
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
         <Modal.Heading>SEP-6 Deposit Details</Modal.Heading>

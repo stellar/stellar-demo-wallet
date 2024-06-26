@@ -33,6 +33,7 @@ import {
   AnyObject,
   TransactionStatus,
   SepInstructions,
+  Sep12CustomerStatus,
 } from "types/types";
 
 type InitiateDepositActionPayload = Sep6DepositAssetInitialState["data"] & {
@@ -165,42 +166,31 @@ export const initiateDepositAction = createAsyncThunk<
   },
 );
 
+// Submit transaction to start polling for the status
 export const submitSep6DepositFields = createAsyncThunk<
   {
     status: ActionStatus;
-    depositResponse: Sep6DepositResponse;
-    customerFields?: AnyObject;
+    depositResponse?: Sep6DepositResponse;
   },
   {
     amount?: string;
     depositType: AnyObject;
     infoFields: AnyObject;
-    customerFields: AnyObject;
   },
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep6DepositAsset/submitSep6DepositFields",
   async (
-    { amount, depositType, customerFields, infoFields },
+    { amount, depositType, infoFields },
     { rejectWithValue, getState },
   ) => {
     try {
       const { data } = accountSelector(getState());
       const publicKey = data?.id || "";
       const { claimableBalanceSupported } = settingsSelector(getState());
-      const { secretKey } = accountSelector(getState());
       const { data: sep6Data } = sep6DepositSelector(getState());
 
-      const { assetCode, kycServer, transferServerUrl, token } = sep6Data;
-
-      if (Object.keys(customerFields).length) {
-        await putSep12FieldsRequest({
-          fields: customerFields,
-          kycServer,
-          secretKey,
-          token,
-        });
-      }
+      const { assetCode, transferServerUrl, token } = sep6Data;
 
       const depositResponse = (await programmaticDepositFlow({
         amount,
@@ -212,32 +202,6 @@ export const submitSep6DepositFields = createAsyncThunk<
         depositFields: infoFields,
         claimableBalanceSupported,
       })) as Sep6DepositResponse;
-
-      if (
-        depositResponse.type ===
-        TransactionStatus.NON_INTERACTIVE_CUSTOMER_INFO_NEEDED
-      ) {
-        log.instruction({
-          title: "Anchor requires additional customer information (KYC)",
-        });
-
-        // Get SEP-12 fields
-        log.instruction({
-          title: "Making GET `/customer` request for user",
-        });
-
-        const customerFields = await collectSep12Fields({
-          publicKey: data?.id!,
-          token,
-          kycServer,
-        });
-
-        return {
-          status: ActionStatus.NEEDS_KYC,
-          depositResponse,
-          customerFields,
-        };
-      }
 
       return {
         status: ActionStatus.CAN_PROCEED,
@@ -258,14 +222,14 @@ export const submitSep6DepositFields = createAsyncThunk<
 );
 
 export const submitSep6CustomerInfoFields = createAsyncThunk<
-  { status: ActionStatus },
+  { status: ActionStatus; customerFields?: AnyObject },
   AnyObject,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep6DepositAsset/submitSep6CustomerInfoFields",
   async (customerFields, { rejectWithValue, getState }) => {
     try {
-      const { secretKey } = accountSelector(getState());
+      const { data: account, secretKey } = accountSelector(getState());
       const { data: sep6Data } = sep6DepositSelector(getState());
 
       const { kycServer, token } = sep6Data;
@@ -276,7 +240,27 @@ export const submitSep6CustomerInfoFields = createAsyncThunk<
           kycServer,
           secretKey,
           token,
+          transactionId: sep6Data.depositResponse?.id,
         });
+      }
+
+      // Get SEP-12 fields
+      log.instruction({
+        title: "Making GET `/customer` request for user",
+      });
+
+      const sep12Response = await collectSep12Fields({
+        publicKey: account?.id!,
+        token,
+        kycServer,
+        transactionId: sep6Data.depositResponse?.id,
+      });
+
+      if (sep12Response.status !== Sep12CustomerStatus.ACCEPTED) {
+        return {
+          status: ActionStatus.NEEDS_KYC,
+          customerFields: sep12Response.fieldsToCollect,
+        };
       }
 
       return {
@@ -346,7 +330,7 @@ export const sep6DepositAction = createAsyncThunk<
         trustedAssetAdded = "",
         requiredCustomerInfoUpdates,
       } = await pollDepositUntilComplete({
-        transactionId: depositResponse.id || "",
+        transactionId: depositResponse?.id || "",
         token,
         transferServerUrl,
         trustAssetCallback,
@@ -363,18 +347,21 @@ export const sep6DepositAction = createAsyncThunk<
           title: "Making GET `/customer` request for user",
         });
 
-        customerFields = await collectSep12Fields({
-          publicKey: data?.id!,
-          token,
-          kycServer,
-        });
+        customerFields = (
+          await collectSep12Fields({
+            publicKey: data?.id!,
+            token,
+            kycServer,
+            transactionId: depositResponse?.id,
+          })
+        ).fieldsToCollect;
       }
 
       return {
         currentStatus,
         status:
           currentStatus === TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE
-            ? ActionStatus.NEEDS_INPUT
+            ? ActionStatus.NEEDS_KYC
             : ActionStatus.SUCCESS,
         trustedAssetAdded,
         requiredCustomerInfoUpdates,
@@ -450,10 +437,6 @@ const sep6DepositAssetSlice = createSlice({
     builder.addCase(submitSep6DepositFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
       state.data.depositResponse = action.payload.depositResponse;
-      state.data.customerFields = {
-        ...state.data.customerFields,
-        ...action.payload.customerFields,
-      };
     });
     builder.addCase(submitSep6DepositFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
@@ -466,6 +449,7 @@ const sep6DepositAssetSlice = createSlice({
     });
     builder.addCase(submitSep6CustomerInfoFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
+      state.data.customerFields = { ...action.payload.customerFields };
     });
     builder.addCase(submitSep6CustomerInfoFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;

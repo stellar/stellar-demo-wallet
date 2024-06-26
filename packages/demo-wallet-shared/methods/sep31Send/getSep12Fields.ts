@@ -31,14 +31,16 @@ export const getSep12Fields = async ({
   if (senderType) {
     const memo = crypto.randomBytes(32).toString("base64");
 
-    result.senderSep12Fields = await collectSep12Fields({
-      type: senderType,
-      memo,
-      publicKey,
-      token,
-      kycServer,
-      isNewCustomer: true,
-    });
+    result.senderSep12Fields = (
+      await collectSep12Fields({
+        type: senderType,
+        memo,
+        publicKey,
+        token,
+        kycServer,
+        isNewCustomer: true,
+      })
+    ).fieldsToCollect;
 
     result.info.senderSep12Memo = memo;
   }
@@ -46,14 +48,16 @@ export const getSep12Fields = async ({
   if (receiverType) {
     const memo = crypto.randomBytes(32).toString("base64");
 
-    result.receiverSep12Fields = await collectSep12Fields({
-      type: receiverType,
-      memo,
-      publicKey,
-      token,
-      kycServer,
-      isNewCustomer: true,
-    });
+    result.receiverSep12Fields = (
+      await collectSep12Fields({
+        type: receiverType,
+        memo,
+        publicKey,
+        token,
+        kycServer,
+        isNewCustomer: true,
+      })
+    ).fieldsToCollect;
 
     result.info.receiverSep12Memo = memo;
   }

@@ -216,11 +216,13 @@ export const submitSep6WithdrawFields = createAsyncThunk<
           title: "Making GET `/customer` request for user",
         });
 
-        const customerFields = await collectSep12Fields({
-          publicKey,
-          token,
-          kycServer,
-        });
+        const customerFields = (
+          await collectSep12Fields({
+            publicKey,
+            token,
+            kycServer,
+          })
+        ).fieldsToCollect;
 
         return {
           status: ActionStatus.NEEDS_KYC,
@@ -297,11 +299,13 @@ export const sep6WithdrawAction = createAsyncThunk<
           title: "Making GET `/customer` request for user",
         });
 
-        customerFields = await collectSep12Fields({
-          publicKey: data?.id!,
-          token,
-          kycServer,
-        });
+        customerFields = (
+          await collectSep12Fields({
+            publicKey: data?.id!,
+            token,
+            kycServer,
+          })
+        ).fieldsToCollect;
       }
 
       return {
