@@ -337,7 +337,7 @@ export const Sep6Deposit = () => {
     );
   }
 
-  if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED && depositResponse) {
+  if (sep6DepositAsset.status === ActionStatus.CAN_PROCEED) {
     return (
       <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
         <Modal.Heading>SEP-6 Deposit Details</Modal.Heading>

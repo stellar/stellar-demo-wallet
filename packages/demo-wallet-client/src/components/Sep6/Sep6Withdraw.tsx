@@ -202,7 +202,7 @@ export const Sep6Withdraw = () => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleFieldsSubmit}>Submit</Button>
+          <Button onClick={handleSubmitCustomerInfo}>Submit</Button>
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Cancel
           </Button>

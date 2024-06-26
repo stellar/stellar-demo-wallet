@@ -170,7 +170,7 @@ export const initiateDepositAction = createAsyncThunk<
 export const submitSep6DepositFields = createAsyncThunk<
   {
     status: ActionStatus;
-    depositResponse?: Sep6DepositResponse;
+    depositResponse: Sep6DepositResponse;
   },
   {
     amount?: string;
@@ -465,7 +465,6 @@ const sep6DepositAssetSlice = createSlice({
       state.data.trustedAssetAdded = action.payload.trustedAssetAdded;
 
       const customerFields = {
-        ...state.data.customerFields,
         ...action.payload.customerFields,
       };
 

@@ -31,6 +31,7 @@ import {
   AnchorActionType,
   AnyObject,
   TransactionStatus,
+  Sep12CustomerStatus,
 } from "types/types";
 
 type InitiateWithdrawActionPayload = Sep6WithdrawAssetInitialState["data"] & {
@@ -158,40 +159,27 @@ export const initiateWithdrawAction = createAsyncThunk<
   },
 );
 
+// Submit transaction to start polling for the status
 export const submitSep6WithdrawFields = createAsyncThunk<
   {
     status: ActionStatus;
     withdrawResponse: Sep6WithdrawResponse;
-    customerFields?: AnyObject;
   },
   {
     withdrawType: AnyObject;
     infoFields: AnyObject;
-    customerFields: AnyObject;
   },
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep6WithdrawAsset/submitSep6WithdrawFields",
-  async (
-    { withdrawType, infoFields, customerFields },
-    { rejectWithValue, getState },
-  ) => {
+  async ({ withdrawType, infoFields }, { rejectWithValue, getState }) => {
     try {
-      const { data, secretKey } = accountSelector(getState());
+      const { data } = accountSelector(getState());
       const { claimableBalanceSupported } = settingsSelector(getState());
       const publicKey = data?.id || "";
 
       const { data: sep6Data } = sepWithdrawSelector(getState());
-      const { assetCode, kycServer, transferServerUrl, token } = sep6Data;
-
-      if (Object.keys(customerFields).length) {
-        await putSep12FieldsRequest({
-          fields: customerFields,
-          kycServer,
-          secretKey,
-          token,
-        });
-      }
+      const { assetCode, transferServerUrl, token } = sep6Data;
 
       const withdrawResponse = (await programmaticWithdrawFlow({
         assetCode,
@@ -202,34 +190,6 @@ export const submitSep6WithdrawFields = createAsyncThunk<
         withdrawFields: infoFields,
         claimableBalanceSupported,
       })) as Sep6WithdrawResponse;
-
-      if (
-        withdrawResponse.type ===
-        TransactionStatus.NON_INTERACTIVE_CUSTOMER_INFO_NEEDED
-      ) {
-        log.instruction({
-          title: "Anchor requires additional customer information (KYC)",
-        });
-
-        // Get SEP-12 fields
-        log.instruction({
-          title: "Making GET `/customer` request for user",
-        });
-
-        const customerFields = (
-          await collectSep12Fields({
-            publicKey,
-            token,
-            kycServer,
-          })
-        ).fieldsToCollect;
-
-        return {
-          status: ActionStatus.NEEDS_KYC,
-          withdrawResponse,
-          customerFields,
-        };
-      }
 
       return {
         status: ActionStatus.CAN_PROCEED,
@@ -334,14 +294,14 @@ export const sep6WithdrawAction = createAsyncThunk<
 );
 
 export const submitSep6WithdrawCustomerInfoFields = createAsyncThunk<
-  { status: ActionStatus },
+  { status: ActionStatus; customerFields?: AnyObject },
   AnyObject,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep6WithdrawAsset/submitSep6WithdrawCustomerInfoFields",
   async (customerFields, { rejectWithValue, getState }) => {
     try {
-      const { secretKey } = accountSelector(getState());
+      const { data: account, secretKey } = accountSelector(getState());
       const { data: sep6Data } = sepWithdrawSelector(getState());
       const { kycServer, token } = sep6Data;
 
@@ -351,7 +311,27 @@ export const submitSep6WithdrawCustomerInfoFields = createAsyncThunk<
           kycServer,
           secretKey,
           token,
+          transactionId: sep6Data.withdrawResponse?.id,
         });
+      }
+
+      // Get SEP-12 fields
+      log.instruction({
+        title: "Making GET `/customer` request for user",
+      });
+
+      const sep12Response = await collectSep12Fields({
+        publicKey: account?.id!,
+        token,
+        kycServer,
+        transactionId: sep6Data.withdrawResponse?.id,
+      });
+
+      if (sep12Response.status !== Sep12CustomerStatus.ACCEPTED) {
+        return {
+          status: ActionStatus.NEEDS_KYC,
+          customerFields: sep12Response.fieldsToCollect,
+        };
       }
 
       return {
@@ -419,10 +399,6 @@ const sep6WithdrawAssetSlice = createSlice({
     builder.addCase(submitSep6WithdrawFields.fulfilled, (state, action) => {
       state.status = action.payload.status;
       state.data.withdrawResponse = action.payload.withdrawResponse;
-      state.data.fields = {
-        ...state.data.fields,
-        ...action.payload.customerFields,
-      };
     });
     builder.addCase(submitSep6WithdrawFields.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
@@ -437,6 +413,7 @@ const sep6WithdrawAssetSlice = createSlice({
       submitSep6WithdrawCustomerInfoFields.fulfilled,
       (state, action) => {
         state.status = action.payload.status;
+        state.data.fields = { ...action.payload.customerFields };
       },
     );
     builder.addCase(
@@ -457,7 +434,6 @@ const sep6WithdrawAssetSlice = createSlice({
       state.data.transactionResponse = action.payload.transactionResponse;
 
       const customerFields = {
-        ...state.data.fields,
         ...action.payload.customerFields,
       };
 

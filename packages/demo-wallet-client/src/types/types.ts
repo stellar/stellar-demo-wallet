@@ -239,7 +239,7 @@ export interface Sep6DepositAssetInitialState {
     customerFields: {
       [key: string]: AnyObject;
     };
-    depositResponse?: Sep6DepositResponse;
+    depositResponse: Sep6DepositResponse;
     trustedAssetAdded: string;
     requiredCustomerInfoUpdates: AnyObject[] | undefined;
     instructions: SepInstructions | undefined;
