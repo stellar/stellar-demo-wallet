@@ -264,6 +264,7 @@ export const sep6WithdrawAction = createAsyncThunk<
             publicKey: data?.id!,
             token,
             kycServer,
+            transactionId: withdrawResponse?.id,
           })
         ).fieldsToCollect;
       }
