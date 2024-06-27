@@ -264,7 +264,7 @@ export const submitSep6CustomerInfoFields = createAsyncThunk<
       }
 
       return {
-        status: ActionStatus.CAN_PROCEED,
+        status: ActionStatus.KYC_DONE,
       };
     } catch (e) {
       const errorMessage = getErrorMessage(e);

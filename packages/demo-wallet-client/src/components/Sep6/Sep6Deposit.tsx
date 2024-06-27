@@ -121,12 +121,17 @@ export const Sep6Deposit = () => {
   ) => {
     const { id, value } = event.target;
 
+    let fields = { ...formData.customerFields };
+
+    if (value) {
+      fields[id] = value;
+    } else if (fields[id]) {
+      delete fields[id];
+    }
+
     const updatedState = {
       ...formData,
-      customerFields: {
-        ...formData.customerFields,
-        [id]: value,
-      },
+      customerFields: fields,
     };
 
     setFormData(updatedState);
@@ -355,6 +360,26 @@ export const Sep6Deposit = () => {
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Close
           </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
+  if (sep6DepositAsset.status === ActionStatus.KYC_DONE) {
+    return (
+      <Modal
+        visible={isInfoModalVisible}
+        onClose={() => setIsInfoModalVisible(false)}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
+        <Modal.Heading>SEP-6 Deposit</Modal.Heading>
+
+        <Modal.Body>
+          <p>Submit the deposit.</p>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button onClick={() => dispatch(sep6DepositAction())}>Submit</Button>
         </Modal.Footer>
       </Modal>
     );

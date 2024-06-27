@@ -274,7 +274,7 @@ export const sep6WithdrawAction = createAsyncThunk<
         transactionResponse: transaction,
         status:
           currentStatus === TransactionStatus.PENDING_CUSTOMER_INFO_UPDATE
-            ? ActionStatus.NEEDS_INPUT
+            ? ActionStatus.NEEDS_KYC
             : ActionStatus.SUCCESS,
         requiredCustomerInfoUpdates,
         customerFields,
@@ -336,7 +336,7 @@ export const submitSep6WithdrawCustomerInfoFields = createAsyncThunk<
       }
 
       return {
-        status: ActionStatus.CAN_PROCEED,
+        status: ActionStatus.KYC_DONE,
       };
     } catch (e) {
       const errorMessage = getErrorMessage(e);
