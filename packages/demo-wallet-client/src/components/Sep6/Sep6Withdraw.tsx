@@ -124,12 +124,17 @@ export const Sep6Withdraw = () => {
   ) => {
     const { id, value } = event.target;
 
+    let fields = { ...formData.customerFields };
+
+    if (value) {
+      fields[id] = value;
+    } else if (fields[id]) {
+      delete fields[id];
+    }
+
     const updatedState = {
       ...formData,
-      customerFields: {
-        ...formData.customerFields,
-        [id]: value,
-      },
+      customerFields: fields,
     };
 
     setFormData(updatedState);
@@ -202,7 +207,7 @@ export const Sep6Withdraw = () => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleFieldsSubmit}>Submit</Button>
+          <Button onClick={handleSubmitCustomerInfo}>Submit</Button>
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Cancel
           </Button>
@@ -374,6 +379,26 @@ export const Sep6Withdraw = () => {
               {withdrawResponse.memo}
             </div>
           )}
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button onClick={handleAmountSubmit}>Submit</Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
+  if (sep6WithdrawAsset.status === ActionStatus.KYC_DONE) {
+    return (
+      <Modal
+        visible={isInfoModalVisible}
+        onClose={() => setIsInfoModalVisible(false)}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
+        <Modal.Heading>SEP-6 Withdrawal</Modal.Heading>
+
+        <Modal.Body>
+          <p>Submit the withdrawal.</p>
         </Modal.Body>
 
         <Modal.Footer>

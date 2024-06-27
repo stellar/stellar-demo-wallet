@@ -10,6 +10,7 @@ export const collectSep12Fields = async ({
   publicKey,
   token,
   type,
+  transactionId,
   isNewCustomer,
 }: {
   kycServer: string;
@@ -17,6 +18,7 @@ export const collectSep12Fields = async ({
   publicKey: string;
   token: string;
   type?: string;
+  transactionId?: string;
   isNewCustomer?: boolean;
 }) => {
   // The anchor needs a memo to disambiguate the sending and receiving clients
@@ -25,6 +27,7 @@ export const collectSep12Fields = async ({
     ...(type ? { type } : {}),
     account: publicKey,
     ...(memo ? { memo, memo_type: "hash" } : {}),
+    ...(transactionId ? { transaction_id: transactionId } : {}),
   };
 
   log.request({ title: "GET `/customer`", body: params });
@@ -54,15 +57,15 @@ export const collectSep12Fields = async ({
 
   const fieldsToCollect = Object.entries(resultJson.fields ?? {}).reduce(
     (collectResult: any, field: any) => {
-      const [key, props] = field;
+      const [key, value] = field;
+
+      const providedField = resultJson?.provided_fields?.[key];
 
       if (
-        !props.status ||
-        props.status === Sep12CustomerFieldStatus.NOT_PROVIDED ||
-        (props.status === Sep12CustomerFieldStatus.REJECTED &&
-          resultJson.status === Sep12CustomerStatus.NEEDS_INFO)
+        !providedField ||
+        providedField.status !== Sep12CustomerFieldStatus.ACCEPTED
       ) {
-        return { ...collectResult, [key]: props };
+        return { ...collectResult, [key]: value };
       }
 
       return collectResult;
@@ -88,5 +91,5 @@ export const collectSep12Fields = async ({
     });
   }
 
-  return fieldsToCollect;
+  return { fieldsToCollect, status: resultJson.status };
 };
