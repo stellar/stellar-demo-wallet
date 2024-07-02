@@ -331,7 +331,8 @@ export interface Sep38QuotesInitialState {
   data: {
     serverUrl: string | undefined;
     sellAsset: string | undefined;
-    sellAmount: string | undefined;
+    buyAsset: string | undefined;
+    amount: string | undefined;
     assets: AnchorQuoteAsset[];
     prices: AnchorBuyAsset[];
     quote: AnchorQuote | undefined;

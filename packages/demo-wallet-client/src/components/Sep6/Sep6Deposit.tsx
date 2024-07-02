@@ -23,7 +23,7 @@ import {
   submitSep6DepositWithQuotesFields,
 } from "ducks/sep6DepositAsset";
 import {
-  fetchSep38QuotesInfoAction,
+  fetchSep38QuotesSep6InfoAction,
   resetSep38QuotesAction,
 } from "ducks/sep38Quotes";
 import { useRedux } from "hooks/useRedux";
@@ -175,10 +175,10 @@ export const Sep6Deposit = () => {
     const { assetCode, assetIssuer } = sep6DepositAsset.data;
 
     dispatch(
-      fetchSep38QuotesInfoAction({
+      fetchSep38QuotesSep6InfoAction({
         anchorQuoteServerUrl: sep6DepositAsset.data?.anchorQuoteServer,
-        sellAsset: `stellar:${assetCode}:${assetIssuer}`,
-        sellAmount: formData.amount,
+        buyAsset: `stellar:${assetCode}:${assetIssuer}`,
+        amount: formData.amount,
       }),
     );
     dispatch(setStatusAction(ActionStatus.ANCHOR_QUOTES));
@@ -201,8 +201,8 @@ export const Sep6Deposit = () => {
         ...formData,
         amount: formData.amount,
         quoteId,
-        destinationAsset: sellAsset,
-        sourceAsset: buyAsset,
+        destinationAsset: buyAsset,
+        sourceAsset: sellAsset,
       }),
     );
   };

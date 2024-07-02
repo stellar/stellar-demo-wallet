@@ -42,6 +42,8 @@ export const AnchorQuotesModal = ({
   const [quoteAsset, setQuoteAsset] = useState<QuoteAsset>();
   const [assetBuyDeliveryMethod, setAssetBuyDeliveryMethod] =
     useState<string>();
+  const [assetSellDeliveryMethod, setAssetSellDeliveryMethod] =
+    useState<string>();
   const [assetCountryCode, setAssetCountryCode] = useState<string>();
   const [assetPrice, setAssetPrice] = useState<string>();
 
@@ -52,47 +54,87 @@ export const AnchorQuotesModal = ({
     return new BigNumber(amount).div(rate).toFixed(2);
   };
 
-  // Exclude sell asset from quote assets
-  const renderAssets = data.sellAsset
-    ? data.assets.filter((a) => a.asset !== data.sellAsset)
+  const userAsset = context === "sep31" ? data.sellAsset : data.buyAsset;
+
+  // Exclude selected asset from quote assets
+  const renderAssets = userAsset
+    ? data.assets.filter((a) => a.asset !== userAsset)
     : [];
 
   const handleGetAssetRates = () => {
-    if (data.serverUrl && data.sellAsset && data.sellAmount) {
-      dispatch(
-        fetchSep38QuotesPricesAction({
-          token,
-          anchorQuoteServerUrl: data.serverUrl,
-          options: {
-            sellAsset: data.sellAsset,
-            sellAmount: data.sellAmount,
-            buyDeliveryMethod: assetBuyDeliveryMethod,
-            countryCode: assetCountryCode,
-          },
-        }),
-      );
+    if (context === "sep31") {
+      if (data.serverUrl && data.sellAsset && data.amount) {
+        dispatch(
+          fetchSep38QuotesPricesAction({
+            token,
+            anchorQuoteServerUrl: data.serverUrl,
+            options: {
+              sellAsset: data.sellAsset,
+              sellAmount: data.amount,
+              buyDeliveryMethod: assetBuyDeliveryMethod,
+              sellDeliveryMethod: assetSellDeliveryMethod,
+              countryCode: assetCountryCode,
+            },
+          }),
+        );
+      }
+    } else if (context === "sep6") {
+      if (data.serverUrl && data.amount && quoteAsset?.asset) {
+        dispatch(
+          fetchSep38QuotesPricesAction({
+            token,
+            anchorQuoteServerUrl: data.serverUrl,
+            options: {
+              sellAsset: quoteAsset.asset,
+              sellAmount: data.amount,
+              buyDeliveryMethod: assetBuyDeliveryMethod,
+              sellDeliveryMethod: assetSellDeliveryMethod,
+              countryCode: assetCountryCode,
+            },
+          }),
+        );
+      }
     }
   };
 
   const handleGetQuote = () => {
-    if (
-      data.serverUrl &&
-      data.sellAsset &&
-      data.sellAmount &&
-      quoteAsset?.asset
-    ) {
-      dispatch(
-        postSep38QuoteAction({
-          token,
-          anchorQuoteServerUrl: data.serverUrl,
-          sell_asset: data.sellAsset,
-          buy_asset: quoteAsset.asset,
-          sell_amount: data.sellAmount,
-          buy_delivery_method: assetBuyDeliveryMethod,
-          country_code: assetCountryCode,
-          context,
-        }),
-      );
+    if (context === "sep31") {
+      if (
+        data.serverUrl &&
+        data.sellAsset &&
+        data.amount &&
+        quoteAsset?.asset
+      ) {
+        dispatch(
+          postSep38QuoteAction({
+            token,
+            anchorQuoteServerUrl: data.serverUrl,
+            sell_asset: data.sellAsset,
+            buy_asset: quoteAsset.asset,
+            sell_amount: data.amount,
+            buy_delivery_method: assetBuyDeliveryMethod,
+            sell_delivery_method: assetSellDeliveryMethod,
+            country_code: assetCountryCode,
+            context,
+          }),
+        );
+      }
+    } else if (context === "sep6") {
+      if (data.serverUrl && data.buyAsset && data.amount && quoteAsset?.asset) {
+        dispatch(
+          postSep38QuoteAction({
+            token,
+            anchorQuoteServerUrl: data.serverUrl,
+            sell_asset: quoteAsset.asset,
+            buy_asset: data.buyAsset,
+            sell_amount: data.amount,
+            buy_delivery_method: assetBuyDeliveryMethod,
+            sell_delivery_method: assetSellDeliveryMethod,
+            country_code: assetCountryCode,
+            context,
+          }),
+        );
+      }
     }
   };
 
@@ -178,8 +220,16 @@ export const AnchorQuotesModal = ({
       }
 
       if (data.prices?.length > 0 && quoteAsset?.asset) {
-        const sellAssetCode = data.sellAsset?.split(":")[1];
+        const sellAssetCode =
+          context === "sep31"
+            ? data.sellAsset?.split(":")[1]
+            : data.buyAsset?.split(":")[1];
         const buyAssetCode = quoteAsset?.asset.split(":")[1];
+
+        const prices =
+          context === "sep31"
+            ? data.prices
+            : data.prices.filter((p) => p.asset === data.buyAsset);
 
         return (
           <>
@@ -187,28 +237,24 @@ export const AnchorQuotesModal = ({
               <p>Rates (not final)</p>
 
               <div>
-                {data.prices
-                  .filter((p) => p.asset === quoteAsset.asset)
-                  .map((p) => (
-                    <RadioButton
-                      key={`${p.asset}-${p.price}`}
-                      name="anchor-asset-price"
-                      id={`${p.asset}-${p.price}`}
-                      label={p.price}
-                      onChange={() => {
-                        setAssetPrice(p.price);
-                      }}
-                    />
-                  ))}
+                {prices.map((p) => (
+                  <RadioButton
+                    key={`${p.asset}-${p.price}`}
+                    name="anchor-asset-price"
+                    id={`${p.asset}-${p.price}`}
+                    label={p.price}
+                    onChange={() => {
+                      setAssetPrice(p.price);
+                    }}
+                  />
+                ))}
               </div>
 
-              {data.sellAmount && assetPrice ? (
+              {data.amount && assetPrice ? (
                 <div>{`Estimated total of ${calculateTotal(
-                  data.sellAmount,
+                  data.amount,
                   assetPrice,
-                )} ${buyAssetCode} for ${
-                  data.sellAmount
-                } ${sellAssetCode}`}</div>
+                )} ${buyAssetCode} for ${data.amount} ${sellAssetCode}`}</div>
               ) : null}
             </Modal.Body>
 
@@ -240,7 +286,8 @@ export const AnchorQuotesModal = ({
                           asset: a.asset,
                         });
                         setAssetCountryCode("");
-                        setAssetBuyDeliveryMethod("");
+                        setAssetBuyDeliveryMethod(undefined);
+                        setAssetSellDeliveryMethod(undefined);
                       }}
                       checked={a.asset === quoteAsset?.asset}
                     />
@@ -289,6 +336,31 @@ export const AnchorQuotesModal = ({
                                 checked={
                                   a.asset === quoteAsset?.asset &&
                                   b.name === assetBuyDeliveryMethod
+                                }
+                              />
+                            ))}
+                          </div>
+                        </>
+                      ) : null}
+
+                      {a.sell_delivery_methods &&
+                      a.sell_delivery_methods.length > 0 ? (
+                        <>
+                          <div>Sell delivery methods</div>
+                          <div>
+                            {a.sell_delivery_methods?.map((b) => (
+                              <RadioButton
+                                key={`anchor-${a.asset}-delivery-sell-${b.name}`}
+                                name={`anchor-${a.asset}-delivery-sell`}
+                                id={`anchor-${a.asset}-delivery-sell-${b.name}`}
+                                label={`${b.name} - ${b.description}`}
+                                disabled={a.asset !== quoteAsset?.asset}
+                                onChange={() => {
+                                  setAssetSellDeliveryMethod(b.name);
+                                }}
+                                checked={
+                                  a.asset === quoteAsset?.asset &&
+                                  b.name === assetSellDeliveryMethod
                                 }
                               />
                             ))}
