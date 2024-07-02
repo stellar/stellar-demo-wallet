@@ -187,12 +187,12 @@ export const Sep6Deposit = () => {
   const handleSubmitWithQuotes = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     quoteId?: string,
-    destinationAsset?: string,
-    sourceAsset?: string,
+    buyAsset?: string,
+    sellAsset?: string,
   ) => {
     event.preventDefault();
 
-    if (!(quoteId && destinationAsset && sourceAsset && formData.amount)) {
+    if (!(quoteId && buyAsset && sellAsset && formData.amount)) {
       return;
     }
 
@@ -201,8 +201,8 @@ export const Sep6Deposit = () => {
         ...formData,
         amount: formData.amount,
         quoteId,
-        destinationAsset,
-        sourceAsset,
+        destinationAsset: sellAsset,
+        sourceAsset: buyAsset,
       }),
     );
   };

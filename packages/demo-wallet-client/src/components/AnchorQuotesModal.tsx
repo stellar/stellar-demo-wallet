@@ -18,8 +18,8 @@ interface AnchorQuotesModalProps {
   onSubmit: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     quoteId?: string,
-    destinationAsset?: string,
-    sourceAsset?: string,
+    buyAssset?: string,
+    sellAsset?: string,
   ) => void;
 }
 
