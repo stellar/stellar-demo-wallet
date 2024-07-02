@@ -243,6 +243,7 @@ export interface Sep6DepositAssetInitialState {
     trustedAssetAdded: string;
     requiredCustomerInfoUpdates: AnyObject[] | undefined;
     instructions: SepInstructions | undefined;
+    anchorQuoteServer: string | undefined;
   };
   errorString?: string;
   status: ActionStatus;
@@ -493,6 +494,8 @@ export enum MemoTypeString {
 export enum AnchorActionType {
   DEPOSIT = "deposit",
   WITHDRAWAL = "withdraw",
+  DEPOSIT_EXCHANGE = "deposit-exchange",
+  WITHDRAW_EXCHANGE = "withdraw-exchange",
 }
 
 interface InfoTypeData {
@@ -512,6 +515,12 @@ export interface CheckInfoData {
     [asset: string]: InfoTypeData;
   };
   [AnchorActionType.WITHDRAWAL]: {
+    [asset: string]: InfoTypeData;
+  };
+  [AnchorActionType.DEPOSIT_EXCHANGE]?: {
+    [asset: string]: InfoTypeData;
+  };
+  [AnchorActionType.WITHDRAW_EXCHANGE]?: {
     [asset: string]: InfoTypeData;
   };
 }

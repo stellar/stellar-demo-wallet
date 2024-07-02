@@ -13,11 +13,13 @@ import { ActionStatus } from "types/types";
 
 interface AnchorQuotesModalProps {
   token: string;
+  context: "sep31" | "sep6";
   onClose: () => void;
   onSubmit: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     quoteId?: string,
-    destinationAsset?: string,
+    buyAssset?: string,
+    sellAsset?: string,
   ) => void;
 }
 
@@ -30,6 +32,7 @@ type QuoteAsset = {
 
 export const AnchorQuotesModal = ({
   token,
+  context,
   onClose,
   onSubmit,
 }: AnchorQuotesModalProps) => {
@@ -87,7 +90,7 @@ export const AnchorQuotesModal = ({
           sell_amount: data.sellAmount,
           buy_delivery_method: assetBuyDeliveryMethod,
           country_code: assetCountryCode,
-          context: "sep31",
+          context,
         }),
       );
     }
@@ -158,7 +161,14 @@ export const AnchorQuotesModal = ({
               <Button
                 onClick={(
                   event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-                ) => onSubmit(event, data.quote?.id, data.quote?.buy_asset)}
+                ) =>
+                  onSubmit(
+                    event,
+                    data.quote?.id,
+                    data.quote?.buy_asset,
+                    data.quote?.sell_asset,
+                  )
+                }
               >
                 Submit
               </Button>
@@ -167,7 +177,7 @@ export const AnchorQuotesModal = ({
         );
       }
 
-      if (data.prices?.length > 0) {
+      if (data.prices?.length > 0 && quoteAsset?.asset) {
         const sellAssetCode = data.sellAsset?.split(":")[1];
         const buyAssetCode = quoteAsset?.asset.split(":")[1];
 
@@ -177,17 +187,19 @@ export const AnchorQuotesModal = ({
               <p>Rates (not final)</p>
 
               <div>
-                {data.prices.map((p) => (
-                  <RadioButton
-                    key={`${p.asset}-${p.price}`}
-                    name="anchor-asset-price"
-                    id={`${p.asset}-${p.price}`}
-                    label={p.price}
-                    onChange={() => {
-                      setAssetPrice(p.price);
-                    }}
-                  />
-                ))}
+                {data.prices
+                  .filter((p) => p.asset === quoteAsset.asset)
+                  .map((p) => (
+                    <RadioButton
+                      key={`${p.asset}-${p.price}`}
+                      name="anchor-asset-price"
+                      id={`${p.asset}-${p.price}`}
+                      label={p.price}
+                      onChange={() => {
+                        setAssetPrice(p.price);
+                      }}
+                    />
+                  ))}
               </div>
 
               {data.sellAmount && assetPrice ? (
@@ -227,47 +239,62 @@ export const AnchorQuotesModal = ({
                         setQuoteAsset({
                           asset: a.asset,
                         });
+                        setAssetCountryCode("");
+                        setAssetBuyDeliveryMethod("");
                       }}
                       checked={a.asset === quoteAsset?.asset}
                     />
 
                     {/* TODO: Better UI */}
                     <div style={{ paddingLeft: 20 }}>
-                      <div>Country codes</div>
-                      <div>
-                        {a.country_codes?.map((c) => (
-                          <RadioButton
-                            key={c}
-                            name={`anchor-${a.asset}-country`}
-                            id={c}
-                            label={c}
-                            disabled={a.asset !== quoteAsset?.asset}
-                            onChange={() => {
-                              setAssetCountryCode(c);
-                            }}
-                            checked={c === assetCountryCode}
-                          />
-                        ))}
-                      </div>
+                      {a.country_codes && a.country_codes.length > 0 ? (
+                        <>
+                          <div>Country codes</div>
+                          <div>
+                            {a.country_codes?.map((c) => (
+                              <RadioButton
+                                key={`anchor-${a.asset}-country-${c}`}
+                                name={`anchor-${a.asset}-country`}
+                                id={`anchor-${a.asset}-country-${c}`}
+                                label={c}
+                                disabled={a.asset !== quoteAsset?.asset}
+                                onChange={() => {
+                                  setAssetCountryCode(c);
+                                }}
+                                checked={
+                                  a.asset === quoteAsset?.asset &&
+                                  c === assetCountryCode
+                                }
+                              />
+                            ))}
+                          </div>
+                        </>
+                      ) : null}
 
-                      <>
-                        <div>Buy delivery methods</div>
-                        <div>
-                          {a.buy_delivery_methods?.map((b) => (
-                            <RadioButton
-                              key={b.name}
-                              name={`anchor-${a.asset}-delivery`}
-                              id={b.name}
-                              label={`${b.name} - ${b.description}`}
-                              disabled={a.asset !== quoteAsset?.asset}
-                              onChange={() => {
-                                setAssetBuyDeliveryMethod(b.name);
-                              }}
-                              checked={b.name === assetBuyDeliveryMethod}
-                            />
-                          ))}
-                        </div>
-                      </>
+                      {a.buy_delivery_methods &&
+                      a.buy_delivery_methods.length > 0 ? (
+                        <>
+                          <div>Buy delivery methods</div>
+                          <div>
+                            {a.buy_delivery_methods?.map((b) => (
+                              <RadioButton
+                                key={`anchor-${a.asset}-delivery-${b.name}`}
+                                name={`anchor-${a.asset}-delivery`}
+                                id={`anchor-${a.asset}-delivery-${b.name}`}
+                                label={`${b.name} - ${b.description}`}
+                                disabled={a.asset !== quoteAsset?.asset}
+                                onChange={() => {
+                                  setAssetBuyDeliveryMethod(b.name);
+                                }}
+                                checked={
+                                  a.asset === quoteAsset?.asset &&
+                                  b.name === assetBuyDeliveryMethod
+                                }
+                              />
+                            ))}
+                          </div>
+                        </>
+                      ) : null}
                     </div>
                   </div>
                 ))}

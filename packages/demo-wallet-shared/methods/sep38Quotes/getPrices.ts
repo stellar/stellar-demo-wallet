@@ -57,12 +57,14 @@ Promise<{ buy_assets: AnchorBuyAsset[] }> => {
   );
 
   if (result.status !== 200) {
+    const responseJson = await result.json();
+
     log.error({
       title: "GET `/prices` failed",
-      body: { status: result.status },
+      body: { status: result.status, ...responseJson },
     });
 
-    throw new Error("Something went wrong");
+    throw new Error(responseJson.error ?? "Something went wrong");
   }
 
   const resultJson = await result.json();

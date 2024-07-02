@@ -241,6 +241,7 @@ export const Sep31Send = () => {
     return (
       <AnchorQuotesModal
         token={sep31Send.data.token}
+        context="sep31"
         onClose={handleClose}
         onSubmit={handleSubmit}
       />
