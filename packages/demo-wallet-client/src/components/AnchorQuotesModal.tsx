@@ -177,7 +177,7 @@ export const AnchorQuotesModal = ({
         );
       }
 
-      if (data.prices?.length > 0) {
+      if (data.prices?.length > 0 && quoteAsset?.asset) {
         const sellAssetCode = data.sellAsset?.split(":")[1];
         const buyAssetCode = quoteAsset?.asset.split(":")[1];
 
@@ -187,17 +187,19 @@ export const AnchorQuotesModal = ({
               <p>Rates (not final)</p>
 
               <div>
-                {data.prices.map((p) => (
-                  <RadioButton
-                    key={`${p.asset}-${p.price}`}
-                    name="anchor-asset-price"
-                    id={`${p.asset}-${p.price}`}
-                    label={p.price}
-                    onChange={() => {
-                      setAssetPrice(p.price);
-                    }}
-                  />
-                ))}
+                {data.prices
+                  .filter((p) => p.asset === quoteAsset.asset)
+                  .map((p) => (
+                    <RadioButton
+                      key={`${p.asset}-${p.price}`}
+                      name="anchor-asset-price"
+                      id={`${p.asset}-${p.price}`}
+                      label={p.price}
+                      onChange={() => {
+                        setAssetPrice(p.price);
+                      }}
+                    />
+                  ))}
               </div>
 
               {data.sellAmount && assetPrice ? (
