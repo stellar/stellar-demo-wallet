@@ -64,25 +64,31 @@ export const fetchSep38QuotesSep31InfoAction = createAsyncThunk<
 export const fetchSep38QuotesSep6InfoAction = createAsyncThunk<
   {
     assets: AnchorQuoteAsset[];
-    buyAsset: string;
+    buyAsset?: string;
+    sellAsset?: string;
     amount: string;
     serverUrl: string | undefined;
   },
   {
     anchorQuoteServerUrl: string | undefined;
-    buyAsset: string;
+    buyAsset?: string;
+    sellAsset?: string;
     amount: string;
   },
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sep38Quotes/fetchSep38QuotesSep6InfoAction",
-  async ({ anchorQuoteServerUrl, buyAsset, amount }, { rejectWithValue }) => {
+  async (
+    { anchorQuoteServerUrl, buyAsset, sellAsset, amount },
+    { rejectWithValue },
+  ) => {
     try {
       const result = await getInfo({ context: "sep6", anchorQuoteServerUrl });
 
       return {
         assets: result.assets,
         buyAsset,
+        sellAsset,
         amount,
         serverUrl: anchorQuoteServerUrl,
       };
@@ -265,6 +271,7 @@ const sep38QuotesSlice = createSlice({
           ...state.data,
           assets: action.payload.assets,
           buyAsset: action.payload.buyAsset,
+          sellAsset: action.payload.sellAsset,
           amount: action.payload.amount,
           serverUrl: action.payload.serverUrl,
         };

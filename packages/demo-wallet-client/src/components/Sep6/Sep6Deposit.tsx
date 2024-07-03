@@ -229,6 +229,7 @@ export const Sep6Deposit = () => {
       <AnchorQuotesModal
         token={sep6DepositAsset.data.token}
         context="sep6"
+        isDeposit={true}
         onClose={handleClose}
         onSubmit={handleSubmitWithQuotes}
       />

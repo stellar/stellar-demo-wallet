@@ -9,11 +9,12 @@ import {
   postSep38QuoteAction,
 } from "ducks/sep38Quotes";
 import { AppDispatch } from "config/store";
-import { ActionStatus } from "types/types";
+import { ActionStatus, AnchorBuyAsset } from "types/types";
 
 interface AnchorQuotesModalProps {
   token: string;
   context: "sep31" | "sep6";
+  isDeposit: boolean;
   onClose: () => void;
   onSubmit: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -33,6 +34,7 @@ type QuoteAsset = {
 export const AnchorQuotesModal = ({
   token,
   context,
+  isDeposit,
   onClose,
   onSubmit,
 }: AnchorQuotesModalProps) => {
@@ -54,12 +56,22 @@ export const AnchorQuotesModal = ({
     return new BigNumber(amount).div(rate).toFixed(2);
   };
 
-  const userAsset = context === "sep31" ? data.sellAsset : data.buyAsset;
+  const getRenderAssets = () => {
+    let selectedAsset: string | undefined;
 
-  // Exclude selected asset from quote assets
-  const renderAssets = userAsset
-    ? data.assets.filter((a) => a.asset !== userAsset)
-    : [];
+    if (context === "sep31") {
+      selectedAsset = isDeposit ? data.sellAsset : data.buyAsset;
+    } else if (context === "sep6") {
+      selectedAsset = isDeposit ? data.buyAsset : data.sellAsset;
+    }
+
+    // Exclude selected asset from quote assets
+    return selectedAsset
+      ? data.assets.filter((a) => a.asset !== selectedAsset)
+      : [];
+  };
+
+  const renderAssets = getRenderAssets();
 
   const handleGetAssetRates = () => {
     if (context === "sep31") {
@@ -79,13 +91,15 @@ export const AnchorQuotesModal = ({
         );
       }
     } else if (context === "sep6") {
-      if (data.serverUrl && data.amount && quoteAsset?.asset) {
+      const sellAsset = isDeposit ? quoteAsset?.asset : data.sellAsset;
+
+      if (data.serverUrl && data.amount && sellAsset) {
         dispatch(
           fetchSep38QuotesPricesAction({
             token,
             anchorQuoteServerUrl: data.serverUrl,
             options: {
-              sellAsset: quoteAsset.asset,
+              sellAsset,
               sellAmount: data.amount,
               buyDeliveryMethod: assetBuyDeliveryMethod,
               sellDeliveryMethod: assetSellDeliveryMethod,
@@ -120,20 +134,43 @@ export const AnchorQuotesModal = ({
         );
       }
     } else if (context === "sep6") {
-      if (data.serverUrl && data.buyAsset && data.amount && quoteAsset?.asset) {
-        dispatch(
-          postSep38QuoteAction({
-            token,
-            anchorQuoteServerUrl: data.serverUrl,
-            sell_asset: quoteAsset.asset,
-            buy_asset: data.buyAsset,
-            sell_amount: data.amount,
-            buy_delivery_method: assetBuyDeliveryMethod,
-            sell_delivery_method: assetSellDeliveryMethod,
-            country_code: assetCountryCode,
-            context,
-          }),
-        );
+      if (isDeposit) {
+        if (
+          data.serverUrl &&
+          data.buyAsset &&
+          data.amount &&
+          quoteAsset?.asset
+        ) {
+          dispatch(
+            postSep38QuoteAction({
+              token,
+              anchorQuoteServerUrl: data.serverUrl,
+              sell_asset: quoteAsset.asset,
+              buy_asset: data.buyAsset,
+              sell_amount: data.amount,
+              buy_delivery_method: assetBuyDeliveryMethod,
+              sell_delivery_method: assetSellDeliveryMethod,
+              country_code: assetCountryCode,
+              context,
+            }),
+          );
+        }
+      } else {
+        if (data.serverUrl && data.sellAsset && quoteAsset?.asset) {
+          dispatch(
+            postSep38QuoteAction({
+              token,
+              anchorQuoteServerUrl: data.serverUrl,
+              sell_asset: data.sellAsset,
+              buy_asset: quoteAsset.asset,
+              sell_amount: data.amount,
+              buy_delivery_method: assetBuyDeliveryMethod,
+              sell_delivery_method: assetSellDeliveryMethod,
+              country_code: assetCountryCode,
+              context,
+            }),
+          );
+        }
       }
     }
   };
@@ -220,16 +257,27 @@ export const AnchorQuotesModal = ({
       }
 
       if (data.prices?.length > 0 && quoteAsset?.asset) {
-        const sellAssetCode =
-          context === "sep31"
-            ? data.sellAsset?.split(":")[1]
-            : data.buyAsset?.split(":")[1];
-        const buyAssetCode = quoteAsset?.asset.split(":")[1];
+        let sellAssetCode: string | undefined;
+        let buyAssetCode: string | undefined;
+        let prices: AnchorBuyAsset[] = [];
 
-        const prices =
-          context === "sep31"
-            ? data.prices.filter((p) => p.asset === quoteAsset.asset)
-            : data.prices.filter((p) => p.asset === data.buyAsset);
+        if (context === "sep31") {
+          sellAssetCode = data.sellAsset?.split(":")[1];
+          buyAssetCode = quoteAsset?.asset.split(":")[1];
+          prices = data.prices.filter((p) => p.asset === quoteAsset.asset);
+        }
+
+        if (context === "sep6") {
+          if (isDeposit) {
+            sellAssetCode = data.buyAsset?.split(":")[1];
+            buyAssetCode = quoteAsset?.asset.split(":")[1];
+            prices = data.prices.filter((p) => p.asset === data.buyAsset);
+          } else {
+            sellAssetCode = data.sellAsset?.split(":")[1];
+            buyAssetCode = quoteAsset?.asset.split(":")[1];
+            prices = data.prices.filter((p) => p.asset === quoteAsset.asset);
+          }
+        }
 
         return (
           <>

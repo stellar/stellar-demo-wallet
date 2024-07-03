@@ -291,6 +291,7 @@ export interface Sep6WithdrawAssetInitialState {
     transactionResponse: AnyObject;
     withdrawResponse: Sep6WithdrawResponse;
     requiredCustomerInfoUpdates: AnyObject[] | undefined;
+    anchorQuoteServer: string | undefined;
   };
   errorString?: string;
   status: ActionStatus | undefined;
