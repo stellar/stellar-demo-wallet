@@ -201,7 +201,7 @@ export const Sep6Deposit = () => {
         ...formData,
         amount: formData.amount,
         quoteId,
-        destinationAsset: buyAsset,
+        destinationAssetCode: buyAsset.split(":")[1],
         sourceAsset: sellAsset,
       }),
     );

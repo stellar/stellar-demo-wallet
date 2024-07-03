@@ -247,7 +247,7 @@ export const submitSep6DepositWithQuotesFields = createAsyncThunk<
   {
     amount: string;
     quoteId: string;
-    destinationAsset: string;
+    destinationAssetCode: string;
     sourceAsset: string;
     depositType: AnyObject;
     infoFields: AnyObject;
@@ -256,7 +256,14 @@ export const submitSep6DepositWithQuotesFields = createAsyncThunk<
 >(
   "sep6DepositAsset/submitSep6DepositWithQuotesFields",
   async (
-    { amount, quoteId, destinationAsset, sourceAsset, depositType, infoFields },
+    {
+      amount,
+      quoteId,
+      destinationAssetCode,
+      sourceAsset,
+      depositType,
+      infoFields,
+    },
     { rejectWithValue, getState },
   ) => {
     try {
@@ -270,7 +277,7 @@ export const submitSep6DepositWithQuotesFields = createAsyncThunk<
       const depositResponse = (await programmaticDepositExchangeFlow({
         amount,
         sourceAsset,
-        destinationAsset,
+        destinationAssetCode,
         quoteId,
         publicKey,
         transferServerUrl,
@@ -279,8 +286,6 @@ export const submitSep6DepositWithQuotesFields = createAsyncThunk<
         depositFields: infoFields,
         claimableBalanceSupported,
       })) as Sep6DepositResponse;
-
-      // TODO: check response type
 
       return {
         status: ActionStatus.CAN_PROCEED,
@@ -525,6 +530,25 @@ const sep6DepositAssetSlice = createSlice({
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
+    builder.addCase(submitSep6DepositWithQuotesFields.pending, (state) => {
+      state.errorString = undefined;
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(
+      submitSep6DepositWithQuotesFields.fulfilled,
+      (state, action) => {
+        state.status = action.payload.status;
+        state.data.depositResponse = action.payload.depositResponse;
+      },
+    );
+    builder.addCase(
+      submitSep6DepositWithQuotesFields.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
 
     builder.addCase(submitSep6CustomerInfoFields.pending, (state) => {
       state.errorString = undefined;

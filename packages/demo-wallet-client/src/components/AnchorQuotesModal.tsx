@@ -228,7 +228,7 @@ export const AnchorQuotesModal = ({
 
         const prices =
           context === "sep31"
-            ? data.prices
+            ? data.prices.filter((p) => p.asset === quoteAsset.asset)
             : data.prices.filter((p) => p.asset === data.buyAsset);
 
         return (

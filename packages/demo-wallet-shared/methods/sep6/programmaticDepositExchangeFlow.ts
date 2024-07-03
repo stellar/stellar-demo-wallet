@@ -4,7 +4,7 @@ import { AnyObject } from "../../types/types";
 
 type ProgrammaticDepositExchangeFlowProps = {
   amount: string;
-  destinationAsset: string;
+  destinationAssetCode: string;
   sourceAsset: string;
   quoteId: string;
   publicKey: string;
@@ -17,7 +17,7 @@ type ProgrammaticDepositExchangeFlowProps = {
 
 export const programmaticDepositExchangeFlow = async ({
   amount = "",
-  destinationAsset,
+  destinationAssetCode,
   sourceAsset,
   quoteId,
   publicKey,
@@ -37,7 +37,7 @@ export const programmaticDepositExchangeFlow = async ({
 
   const getDepositParams = {
     amount,
-    destination_asset: destinationAsset,
+    destination_asset: destinationAssetCode,
     source_asset: sourceAsset,
     quote_id: quoteId,
     account: publicKey,
