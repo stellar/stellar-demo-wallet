@@ -12,13 +12,20 @@ import {
 
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { KycField, KycFieldInput } from "components/KycFieldInput";
+import { AnchorQuotesModal } from "components/AnchorQuotesModal";
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6DepositAction,
   submitSep6DepositFields,
   sep6DepositAction,
   submitSep6CustomerInfoFields,
+  setStatusAction,
+  submitSep6DepositWithQuotesFields,
 } from "ducks/sep6DepositAsset";
+import {
+  fetchSep38QuotesSep6InfoAction,
+  resetSep38QuotesAction,
+} from "ducks/sep38Quotes";
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
 import { ActionStatus } from "types/types";
@@ -81,6 +88,7 @@ export const Sep6Deposit = () => {
   const handleClose = () => {
     dispatch(resetSep6DepositAction());
     dispatch(resetActiveAssetAction());
+    dispatch(resetSep38QuotesAction());
     resetLocalState();
   };
 
@@ -121,12 +129,17 @@ export const Sep6Deposit = () => {
   ) => {
     const { id, value } = event.target;
 
+    let fields = { ...formData.customerFields };
+
+    if (value) {
+      fields[id] = value;
+    } else if (fields[id]) {
+      delete fields[id];
+    }
+
     const updatedState = {
       ...formData,
-      customerFields: {
-        ...formData.customerFields,
-        [id]: value,
-      },
+      customerFields: fields,
     };
 
     setFormData(updatedState);
@@ -150,6 +163,50 @@ export const Sep6Deposit = () => {
     dispatch(submitSep6DepositFields({ ...formData }));
   };
 
+  const handleShowQuotesModal = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+
+    if (!formData.amount) {
+      return;
+    }
+
+    const { assetCode, assetIssuer } = sep6DepositAsset.data;
+
+    dispatch(
+      fetchSep38QuotesSep6InfoAction({
+        anchorQuoteServerUrl: sep6DepositAsset.data?.anchorQuoteServer,
+        buyAsset: `stellar:${assetCode}:${assetIssuer}`,
+        amount: formData.amount,
+      }),
+    );
+    dispatch(setStatusAction(ActionStatus.ANCHOR_QUOTES));
+  };
+
+  const handleSubmitWithQuotes = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    quoteId?: string,
+    buyAsset?: string,
+    sellAsset?: string,
+  ) => {
+    event.preventDefault();
+
+    if (!(quoteId && buyAsset && sellAsset && formData.amount)) {
+      return;
+    }
+
+    dispatch(
+      submitSep6DepositWithQuotesFields({
+        ...formData,
+        amount: formData.amount,
+        quoteId,
+        destinationAssetCode: buyAsset.split(":")[1],
+        sourceAsset: sellAsset,
+      }),
+    );
+  };
+
   const handleSubmitCustomerInfo = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
@@ -166,6 +223,18 @@ export const Sep6Deposit = () => {
 
     return `Min: ${minAmount} | Max: ${maxAmount}`;
   };
+
+  if (sep6DepositAsset.status === ActionStatus.ANCHOR_QUOTES) {
+    return (
+      <AnchorQuotesModal
+        token={sep6DepositAsset.data.token}
+        context="sep6"
+        isDeposit={true}
+        onClose={handleClose}
+        onSubmit={handleSubmitWithQuotes}
+      />
+    );
+  }
 
   if (sep6DepositAsset.status === ActionStatus.NEEDS_KYC) {
     return (
@@ -204,7 +273,7 @@ export const Sep6Deposit = () => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleSubmit}>Submit</Button>
+          <Button onClick={handleSubmitCustomerInfo}>Submit</Button>
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Cancel
           </Button>
@@ -328,6 +397,14 @@ export const Sep6Deposit = () => {
         </Modal.Body>
 
         <Modal.Footer>
+          <Button
+            onClick={handleShowQuotesModal}
+            variant={Button.variant.secondary}
+            disabled={!formData.amount}
+            title={!formData.amount ? "Amount is required" : ""}
+          >
+            Select quote
+          </Button>
           <Button onClick={handleSubmit}>Submit</Button>
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Cancel
@@ -355,6 +432,26 @@ export const Sep6Deposit = () => {
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Close
           </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
+  if (sep6DepositAsset.status === ActionStatus.KYC_DONE) {
+    return (
+      <Modal
+        visible={isInfoModalVisible}
+        onClose={() => setIsInfoModalVisible(false)}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
+        <Modal.Heading>SEP-6 Deposit</Modal.Heading>
+
+        <Modal.Body>
+          <p>Submit the deposit.</p>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button onClick={() => dispatch(sep6DepositAction())}>Submit</Button>
         </Modal.Footer>
       </Modal>
     );

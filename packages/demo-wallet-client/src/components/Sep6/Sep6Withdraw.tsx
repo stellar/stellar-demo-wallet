@@ -9,17 +9,27 @@ import {
   Heading3,
   DetailsTooltip,
 } from "@stellar/design-system";
+
 import { ErrorMessage } from "components/ErrorMessage";
 import { KycField, KycFieldInput } from "components/KycFieldInput";
-import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
+import { AnchorQuotesModal } from "components/AnchorQuotesModal";
+
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import {
   resetSep6WithdrawAction,
   submitSep6WithdrawFields,
   sep6WithdrawAction,
   submitSep6WithdrawCustomerInfoFields,
+  setStatusAction,
+  submitSep6WithdrawWithQuotesFields,
 } from "ducks/sep6WithdrawAsset";
+import {
+  fetchSep38QuotesSep6InfoAction,
+  resetSep38QuotesAction,
+} from "ducks/sep38Quotes";
+
 import { useRedux } from "hooks/useRedux";
+import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
 import { AppDispatch } from "config/store";
 import { ActionStatus, AnyObject } from "types/types";
@@ -87,6 +97,7 @@ export const Sep6Withdraw = () => {
   const handleClose = () => {
     dispatch(resetSep6WithdrawAction());
     dispatch(resetActiveAssetAction());
+    dispatch(resetSep38QuotesAction());
     resetLocalState();
   };
 
@@ -124,12 +135,17 @@ export const Sep6Withdraw = () => {
   ) => {
     const { id, value } = event.target;
 
+    let fields = { ...formData.customerFields };
+
+    if (value) {
+      fields[id] = value;
+    } else if (fields[id]) {
+      delete fields[id];
+    }
+
     const updatedState = {
       ...formData,
-      customerFields: {
-        ...formData.customerFields,
-        [id]: value,
-      },
+      customerFields: fields,
     };
 
     setFormData(updatedState);
@@ -150,11 +166,55 @@ export const Sep6Withdraw = () => {
     setWithdrawAmount(value);
   };
 
-  const handleAmountSubmit = (
+  const handlePollTransaction = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     event.preventDefault();
     dispatch(sep6WithdrawAction(withdrawAmount));
+  };
+
+  const handleShowQuotesModal = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+
+    if (!withdrawAmount) {
+      return;
+    }
+
+    const { assetCode, assetIssuer } = sep6WithdrawAsset.data;
+
+    dispatch(
+      fetchSep38QuotesSep6InfoAction({
+        anchorQuoteServerUrl: sep6WithdrawAsset.data?.anchorQuoteServer,
+        sellAsset: `stellar:${assetCode}:${assetIssuer}`,
+        amount: withdrawAmount,
+      }),
+    );
+    dispatch(setStatusAction(ActionStatus.ANCHOR_QUOTES));
+  };
+
+  const handleSubmitWithQuotes = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    quoteId?: string,
+    buyAsset?: string,
+    sellAsset?: string,
+  ) => {
+    event.preventDefault();
+
+    if (!(quoteId && buyAsset && sellAsset && withdrawAmount)) {
+      return;
+    }
+
+    dispatch(
+      submitSep6WithdrawWithQuotesFields({
+        ...formData,
+        amount: withdrawAmount,
+        quoteId,
+        destinationAsset: buyAsset,
+        sourceAssetCode: sellAsset.split(":")[1],
+      }),
+    );
   };
 
   const handleSubmitCustomerInfo = (
@@ -163,6 +223,18 @@ export const Sep6Withdraw = () => {
     event.preventDefault();
     dispatch(submitSep6WithdrawCustomerInfoFields(formData.customerFields));
   };
+
+  if (sep6WithdrawAsset.status === ActionStatus.ANCHOR_QUOTES) {
+    return (
+      <AnchorQuotesModal
+        token={sep6WithdrawAsset.data.token}
+        context="sep6"
+        isDeposit={false}
+        onClose={handleClose}
+        onSubmit={handleSubmitWithQuotes}
+      />
+    );
+  }
 
   if (sep6WithdrawAsset.status === ActionStatus.NEEDS_KYC) {
     return (
@@ -202,7 +274,7 @@ export const Sep6Withdraw = () => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleFieldsSubmit}>Submit</Button>
+          <Button onClick={handleSubmitCustomerInfo}>Submit</Button>
           <Button onClick={handleClose} variant={Button.variant.secondary}>
             Cancel
           </Button>
@@ -248,6 +320,31 @@ export const Sep6Withdraw = () => {
         <Modal.Heading>SEP-6 Withdrawal Info</Modal.Heading>
 
         <Modal.Body>
+          <>
+            <Input
+              id="withdraw-amount"
+              label="Amount to Withdraw (optional)"
+              onChange={handleAmountFieldChange}
+              value={withdrawAmount}
+            />
+            {withdrawResponse.min_amount || withdrawResponse.max_amount ? (
+              <div className="vertical-spacing">
+                {withdrawResponse.min_amount && (
+                  <p>
+                    <strong>Min Amount: </strong>
+                    {withdrawResponse.min_amount}
+                  </p>
+                )}
+                {withdrawResponse.max_amount && (
+                  <p>
+                    <strong>Max Amount: </strong>
+                    {withdrawResponse.max_amount}
+                  </p>
+                )}
+              </div>
+            ) : null}
+          </>
+
           <Heading3>
             <DetailsTooltip
               details={
@@ -294,6 +391,14 @@ export const Sep6Withdraw = () => {
         </Modal.Body>
 
         <Modal.Footer>
+          <Button
+            onClick={handleShowQuotesModal}
+            variant={Button.variant.secondary}
+            disabled={!withdrawAmount}
+            title={!withdrawAmount ? "Amount is required" : ""}
+          >
+            Select quote
+          </Button>
           <Button onClick={handleFieldsSubmit}>Submit</Button>
         </Modal.Footer>
       </Modal>
@@ -317,33 +422,6 @@ export const Sep6Withdraw = () => {
               <strong>Sending Payment To: </strong>
               {shortenStellarKey(withdrawResponse.account_id)}
             </div>
-          ) : null}
-
-          {!isRequiredCustomerInfo ? (
-            <>
-              <Input
-                id="withdraw-amount"
-                label="Amount to Withdraw"
-                required
-                onChange={handleAmountFieldChange}
-              />
-              {withdrawResponse.min_amount || withdrawResponse.max_amount ? (
-                <div className="vertical-spacing">
-                  {withdrawResponse.min_amount && (
-                    <p>
-                      <strong>Min Amount: </strong>
-                      {withdrawResponse.min_amount}
-                    </p>
-                  )}
-                  {withdrawResponse.max_amount && (
-                    <p>
-                      <strong>Max Amount: </strong>
-                      {withdrawResponse.max_amount}
-                    </p>
-                  )}
-                </div>
-              ) : null}
-            </>
           ) : null}
 
           {withdrawResponse.id && (
@@ -377,7 +455,27 @@ export const Sep6Withdraw = () => {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={handleAmountSubmit}>Submit</Button>
+          <Button onClick={handlePollTransaction}>Submit</Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
+  if (sep6WithdrawAsset.status === ActionStatus.KYC_DONE) {
+    return (
+      <Modal
+        visible={isInfoModalVisible}
+        onClose={() => setIsInfoModalVisible(false)}
+        parentId={CSS_MODAL_PARENT_ID}
+      >
+        <Modal.Heading>SEP-6 Withdrawal</Modal.Heading>
+
+        <Modal.Body>
+          <p>Submit the withdrawal.</p>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button onClick={handlePollTransaction}>Submit</Button>
         </Modal.Footer>
       </Modal>
     );

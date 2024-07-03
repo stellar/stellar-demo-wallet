@@ -243,6 +243,7 @@ export interface Sep6DepositAssetInitialState {
     trustedAssetAdded: string;
     requiredCustomerInfoUpdates: AnyObject[] | undefined;
     instructions: SepInstructions | undefined;
+    anchorQuoteServer: string | undefined;
   };
   errorString?: string;
   status: ActionStatus;
@@ -290,6 +291,7 @@ export interface Sep6WithdrawAssetInitialState {
     transactionResponse: AnyObject;
     withdrawResponse: Sep6WithdrawResponse;
     requiredCustomerInfoUpdates: AnyObject[] | undefined;
+    anchorQuoteServer: string | undefined;
   };
   errorString?: string;
   status: ActionStatus | undefined;
@@ -330,7 +332,8 @@ export interface Sep38QuotesInitialState {
   data: {
     serverUrl: string | undefined;
     sellAsset: string | undefined;
-    sellAmount: string | undefined;
+    buyAsset: string | undefined;
+    amount: string | undefined;
     assets: AnchorQuoteAsset[];
     prices: AnchorBuyAsset[];
     quote: AnchorQuote | undefined;
@@ -410,6 +413,7 @@ export enum ActionStatus {
   SUCCESS = "SUCCESS",
   NEEDS_INPUT = "NEEDS_INPUT",
   NEEDS_KYC = "NEEDS_KYC",
+  KYC_DONE = "KYC_DONE",
   CAN_PROCEED = "CAN_PROCEED",
   ANCHOR_QUOTES = "ANCHOR_QUOTES",
 }
@@ -492,6 +496,8 @@ export enum MemoTypeString {
 export enum AnchorActionType {
   DEPOSIT = "deposit",
   WITHDRAWAL = "withdraw",
+  DEPOSIT_EXCHANGE = "deposit-exchange",
+  WITHDRAW_EXCHANGE = "withdraw-exchange",
 }
 
 interface InfoTypeData {
@@ -511,6 +517,12 @@ export interface CheckInfoData {
     [asset: string]: InfoTypeData;
   };
   [AnchorActionType.WITHDRAWAL]: {
+    [asset: string]: InfoTypeData;
+  };
+  [AnchorActionType.DEPOSIT_EXCHANGE]?: {
+    [asset: string]: InfoTypeData;
+  };
+  [AnchorActionType.WITHDRAW_EXCHANGE]?: {
     [asset: string]: InfoTypeData;
   };
 }

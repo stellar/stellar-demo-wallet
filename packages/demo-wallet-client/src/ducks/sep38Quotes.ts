@@ -19,35 +19,77 @@ import {
   Sep38QuotesInitialState,
 } from "types/types";
 
-export const fetchSep38QuotesInfoAction = createAsyncThunk<
+export const fetchSep38QuotesSep31InfoAction = createAsyncThunk<
   {
     assets: AnchorQuoteAsset[];
     sellAsset: string;
-    sellAmount: string;
+    amount: string;
     serverUrl: string | undefined;
   },
   {
     anchorQuoteServerUrl: string | undefined;
     sellAsset: string;
-    sellAmount: string;
+    amount: string;
   },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep38Quotes/fetchSep38QuotesInfoAction",
-  async (
-    { anchorQuoteServerUrl, sellAsset, sellAmount },
-    { rejectWithValue },
-  ) => {
+  "sep38Quotes/fetchSep38QuotesSep31InfoAction",
+  async ({ anchorQuoteServerUrl, sellAsset, amount }, { rejectWithValue }) => {
     try {
-      const result = await getInfo(anchorQuoteServerUrl, {
-        sell_asset: sellAsset,
-        sell_amount: sellAmount,
+      const result = await getInfo({
+        context: "sep31",
+        anchorQuoteServerUrl,
+        options: { sell_amount: amount, sell_asset: sellAsset! },
       });
 
       return {
         assets: result.assets,
         sellAsset,
-        sellAmount,
+        amount,
+        serverUrl: anchorQuoteServerUrl,
+      };
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+
+      log.error({
+        title: errorMessage,
+      });
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
+export const fetchSep38QuotesSep6InfoAction = createAsyncThunk<
+  {
+    assets: AnchorQuoteAsset[];
+    buyAsset?: string;
+    sellAsset?: string;
+    amount: string;
+    serverUrl: string | undefined;
+  },
+  {
+    anchorQuoteServerUrl: string | undefined;
+    buyAsset?: string;
+    sellAsset?: string;
+    amount: string;
+  },
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep38Quotes/fetchSep38QuotesSep6InfoAction",
+  async (
+    { anchorQuoteServerUrl, buyAsset, sellAsset, amount },
+    { rejectWithValue },
+  ) => {
+    try {
+      const result = await getInfo({ context: "sep6", anchorQuoteServerUrl });
+
+      return {
+        assets: result.assets,
+        buyAsset,
+        sellAsset,
+        amount,
         serverUrl: anchorQuoteServerUrl,
       };
     } catch (error) {
@@ -170,7 +212,8 @@ const initialState: Sep38QuotesInitialState = {
   data: {
     serverUrl: undefined,
     sellAsset: undefined,
-    sellAmount: undefined,
+    buyAsset: undefined,
+    amount: undefined,
     assets: [],
     prices: [],
     quote: undefined,
@@ -187,26 +230,61 @@ const sep38QuotesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(
-      fetchSep38QuotesInfoAction.pending,
+      fetchSep38QuotesSep31InfoAction.pending,
       (state = initialState) => {
         state.status = ActionStatus.PENDING;
         state.data = { ...state.data, prices: [], quote: undefined };
       },
     );
-    builder.addCase(fetchSep38QuotesInfoAction.fulfilled, (state, action) => {
-      state.data = {
-        ...state.data,
-        assets: action.payload.assets,
-        sellAsset: action.payload.sellAsset,
-        sellAmount: action.payload.sellAmount,
-        serverUrl: action.payload.serverUrl,
-      };
-      state.status = ActionStatus.SUCCESS;
-    });
-    builder.addCase(fetchSep38QuotesInfoAction.rejected, (state, action) => {
-      state.errorString = action.payload?.errorString;
-      state.status = ActionStatus.ERROR;
-    });
+    builder.addCase(
+      fetchSep38QuotesSep31InfoAction.fulfilled,
+      (state, action) => {
+        state.data = {
+          ...state.data,
+          assets: action.payload.assets,
+          sellAsset: action.payload.sellAsset,
+          amount: action.payload.amount,
+          serverUrl: action.payload.serverUrl,
+        };
+        state.status = ActionStatus.SUCCESS;
+      },
+    );
+    builder.addCase(
+      fetchSep38QuotesSep31InfoAction.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
+
+    builder.addCase(
+      fetchSep38QuotesSep6InfoAction.pending,
+      (state = initialState) => {
+        state.status = ActionStatus.PENDING;
+        state.data = { ...state.data, prices: [], quote: undefined };
+      },
+    );
+    builder.addCase(
+      fetchSep38QuotesSep6InfoAction.fulfilled,
+      (state, action) => {
+        state.data = {
+          ...state.data,
+          assets: action.payload.assets,
+          buyAsset: action.payload.buyAsset,
+          sellAsset: action.payload.sellAsset,
+          amount: action.payload.amount,
+          serverUrl: action.payload.serverUrl,
+        };
+        state.status = ActionStatus.SUCCESS;
+      },
+    );
+    builder.addCase(
+      fetchSep38QuotesSep6InfoAction.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
 
     builder.addCase(
       fetchSep38QuotesPricesAction.pending,
