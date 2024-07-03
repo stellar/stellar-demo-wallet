@@ -9,15 +9,18 @@ import {
   postSep38QuoteAction,
 } from "ducks/sep38Quotes";
 import { AppDispatch } from "config/store";
-import { ActionStatus } from "types/types";
+import { ActionStatus, AnchorBuyAsset } from "types/types";
 
 interface AnchorQuotesModalProps {
   token: string;
+  context: "sep31" | "sep6";
+  isDeposit: boolean;
   onClose: () => void;
   onSubmit: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     quoteId?: string,
-    destinationAsset?: string,
+    buyAssset?: string,
+    sellAsset?: string,
   ) => void;
 }
 
@@ -30,6 +33,8 @@ type QuoteAsset = {
 
 export const AnchorQuotesModal = ({
   token,
+  context,
+  isDeposit,
   onClose,
   onSubmit,
 }: AnchorQuotesModalProps) => {
@@ -38,6 +43,8 @@ export const AnchorQuotesModal = ({
 
   const [quoteAsset, setQuoteAsset] = useState<QuoteAsset>();
   const [assetBuyDeliveryMethod, setAssetBuyDeliveryMethod] =
+    useState<string>();
+  const [assetSellDeliveryMethod, setAssetSellDeliveryMethod] =
     useState<string>();
   const [assetCountryCode, setAssetCountryCode] = useState<string>();
   const [assetPrice, setAssetPrice] = useState<string>();
@@ -49,47 +56,122 @@ export const AnchorQuotesModal = ({
     return new BigNumber(amount).div(rate).toFixed(2);
   };
 
-  // Exclude sell asset from quote assets
-  const renderAssets = data.sellAsset
-    ? data.assets.filter((a) => a.asset !== data.sellAsset)
-    : [];
+  const getRenderAssets = () => {
+    let selectedAsset: string | undefined;
+
+    if (context === "sep31") {
+      selectedAsset = isDeposit ? data.sellAsset : data.buyAsset;
+    } else if (context === "sep6") {
+      selectedAsset = isDeposit ? data.buyAsset : data.sellAsset;
+    }
+
+    // Exclude selected asset from quote assets
+    return selectedAsset
+      ? data.assets.filter((a) => a.asset !== selectedAsset)
+      : [];
+  };
+
+  const renderAssets = getRenderAssets();
 
   const handleGetAssetRates = () => {
-    if (data.serverUrl && data.sellAsset && data.sellAmount) {
-      dispatch(
-        fetchSep38QuotesPricesAction({
-          token,
-          anchorQuoteServerUrl: data.serverUrl,
-          options: {
-            sellAsset: data.sellAsset,
-            sellAmount: data.sellAmount,
-            buyDeliveryMethod: assetBuyDeliveryMethod,
-            countryCode: assetCountryCode,
-          },
-        }),
-      );
+    if (context === "sep31") {
+      if (data.serverUrl && data.sellAsset && data.amount) {
+        dispatch(
+          fetchSep38QuotesPricesAction({
+            token,
+            anchorQuoteServerUrl: data.serverUrl,
+            options: {
+              sellAsset: data.sellAsset,
+              sellAmount: data.amount,
+              buyDeliveryMethod: assetBuyDeliveryMethod,
+              sellDeliveryMethod: assetSellDeliveryMethod,
+              countryCode: assetCountryCode,
+            },
+          }),
+        );
+      }
+    } else if (context === "sep6") {
+      const sellAsset = isDeposit ? quoteAsset?.asset : data.sellAsset;
+
+      if (data.serverUrl && data.amount && sellAsset) {
+        dispatch(
+          fetchSep38QuotesPricesAction({
+            token,
+            anchorQuoteServerUrl: data.serverUrl,
+            options: {
+              sellAsset,
+              sellAmount: data.amount,
+              buyDeliveryMethod: assetBuyDeliveryMethod,
+              sellDeliveryMethod: assetSellDeliveryMethod,
+              countryCode: assetCountryCode,
+            },
+          }),
+        );
+      }
     }
   };
 
   const handleGetQuote = () => {
-    if (
-      data.serverUrl &&
-      data.sellAsset &&
-      data.sellAmount &&
-      quoteAsset?.asset
-    ) {
-      dispatch(
-        postSep38QuoteAction({
-          token,
-          anchorQuoteServerUrl: data.serverUrl,
-          sell_asset: data.sellAsset,
-          buy_asset: quoteAsset.asset,
-          sell_amount: data.sellAmount,
-          buy_delivery_method: assetBuyDeliveryMethod,
-          country_code: assetCountryCode,
-          context: "sep31",
-        }),
-      );
+    if (context === "sep31") {
+      if (
+        data.serverUrl &&
+        data.sellAsset &&
+        data.amount &&
+        quoteAsset?.asset
+      ) {
+        dispatch(
+          postSep38QuoteAction({
+            token,
+            anchorQuoteServerUrl: data.serverUrl,
+            sell_asset: data.sellAsset,
+            buy_asset: quoteAsset.asset,
+            sell_amount: data.amount,
+            buy_delivery_method: assetBuyDeliveryMethod,
+            sell_delivery_method: assetSellDeliveryMethod,
+            country_code: assetCountryCode,
+            context,
+          }),
+        );
+      }
+    } else if (context === "sep6") {
+      if (isDeposit) {
+        if (
+          data.serverUrl &&
+          data.buyAsset &&
+          data.amount &&
+          quoteAsset?.asset
+        ) {
+          dispatch(
+            postSep38QuoteAction({
+              token,
+              anchorQuoteServerUrl: data.serverUrl,
+              sell_asset: quoteAsset.asset,
+              buy_asset: data.buyAsset,
+              sell_amount: data.amount,
+              buy_delivery_method: assetBuyDeliveryMethod,
+              sell_delivery_method: assetSellDeliveryMethod,
+              country_code: assetCountryCode,
+              context,
+            }),
+          );
+        }
+      } else {
+        if (data.serverUrl && data.sellAsset && quoteAsset?.asset) {
+          dispatch(
+            postSep38QuoteAction({
+              token,
+              anchorQuoteServerUrl: data.serverUrl,
+              sell_asset: data.sellAsset,
+              buy_asset: quoteAsset.asset,
+              sell_amount: data.amount,
+              buy_delivery_method: assetBuyDeliveryMethod,
+              sell_delivery_method: assetSellDeliveryMethod,
+              country_code: assetCountryCode,
+              context,
+            }),
+          );
+        }
+      }
     }
   };
 
@@ -158,7 +240,14 @@ export const AnchorQuotesModal = ({
               <Button
                 onClick={(
                   event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-                ) => onSubmit(event, data.quote?.id, data.quote?.buy_asset)}
+                ) =>
+                  onSubmit(
+                    event,
+                    data.quote?.id,
+                    data.quote?.buy_asset,
+                    data.quote?.sell_asset,
+                  )
+                }
               >
                 Submit
               </Button>
@@ -167,9 +256,28 @@ export const AnchorQuotesModal = ({
         );
       }
 
-      if (data.prices?.length > 0) {
-        const sellAssetCode = data.sellAsset?.split(":")[1];
-        const buyAssetCode = quoteAsset?.asset.split(":")[1];
+      if (data.prices?.length > 0 && quoteAsset?.asset) {
+        let sellAssetCode: string | undefined;
+        let buyAssetCode: string | undefined;
+        let prices: AnchorBuyAsset[] = [];
+
+        if (context === "sep31") {
+          sellAssetCode = data.sellAsset?.split(":")[1];
+          buyAssetCode = quoteAsset?.asset.split(":")[1];
+          prices = data.prices.filter((p) => p.asset === quoteAsset.asset);
+        }
+
+        if (context === "sep6") {
+          if (isDeposit) {
+            sellAssetCode = data.buyAsset?.split(":")[1];
+            buyAssetCode = quoteAsset?.asset.split(":")[1];
+            prices = data.prices.filter((p) => p.asset === data.buyAsset);
+          } else {
+            sellAssetCode = data.sellAsset?.split(":")[1];
+            buyAssetCode = quoteAsset?.asset.split(":")[1];
+            prices = data.prices.filter((p) => p.asset === quoteAsset.asset);
+          }
+        }
 
         return (
           <>
@@ -177,7 +285,7 @@ export const AnchorQuotesModal = ({
               <p>Rates (not final)</p>
 
               <div>
-                {data.prices.map((p) => (
+                {prices.map((p) => (
                   <RadioButton
                     key={`${p.asset}-${p.price}`}
                     name="anchor-asset-price"
@@ -190,13 +298,11 @@ export const AnchorQuotesModal = ({
                 ))}
               </div>
 
-              {data.sellAmount && assetPrice ? (
+              {data.amount && assetPrice ? (
                 <div>{`Estimated total of ${calculateTotal(
-                  data.sellAmount,
+                  data.amount,
                   assetPrice,
-                )} ${buyAssetCode} for ${
-                  data.sellAmount
-                } ${sellAssetCode}`}</div>
+                )} ${buyAssetCode} for ${data.amount} ${sellAssetCode}`}</div>
               ) : null}
             </Modal.Body>
 
@@ -227,47 +333,88 @@ export const AnchorQuotesModal = ({
                         setQuoteAsset({
                           asset: a.asset,
                         });
+                        setAssetCountryCode("");
+                        setAssetBuyDeliveryMethod(undefined);
+                        setAssetSellDeliveryMethod(undefined);
                       }}
                       checked={a.asset === quoteAsset?.asset}
                     />
 
                     {/* TODO: Better UI */}
                     <div style={{ paddingLeft: 20 }}>
-                      <div>Country codes</div>
-                      <div>
-                        {a.country_codes?.map((c) => (
-                          <RadioButton
-                            key={c}
-                            name={`anchor-${a.asset}-country`}
-                            id={c}
-                            label={c}
-                            disabled={a.asset !== quoteAsset?.asset}
-                            onChange={() => {
-                              setAssetCountryCode(c);
-                            }}
-                            checked={c === assetCountryCode}
-                          />
-                        ))}
-                      </div>
+                      {a.country_codes && a.country_codes.length > 0 ? (
+                        <>
+                          <div>Country codes</div>
+                          <div>
+                            {a.country_codes?.map((c) => (
+                              <RadioButton
+                                key={`anchor-${a.asset}-country-${c}`}
+                                name={`anchor-${a.asset}-country`}
+                                id={`anchor-${a.asset}-country-${c}`}
+                                label={c}
+                                disabled={a.asset !== quoteAsset?.asset}
+                                onChange={() => {
+                                  setAssetCountryCode(c);
+                                }}
+                                checked={
+                                  a.asset === quoteAsset?.asset &&
+                                  c === assetCountryCode
+                                }
+                              />
+                            ))}
+                          </div>
+                        </>
+                      ) : null}
 
-                      <>
-                        <div>Buy delivery methods</div>
-                        <div>
-                          {a.buy_delivery_methods?.map((b) => (
-                            <RadioButton
-                              key={b.name}
-                              name={`anchor-${a.asset}-delivery`}
-                              id={b.name}
-                              label={`${b.name} - ${b.description}`}
-                              disabled={a.asset !== quoteAsset?.asset}
-                              onChange={() => {
-                                setAssetBuyDeliveryMethod(b.name);
-                              }}
-                              checked={b.name === assetBuyDeliveryMethod}
-                            />
-                          ))}
-                        </div>
-                      </>
+                      {a.buy_delivery_methods &&
+                      a.buy_delivery_methods.length > 0 ? (
+                        <>
+                          <div>Buy delivery methods</div>
+                          <div>
+                            {a.buy_delivery_methods?.map((b) => (
+                              <RadioButton
+                                key={`anchor-${a.asset}-delivery-${b.name}`}
+                                name={`anchor-${a.asset}-delivery`}
+                                id={`anchor-${a.asset}-delivery-${b.name}`}
+                                label={`${b.name} - ${b.description}`}
+                                disabled={a.asset !== quoteAsset?.asset}
+                                onChange={() => {
+                                  setAssetBuyDeliveryMethod(b.name);
+                                }}
+                                checked={
+                                  a.asset === quoteAsset?.asset &&
+                                  b.name === assetBuyDeliveryMethod
+                                }
+                              />
+                            ))}
+                          </div>
+                        </>
+                      ) : null}
+
+                      {a.sell_delivery_methods &&
+                      a.sell_delivery_methods.length > 0 ? (
+                        <>
+                          <div>Sell delivery methods</div>
+                          <div>
+                            {a.sell_delivery_methods?.map((b) => (
+                              <RadioButton
+                                key={`anchor-${a.asset}-delivery-sell-${b.name}`}
+                                name={`anchor-${a.asset}-delivery-sell`}
+                                id={`anchor-${a.asset}-delivery-sell-${b.name}`}
+                                label={`${b.name} - ${b.description}`}
+                                disabled={a.asset !== quoteAsset?.asset}
+                                onChange={() => {
+                                  setAssetSellDeliveryMethod(b.name);
+                                }}
+                                checked={
+                                  a.asset === quoteAsset?.asset &&
+                                  b.name === assetSellDeliveryMethod
+                                }
+                              />
+                            ))}
+                          </div>
+                        </>
+                      ) : null}
                     </div>
                   </div>
                 ))}

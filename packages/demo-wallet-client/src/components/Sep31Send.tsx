@@ -22,7 +22,7 @@ import {
   setStatusAction,
 } from "ducks/sep31Send";
 import {
-  fetchSep38QuotesInfoAction,
+  fetchSep38QuotesSep31InfoAction,
   resetSep38QuotesAction,
 } from "ducks/sep38Quotes";
 
@@ -134,10 +134,10 @@ export const Sep31Send = () => {
     const { assetCode, assetIssuer } = sep31Send.data;
 
     dispatch(
-      fetchSep38QuotesInfoAction({
+      fetchSep38QuotesSep31InfoAction({
         anchorQuoteServerUrl: sep31Send.data?.anchorQuoteServer,
         sellAsset: `stellar:${assetCode}:${assetIssuer}`,
-        sellAmount: formData.amount.amount,
+        amount: formData.amount.amount,
       }),
     );
     dispatch(setStatusAction(ActionStatus.ANCHOR_QUOTES));
@@ -241,6 +241,8 @@ export const Sep31Send = () => {
     return (
       <AnchorQuotesModal
         token={sep31Send.data.token}
+        context="sep31"
+        isDeposit={true}
         onClose={handleClose}
         onSubmit={handleSubmit}
       />

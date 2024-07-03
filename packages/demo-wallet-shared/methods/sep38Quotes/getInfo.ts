@@ -1,35 +1,50 @@
 import { log } from "../../helpers/log";
 import { AnchorQuoteAsset } from "../../types/types";
 
-export const getInfo = async (
-  anchorQuoteServerUrl: string | undefined,
-  options?: {
-    /* eslint-disable camelcase */
-    sell_asset: string;
-    sell_amount: string;
-    sell_delivery_method?: string;
-    buy_delivery_method?: string;
-    country_code?: string;
-    /* eslint-enable camelcase */
-  },
-): Promise<{ assets: AnchorQuoteAsset[] }> => {
+type Sep38GetInfo = (
+  | {
+      context: "sep6";
+      options?: undefined;
+    }
+  | {
+      context: "sep31";
+      options?: {
+        /* eslint-disable camelcase */
+        sell_asset: string;
+        sell_amount: string;
+        sell_delivery_method?: string;
+        buy_delivery_method?: string;
+        country_code?: string;
+        /* eslint-enable camelcase */
+      };
+    }
+) & {
+  anchorQuoteServerUrl: string | undefined;
+};
+
+export const getInfo = async ({
+  context,
+  anchorQuoteServerUrl,
+  options,
+}: Sep38GetInfo): Promise<{ assets: AnchorQuoteAsset[] }> => {
   if (!anchorQuoteServerUrl) {
     throw new Error("Anchor quote server URL is required");
   }
 
-  const params = options
-    ? Object.entries(options).reduce((res: any, [key, value]) => {
-        if (value) {
-          res[key] = value;
-        }
+  const params =
+    context === "sep31" && options
+      ? Object.entries(options).reduce((res: any, [key, value]) => {
+          if (value) {
+            res[key] = value;
+          }
 
-        return res;
-      }, {})
-    : undefined;
+          return res;
+        }, {})
+      : undefined;
   const urlParams = params ? new URLSearchParams(params) : undefined;
 
   log.instruction({
-    title: `Checking \`/info\` endpoint for \`${anchorQuoteServerUrl}\` to get anchor quotes details`,
+    title: `Checking \`/info\` endpoint for \`${anchorQuoteServerUrl}\` to get anchor quotes details for ${context.toLocaleUpperCase()}`,
     ...(params ? { body: params } : {}),
   });
 
@@ -39,7 +54,9 @@ export const getInfo = async (
   });
 
   const result = await fetch(
-    `${anchorQuoteServerUrl}/info?${urlParams?.toString()}`,
+    `${anchorQuoteServerUrl}/info${
+      urlParams ? `?${urlParams?.toString()}` : ""
+    }`,
   );
   const resultJson = await result.json();
 

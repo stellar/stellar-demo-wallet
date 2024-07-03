@@ -9,6 +9,7 @@ import { log } from "demo-wallet-shared/build/helpers/log";
 import { checkDepositWithdrawInfo } from "demo-wallet-shared/build/methods/checkDepositWithdrawInfo";
 import {
   pollDepositUntilComplete,
+  programmaticDepositExchangeFlow,
   programmaticDepositFlow,
 } from "demo-wallet-shared/build/methods/sep6";
 import {
@@ -81,6 +82,21 @@ export const initiateDepositAction = createAsyncThunk<
         assetCode,
       });
 
+      let anchorQuoteServer;
+
+      // Check SEP-38 quote server key in toml, if supported
+      if (infoData["deposit-exchange"]) {
+        const tomlSep38Response = await checkTomlForFields({
+          sepName: "SEP-38 Anchor RFQ",
+          assetIssuer,
+          requiredKeys: [TomlFields.ANCHOR_QUOTE_SERVER],
+          networkUrl: networkConfig.url,
+          homeDomain,
+        });
+
+        anchorQuoteServer = tomlSep38Response.ANCHOR_QUOTE_SERVER;
+      }
+
       const assetInfoData = infoData[AnchorActionType.DEPOSIT][assetCode];
 
       const {
@@ -100,6 +116,7 @@ export const initiateDepositAction = createAsyncThunk<
         status: ActionStatus.NEEDS_INPUT,
         token: "",
         transferServerUrl: tomlResponse.TRANSFER_SERVER,
+        anchorQuoteServer,
       } as InitiateDepositActionPayload;
 
       if (isAuthenticationRequired) {
@@ -195,6 +212,73 @@ export const submitSep6DepositFields = createAsyncThunk<
       const depositResponse = (await programmaticDepositFlow({
         amount,
         assetCode,
+        publicKey,
+        transferServerUrl,
+        token,
+        type: depositType.type,
+        depositFields: infoFields,
+        claimableBalanceSupported,
+      })) as Sep6DepositResponse;
+
+      return {
+        status: ActionStatus.CAN_PROCEED,
+        depositResponse,
+      };
+    } catch (e) {
+      const errorMessage = getErrorMessage(e);
+
+      log.error({
+        title: errorMessage,
+      });
+
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
+// Submit transaction with SEP-38 quotes to start polling for the status
+export const submitSep6DepositWithQuotesFields = createAsyncThunk<
+  {
+    status: ActionStatus;
+    depositResponse: Sep6DepositResponse;
+  },
+  {
+    amount: string;
+    quoteId: string;
+    destinationAssetCode: string;
+    sourceAsset: string;
+    depositType: AnyObject;
+    infoFields: AnyObject;
+  },
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep6DepositAsset/submitSep6DepositWithQuotesFields",
+  async (
+    {
+      amount,
+      quoteId,
+      destinationAssetCode,
+      sourceAsset,
+      depositType,
+      infoFields,
+    },
+    { rejectWithValue, getState },
+  ) => {
+    try {
+      const { data } = accountSelector(getState());
+      const publicKey = data?.id || "";
+      const { claimableBalanceSupported } = settingsSelector(getState());
+      const { data: sep6Data } = sep6DepositSelector(getState());
+
+      const { transferServerUrl, token } = sep6Data;
+
+      const depositResponse = (await programmaticDepositExchangeFlow({
+        amount,
+        sourceAsset,
+        destinationAssetCode,
+        quoteId,
         publicKey,
         transferServerUrl,
         token,
@@ -402,6 +486,7 @@ const initialState: Sep6DepositAssetInitialState = {
     trustedAssetAdded: "",
     requiredCustomerInfoUpdates: undefined,
     instructions: undefined,
+    anchorQuoteServer: undefined,
   },
   status: "" as ActionStatus,
   errorString: undefined,
@@ -414,6 +499,9 @@ const sep6DepositAssetSlice = createSlice({
     resetSep6DepositAction: () => initialState,
     updateInstructionsAction: (state, action) => {
       state.data.instructions = action.payload;
+    },
+    setStatusAction: (state, action) => {
+      state.status = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -442,6 +530,25 @@ const sep6DepositAssetSlice = createSlice({
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
+    builder.addCase(submitSep6DepositWithQuotesFields.pending, (state) => {
+      state.errorString = undefined;
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(
+      submitSep6DepositWithQuotesFields.fulfilled,
+      (state, action) => {
+        state.status = action.payload.status;
+        state.data.depositResponse = action.payload.depositResponse;
+      },
+    );
+    builder.addCase(
+      submitSep6DepositWithQuotesFields.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
 
     builder.addCase(submitSep6CustomerInfoFields.pending, (state) => {
       state.errorString = undefined;
@@ -488,5 +595,8 @@ const sep6DepositAssetSlice = createSlice({
 export const sep6DepositSelector = (state: RootState) => state.sep6DepositAsset;
 
 export const { reducer } = sep6DepositAssetSlice;
-export const { resetSep6DepositAction, updateInstructionsAction } =
-  sep6DepositAssetSlice.actions;
+export const {
+  resetSep6DepositAction,
+  updateInstructionsAction,
+  setStatusAction,
+} = sep6DepositAssetSlice.actions;
