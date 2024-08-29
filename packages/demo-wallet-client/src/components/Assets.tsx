@@ -69,7 +69,7 @@ export const Assets = ({
     allAssets,
     assetOverrides,
     claimAsset,
-    sep6DepositAsset,
+    sep6Deposit,
     sep6WithdrawAsset,
     sep24DepositAsset,
     sep24WithdrawAsset,
@@ -83,7 +83,7 @@ export const Assets = ({
     "allAssets",
     "assetOverrides",
     "claimAsset",
-    "sep6DepositAsset",
+    "sep6Deposit",
     "sep6WithdrawAsset",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
@@ -287,28 +287,28 @@ export const Assets = ({
     }
   }, [untrustedAssets.status, dispatch]);
 
-  // SEP-6 Deposit asset
+  // SEP-6 Deposit
   useEffect(() => {
     if (
-      sep6DepositAsset.status === ActionStatus.SUCCESS &&
-      sep6DepositAsset.data.trustedAssetAdded
+      sep6Deposit.status === ActionStatus.SUCCESS &&
+      sep6Deposit.data.trustedAssetAdded
     ) {
-      handleRemoveUntrustedAsset(sep6DepositAsset.data.trustedAssetAdded);
+      handleRemoveUntrustedAsset(sep6Deposit.data.trustedAssetAdded);
     }
 
-    if (sep6DepositAsset.data.currentStatus === TransactionStatus.COMPLETED) {
+    if (sep6Deposit.data.currentStatus === TransactionStatus.COMPLETED) {
       handleRefreshAccount();
       handleFetchClaimableBalances();
     }
 
     setActiveAssetStatusAndToastMessage({
-      status: sep6DepositAsset.status,
+      status: sep6Deposit.status,
       message: "SEP-6 deposit in progress",
     });
   }, [
-    sep6DepositAsset.status,
-    sep6DepositAsset.data.currentStatus,
-    sep6DepositAsset.data.trustedAssetAdded,
+    sep6Deposit.status,
+    sep6Deposit.data.currentStatus,
+    sep6Deposit.data.trustedAssetAdded,
     handleRefreshAccount,
     handleFetchClaimableBalances,
     handleRemoveUntrustedAsset,

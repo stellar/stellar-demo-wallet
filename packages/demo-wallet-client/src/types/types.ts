@@ -7,6 +7,7 @@ import {
 } from "@stellar/stellar-sdk";
 import BigNumber from "bignumber.js";
 import { Sep9Field } from "demo-wallet-shared/build/helpers/Sep9Fields";
+import { AnchorPriceItem } from "demo-wallet-shared/build/types/types";
 
 declare global {
   interface Window {
@@ -244,6 +245,12 @@ export interface Sep6DepositAssetInitialState {
     requiredCustomerInfoUpdates: AnyObject[] | undefined;
     instructions: SepInstructions | undefined;
     anchorQuoteServer: string | undefined;
+    buyAsset?: string;
+    sellAsset?: string;
+    depositAssets?: AnchorQuoteAsset[];
+    withdrawAssets?: AnchorQuoteAsset[];
+    quote?: AnchorQuote;
+    price?: AnchorPriceItem;
   };
   errorString?: string;
   status: ActionStatus;
@@ -393,7 +400,7 @@ export interface Store {
   extra: ExtraInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
-  sep6DepositAsset: Sep6DepositAssetInitialState;
+  sep6Deposit: Sep6DepositAssetInitialState;
   sep6WithdrawAsset: Sep6WithdrawAssetInitialState;
   sep8Send: Sep8SendInitialState;
   sep31Send: Sep31SendInitialState;
@@ -416,6 +423,7 @@ export enum ActionStatus {
   KYC_DONE = "KYC_DONE",
   CAN_PROCEED = "CAN_PROCEED",
   ANCHOR_QUOTES = "ANCHOR_QUOTES",
+  PRICE = "PRICE",
 }
 
 export interface RejectMessage {

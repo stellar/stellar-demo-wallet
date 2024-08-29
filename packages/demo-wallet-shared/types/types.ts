@@ -367,7 +367,7 @@ export interface Store {
   claimableBalances: ClaimableBalancesInitialState;
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
-  sep6DepositAsset: Sep6DepositAssetInitialState;
+  sep6Deposit: Sep6DepositAssetInitialState;
   sep6WithdrawAsset: Sep6WithdrawAssetInitialState;
   sep8Send: Sep8SendInitialState;
   sep31Send: Sep31SendInitialState;
@@ -615,6 +615,22 @@ export type AnchorQuoteAsset = {
   buy_delivery_methods?: AnchorDeliveryMethod[];
   country_codes?: string[];
   /* eslint-enable camelcase */
+};
+
+export type AnchorPriceItem = {
+  total_price: string;
+  price: string;
+  sell_amount: string;
+  buy_amount: string;
+  fee: {
+    total: string;
+    asset: string;
+    details?: {
+      name: string;
+      amount: string;
+      description?: string;
+    };
+  };
 };
 
 export type AnchorBuyAsset = {

@@ -5,7 +5,7 @@ import { TextLink, DetailsTooltip } from "@stellar/design-system";
 
 import { BalanceRow } from "components/BalanceRow";
 import { resetActiveAssetAction } from "ducks/activeAsset";
-import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
+import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6Deposit";
 import { depositAssetAction } from "ducks/sep24DepositAsset";
 import { trustAssetAction } from "ducks/trustAsset";
 import {

@@ -1,41 +1,52 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
-import { accountSelector } from "ducks/account";
-import { settingsSelector } from "ducks/settings";
+
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
-import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
 import { log } from "demo-wallet-shared/build/helpers/log";
+import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
 import { checkDepositWithdrawInfo } from "demo-wallet-shared/build/methods/checkDepositWithdrawInfo";
+import { checkTomlForFields } from "demo-wallet-shared/build/methods/checkTomlForFields";
+import {
+  sep10AuthSend,
+  sep10AuthSign,
+  sep10AuthStart,
+} from "demo-wallet-shared/build/methods/sep10Auth";
+import {
+  getInfo,
+  getPrice,
+  postQuote,
+} from "demo-wallet-shared/build/methods/sep38Quotes";
 import {
   pollDepositUntilComplete,
   programmaticDepositExchangeFlow,
   programmaticDepositFlow,
 } from "demo-wallet-shared/build/methods/sep6";
-import {
-  sep10AuthStart,
-  sep10AuthSign,
-  sep10AuthSend,
-} from "demo-wallet-shared/build/methods/sep10Auth";
+import { trustAsset } from "demo-wallet-shared/build/methods/trustAsset";
 import {
   collectSep12Fields,
   putSep12FieldsRequest,
 } from "demo-wallet-shared/build/methods/sep12";
-import { checkTomlForFields } from "demo-wallet-shared/build/methods/checkTomlForFields";
-import { trustAsset } from "demo-wallet-shared/build/methods/trustAsset";
+
+import { clientDomain, RootState, walletBackendEndpoint } from "config/store";
+import { sanitizeObject } from "helpers/sanitizeObject";
+import { accountSelector } from "ducks/account";
+import { settingsSelector } from "ducks/settings";
+
 import {
-  Asset,
   ActionStatus,
+  AnchorActionType,
+  AnchorQuote,
+  AnyObject,
+  Asset,
+  RejectMessage,
+  Sep12CustomerStatus,
   Sep6DepositAssetInitialState,
   Sep6DepositResponse,
-  RejectMessage,
-  TomlFields,
-  AnchorActionType,
-  AnyObject,
-  TransactionStatus,
   SepInstructions,
-  Sep12CustomerStatus,
+  TomlFields,
+  TransactionStatus,
 } from "types/types";
+import { AnchorPriceItem } from "demo-wallet-shared/build/types/types";
 
 type InitiateDepositActionPayload = Sep6DepositAssetInitialState["data"] & {
   status: ActionStatus;
@@ -46,7 +57,7 @@ export const initiateDepositAction = createAsyncThunk<
   Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6DepositAsset/initiateDepositAction",
+  "sep6Deposit/initiateDepositAction",
   async (asset, { rejectWithValue, getState }) => {
     const { assetCode, assetIssuer, homeDomain } = asset;
     const { data, secretKey } = accountSelector(getState());
@@ -82,10 +93,15 @@ export const initiateDepositAction = createAsyncThunk<
         assetCode,
       });
 
+      const buyAsset = `stellar:${assetCode}:${assetIssuer}`;
+
       let anchorQuoteServer;
+      let depositAssets;
+
+      const supportsQuotes = Boolean(infoData["deposit-exchange"]);
 
       // Check SEP-38 quote server key in toml, if supported
-      if (infoData["deposit-exchange"]) {
+      if (supportsQuotes) {
         const tomlSep38Response = await checkTomlForFields({
           sepName: "SEP-38 Anchor RFQ",
           assetIssuer,
@@ -97,7 +113,38 @@ export const initiateDepositAction = createAsyncThunk<
         anchorQuoteServer = tomlSep38Response.ANCHOR_QUOTE_SERVER;
       }
 
-      const assetInfoData = infoData[AnchorActionType.DEPOSIT][assetCode];
+      if (anchorQuoteServer) {
+        log.instruction({ title: "Anchor supports SEP-38 quotes" });
+
+        const quotesResult = await getInfo({
+          context: "sep6",
+          anchorQuoteServerUrl: anchorQuoteServer,
+        });
+
+        depositAssets = quotesResult.assets.filter(
+          (a) => a.asset !== buyAsset && a.buy_delivery_methods,
+        );
+
+        log.instruction({
+          title: "Supported SEP-38 assets for deposit",
+          body: depositAssets,
+        });
+      }
+
+      // Get either deposit or deposit-exchange asset data
+      const assetInfoData =
+        infoData[
+          supportsQuotes && depositAssets && depositAssets?.length > 0
+            ? AnchorActionType.DEPOSIT_EXCHANGE
+            : AnchorActionType.DEPOSIT
+        ]?.[assetCode];
+
+      // This is unlikely
+      if (!assetInfoData) {
+        throw new Error(
+          `Something went wrong, deposit asset ${assetCode} is not configured.`,
+        );
+      }
 
       const {
         authentication_required: isAuthenticationRequired,
@@ -117,6 +164,8 @@ export const initiateDepositAction = createAsyncThunk<
         token: "",
         transferServerUrl: tomlResponse.TRANSFER_SERVER,
         anchorQuoteServer,
+        buyAsset,
+        depositAssets,
       } as InitiateDepositActionPayload;
 
       if (isAuthenticationRequired) {
@@ -183,46 +232,47 @@ export const initiateDepositAction = createAsyncThunk<
   },
 );
 
-// Submit transaction to start polling for the status
-export const submitSep6DepositFields = createAsyncThunk<
+// Get price
+export const sep6DepositPriceAction = createAsyncThunk<
   {
     status: ActionStatus;
-    depositResponse: Sep6DepositResponse;
+    price: AnchorPriceItem;
   },
   {
-    amount?: string;
-    depositType: AnyObject;
-    infoFields: AnyObject;
+    sellAsset: string;
+    buyAsset: string;
+    sellAmount: string;
+    sellDeliveryMethod: string;
+    countryCode?: string;
   },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6DepositAsset/submitSep6DepositFields",
+  "sep6Deposit/sep6DepositPriceAction",
   async (
-    { amount, depositType, infoFields },
+    { sellAsset, buyAsset, sellAmount, sellDeliveryMethod, countryCode },
     { rejectWithValue, getState },
   ) => {
     try {
-      const { data } = accountSelector(getState());
-      const publicKey = data?.id || "";
-      const { claimableBalanceSupported } = settingsSelector(getState());
       const { data: sep6Data } = sep6DepositSelector(getState());
 
-      const { assetCode, transferServerUrl, token } = sep6Data;
+      const { anchorQuoteServer, token } = sep6Data;
 
-      const depositResponse = (await programmaticDepositFlow({
-        amount,
-        assetCode,
-        publicKey,
-        transferServerUrl,
+      const price = await getPrice({
+        anchorQuoteServerUrl: anchorQuoteServer,
         token,
-        type: depositType.type,
-        depositFields: infoFields,
-        claimableBalanceSupported,
-      })) as Sep6DepositResponse;
+        options: {
+          context: "sep6",
+          sell_asset: sellAsset,
+          buy_asset: buyAsset,
+          sell_amount: sellAmount,
+          sell_delivery_method: sellDeliveryMethod,
+          ...(countryCode ? { country_code: countryCode } : {}),
+        },
+      });
 
       return {
-        status: ActionStatus.CAN_PROCEED,
-        depositResponse,
+        status: ActionStatus.PRICE,
+        price,
       };
     } catch (e) {
       const errorMessage = getErrorMessage(e);
@@ -238,8 +288,60 @@ export const submitSep6DepositFields = createAsyncThunk<
   },
 );
 
+type DepositQuoteProps = {
+  sellAsset: string;
+  buyAsset: string;
+  sellAmount: string;
+  sellDeliveryMethod: string;
+  countryCode?: string;
+};
+
+export const getDepositQuoteAction = createAsyncThunk<
+  AnchorQuote,
+  DepositQuoteProps,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep6Deposit/getDepositQuoteAction",
+  async (
+    { sellAsset, buyAsset, sellAmount, sellDeliveryMethod, countryCode },
+    { rejectWithValue, getState },
+  ) => {
+    const { data } = sep6DepositSelector(getState());
+
+    log.instruction({ title: "Getting SEP-38 quote" });
+
+    try {
+      const quote = await postQuote(
+        sanitizeObject({
+          anchorQuoteServerUrl: data.anchorQuoteServer || "",
+          token: data.token,
+          sell_asset: sellAsset,
+          buy_asset: buyAsset,
+          sell_amount: sellAmount,
+          sell_delivery_method: sellDeliveryMethod,
+          country_code: countryCode,
+          context: "sep6",
+        }),
+      );
+
+      return quote;
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+
+      log.error({
+        title: "SEP-38 quote failed",
+        body: errorMessage,
+      });
+
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
 // Submit transaction with SEP-38 quotes to start polling for the status
-export const submitSep6DepositWithQuotesFields = createAsyncThunk<
+export const initSep6DepositFlowWithQuoteAction = createAsyncThunk<
   {
     status: ActionStatus;
     depositResponse: Sep6DepositResponse;
@@ -254,7 +356,7 @@ export const submitSep6DepositWithQuotesFields = createAsyncThunk<
   },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6DepositAsset/submitSep6DepositWithQuotesFields",
+  "sep6Deposit/initSep6DepositFlowWithQuoteAction",
   async (
     {
       amount,
@@ -305,50 +407,46 @@ export const submitSep6DepositWithQuotesFields = createAsyncThunk<
   },
 );
 
-export const submitSep6CustomerInfoFields = createAsyncThunk<
-  { status: ActionStatus; customerFields?: AnyObject },
-  AnyObject,
+// Submit transaction to start polling for the status
+export const initSep6DepositFlowAction = createAsyncThunk<
+  {
+    status: ActionStatus;
+    depositResponse: Sep6DepositResponse;
+  },
+  {
+    amount?: string;
+    depositType: AnyObject;
+    infoFields: AnyObject;
+  },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6DepositAsset/submitSep6CustomerInfoFields",
-  async (customerFields, { rejectWithValue, getState }) => {
+  "sep6Deposit/initSep6DepositFlowAction",
+  async (
+    { amount, depositType, infoFields },
+    { rejectWithValue, getState },
+  ) => {
     try {
-      const { data: account, secretKey } = accountSelector(getState());
+      const { data } = accountSelector(getState());
+      const publicKey = data?.id || "";
+      const { claimableBalanceSupported } = settingsSelector(getState());
       const { data: sep6Data } = sep6DepositSelector(getState());
 
-      const { kycServer, token } = sep6Data;
+      const { assetCode, transferServerUrl, token } = sep6Data;
 
-      if (Object.keys(customerFields).length) {
-        await putSep12FieldsRequest({
-          fields: customerFields,
-          kycServer,
-          secretKey,
-          token,
-          transactionId: sep6Data.depositResponse?.id,
-        });
-      }
-
-      // Get SEP-12 fields
-      log.instruction({
-        title: "Making GET `/customer` request for user",
-      });
-
-      const sep12Response = await collectSep12Fields({
-        publicKey: account?.id!,
+      const depositResponse = (await programmaticDepositFlow({
+        amount,
+        assetCode,
+        publicKey,
+        transferServerUrl,
         token,
-        kycServer,
-        transactionId: sep6Data.depositResponse?.id,
-      });
-
-      if (sep12Response.status !== Sep12CustomerStatus.ACCEPTED) {
-        return {
-          status: ActionStatus.NEEDS_KYC,
-          customerFields: sep12Response.fieldsToCollect,
-        };
-      }
+        type: depositType.type,
+        depositFields: infoFields,
+        claimableBalanceSupported,
+      })) as Sep6DepositResponse;
 
       return {
-        status: ActionStatus.KYC_DONE,
+        status: ActionStatus.CAN_PROCEED,
+        depositResponse,
       };
     } catch (e) {
       const errorMessage = getErrorMessage(e);
@@ -364,7 +462,7 @@ export const submitSep6CustomerInfoFields = createAsyncThunk<
   },
 );
 
-export const sep6DepositAction = createAsyncThunk<
+export const submitSep6DepositAction = createAsyncThunk<
   {
     currentStatus: string;
     status: ActionStatus;
@@ -375,7 +473,7 @@ export const sep6DepositAction = createAsyncThunk<
   undefined,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6DepositAsset/sep6DepositAction",
+  "sep6Deposit/submitSep6DepositAction",
   async (_, { rejectWithValue, getState, dispatch }) => {
     try {
       const { secretKey, data } = accountSelector(getState());
@@ -466,6 +564,65 @@ export const sep6DepositAction = createAsyncThunk<
   },
 );
 
+export const submitSep6CustomerInfoFieldsAction = createAsyncThunk<
+  { status: ActionStatus; customerFields?: AnyObject },
+  AnyObject,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep6Deposit/submitSep6CustomerInfoFieldsAction",
+  async (customerFields, { rejectWithValue, getState }) => {
+    try {
+      const { data: account, secretKey } = accountSelector(getState());
+      const { data: sep6Data } = sep6DepositSelector(getState());
+
+      const { kycServer, token } = sep6Data;
+
+      if (Object.keys(customerFields).length) {
+        await putSep12FieldsRequest({
+          fields: customerFields,
+          kycServer,
+          secretKey,
+          token,
+          transactionId: sep6Data.depositResponse?.id,
+        });
+      }
+
+      // Get SEP-12 fields
+      log.instruction({
+        title: "Making GET `/customer` request for user",
+      });
+
+      const sep12Response = await collectSep12Fields({
+        publicKey: account?.id!,
+        token,
+        kycServer,
+        transactionId: sep6Data.depositResponse?.id,
+      });
+
+      if (sep12Response.status !== Sep12CustomerStatus.ACCEPTED) {
+        return {
+          status: ActionStatus.NEEDS_KYC,
+          customerFields: sep12Response.fieldsToCollect,
+        };
+      }
+
+      return {
+        status: ActionStatus.KYC_DONE,
+      };
+    } catch (e) {
+      const errorMessage = getErrorMessage(e);
+
+      log.error({
+        title: errorMessage,
+      });
+
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
 const initialState: Sep6DepositAssetInitialState = {
   data: {
     assetCode: "",
@@ -492,8 +649,8 @@ const initialState: Sep6DepositAssetInitialState = {
   errorString: undefined,
 };
 
-const sep6DepositAssetSlice = createSlice({
-  name: "sep6DepositAsset",
+const sep6DepositSlice = createSlice({
+  name: "sep6Deposit",
   initialState,
   reducers: {
     resetSep6DepositAction: () => initialState,
@@ -518,55 +675,68 @@ const sep6DepositAssetSlice = createSlice({
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(submitSep6DepositFields.pending, (state) => {
+    builder.addCase(sep6DepositPriceAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(submitSep6DepositFields.fulfilled, (state, action) => {
+    builder.addCase(sep6DepositPriceAction.fulfilled, (state, action) => {
+      state.data.price = action.payload.price;
       state.status = action.payload.status;
-      state.data.depositResponse = action.payload.depositResponse;
     });
-    builder.addCase(submitSep6DepositFields.rejected, (state, action) => {
+    builder.addCase(sep6DepositPriceAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(submitSep6DepositWithQuotesFields.pending, (state) => {
+    builder.addCase(getDepositQuoteAction.pending, (state) => {
+      state.errorString = undefined;
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(getDepositQuoteAction.fulfilled, (state, action) => {
+      state.data.quote = action.payload;
+      state.status = ActionStatus.ANCHOR_QUOTES;
+    });
+    builder.addCase(getDepositQuoteAction.rejected, (state, action) => {
+      state.errorString = action.payload?.errorString;
+      state.status = ActionStatus.ERROR;
+    });
+
+    builder.addCase(initSep6DepositFlowWithQuoteAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(
-      submitSep6DepositWithQuotesFields.fulfilled,
+      initSep6DepositFlowWithQuoteAction.fulfilled,
       (state, action) => {
         state.status = action.payload.status;
         state.data.depositResponse = action.payload.depositResponse;
       },
     );
     builder.addCase(
-      submitSep6DepositWithQuotesFields.rejected,
+      initSep6DepositFlowWithQuoteAction.rejected,
       (state, action) => {
         state.errorString = action.payload?.errorString;
         state.status = ActionStatus.ERROR;
       },
     );
 
-    builder.addCase(submitSep6CustomerInfoFields.pending, (state) => {
+    builder.addCase(initSep6DepositFlowAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(submitSep6CustomerInfoFields.fulfilled, (state, action) => {
+    builder.addCase(initSep6DepositFlowAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
-      state.data.customerFields = { ...action.payload.customerFields };
+      state.data.depositResponse = action.payload.depositResponse;
     });
-    builder.addCase(submitSep6CustomerInfoFields.rejected, (state, action) => {
+    builder.addCase(initSep6DepositFlowAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(sep6DepositAction.pending, (state) => {
+    builder.addCase(submitSep6DepositAction.pending, (state) => {
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(sep6DepositAction.fulfilled, (state, action) => {
+    builder.addCase(submitSep6DepositAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
       state.data.currentStatus = action.payload.currentStatus;
       state.data.trustedAssetAdded = action.payload.trustedAssetAdded;
@@ -585,18 +755,37 @@ const sep6DepositAssetSlice = createSlice({
         state.data.customerFields = customerFields;
       }
     });
-    builder.addCase(sep6DepositAction.rejected, (state, action) => {
+    builder.addCase(submitSep6DepositAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
+
+    builder.addCase(submitSep6CustomerInfoFieldsAction.pending, (state) => {
+      state.errorString = undefined;
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(
+      submitSep6CustomerInfoFieldsAction.fulfilled,
+      (state, action) => {
+        state.status = action.payload.status;
+        state.data.customerFields = { ...action.payload.customerFields };
+      },
+    );
+    builder.addCase(
+      submitSep6CustomerInfoFieldsAction.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
   },
 });
 
-export const sep6DepositSelector = (state: RootState) => state.sep6DepositAsset;
+export const sep6DepositSelector = (state: RootState) => state.sep6Deposit;
 
-export const { reducer } = sep6DepositAssetSlice;
+export const { reducer } = sep6DepositSlice;
 export const {
   resetSep6DepositAction,
   updateInstructionsAction,
   setStatusAction,
-} = sep6DepositAssetSlice.actions;
+} = sep6DepositSlice.actions;

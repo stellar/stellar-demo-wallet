@@ -2,7 +2,7 @@ import { useDispatch } from "react-redux";
 import { TextLink } from "@stellar/design-system";
 
 import { BalanceRow } from "components/BalanceRow";
-import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6DepositAsset";
+import { initiateDepositAction as initiateSep6SendAction } from "ducks/sep6Deposit";
 import { initiateWithdrawAction as initiateSep6WithdrawAction } from "ducks/sep6WithdrawAsset";
 import { initiateSep8SendAction } from "ducks/sep8Send";
 import { depositAssetAction } from "ducks/sep24DepositAsset";

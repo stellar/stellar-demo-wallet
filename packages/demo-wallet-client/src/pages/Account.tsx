@@ -4,7 +4,7 @@ import { Modal } from "@stellar/design-system";
 import { AccountInfo } from "components/AccountInfo";
 import { Assets } from "components/Assets";
 import { SendPayment } from "components/SendPayment";
-import { Sep6Deposit } from "components/Sep6/Sep6Deposit";
+import { Sep6Deposit } from "components/Sep6Deposit";
 import { Sep6Withdraw } from "components/Sep6/Sep6Withdraw";
 import { Sep8Send } from "components/Sep8Send";
 import { Sep31Send } from "components/Sep31Send";
