@@ -16,12 +16,12 @@
     "bignumber.js": "^9.1.1",
     "crypto": "^1.0.1",
     "dompurify": "^3.0.5",
-    "html-react-parser": "^4.2.1",
+    "html-react-parser": "^5.1.15",
     "lodash": "^4.17.21",
-    "marked": "^7.0.3",
-    "rimraf": "^5.0.1",
+    "marked": "^14.1.0",
+    "rimraf": "^6.0.1",
     "toml": "^3.0.0",
     "tslib": "^2.6.1",
-    "typescript": "~5.1.6"
+    "typescript": "~5.5.4"
   }
 }
