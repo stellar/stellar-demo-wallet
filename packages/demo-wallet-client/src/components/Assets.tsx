@@ -70,7 +70,7 @@ export const Assets = ({
     assetOverrides,
     claimAsset,
     sep6Deposit,
-    sep6WithdrawAsset,
+    sep6Withdraw,
     sep24DepositAsset,
     sep24WithdrawAsset,
     sep31Send,
@@ -84,7 +84,7 @@ export const Assets = ({
     "assetOverrides",
     "claimAsset",
     "sep6Deposit",
-    "sep6WithdrawAsset",
+    "sep6Withdraw",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
     "sep31Send",
@@ -315,22 +315,22 @@ export const Assets = ({
     setActiveAssetStatusAndToastMessage,
   ]);
 
-  // SEP-6 Withdraw asset
+  // SEP-6 Withdraw
   useEffect(() => {
     if (
-      sep6WithdrawAsset.status === ActionStatus.SUCCESS &&
-      sep6WithdrawAsset.data.currentStatus === TransactionStatus.COMPLETED
+      sep6Withdraw.status === ActionStatus.SUCCESS &&
+      sep6Withdraw.data.currentStatus === TransactionStatus.COMPLETED
     ) {
       handleRefreshAccount();
     }
 
     setActiveAssetStatusAndToastMessage({
-      status: sep6WithdrawAsset.status,
+      status: sep6Withdraw.status,
       message: "SEP-6 withdrawal in progress",
     });
   }, [
-    sep6WithdrawAsset.status,
-    sep6WithdrawAsset.data.currentStatus,
+    sep6Withdraw.status,
+    sep6Withdraw.data.currentStatus,
     handleRefreshAccount,
     setActiveAssetStatusAndToastMessage,
   ]);

@@ -248,7 +248,6 @@ export interface Sep6DepositAssetInitialState {
     buyAsset?: string;
     sellAsset?: string;
     depositAssets?: AnchorQuoteAsset[];
-    withdrawAssets?: AnchorQuoteAsset[];
     quote?: AnchorQuote;
     price?: AnchorPriceItem;
   };
@@ -280,6 +279,8 @@ export interface Sep6WithdrawAssetInitialState {
     fields: {
       [key: string]: AnyObject;
     };
+    minAmount: number;
+    maxAmount: number;
     kycServer: string;
     token: string;
     transferServerUrl: string;
@@ -299,6 +300,11 @@ export interface Sep6WithdrawAssetInitialState {
     withdrawResponse: Sep6WithdrawResponse;
     requiredCustomerInfoUpdates: AnyObject[] | undefined;
     anchorQuoteServer: string | undefined;
+    buyAsset?: string;
+    sellAsset?: string;
+    withdrawAssets?: AnchorQuoteAsset[];
+    quote?: AnchorQuote;
+    price?: AnchorPriceItem;
   };
   errorString?: string;
   status: ActionStatus | undefined;
@@ -401,7 +407,7 @@ export interface Store {
   logs: LogsInitialState;
   sendPayment: SendPaymentInitialState;
   sep6Deposit: Sep6DepositAssetInitialState;
-  sep6WithdrawAsset: Sep6WithdrawAssetInitialState;
+  sep6Withdraw: Sep6WithdrawAssetInitialState;
   sep8Send: Sep8SendInitialState;
   sep31Send: Sep31SendInitialState;
   sep38Quotes: Sep38QuotesInitialState;
