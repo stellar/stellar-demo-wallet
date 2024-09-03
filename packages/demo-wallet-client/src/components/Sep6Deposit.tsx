@@ -13,6 +13,8 @@ import {
 
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { KycField, KycFieldInput } from "components/KycFieldInput";
+import { Sep6PriceModal } from "components/Sep6PriceModal";
+import { Sep6QuoteModal } from "components/Sep6QuoteModal";
 
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
@@ -440,59 +442,12 @@ export const Sep6Deposit = () => {
 
   // Show price
   if (sep6Deposit.status === ActionStatus.PRICE && sep6Deposit.data.price) {
-    const { price, sell_amount, buy_amount, total_price, fee } =
-      sep6Deposit.data.price;
-
-    const priceItems = [
-      {
-        label: "Price",
-        value: price,
-      },
-      {
-        label: "Sell amount",
-        value: sell_amount,
-      },
-      {
-        label: "Buy amount",
-        value: buy_amount,
-      },
-      {
-        label: "Total price",
-        value: total_price,
-      },
-      {
-        label: "Fee",
-        value: fee.total,
-      },
-    ];
-
     return (
-      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>Price Estimate</Modal.Heading>
-
-        <Modal.Body>
-          <p>
-            These prices are indicative. The actual price will be calculated at
-            conversion time once the Anchor receives the funds.
-          </p>
-
-          <div className="AnchorQuote">
-            {priceItems.map((item) => (
-              <div key={item.label} className="AnchorQuote__item">
-                <label>{item.label}</label>
-                <div className="AnchorQuote__item__value">{item.value}</div>
-              </div>
-            ))}
-          </div>
-        </Modal.Body>
-
-        <Modal.Footer>
-          <Button onClick={handleGetQuote}>Proceed</Button>
-          <Button onClick={handleClose} variant={Button.variant.secondary}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <Sep6PriceModal
+        priceItem={sep6Deposit.data.price}
+        onClose={handleClose}
+        onProceed={handleGetQuote}
+      />
     );
   }
 
@@ -501,83 +456,12 @@ export const Sep6Deposit = () => {
     sep6Deposit.status === ActionStatus.ANCHOR_QUOTES &&
     sep6Deposit.data.quote
   ) {
-    const {
-      id,
-      price,
-      expires_at,
-      sell_asset,
-      sell_amount,
-      buy_asset,
-      buy_amount,
-      total_price,
-      fee,
-    } = sep6Deposit.data.quote;
-
-    const quoteItems = [
-      {
-        label: "ID",
-        value: id,
-      },
-      {
-        label: "Price",
-        value: price,
-      },
-      {
-        label: "Expires at",
-        value: expires_at,
-      },
-      {
-        label: "Sell asset",
-        value: sell_asset,
-      },
-      {
-        label: "Sell amount",
-        value: sell_amount,
-      },
-      {
-        label: "Buy asset",
-        value: buy_asset,
-      },
-      {
-        label: "Buy amount",
-        value: buy_amount,
-      },
-      {
-        label: "Total price",
-        value: total_price,
-      },
-      {
-        label: "Fee",
-        value: fee.total,
-      },
-    ];
-
     return (
-      <Modal visible onClose={handleClose} parentId={CSS_MODAL_PARENT_ID}>
-        <Modal.Heading>SEP-6 Deposit Quote</Modal.Heading>
-        <Modal.Body>
-          <p>
-            These prices are indicative. The actual price will be calculated at
-            conversion time once the Anchor receives the funds.
-          </p>
-
-          <div className="AnchorQuote">
-            {quoteItems.map((item) => (
-              <div key={item.label} className="AnchorQuote__item">
-                <label>{item.label}</label>
-                <div className="AnchorQuote__item__value">{item.value}</div>
-              </div>
-            ))}
-          </div>
-        </Modal.Body>
-
-        <Modal.Footer>
-          <Button onClick={handleSubmitWithQuote}>Submit</Button>
-          <Button onClick={handleClose} variant={Button.variant.secondary}>
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <Sep6QuoteModal
+        quote={sep6Deposit.data.quote}
+        onClose={handleClose}
+        onSubmit={handleSubmitWithQuote}
+      />
     );
   }
 
