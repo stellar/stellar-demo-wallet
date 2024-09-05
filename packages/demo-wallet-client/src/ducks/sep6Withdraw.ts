@@ -1,38 +1,51 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
-import { accountSelector } from "ducks/account";
-import { settingsSelector } from "ducks/settings";
-import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
-import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
-import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
-import { log } from "demo-wallet-shared/build/helpers/log";
+
+import { checkTomlForFields } from "demo-wallet-shared/build/methods/checkTomlForFields";
 import { checkDepositWithdrawInfo } from "demo-wallet-shared/build/methods/checkDepositWithdrawInfo";
+import {
+  sep10AuthSend,
+  sep10AuthSign,
+  sep10AuthStart,
+} from "demo-wallet-shared/build/methods/sep10Auth";
+import {
+  getInfo,
+  getPrice,
+  postQuote,
+} from "demo-wallet-shared/build/methods/sep38Quotes";
 import {
   pollWithdrawUntilComplete,
   programmaticWithdrawExchangeFlow,
   programmaticWithdrawFlow,
 } from "demo-wallet-shared/build/methods/sep6";
 import {
-  sep10AuthStart,
-  sep10AuthSign,
-  sep10AuthSend,
-} from "demo-wallet-shared/build/methods/sep10Auth";
-import {
   collectSep12Fields,
   putSep12FieldsRequest,
 } from "demo-wallet-shared/build/methods/sep12";
-import { checkTomlForFields } from "demo-wallet-shared/build/methods/checkTomlForFields";
+
+import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import { log } from "demo-wallet-shared/build/helpers/log";
+import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
+import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
+import { AnchorPriceItem } from "demo-wallet-shared/build/types/types";
+
+import { clientDomain, RootState, walletBackendEndpoint } from "config/store";
+import { sanitizeObject } from "helpers/sanitizeObject";
+
+import { accountSelector } from "ducks/account";
+import { settingsSelector } from "ducks/settings";
+
 import {
-  Asset,
   ActionStatus,
+  AnchorActionType,
+  AnchorQuote,
+  AnyObject,
+  Asset,
+  RejectMessage,
+  Sep12CustomerStatus,
   Sep6WithdrawAssetInitialState,
   Sep6WithdrawResponse,
-  RejectMessage,
   TomlFields,
-  AnchorActionType,
-  AnyObject,
   TransactionStatus,
-  Sep12CustomerStatus,
 } from "types/types";
 
 type InitiateWithdrawActionPayload = Sep6WithdrawAssetInitialState["data"] & {
@@ -44,7 +57,7 @@ export const initiateWithdrawAction = createAsyncThunk<
   Asset,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6WithdrawAsset/initiateWithdrawAction",
+  "sep6Withdraw/initiateWithdrawAction",
   async (asset, { rejectWithValue, getState }) => {
     const { assetCode, assetIssuer, homeDomain } = asset;
     const { data, secretKey } = accountSelector(getState());
@@ -80,10 +93,15 @@ export const initiateWithdrawAction = createAsyncThunk<
         assetCode,
       });
 
+      const sellAsset = `stellar:${assetCode}:${assetIssuer}`;
+
       let anchorQuoteServer;
+      let withdrawAssets;
+
+      const supportsQuotes = Boolean(infoData["withdraw-exchange"]);
 
       // Check SEP-38 quote server key in toml, if supported
-      if (infoData["withdraw-exchange"]) {
+      if (supportsQuotes) {
         const tomlSep38Response = await checkTomlForFields({
           sepName: "SEP-38 Anchor RFQ",
           assetIssuer,
@@ -95,10 +113,44 @@ export const initiateWithdrawAction = createAsyncThunk<
         anchorQuoteServer = tomlSep38Response.ANCHOR_QUOTE_SERVER;
       }
 
-      const assetInfoData = infoData[AnchorActionType.WITHDRAWAL][assetCode];
+      if (anchorQuoteServer) {
+        log.instruction({ title: "Anchor supports SEP-38 quotes" });
 
-      const { authentication_required: isAuthenticationRequired } =
-        assetInfoData;
+        const quotesResult = await getInfo({
+          context: "sep6",
+          anchorQuoteServerUrl: anchorQuoteServer,
+        });
+
+        withdrawAssets = quotesResult.assets.filter(
+          (a) => a.asset !== sellAsset && a.sell_delivery_methods,
+        );
+
+        log.instruction({
+          title: "Supported SEP-38 assets for withdrawal",
+          body: withdrawAssets,
+        });
+      }
+
+      // Get either deposit or deposit-exchange asset data
+      const assetInfoData =
+        infoData[
+          supportsQuotes && withdrawAssets && withdrawAssets?.length > 0
+            ? AnchorActionType.WITHDRAW_EXCHANGE
+            : AnchorActionType.WITHDRAWAL
+        ]?.[assetCode];
+
+      // This is unlikely
+      if (!assetInfoData) {
+        throw new Error(
+          `Something went wrong, withdraw asset ${assetCode} is not configured.`,
+        );
+      }
+
+      const {
+        authentication_required: isAuthenticationRequired,
+        min_amount: minAmount,
+        max_amount: maxAmount,
+      } = assetInfoData;
 
       let payload = {
         assetCode,
@@ -106,10 +158,14 @@ export const initiateWithdrawAction = createAsyncThunk<
         withdrawTypes: { types: { ...assetInfoData.types } },
         fields: {},
         kycServer: "",
+        minAmount,
+        maxAmount,
         status: ActionStatus.NEEDS_INPUT,
         token: "",
         transferServerUrl: tomlResponse.TRANSFER_SERVER,
         anchorQuoteServer,
+        sellAsset,
+        withdrawAssets,
       } as InitiateWithdrawActionPayload;
 
       if (isAuthenticationRequired) {
@@ -176,41 +232,47 @@ export const initiateWithdrawAction = createAsyncThunk<
   },
 );
 
-// Submit transaction to start polling for the status
-export const submitSep6WithdrawFields = createAsyncThunk<
+// Get price
+export const sep6WithdrawPriceAction = createAsyncThunk<
   {
     status: ActionStatus;
-    withdrawResponse: Sep6WithdrawResponse;
+    price: AnchorPriceItem;
   },
   {
-    withdrawType: AnyObject;
-    infoFields: AnyObject;
+    sellAsset: string;
+    buyAsset: string;
+    sellAmount: string;
+    buyDeliveryMethod: string;
+    countryCode?: string;
   },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6WithdrawAsset/submitSep6WithdrawFields",
-  async ({ withdrawType, infoFields }, { rejectWithValue, getState }) => {
+  "sep6Withdraw/sep6WithdrawPriceAction",
+  async (
+    { sellAsset, buyAsset, sellAmount, buyDeliveryMethod, countryCode },
+    { rejectWithValue, getState },
+  ) => {
     try {
-      const { data } = accountSelector(getState());
-      const { claimableBalanceSupported } = settingsSelector(getState());
-      const publicKey = data?.id || "";
+      const { data: sep6Data } = sep6WithdrawSelector(getState());
 
-      const { data: sep6Data } = sepWithdrawSelector(getState());
-      const { assetCode, transferServerUrl, token } = sep6Data;
+      const { anchorQuoteServer, token } = sep6Data;
 
-      const withdrawResponse = (await programmaticWithdrawFlow({
-        assetCode,
-        publicKey,
-        transferServerUrl,
+      const price = await getPrice({
+        anchorQuoteServerUrl: anchorQuoteServer,
         token,
-        type: withdrawType.type,
-        withdrawFields: infoFields,
-        claimableBalanceSupported,
-      })) as Sep6WithdrawResponse;
+        options: {
+          context: "sep6",
+          sell_asset: sellAsset,
+          buy_asset: buyAsset,
+          sell_amount: sellAmount,
+          buy_delivery_method: buyDeliveryMethod,
+          ...(countryCode ? { country_code: countryCode } : {}),
+        },
+      });
 
       return {
-        status: ActionStatus.CAN_PROCEED,
-        withdrawResponse,
+        status: ActionStatus.PRICE,
+        price,
       };
     } catch (e) {
       const errorMessage = getErrorMessage(e);
@@ -226,8 +288,61 @@ export const submitSep6WithdrawFields = createAsyncThunk<
   },
 );
 
+// Get quote
+type WithdrawQuoteProps = {
+  sellAsset: string;
+  buyAsset: string;
+  sellAmount: string;
+  buyDeliveryMethod: string;
+  countryCode?: string;
+};
+
+export const getWithdrawQuoteAction = createAsyncThunk<
+  AnchorQuote,
+  WithdrawQuoteProps,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep6Withdraw/getWithdrawQuoteAction",
+  async (
+    { sellAsset, buyAsset, sellAmount, buyDeliveryMethod, countryCode },
+    { rejectWithValue, getState },
+  ) => {
+    const { data } = sep6WithdrawSelector(getState());
+
+    log.instruction({ title: "Getting SEP-38 quote" });
+
+    try {
+      const quote = await postQuote(
+        sanitizeObject({
+          anchorQuoteServerUrl: data.anchorQuoteServer || "",
+          token: data.token,
+          sell_asset: sellAsset,
+          buy_asset: buyAsset,
+          sell_amount: sellAmount,
+          buy_delivery_method: buyDeliveryMethod,
+          country_code: countryCode,
+          context: "sep6",
+        }),
+      );
+
+      return quote;
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+
+      log.error({
+        title: "SEP-38 quote failed",
+        body: errorMessage,
+      });
+
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
 // Submit transaction with SEP-38 quotes to start polling for the status
-export const submitSep6WithdrawWithQuotesFields = createAsyncThunk<
+export const initSep6WithdrawFlowWithQuoteAction = createAsyncThunk<
   {
     status: ActionStatus;
     withdrawResponse: Sep6WithdrawResponse;
@@ -242,7 +357,7 @@ export const submitSep6WithdrawWithQuotesFields = createAsyncThunk<
   },
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6WithdrawAsset/submitSep6WithdrawWithQuotesFields",
+  "sep6Withdraw/initSep6WithdrawFlowWithQuoteAction",
   async (
     {
       amount,
@@ -259,7 +374,7 @@ export const submitSep6WithdrawWithQuotesFields = createAsyncThunk<
       const { claimableBalanceSupported } = settingsSelector(getState());
       const publicKey = data?.id || "";
 
-      const { data: sep6Data } = sepWithdrawSelector(getState());
+      const { data: sep6Data } = sep6WithdrawSelector(getState());
       const { transferServerUrl, token } = sep6Data;
 
       const withdrawResponse = (await programmaticWithdrawExchangeFlow({
@@ -293,7 +408,57 @@ export const submitSep6WithdrawWithQuotesFields = createAsyncThunk<
   },
 );
 
-export const sep6WithdrawAction = createAsyncThunk<
+// Submit transaction to start polling for the status
+export const initSep6WithdrawFlow = createAsyncThunk<
+  {
+    status: ActionStatus;
+    withdrawResponse: Sep6WithdrawResponse;
+  },
+  {
+    withdrawType: AnyObject;
+    infoFields: AnyObject;
+  },
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "sep6Withdraw/initSep6WithdrawFlow",
+  async ({ withdrawType, infoFields }, { rejectWithValue, getState }) => {
+    try {
+      const { data } = accountSelector(getState());
+      const { claimableBalanceSupported } = settingsSelector(getState());
+      const publicKey = data?.id || "";
+
+      const { data: sep6Data } = sep6WithdrawSelector(getState());
+      const { assetCode, transferServerUrl, token } = sep6Data;
+
+      const withdrawResponse = (await programmaticWithdrawFlow({
+        assetCode,
+        publicKey,
+        transferServerUrl,
+        token,
+        type: withdrawType.type,
+        withdrawFields: infoFields,
+        claimableBalanceSupported,
+      })) as Sep6WithdrawResponse;
+
+      return {
+        status: ActionStatus.CAN_PROCEED,
+        withdrawResponse,
+      };
+    } catch (e) {
+      const errorMessage = getErrorMessage(e);
+
+      log.error({
+        title: errorMessage,
+      });
+
+      return rejectWithValue({
+        errorString: errorMessage,
+      });
+    }
+  },
+);
+
+export const submitSep6WithdrawAction = createAsyncThunk<
   {
     currentStatus: TransactionStatus;
     transactionResponse: AnyObject;
@@ -304,12 +469,12 @@ export const sep6WithdrawAction = createAsyncThunk<
   string,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6WithdrawAsset/sep6WithdrawAction",
+  "sep6Withdraw/submitSep6WithdrawAction",
   async (amount, { rejectWithValue, getState }) => {
     try {
       const { secretKey, data } = accountSelector(getState());
       const networkConfig = getNetworkConfig();
-      const { data: sep6Data } = sepWithdrawSelector(getState());
+      const { data: sep6Data } = sep6WithdrawSelector(getState());
 
       const {
         assetCode,
@@ -378,16 +543,16 @@ export const sep6WithdrawAction = createAsyncThunk<
   },
 );
 
-export const submitSep6WithdrawCustomerInfoFields = createAsyncThunk<
+export const submitSep6WithdrawCustomerInfoFieldsAction = createAsyncThunk<
   { status: ActionStatus; customerFields?: AnyObject },
   AnyObject,
   { rejectValue: RejectMessage; state: RootState }
 >(
-  "sep6WithdrawAsset/submitSep6WithdrawCustomerInfoFields",
+  "sep6Withdraw/submitSep6WithdrawCustomerInfoFieldsAction",
   async (customerFields, { rejectWithValue, getState }) => {
     try {
       const { data: account, secretKey } = accountSelector(getState());
-      const { data: sep6Data } = sepWithdrawSelector(getState());
+      const { data: sep6Data } = sep6WithdrawSelector(getState());
       const { kycServer, token } = sep6Data;
 
       if (Object.keys(customerFields).length) {
@@ -445,6 +610,8 @@ const initialState: Sep6WithdrawAssetInitialState = {
       types: {},
     },
     fields: {},
+    minAmount: 0,
+    maxAmount: 0,
     kycServer: "",
     transferServerUrl: "",
     trustedAssetAdded: "",
@@ -458,8 +625,8 @@ const initialState: Sep6WithdrawAssetInitialState = {
   errorString: undefined,
 };
 
-const sep6WithdrawAssetSlice = createSlice({
-  name: "sep6WithdrawAsset",
+const sep6WithdrawSlice = createSlice({
+  name: "sep6Withdraw",
   initialState,
   reducers: {
     resetSep6WithdrawAction: () => initialState,
@@ -481,62 +648,69 @@ const sep6WithdrawAssetSlice = createSlice({
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(submitSep6WithdrawFields.pending, (state) => {
+    builder.addCase(sep6WithdrawPriceAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(submitSep6WithdrawFields.fulfilled, (state, action) => {
+    builder.addCase(sep6WithdrawPriceAction.fulfilled, (state, action) => {
+      state.data.price = action.payload.price;
       state.status = action.payload.status;
-      state.data.withdrawResponse = action.payload.withdrawResponse;
     });
-    builder.addCase(submitSep6WithdrawFields.rejected, (state, action) => {
+    builder.addCase(sep6WithdrawPriceAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.ERROR;
     });
 
-    builder.addCase(submitSep6WithdrawWithQuotesFields.pending, (state) => {
+    builder.addCase(getWithdrawQuoteAction.pending, (state) => {
+      state.errorString = undefined;
+      state.status = ActionStatus.PENDING;
+    });
+    builder.addCase(getWithdrawQuoteAction.fulfilled, (state, action) => {
+      state.data.quote = action.payload;
+      state.status = ActionStatus.ANCHOR_QUOTES;
+    });
+    builder.addCase(getWithdrawQuoteAction.rejected, (state, action) => {
+      state.errorString = action.payload?.errorString;
+      state.status = ActionStatus.ERROR;
+    });
+
+    builder.addCase(initSep6WithdrawFlowWithQuoteAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
     builder.addCase(
-      submitSep6WithdrawWithQuotesFields.fulfilled,
+      initSep6WithdrawFlowWithQuoteAction.fulfilled,
       (state, action) => {
         state.status = action.payload.status;
         state.data.withdrawResponse = action.payload.withdrawResponse;
       },
     );
     builder.addCase(
-      submitSep6WithdrawWithQuotesFields.rejected,
+      initSep6WithdrawFlowWithQuoteAction.rejected,
       (state, action) => {
         state.errorString = action.payload?.errorString;
         state.status = ActionStatus.ERROR;
       },
     );
 
-    builder.addCase(submitSep6WithdrawCustomerInfoFields.pending, (state) => {
+    builder.addCase(initSep6WithdrawFlow.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(
-      submitSep6WithdrawCustomerInfoFields.fulfilled,
-      (state, action) => {
-        state.status = action.payload.status;
-        state.data.fields = { ...action.payload.customerFields };
-      },
-    );
-    builder.addCase(
-      submitSep6WithdrawCustomerInfoFields.rejected,
-      (state, action) => {
-        state.errorString = action.payload?.errorString;
-        state.status = ActionStatus.ERROR;
-      },
-    );
+    builder.addCase(initSep6WithdrawFlow.fulfilled, (state, action) => {
+      state.status = action.payload.status;
+      state.data.withdrawResponse = action.payload.withdrawResponse;
+    });
+    builder.addCase(initSep6WithdrawFlow.rejected, (state, action) => {
+      state.errorString = action.payload?.errorString;
+      state.status = ActionStatus.ERROR;
+    });
 
-    builder.addCase(sep6WithdrawAction.pending, (state) => {
+    builder.addCase(submitSep6WithdrawAction.pending, (state) => {
       state.errorString = undefined;
       state.status = ActionStatus.PENDING;
     });
-    builder.addCase(sep6WithdrawAction.fulfilled, (state, action) => {
+    builder.addCase(submitSep6WithdrawAction.fulfilled, (state, action) => {
       state.status = action.payload.status;
       state.data.currentStatus = action.payload.currentStatus;
       state.data.transactionResponse = action.payload.transactionResponse;
@@ -555,16 +729,37 @@ const sep6WithdrawAssetSlice = createSlice({
         state.data.fields = customerFields;
       }
     });
-    builder.addCase(sep6WithdrawAction.rejected, (state, action) => {
+    builder.addCase(submitSep6WithdrawAction.rejected, (state, action) => {
       state.errorString = action.payload?.errorString;
       state.status = ActionStatus.NEEDS_INPUT;
     });
+
+    builder.addCase(
+      submitSep6WithdrawCustomerInfoFieldsAction.pending,
+      (state) => {
+        state.errorString = undefined;
+        state.status = ActionStatus.PENDING;
+      },
+    );
+    builder.addCase(
+      submitSep6WithdrawCustomerInfoFieldsAction.fulfilled,
+      (state, action) => {
+        state.status = action.payload.status;
+        state.data.fields = { ...action.payload.customerFields };
+      },
+    );
+    builder.addCase(
+      submitSep6WithdrawCustomerInfoFieldsAction.rejected,
+      (state, action) => {
+        state.errorString = action.payload?.errorString;
+        state.status = ActionStatus.ERROR;
+      },
+    );
   },
 });
 
-export const sepWithdrawSelector = (state: RootState) =>
-  state.sep6WithdrawAsset;
+export const sep6WithdrawSelector = (state: RootState) => state.sep6Withdraw;
 
-export const { reducer } = sep6WithdrawAssetSlice;
+export const { reducer } = sep6WithdrawSlice;
 export const { resetSep6WithdrawAction, setStatusAction } =
-  sep6WithdrawAssetSlice.actions;
+  sep6WithdrawSlice.actions;

@@ -13,8 +13,8 @@ import { reducer as allAssets } from "ducks/allAssets";
 import { reducer as assetOverrides } from "ducks/assetOverrides";
 import { reducer as claimAsset } from "ducks/claimAsset";
 import { reducer as claimableBalances } from "ducks/claimableBalances";
-import { reducer as sep6DepositAsset } from "ducks/sep6DepositAsset";
-import { reducer as sep6WithdrawAsset } from "ducks/sep6WithdrawAsset";
+import { reducer as sep6Deposit } from "ducks/sep6Deposit";
+import { reducer as sep6Withdraw } from "ducks/sep6Withdraw";
 import { reducer as sep8Send } from "ducks/sep8Send";
 import { reducer as sep24DepositAsset } from "ducks/sep24DepositAsset";
 import { reducer as sep24WithdrawAsset } from "ducks/sep24WithdrawAsset";
@@ -52,8 +52,8 @@ const reducers = combineReducers({
   extra,
   logs,
   sendPayment,
-  sep6DepositAsset,
-  sep6WithdrawAsset,
+  sep6Deposit,
+  sep6Withdraw,
   sep8Send,
   sep24DepositAsset,
   sep24WithdrawAsset,

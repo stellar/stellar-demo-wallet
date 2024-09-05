@@ -69,8 +69,8 @@ export const Assets = ({
     allAssets,
     assetOverrides,
     claimAsset,
-    sep6DepositAsset,
-    sep6WithdrawAsset,
+    sep6Deposit,
+    sep6Withdraw,
     sep24DepositAsset,
     sep24WithdrawAsset,
     sep31Send,
@@ -83,8 +83,8 @@ export const Assets = ({
     "allAssets",
     "assetOverrides",
     "claimAsset",
-    "sep6DepositAsset",
-    "sep6WithdrawAsset",
+    "sep6Deposit",
+    "sep6Withdraw",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
     "sep31Send",
@@ -287,50 +287,50 @@ export const Assets = ({
     }
   }, [untrustedAssets.status, dispatch]);
 
-  // SEP-6 Deposit asset
+  // SEP-6 Deposit
   useEffect(() => {
     if (
-      sep6DepositAsset.status === ActionStatus.SUCCESS &&
-      sep6DepositAsset.data.trustedAssetAdded
+      sep6Deposit.status === ActionStatus.SUCCESS &&
+      sep6Deposit.data.trustedAssetAdded
     ) {
-      handleRemoveUntrustedAsset(sep6DepositAsset.data.trustedAssetAdded);
+      handleRemoveUntrustedAsset(sep6Deposit.data.trustedAssetAdded);
     }
 
-    if (sep6DepositAsset.data.currentStatus === TransactionStatus.COMPLETED) {
+    if (sep6Deposit.data.currentStatus === TransactionStatus.COMPLETED) {
       handleRefreshAccount();
       handleFetchClaimableBalances();
     }
 
     setActiveAssetStatusAndToastMessage({
-      status: sep6DepositAsset.status,
+      status: sep6Deposit.status,
       message: "SEP-6 deposit in progress",
     });
   }, [
-    sep6DepositAsset.status,
-    sep6DepositAsset.data.currentStatus,
-    sep6DepositAsset.data.trustedAssetAdded,
+    sep6Deposit.status,
+    sep6Deposit.data.currentStatus,
+    sep6Deposit.data.trustedAssetAdded,
     handleRefreshAccount,
     handleFetchClaimableBalances,
     handleRemoveUntrustedAsset,
     setActiveAssetStatusAndToastMessage,
   ]);
 
-  // SEP-6 Withdraw asset
+  // SEP-6 Withdraw
   useEffect(() => {
     if (
-      sep6WithdrawAsset.status === ActionStatus.SUCCESS &&
-      sep6WithdrawAsset.data.currentStatus === TransactionStatus.COMPLETED
+      sep6Withdraw.status === ActionStatus.SUCCESS &&
+      sep6Withdraw.data.currentStatus === TransactionStatus.COMPLETED
     ) {
       handleRefreshAccount();
     }
 
     setActiveAssetStatusAndToastMessage({
-      status: sep6WithdrawAsset.status,
+      status: sep6Withdraw.status,
       message: "SEP-6 withdrawal in progress",
     });
   }, [
-    sep6WithdrawAsset.status,
-    sep6WithdrawAsset.data.currentStatus,
+    sep6Withdraw.status,
+    sep6Withdraw.data.currentStatus,
     handleRefreshAccount,
     setActiveAssetStatusAndToastMessage,
   ]);
