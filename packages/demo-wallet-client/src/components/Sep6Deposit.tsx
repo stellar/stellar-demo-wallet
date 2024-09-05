@@ -297,23 +297,21 @@ export const Sep6Deposit = () => {
                 ))}
               </div>
 
-              {a.country_codes?.length && a.country_codes.length > 1 ? (
-                <div className="Sep6Selection">
-                  <div className="Sep6Selection__label">Country code</div>
-                  {a.country_codes?.map((c) => (
-                    <RadioButton
-                      key={c}
-                      name="deposit-asset-country-code"
-                      id={c}
-                      label={c}
-                      onChange={() => {
-                        setSelectedDepositAssetCountryCode(c);
-                      }}
-                      checked={c === selectedDepositAssetCountryCode}
-                    />
-                  ))}
-                </div>
-              ) : null}
+              <div className="Sep6Selection">
+                <div className="Sep6Selection__label">Country code</div>
+                {a.country_codes?.map((c) => (
+                  <RadioButton
+                    key={c}
+                    name="deposit-asset-country-code"
+                    id={c}
+                    label={c}
+                    onChange={() => {
+                      setSelectedDepositAssetCountryCode(c);
+                    }}
+                    checked={c === selectedDepositAssetCountryCode}
+                  />
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -458,6 +456,7 @@ export const Sep6Deposit = () => {
   ) {
     return (
       <Sep6QuoteModal
+        type="deposit"
         quote={sep6Deposit.data.quote}
         onClose={handleClose}
         onSubmit={handleSubmitWithQuote}

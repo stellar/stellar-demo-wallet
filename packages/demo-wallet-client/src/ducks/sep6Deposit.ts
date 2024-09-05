@@ -122,7 +122,7 @@ export const initiateDepositAction = createAsyncThunk<
         });
 
         depositAssets = quotesResult.assets.filter(
-          (a) => a.asset !== buyAsset && a.buy_delivery_methods,
+          (a) => a.asset !== buyAsset && a.sell_delivery_methods,
         );
 
         log.instruction({
@@ -130,6 +130,15 @@ export const initiateDepositAction = createAsyncThunk<
           body: depositAssets,
         });
       }
+
+      const actionType =
+        supportsQuotes && depositAssets && depositAssets?.length > 0
+          ? AnchorActionType.DEPOSIT_EXCHANGE
+          : AnchorActionType.DEPOSIT;
+
+      log.instruction({
+        title: `Selected ${actionType} path`,
+      });
 
       // Get either deposit or deposit-exchange asset data
       const assetInfoData =

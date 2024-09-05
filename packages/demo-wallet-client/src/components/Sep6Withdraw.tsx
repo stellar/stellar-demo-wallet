@@ -316,23 +316,21 @@ export const Sep6Withdraw = () => {
                 ))}
               </div>
 
-              {a.country_codes?.length && a.country_codes.length > 1 ? (
-                <div className="Sep6Selection">
-                  <div className="Sep6Selection__label">Country code</div>
-                  {a.country_codes?.map((c) => (
-                    <RadioButton
-                      key={c}
-                      name="withdraw-asset-country-code"
-                      id={c}
-                      label={c}
-                      onChange={() => {
-                        setSelectedWithdrawAssetCountryCode(c);
-                      }}
-                      checked={c === selectedWithdrawAssetCountryCode}
-                    />
-                  ))}
-                </div>
-              ) : null}
+              <div className="Sep6Selection">
+                <div className="Sep6Selection__label">Country code</div>
+                {a.country_codes?.map((c) => (
+                  <RadioButton
+                    key={c}
+                    name="withdraw-asset-country-code"
+                    id={c}
+                    label={c}
+                    onChange={() => {
+                      setSelectedWithdrawAssetCountryCode(c);
+                    }}
+                    checked={c === selectedWithdrawAssetCountryCode}
+                  />
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -502,6 +500,7 @@ export const Sep6Withdraw = () => {
   ) {
     return (
       <Sep6QuoteModal
+        type="withdrawal"
         quote={sep6Withdraw.data.quote}
         onClose={handleClose}
         onSubmit={handleSubmitWithQuote}
