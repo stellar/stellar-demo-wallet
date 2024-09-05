@@ -3,12 +3,14 @@ import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings
 import { AnchorQuote } from "types/types";
 
 type Sep6QuoteModalProps = {
+  type: "deposit" | "withdrawal";
   quote: AnchorQuote;
   onClose: () => void;
   onSubmit: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
 export const Sep6QuoteModal = ({
+  type,
   quote,
   onClose,
   onSubmit,
@@ -66,7 +68,9 @@ export const Sep6QuoteModal = ({
 
   return (
     <Modal visible onClose={onClose} parentId={CSS_MODAL_PARENT_ID}>
-      <Modal.Heading>SEP-6 Deposit Quote</Modal.Heading>
+      <Modal.Heading>{`SEP-6 ${
+        type === "deposit" ? "Deposit" : "Withdrawal"
+      } Quote`}</Modal.Heading>
       <Modal.Body>
         <p>
           These prices are indicative. The actual price will be calculated at

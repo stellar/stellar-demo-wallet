@@ -122,7 +122,7 @@ export const initiateWithdrawAction = createAsyncThunk<
         });
 
         withdrawAssets = quotesResult.assets.filter(
-          (a) => a.asset !== sellAsset && a.sell_delivery_methods,
+          (a) => a.asset !== sellAsset && a.buy_delivery_methods,
         );
 
         log.instruction({
@@ -131,13 +131,17 @@ export const initiateWithdrawAction = createAsyncThunk<
         });
       }
 
-      // Get either deposit or deposit-exchange asset data
-      const assetInfoData =
-        infoData[
-          supportsQuotes && withdrawAssets && withdrawAssets?.length > 0
-            ? AnchorActionType.WITHDRAW_EXCHANGE
-            : AnchorActionType.WITHDRAWAL
-        ]?.[assetCode];
+      const actionType =
+        supportsQuotes && withdrawAssets && withdrawAssets?.length > 0
+          ? AnchorActionType.WITHDRAW_EXCHANGE
+          : AnchorActionType.WITHDRAWAL;
+
+      log.instruction({
+        title: `Selected ${actionType} path`,
+      });
+
+      // Get either withdarw or withdraw-exchange asset data
+      const assetInfoData = infoData[actionType]?.[assetCode];
 
       // This is unlikely
       if (!assetInfoData) {
