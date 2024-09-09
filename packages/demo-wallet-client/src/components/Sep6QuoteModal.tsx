@@ -62,7 +62,7 @@ export const Sep6QuoteModal = ({
     },
     {
       label: "Fee",
-      value: fee.total,
+      value: fee?.total || "",
     },
   ];
 
