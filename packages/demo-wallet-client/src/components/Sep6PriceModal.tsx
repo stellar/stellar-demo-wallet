@@ -34,7 +34,7 @@ export const Sep6PriceModal = ({
     },
     {
       label: "Fee",
-      value: fee.total,
+      value: fee?.total || "",
     },
   ];
 
