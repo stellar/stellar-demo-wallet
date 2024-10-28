@@ -1,8 +1,10 @@
+import { isValidIP } from "./isValidIP";
+
 export const normalizeHomeDomainUrl = (homeDomain: string): URL => {
   let _homeDomain = homeDomain;
 
-  // default localhost to http instead of https
-  if (_homeDomain.includes("localhost")) {
+  // default localhost or IP address to http instead of https
+  if (_homeDomain.includes("localhost") || isValidIP(_homeDomain)) {
     _homeDomain = _homeDomain.startsWith("http")
       ? _homeDomain
       : `http://${_homeDomain}`;
