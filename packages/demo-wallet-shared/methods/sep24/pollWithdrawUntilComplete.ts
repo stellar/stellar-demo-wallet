@@ -12,17 +12,17 @@ import { AnyObject, TransactionStatus } from "../../types/types";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 
 export const pollWithdrawUntilComplete = async ({
-                                                  secretKey,
-                                                  popup,
-                                                  transactionId,
-                                                  token,
-                                                  sep24TransferServerUrl,
-                                                  networkPassphrase,
-                                                  networkUrl,
-                                                  assetCode,
-                                                  assetIssuer,
-                                                  sep9Fields,
-                                                }: {
+  secretKey,
+  popup,
+  transactionId,
+  token,
+  sep24TransferServerUrl,
+  networkPassphrase,
+  networkUrl,
+  assetCode,
+  assetIssuer,
+  sep9Fields,
+}: {
   secretKey: string;
   popup: any;
   transactionId: string;
