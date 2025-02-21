@@ -12,17 +12,17 @@ import { AnyObject, TransactionStatus } from "../../types/types";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 
 export const pollWithdrawUntilComplete = async ({
-  secretKey,
-  popup,
-  transactionId,
-  token,
-  sep24TransferServerUrl,
-  networkPassphrase,
-  networkUrl,
-  assetCode,
-  assetIssuer,
-  sep9Fields,
-}: {
+                                                  secretKey,
+                                                  popup,
+                                                  transactionId,
+                                                  token,
+                                                  sep24TransferServerUrl,
+                                                  networkPassphrase,
+                                                  networkUrl,
+                                                  assetCode,
+                                                  assetIssuer,
+                                                  sep9Fields,
+                                                }: {
   secretKey: string;
   popup: any;
   transactionId: string;
@@ -95,6 +95,13 @@ export const pollWithdrawUntilComplete = async ({
             body: sequence,
           });
 
+          let paymentAsset = null;
+          if (assetCode === "XLM") {
+            paymentAsset = Asset.native();
+          } else {
+            paymentAsset = new Asset(assetCode, assetIssuer);
+          }
+
           const account = new Account(keypair.publicKey(), sequence);
           const txn = new TransactionBuilder(account, {
             fee: getNetworkConfig().baseFee,
@@ -103,8 +110,8 @@ export const pollWithdrawUntilComplete = async ({
             .addOperation(
               Operation.payment({
                 destination:
-                  transactionJson.transaction.withdraw_anchor_account,
-                asset: new Asset(assetCode, assetIssuer),
+                transactionJson.transaction.withdraw_anchor_account,
+                asset: paymentAsset,
                 amount: transactionJson.transaction.amount_in,
               }),
             )
