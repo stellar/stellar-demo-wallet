@@ -95,13 +95,7 @@ export const pollWithdrawUntilComplete = async ({
             body: sequence,
           });
 
-          let paymentAsset = null;
-          if (assetCode === "XLM") {
-            paymentAsset = Asset.native();
-          } else {
-            paymentAsset = new Asset(assetCode, assetIssuer);
-          }
-
+          const paymentAsset = assetCode === "XLM" ? Asset.native() : new Asset(assetCode, assetIssuer);
           const account = new Account(keypair.publicKey(), sequence);
           const txn = new TransactionBuilder(account, {
             fee: getNetworkConfig().baseFee,
