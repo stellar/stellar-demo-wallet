@@ -95,6 +95,7 @@ export const pollWithdrawUntilComplete = async ({
             body: sequence,
           });
 
+          const paymentAsset = assetCode === "XLM" ? Asset.native() : new Asset(assetCode, assetIssuer);
           const account = new Account(keypair.publicKey(), sequence);
           const txn = new TransactionBuilder(account, {
             fee: getNetworkConfig().baseFee,
@@ -103,8 +104,8 @@ export const pollWithdrawUntilComplete = async ({
             .addOperation(
               Operation.payment({
                 destination:
-                  transactionJson.transaction.withdraw_anchor_account,
-                asset: new Asset(assetCode, assetIssuer),
+                transactionJson.transaction.withdraw_anchor_account,
+                asset: paymentAsset,
                 amount: transactionJson.transaction.amount_in,
               }),
             )
