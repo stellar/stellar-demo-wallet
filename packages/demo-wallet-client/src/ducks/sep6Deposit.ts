@@ -387,8 +387,8 @@ export const initSep6DepositFlowWithQuoteAction = createAsyncThunk<
 
       const depositResponse = (await programmaticDepositExchangeFlow({
         amount,
-        sourceAsset,
         destinationAssetCode,
+        sourceAsset,
         quoteId,
         publicKey,
         transferServerUrl,
