@@ -1,5 +1,6 @@
-import express from "express";
+import express, { ErrorRequestHandler } from "express";
 import { Transaction, Keypair } from "@stellar/stellar-sdk";
+import bodyParser from "body-parser";
 
 require("dotenv").config({ path: require("find-config")(".env") });
 
@@ -7,8 +8,18 @@ const PORT = process.env.SERVER_PORT ?? 7000;
 const SERVER_SIGNING_KEY = String(process.env.SERVER_SIGNING_KEY);
 const app = express();
 
-const bodyParser = require("body-parser");
-app.use(bodyParser.json());
+// JSON parsing with error handling
+app.use(bodyParser.json({
+  verify: (_req, _res, buf, encoding) => {
+    try {
+      JSON.parse(buf.toString(encoding as BufferEncoding));
+    } catch (e) {
+      // Specific handling for JSON parsing errors
+      throw new SyntaxError("Invalid JSON payload");
+    }
+  }
+}));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //TODO: add logging middleware
@@ -46,6 +57,24 @@ app.post("/sign", (req, res) => {
     network_passphrase: network_passphrase,
   });
 });
+
+// Error handling middleware
+const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+  const isProduction =  process.env.NODE_ENV === "production"
+
+  const status = err.status || err.statusCode || 500;
+  const name = err.name || (err instanceof Error ? err.constructor.name : 'Internal Server Error');
+  const message = err.message || (typeof err === 'string' ? err : 'An unexpected error occurred');
+  const stack = err instanceof Error ? err.stack : undefined;
+
+  res.status(status).json({
+    error: name,
+    message: message,
+    ...(!isProduction && { stack }),
+  });
+};
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
