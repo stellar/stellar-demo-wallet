@@ -13,6 +13,7 @@ import { metrics } from "@stellar/frontend-helpers";
 import { METRIC_NAMES } from "demo-wallet-shared/build/constants/metricNames";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { createRandomAccount } from "ducks/account";
+import { createPasskeyContract } from "ducks/contractAccount";
 import { ConnectAccount } from "components/ConnectAccount";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
@@ -42,6 +43,10 @@ export const Landing = () => {
   };
 
   const isPending = account.status === ActionStatus.PENDING;
+
+  const handleCreateContractAccount = () => {
+    dispatch(createPasskeyContract());
+  };
 
   return (
     <Layout.Inset>
@@ -79,6 +84,30 @@ export const Landing = () => {
         >
           <ConnectAccount />
         </Modal>
+
+        <Heading3> Connect or create C-Account</Heading3>
+
+        <div className="Landing__buttons">
+          <TextLink
+            onClick={() => {}}
+            variant={TextLink.variant.secondary}
+            disabled={isPending}
+            underline
+          >
+            Connect existing contract account (testnet only)
+          </TextLink>
+
+          <div className="Layout__inline">
+            <TextLink
+              onClick={handleCreateContractAccount}
+              variant={TextLink.variant.secondary}
+              disabled={isPending}
+              underline
+            >
+              Create new contract account using Passkey (testnet only)
+            </TextLink>
+          </div>
+        </div>
       </div>
     </Layout.Inset>
   );

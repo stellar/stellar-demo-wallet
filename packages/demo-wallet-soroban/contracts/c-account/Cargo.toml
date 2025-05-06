@@ -1,0 +1,16 @@
+[package]
+name = "c-account"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["lib", "cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+log = "0.4.27"
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }
