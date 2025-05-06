@@ -57,8 +57,8 @@ export class SmartWalletService {
     });
 
     return {
-      pkId,
       contractId,
+      pkId,
       sourceAccount: {
         publicKey: sourceKeypair.publicKey(),
         secretKey: sourceKeypair.secret(),

@@ -7,13 +7,13 @@ import { SmartWalletService } from "../services/SmartWalletService";
 
 export const createPasskeyContract = createAsyncThunk<
   { contractId: string; keyId: string; sourceAccount: AccountKeyPair },
-  undefined,
+  string,
   { rejectValue: RejectMessage; state: RootState }
->("contractAccount/createPasskeyContract", async (_, { rejectWithValue }) => {
+>("contractAccount/createPasskeyContract", async (passkeyName, { rejectWithValue }) => {
   try {
     log.instruction({ title: "Generating new contract" });
     const swService = SmartWalletService.getInstance();
-    const result = await swService.createPasskeyContract("test Passkey");
+    const result = await swService.createPasskeyContract(passkeyName);
     return {
       contractId: result.contractId,
       keyId: result.pkId,

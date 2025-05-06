@@ -18,6 +18,7 @@ export class PasskeyService {
   }
 
   public async registerPasskey(passkeyName: string) {
+    const displayName = `${passkeyName} — ${new Date().toLocaleString()}`
     const { id, response } = await startRegistration({
       optionsJSON: {
         rp: {
@@ -26,8 +27,8 @@ export class PasskeyService {
         },
         user: {
           id: base64url(passkeyName),
-          name: passkeyName,
-          displayName: `${passkeyName} — ${new Date().toLocaleString()}`,
+          name: displayName,
+          displayName: displayName,
         },
         challenge: base64url(crypto.randomBytes(32)),
         pubKeyCredParams: [{ alg: -7, type: "public-key" }],

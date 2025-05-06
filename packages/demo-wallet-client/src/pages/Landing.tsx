@@ -13,7 +13,7 @@ import { metrics } from "@stellar/frontend-helpers";
 import { METRIC_NAMES } from "demo-wallet-shared/build/constants/metricNames";
 import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings";
 import { createRandomAccount } from "ducks/account";
-import { createPasskeyContract } from "ducks/contractAccount";
+import { CreatePasskeyModal } from "components/CreatePasskeyModal";
 import { ConnectAccount } from "components/ConnectAccount";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
@@ -23,6 +23,8 @@ import { ActionStatus, SearchParams } from "types/types";
 export const Landing = () => {
   const { account } = useRedux("account");
   const [isConnectAccountModalVisible, setIsConnectAccountModalVisible] =
+    useState(false);
+  const [isCreatePasskeyModalVisible, setIsCreatePasskeyModalVisible] =
     useState(false);
 
   const dispatch: AppDispatch = useDispatch();
@@ -44,9 +46,9 @@ export const Landing = () => {
 
   const isPending = account.status === ActionStatus.PENDING;
 
-  const handleCreateContractAccount = () => {
-    dispatch(createPasskeyContract());
-  };
+  // const handleCreateContractAccount = () => {
+  //   setIsCreatePasskeyModalVisible(true);
+  // };
 
   return (
     <Layout.Inset>
@@ -99,7 +101,7 @@ export const Landing = () => {
 
           <div className="Layout__inline">
             <TextLink
-              onClick={handleCreateContractAccount}
+              onClick={() => setIsCreatePasskeyModalVisible(true)}
               variant={TextLink.variant.secondary}
               disabled={isPending}
               underline
@@ -108,6 +110,12 @@ export const Landing = () => {
             </TextLink>
           </div>
         </div>
+
+        <CreatePasskeyModal
+          visible={isCreatePasskeyModalVisible}
+          onClose={() => setIsCreatePasskeyModalVisible(false)}
+        />
+
       </div>
     </Layout.Inset>
   );
