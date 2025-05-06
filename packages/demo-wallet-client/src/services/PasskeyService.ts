@@ -31,7 +31,10 @@ export class PasskeyService {
           displayName: displayName,
         },
         challenge: base64url(crypto.randomBytes(32)),
-        pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+        pubKeyCredParams: [
+          { type: "public-key", alg: -7 },    // ES256 (ECDSA w/ SHA-256)
+          { type: "public-key", alg: -257 },  // RS256 (RSASSA-PKCS1-v1_5 w/ SHA-256)
+        ],
         authenticatorSelection: {
           authenticatorAttachment: "platform",
           residentKey: "preferred",
