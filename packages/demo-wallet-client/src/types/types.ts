@@ -85,6 +85,11 @@ export interface AssetSupportedActions {
   sep31?: boolean;
 }
 
+export interface AccountKeyPair {
+  publicKey: string;
+  secretKey: string;
+}
+
 export interface AccountInitialState {
   data: AccountDetails | null;
   errorString?: string;
