@@ -12,15 +12,11 @@ import {
   RejectMessage,
   AccountInitialState,
   AccountDetails,
+  AccountKeyPair,
 } from "types/types";
 
 interface UnfundedAccount extends AccountDetails {
   id: string;
-}
-
-interface AccountKeyPair {
-  publicKey: string;
-  secretKey: string;
 }
 
 interface AccountActionBaseResponse {
