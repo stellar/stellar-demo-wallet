@@ -46,8 +46,6 @@ export const Landing = () => {
 
   const isPending = account.status === ActionStatus.PENDING;
 
-  console.log(window.location.hostname)
-
   return (
     <Layout.Inset>
       <div className="Landing__container">
