@@ -1,5 +1,5 @@
 [package]
-name = "c-account"
+name = "contract-account"
 version = "0.0.0"
 edition = "2021"
 publish = false
