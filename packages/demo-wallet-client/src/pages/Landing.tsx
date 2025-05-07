@@ -46,9 +46,7 @@ export const Landing = () => {
 
   const isPending = account.status === ActionStatus.PENDING;
 
-  // const handleCreateContractAccount = () => {
-  //   setIsCreatePasskeyModalVisible(true);
-  // };
+  console.log(window.location.hostname)
 
   return (
     <Layout.Inset>
@@ -87,7 +85,7 @@ export const Landing = () => {
           <ConnectAccount />
         </Modal>
 
-        <Heading3> Connect or create C-Account</Heading3>
+        <Heading3> Connect or create contract account</Heading3>
 
         <div className="Landing__buttons">
           <TextLink

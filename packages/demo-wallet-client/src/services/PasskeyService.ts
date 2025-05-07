@@ -7,14 +7,13 @@ import * as cbor from 'cbor';
 import crypto from "crypto";
 import base64url from "base64url";
 
-const DEMO_WALLET_DOMAIN = "localhost";
 const DEMO_WALLET_NAME = "Stellar Demo Wallet";
 
 export class PasskeyService {
   public domain: string;
 
   constructor() {
-    this.domain = DEMO_WALLET_DOMAIN
+    this.domain = window.location.hostname;
   }
 
   public async registerPasskey(passkeyName: string) {
@@ -78,7 +77,7 @@ export class PasskeyService {
 
     // 3. Parse credential public key
     const credentialIdLength = authData.readUInt16BE(53);
-    const publicKeyCOSE = authData.slice( 55 + credentialIdLength);
+    const publicKeyCOSE = authData.slice(55 + credentialIdLength);
     const decodedKey = cbor.decodeFirstSync(publicKeyCOSE);
 
     // 4. Validate key structure
