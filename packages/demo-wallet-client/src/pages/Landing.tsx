@@ -83,7 +83,7 @@ export const Landing = () => {
           <ConnectAccount />
         </Modal>
 
-        <Heading3> Connect or create contract account</Heading3>
+        <Heading3>Connect or create contract account</Heading3>
 
         <div className="Landing__buttons">
           <TextLink
