@@ -36,7 +36,7 @@ pub enum Error {
 const WEEK_OF_LEDGERS: u32 = 60 * 60 * 24 / 5 * 7;
 
 #[contractimpl]
-impl CAccount {
+impl ContractAccount {
     pub fn __constructor(
         env: Env,
         credential_id: Bytes,
@@ -47,7 +47,7 @@ impl CAccount {
 }
 
 #[contractimpl]
-impl CustomAccountInterface for CAccount {
+impl CustomAccountInterface for ContractAccount {
     type Signature = Vec<Signature>;
     type Error = Error;
 
