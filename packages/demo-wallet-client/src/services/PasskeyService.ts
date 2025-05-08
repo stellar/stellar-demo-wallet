@@ -1,4 +1,7 @@
-import { startRegistration } from "@simplewebauthn/browser";
+import {
+  startAuthentication,
+  startRegistration,
+} from "@simplewebauthn/browser";
 
 import {
   AuthenticatorAttestationResponseJSON
@@ -97,5 +100,15 @@ export class PasskeyService {
 
     // 6. Create uncompressed SEC1 format
     return [Buffer.from([0x04]), x, y];
+  }
+
+  public async connectPasskey() {
+    const authResponse = await startAuthentication({
+      optionsJSON: {
+        challenge: base64url(crypto.randomBytes(32)),
+        rpId: this.domain
+      }
+    });
+    return authResponse.id;
   }
 }

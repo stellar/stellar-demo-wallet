@@ -19,6 +19,7 @@ import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
 import { ActionStatus, SearchParams } from "types/types";
+import { connectPasskeyContract } from "../ducks/contractAccount";
 
 export const Landing = () => {
   const { account } = useRedux("account");
@@ -87,7 +88,7 @@ export const Landing = () => {
 
         <div className="Landing__buttons">
           <TextLink
-            onClick={() => {}}
+            onClick={() => dispatch(connectPasskeyContract())}
             variant={TextLink.variant.secondary}
             disabled={isPending}
             underline
