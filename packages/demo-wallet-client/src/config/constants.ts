@@ -5,3 +5,5 @@ export const SOROBAN_CONFIG = {
 } as const;
 
 export const SOURCE_KEYPAIR_SECRET = "SDIHUAHOUBN5G4GBM276BVG7JYVFTCJYRCDK2ZI37IJ5KRX7LFRRIQNV"
+
+export const STELLAR_EXPERT_API = "https://api.stellar.expert/explorer/testnet";

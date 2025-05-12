@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
   TextLink,
@@ -12,9 +12,11 @@ import {
 import { resetStoreAction } from "config/store";
 import { getCurrentSessionParams } from "demo-wallet-shared/build/helpers/getCurrentSessionParams";
 import { SearchParams, StringObject } from "types/types";
+import { contractAccountSelector } from "../ducks/contractAccount";
 
 export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
   const [sessionParams, setSessionParams] = useState<SearchParams[]>([]);
+  const { isAuthenticated } = useSelector(contractAccountSelector);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -41,32 +43,40 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
     return sessionParams.map((s) => paramText[s]).join(", ");
   };
 
+  const accountSignOutBody =
+    <Modal.Body>
+      <p>
+        You can reload the account using your secret key or press back in your
+        browser to sign back in.
+      </p>
+
+      {sessionParams.length > 0 && (
+        <InfoBlock variant={InfoBlock.variant.warning}>
+          <p>
+            {`You have session data (${getMessageText()}) that will be lost when you sign out. You can copy the URL to save it.`}
+          </p>
+          <div className="SessionParamsWrapper">
+            <CopyText
+              textToCopy={window.location.toString()}
+              tooltipPosition={CopyText.tooltipPosition.RIGHT}
+              showTooltip
+            >
+              <TextLink iconLeft={<Icon.Copy />}>Copy URL</TextLink>
+            </CopyText>
+          </div>
+        </InfoBlock>
+      )}
+    </Modal.Body>
+
+  const contractAccountSignOutBody =
+    <Modal.Body>
+      <p>Thanks for using the Demo Wallet contract account.</p>
+      <p>Come back anytime by reconnecting with the same passkey.</p>
+    </Modal.Body>
+
   return (
     <>
-      <Modal.Body>
-        <p>
-          You can reload the account using your secret key or press back in your
-          browser to sign back in.
-        </p>
-
-        {sessionParams.length > 0 && (
-          <InfoBlock variant={InfoBlock.variant.warning}>
-            <p>
-              {`You have session data (${getMessageText()}) that will be lost when you sign out. You can copy the URL to save it.`}
-            </p>
-            <div className="SessionParamsWrapper">
-              <CopyText
-                textToCopy={window.location.toString()}
-                tooltipPosition={CopyText.tooltipPosition.RIGHT}
-                showTooltip
-              >
-                <TextLink iconLeft={<Icon.Copy />}>Copy URL</TextLink>
-              </CopyText>
-            </div>
-          </InfoBlock>
-        )}
-      </Modal.Body>
-
+      { isAuthenticated ? contractAccountSignOutBody : accountSignOutBody }
       <Modal.Footer>
         <Button onClick={handleSignOut}>Sign out</Button>
         <Button variant={Button.variant.secondary} onClick={onClose}>

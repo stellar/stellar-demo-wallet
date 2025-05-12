@@ -10,14 +10,14 @@ import { log } from "demo-wallet-shared/build/helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
 import { ActionStatus, SearchParams } from "types/types";
+import { fetchContractAccountAction } from "../ducks/contractAccount";
 
 export const SettingsHandler = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const { account } = useRedux("account");
-
+  const { account, contractAccount } = useRedux("account", "contractAccount");
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,6 +29,7 @@ export const SettingsHandler = ({
   const claimableBalanceSupportedParam = queryParams.get(
     SearchParams.CLAIMABLE_BALANCE_SUPPORTED,
   );
+  const contractIdParam = queryParams.get(SearchParams.CONTRACT_ID);
 
   // Asset overrides
   useEffect(() => {
@@ -109,6 +110,13 @@ export const SettingsHandler = ({
       });
     }
   }, [account.status, location.search, account.isAuthenticated, navigate]);
+
+  // Handle contract ID from URL
+  useEffect(() => {
+    if (contractIdParam && contractIdParam !== contractAccount.data?.contract) {
+      dispatch(fetchContractAccountAction(contractIdParam));
+    }
+  }, [contractIdParam, dispatch, contractAccount.data?.contract]);
 
   return <>{children}</>;
 };

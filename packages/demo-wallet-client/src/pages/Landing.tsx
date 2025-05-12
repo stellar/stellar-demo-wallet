@@ -22,7 +22,7 @@ import { ActionStatus, SearchParams } from "types/types";
 import { connectPasskeyContract } from "../ducks/contractAccount";
 
 export const Landing = () => {
-  const { account } = useRedux("account");
+  const { account, contractAccount } = useRedux("account", "contractAccount");
   const [isConnectAccountModalVisible, setIsConnectAccountModalVisible] =
     useState(false);
   const [isCreatePasskeyModalVisible, setIsCreatePasskeyModalVisible] =
@@ -40,6 +40,12 @@ export const Landing = () => {
       navigate(searchParam.update(SearchParams.SECRET_KEY, account.secretKey));
     }
   }, [account.secretKey, account.status, account.isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (contractAccount.status === ActionStatus.SUCCESS && contractAccount.isAuthenticated) {
+      navigate(`/account?contractId=${contractAccount.data?.contract}`);
+    }
+  }, [contractAccount.data?.contract, contractAccount.isAuthenticated, contractAccount.status, navigate]);
 
   const handleCreateAccount = () => {
     dispatch(createRandomAccount());

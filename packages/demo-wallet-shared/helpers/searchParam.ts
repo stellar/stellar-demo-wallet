@@ -31,6 +31,10 @@ const update = (
         updateValue({ currentVal: currentParamValue, newVal: value }),
       );
       break;
+    case SearchParams.CONTRACT_ID:
+      console.log("searchParaM: " + currentParamValue)
+      queryParams.set(SearchParams.CONTRACT_ID, value);
+      break;
     default:
       throw new Error(`Search param \`${searchParam}\` does not exist`);
   }

@@ -30,9 +30,9 @@ export const CreatePasskeyModal = ({ visible, onClose }: CreatePasskeyModalProps
     >
       <Modal.Heading>Create Passkey</Modal.Heading>
       <Modal.Body>
-        <p>Enter a name for your passkey:</p>
         <Input
           id="passkey-name"
+          label="Your passkey name"
           value={passkeyName}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setPasskeyName(e.target.value)}
           placeholder="e.g., Alice’s Contract Key"
@@ -40,7 +40,6 @@ export const CreatePasskeyModal = ({ visible, onClose }: CreatePasskeyModalProps
       </Modal.Body>
       <Modal.Footer>
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-          <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={!passkeyName.trim()}>
             Create
           </Button>
