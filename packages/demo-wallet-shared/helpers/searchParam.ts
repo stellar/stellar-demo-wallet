@@ -32,7 +32,6 @@ const update = (
       );
       break;
     case SearchParams.CONTRACT_ID:
-      console.log("searchParaM: " + currentParamValue)
       queryParams.set(SearchParams.CONTRACT_ID, value);
       break;
     default:

@@ -16,7 +16,7 @@ import { contractAccountSelector } from "../ducks/contractAccount";
 
 export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
   const [sessionParams, setSessionParams] = useState<SearchParams[]>([]);
-  const { isAuthenticated } = useSelector(contractAccountSelector);
+  const { isAuthenticated: isContractAuthenticated } = useSelector(contractAccountSelector);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -71,12 +71,12 @@ export const SignOutModal = ({ onClose }: { onClose: () => void }) => {
   const contractAccountSignOutBody =
     <Modal.Body>
       <p>Thanks for using the Demo Wallet contract account.</p>
-      <p>Come back anytime by reconnecting with the same passkey.</p>
+      <p>You can use the same passkey to sign back in.</p>
     </Modal.Body>
 
   return (
     <>
-      { isAuthenticated ? contractAccountSignOutBody : accountSignOutBody }
+      { isContractAuthenticated ? contractAccountSignOutBody : accountSignOutBody }
       <Modal.Footer>
         <Button onClick={handleSignOut}>Sign out</Button>
         <Button variant={Button.variant.secondary} onClick={onClose}>
