@@ -788,6 +788,7 @@ export type FetchAccountError =
 
 export interface ContractAccountState {
   status: ActionStatus | undefined;
+  contractId: string;
   data: ContractAccountDetails | null;
   keyId: string;
   isAuthenticated: boolean;

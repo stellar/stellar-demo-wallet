@@ -18,14 +18,19 @@ export const CreatePasskeyModal = ({ visible, onClose }: CreatePasskeyModalProps
   const handleSubmit = async () => {
     if (passkeyName.trim()) {
       dispatch(createPasskeyContract(passkeyName.trim()));
-      onClose();
+      handleClose()
     }
+  };
+
+  const handleClose = () => {
+    setPasskeyName(""); // Clear the input when modal is closed
+    onClose();
   };
 
   return (
     <Modal
       visible={visible}
-      onClose={onClose}
+      onClose={handleClose}
       parentId={CSS_MODAL_PARENT_ID}
     >
       <Modal.Heading>Create Passkey</Modal.Heading>
@@ -35,7 +40,7 @@ export const CreatePasskeyModal = ({ visible, onClose }: CreatePasskeyModalProps
           label="Your passkey name"
           value={passkeyName}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setPasskeyName(e.target.value)}
-          placeholder="e.g., Alice’s Contract Key"
+          placeholder="e.g., Alice's Contract Key"
         />
       </Modal.Body>
       <Modal.Footer>

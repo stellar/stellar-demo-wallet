@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Modal } from "@stellar/design-system";
 import { AccountInfo } from "components/AccountInfo";

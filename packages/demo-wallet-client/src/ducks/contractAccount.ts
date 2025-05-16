@@ -18,6 +18,7 @@ import {
 
 const initialState: ContractAccountState = {
   status: undefined,
+  contractId: "",
   data: null,
   keyId: "",
   isAuthenticated: false,
@@ -25,19 +26,17 @@ const initialState: ContractAccountState = {
 };
 
 export const createPasskeyContract = createAsyncThunk<
-  { data: ContractAccountDetails; keyId: string; },
+  { contractId: string; keyId: string; },
   string,
   { rejectValue: RejectMessage; state: RootState }
 >("contractAccount/createPasskeyContract", async (passkeyName, { rejectWithValue }) => {
   try {
     log.instruction({ title: "Deploying new contract" });
     const swService = SmartWalletService.getInstance();
-    const result = await swService.createPasskeyContract(passkeyName);
-
-    const info = await fetchContractAccountDetails(result.contractId)
+    const { contractId, pkId } = await swService.createPasskeyContract(passkeyName);
     return {
-      data : info,
-      keyId: result.pkId,
+      contractId,
+      keyId: pkId,
     };
   } catch (error) {
     log.error({
@@ -52,7 +51,7 @@ export const createPasskeyContract = createAsyncThunk<
 });
 
 export const connectPasskeyContract = createAsyncThunk<
-  { data: ContractAccountDetails; keyId: string; },
+  { contractId: string; keyId: string; },
   void,
   { rejectValue: RejectMessage; state: RootState }
 >(
@@ -61,11 +60,10 @@ export const connectPasskeyContract = createAsyncThunk<
     try {
       log.instruction({ title: "Connecting contract" });
       const swService = SmartWalletService.getInstance();
-      const result = await swService.connectPasskeyContract();
-      const info = await fetchContractAccountDetails(result.contractId)
+      const { contractId, pkId } = await swService.connectPasskeyContract();
       return {
-        data : info,
-        keyId: result.pkId,
+        contractId,
+        keyId: pkId,
       };
     } catch (error) {
       log.error({
@@ -136,9 +134,8 @@ const contractAccountSlice = createSlice({
       })
       .addCase(createPasskeyContract.fulfilled, (state, action) => {
         state.status = ActionStatus.SUCCESS;
-        state.data = action.payload.data;
+        state.contractId = action.payload.contractId;
         state.keyId = action.payload.keyId;
-        state.isAuthenticated = true;
       })
       .addCase(createPasskeyContract.rejected, (state, action) => {
         state.status = ActionStatus.ERROR;
@@ -150,9 +147,8 @@ const contractAccountSlice = createSlice({
       })
       .addCase(connectPasskeyContract.fulfilled, (state, action) => {
         state.status = ActionStatus.SUCCESS;
-        state.data = action.payload.data;
+        state.contractId = action.payload.contractId
         state.keyId = action.payload.keyId;
-        state.isAuthenticated = true;
       })
       .addCase(connectPasskeyContract.rejected, (state, action) => {
         state.status = ActionStatus.ERROR;

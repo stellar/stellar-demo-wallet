@@ -148,6 +148,12 @@
       margin-bottom: 1rem;
     }
   }
+
+  &__section {
+    & + & {
+      margin-top: 2rem;
+    }
+  }
 }
 
 .LoadingBlock {

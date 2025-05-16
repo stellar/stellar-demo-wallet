@@ -103,20 +103,28 @@ export const SettingsHandler = ({
 
   // Go to /account page if fetching account was success
   useEffect(() => {
-    if (account.status === ActionStatus.SUCCESS && account.isAuthenticated) {
+    if ((account.status === ActionStatus.SUCCESS && account.isAuthenticated) ||
+      (contractAccount.status === ActionStatus.SUCCESS && contractAccount.isAuthenticated)) {
       navigate({
         pathname: "/account",
         search: location.search,
       });
     }
-  }, [account.status, location.search, account.isAuthenticated, navigate]);
+  }, [account.status, location.search, account.isAuthenticated, navigate, contractAccount.status, contractAccount.isAuthenticated]);
 
   // Handle contract ID from URL
   useEffect(() => {
-    if (contractIdParam && contractIdParam !== contractAccount.data?.contract) {
-      dispatch(fetchContractAccountAction(contractIdParam));
+    if (contractIdParam) {
+      try {
+        dispatch(fetchContractAccountAction(contractIdParam));
+      } catch (error) {
+        log.error({
+          title: "Fetch contract account error",
+          body: getErrorMessage(error),
+        });
+      }
     }
-  }, [contractIdParam, dispatch, contractAccount.data?.contract]);
+  }, [contractIdParam, dispatch]);
 
   return <>{children}</>;
 };
