@@ -10,14 +10,14 @@ import { log } from "demo-wallet-shared/build/helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
 import { ActionStatus, SearchParams } from "types/types";
+import { fetchContractAccountAction } from "../ducks/contractAccount";
 
 export const SettingsHandler = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const { account } = useRedux("account");
-
+  const { account, contractAccount } = useRedux("account", "contractAccount");
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,6 +29,7 @@ export const SettingsHandler = ({
   const claimableBalanceSupportedParam = queryParams.get(
     SearchParams.CLAIMABLE_BALANCE_SUPPORTED,
   );
+  const contractIdParam = queryParams.get(SearchParams.CONTRACT_ID);
 
   // Asset overrides
   useEffect(() => {
@@ -102,13 +103,28 @@ export const SettingsHandler = ({
 
   // Go to /account page if fetching account was success
   useEffect(() => {
-    if (account.status === ActionStatus.SUCCESS && account.isAuthenticated) {
+    if ((account.status === ActionStatus.SUCCESS && account.isAuthenticated) ||
+      (contractAccount.status === ActionStatus.SUCCESS && contractAccount.isAuthenticated)) {
       navigate({
         pathname: "/account",
         search: location.search,
       });
     }
-  }, [account.status, location.search, account.isAuthenticated, navigate]);
+  }, [account.status, location.search, account.isAuthenticated, navigate, contractAccount.status, contractAccount.isAuthenticated]);
+
+  // Handle contract ID from URL
+  useEffect(() => {
+    if (contractIdParam) {
+      try {
+        dispatch(fetchContractAccountAction(contractIdParam));
+      } catch (error) {
+        log.error({
+          title: "Fetch contract account error",
+          body: getErrorMessage(error),
+        });
+      }
+    }
+  }, [contractIdParam, dispatch]);
 
   return <>{children}</>;
 };

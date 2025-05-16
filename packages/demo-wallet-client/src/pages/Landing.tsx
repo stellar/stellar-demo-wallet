@@ -22,7 +22,7 @@ import { ActionStatus, SearchParams } from "types/types";
 import { connectPasskeyContract } from "../ducks/contractAccount";
 
 export const Landing = () => {
-  const { account } = useRedux("account");
+  const { account, contractAccount } = useRedux("account", "contractAccount");
   const [isConnectAccountModalVisible, setIsConnectAccountModalVisible] =
     useState(false);
   const [isCreatePasskeyModalVisible, setIsCreatePasskeyModalVisible] =
@@ -41,6 +41,12 @@ export const Landing = () => {
     }
   }, [account.secretKey, account.status, account.isAuthenticated, navigate]);
 
+  useEffect(() => {
+    if (contractAccount.status === ActionStatus.SUCCESS && !contractAccount.isAuthenticated) {
+      navigate(searchParam.update(SearchParams.CONTRACT_ID, contractAccount.contractId));
+    }
+  }, [contractAccount, contractAccount.contractId, contractAccount.isAuthenticated, contractAccount.status, navigate]);
+
   const handleCreateAccount = () => {
     dispatch(createRandomAccount());
   };
@@ -50,29 +56,31 @@ export const Landing = () => {
   return (
     <Layout.Inset>
       <div className="Landing__container">
-        <Heading3>Import or generate keypair</Heading3>
+        <div className="Landing__section">
+          <Heading3>Import or generate keypair</Heading3>
 
-        <div className="Landing__buttons">
-          <TextLink
-            onClick={() => setIsConnectAccountModalVisible(true)}
-            variant={TextLink.variant.secondary}
-            disabled={isPending}
-            underline
-          >
-            Provide a secret key (testnet only)
-          </TextLink>
-
-          <div className="Layout__inline">
+          <div className="Landing__buttons">
             <TextLink
-              onClick={handleCreateAccount}
+              onClick={() => setIsConnectAccountModalVisible(true)}
               variant={TextLink.variant.secondary}
               disabled={isPending}
               underline
             >
-              Generate keypair for new account (testnet only)
+              Provide a secret key (testnet only)
             </TextLink>
 
-            {!isConnectAccountModalVisible && isPending && <Loader />}
+            <div className="Layout__inline">
+              <TextLink
+                onClick={handleCreateAccount}
+                variant={TextLink.variant.secondary}
+                disabled={isPending}
+                underline
+              >
+                Generate keypair for new account (testnet only)
+              </TextLink>
+
+              {!isConnectAccountModalVisible && isPending && <Loader />}
+            </div>
           </div>
         </div>
 
@@ -84,27 +92,29 @@ export const Landing = () => {
           <ConnectAccount />
         </Modal>
 
-        <Heading3>Connect or create contract account</Heading3>
+        <div className="Landing__section">
+          <Heading3>Connect or create contract account</Heading3>
 
-        <div className="Landing__buttons">
-          <TextLink
-            onClick={() => dispatch(connectPasskeyContract())}
-            variant={TextLink.variant.secondary}
-            disabled={isPending}
-            underline
-          >
-            Connect existing contract account (testnet only)
-          </TextLink>
-
-          <div className="Layout__inline">
+          <div className="Landing__buttons">
             <TextLink
-              onClick={() => setIsCreatePasskeyModalVisible(true)}
+              onClick={() => dispatch(connectPasskeyContract())}
               variant={TextLink.variant.secondary}
               disabled={isPending}
               underline
             >
-              Create new contract account using Passkey (testnet only)
+              Connect existing contract account (testnet only)
             </TextLink>
+
+            <div className="Layout__inline">
+              <TextLink
+                onClick={() => setIsCreatePasskeyModalVisible(true)}
+                variant={TextLink.variant.secondary}
+                disabled={isPending}
+                underline
+              >
+                Create new contract account using Passkey (testnet only)
+              </TextLink>
+            </div>
           </div>
         </div>
 

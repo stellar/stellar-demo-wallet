@@ -148,6 +148,12 @@
       margin-bottom: 1rem;
     }
   }
+
+  &__section {
+    & + & {
+      margin-top: 2rem;
+    }
+  }
 }
 
 .LoadingBlock {
@@ -197,7 +203,6 @@
 
   .AccountInfo {
     display: table;
-    max-width: 276px;
 
     &:first-child {
       margin-bottom: 1rem;
