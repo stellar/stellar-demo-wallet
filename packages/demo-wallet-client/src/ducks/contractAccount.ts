@@ -1,9 +1,29 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { RejectMessage } from "../types/types";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  ContractAccountDetails,
+  ContractAccountState,
+  RejectMessage,
+} from "../types/types";
 import { RootState } from "../config/store";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { SmartWalletService } from "../services/SmartWalletService";
+import { ActionStatus } from "../types/types";
+import {
+  getErrorString
+} from "demo-wallet-shared/build/helpers/getErrorString";
+import {
+  fetchContractAccountDetails
+} from "../helpers/fetchContractAccountDetails";
+
+const initialState: ContractAccountState = {
+  status: undefined,
+  contractId: "",
+  data: null,
+  keyId: "",
+  isAuthenticated: false,
+  error: null,
+};
 
 export const createPasskeyContract = createAsyncThunk<
   { contractId: string; keyId: string; },
@@ -13,14 +33,14 @@ export const createPasskeyContract = createAsyncThunk<
   try {
     log.instruction({ title: "Deploying new contract" });
     const swService = SmartWalletService.getInstance();
-    const result = await swService.createPasskeyContract(passkeyName);
+    const { contractId, pkId } = await swService.createPasskeyContract(passkeyName);
     return {
-      contractId: result.contractId,
-      keyId: result.pkId,
+      contractId,
+      keyId: pkId,
     };
   } catch (error) {
     log.error({
-      title: "Deploying new contract failed",
+      title: "Deploying contract failed",
       body: getErrorMessage(error),
     });
     return rejectWithValue({
@@ -40,10 +60,10 @@ export const connectPasskeyContract = createAsyncThunk<
     try {
       log.instruction({ title: "Connecting contract" });
       const swService = SmartWalletService.getInstance();
-      const result = await swService.connectPasskeyContract();
+      const { contractId, pkId } = await swService.connectPasskeyContract();
       return {
-        contractId: result.contractId,
-        keyId: result.pkId,
+        contractId,
+        keyId: pkId,
       };
     } catch (error) {
       log.error({
@@ -57,3 +77,101 @@ export const connectPasskeyContract = createAsyncThunk<
     }
   }
 );
+
+export const fetchContractAccountAction = createAsyncThunk<
+  { data: ContractAccountDetails },
+  string,
+  { rejectValue: RejectMessage; state: RootState }
+>(
+  "contractAccount/fetchContractAccountAction",
+  async ( contractId, { rejectWithValue }) => {
+    log.request({
+      title: `Fetching contract info`,
+      body: `Contract ID: ${contractId}`,
+    });
+
+    let contractAccount: ContractAccountDetails | null = null;
+    try {
+      contractAccount = await fetchContractAccountDetails(contractId);
+      log.response({
+        title: `Contract info fetched`,
+        body: contractAccount,
+      });
+    } catch (error) {
+      log.error({
+        title: `Fetching contract failed`,
+        body: getErrorString(error),
+      });
+      return rejectWithValue({
+        errorString: getErrorString(error),
+      });
+    }
+    return { data: contractAccount };
+  },
+);
+
+const contractAccountSlice = createSlice({
+  name: "contractAccount",
+  initialState,
+  reducers: {
+    resetContractAccount: () => initialState,
+    resetContractAccountStatus: (state) => {
+      state.status = undefined;
+    },
+    updateContractAccount: (
+      state,
+      action: PayloadAction<Partial<ContractAccountState>>
+    ) => ({
+      ...state,
+      ...action.payload,
+    }),
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createPasskeyContract.pending, (state) => {
+        state.status = ActionStatus.PENDING;
+        state.error = null;
+      })
+      .addCase(createPasskeyContract.fulfilled, (state, action) => {
+        state.status = ActionStatus.SUCCESS;
+        state.contractId = action.payload.contractId;
+        state.keyId = action.payload.keyId;
+      })
+      .addCase(createPasskeyContract.rejected, (state, action) => {
+        state.status = ActionStatus.ERROR;
+        state.error = action.payload?.errorString || "Unknown error occurred";
+      })
+      .addCase(connectPasskeyContract.pending, (state) => {
+        state.status = ActionStatus.PENDING;
+        state.error = null;
+      })
+      .addCase(connectPasskeyContract.fulfilled, (state, action) => {
+        state.status = ActionStatus.SUCCESS;
+        state.contractId = action.payload.contractId
+        state.keyId = action.payload.keyId;
+      })
+      .addCase(connectPasskeyContract.rejected, (state, action) => {
+        state.status = ActionStatus.ERROR;
+        state.error = action.payload?.errorString || "Unknown error occurred";
+      })
+      .addCase(fetchContractAccountAction.pending, (state = initialState) => {
+        state.status = ActionStatus.PENDING;
+      })
+      .addCase(fetchContractAccountAction.fulfilled, (state, action) => {
+        state.status = ActionStatus.SUCCESS;
+        state.data = action.payload.data;
+        state.isAuthenticated = true;
+      })
+      .addCase(fetchContractAccountAction.rejected, (state, action) => {
+        state.status = ActionStatus.ERROR;
+        state.error = action.payload?.errorString || "Unknown error occurred";
+      });
+  },
+});
+
+export const { resetContractAccount, resetContractAccountStatus, updateContractAccount } =
+  contractAccountSlice.actions;
+
+export const contractAccountSelector = (state: RootState) => state.contractAccount;
+
+export const { reducer } = contractAccountSlice;

@@ -23,6 +23,8 @@ const update = (
       }
       break;
     case SearchParams.SECRET_KEY:
+      // Only remove contract ID when setting secret key
+      queryParams.delete(SearchParams.CONTRACT_ID);
       queryParams.set(SearchParams.SECRET_KEY, value);
       break;
     case SearchParams.UNTRUSTED_ASSETS:
@@ -30,6 +32,14 @@ const update = (
         SearchParams.UNTRUSTED_ASSETS,
         updateValue({ currentVal: currentParamValue, newVal: value }),
       );
+      break;
+    case SearchParams.CONTRACT_ID:
+      // Clear all auth-related params when setting contract ID
+      queryParams.delete(SearchParams.SECRET_KEY);
+      queryParams.delete(SearchParams.CLAIMABLE_BALANCE_SUPPORTED);
+      queryParams.delete(SearchParams.UNTRUSTED_ASSETS);
+      // Set the new contract ID
+      queryParams.set(SearchParams.CONTRACT_ID, value);
       break;
     default:
       throw new Error(`Search param \`${searchParam}\` does not exist`);

@@ -27,6 +27,7 @@ export enum SearchParams {
   UNTRUSTED_ASSETS = "untrustedAssets",
   ASSET_OVERRIDES = "assetOverrides",
   CLAIMABLE_BALANCE_SUPPORTED = "claimableBalanceSupported",
+  CONTRACT_ID = "contractId",
 }
 
 export enum AssetCategory {
@@ -403,6 +404,7 @@ export interface LogItemProps {
 
 export interface Store {
   account: AccountInitialState;
+  contractAccount: ContractAccountState;
   activeAsset: ActiveAssetInitialState;
   allAssets: AllAssetsInitialState;
   assetOverrides: AssetOverridesInitialState;
@@ -783,3 +785,41 @@ export type FetchAccountError =
   | BadRequestError
   | NetworkError
   | (NotFoundError & NotFundedError);
+
+export interface ContractAccountState {
+  status: ActionStatus | undefined;
+  contractId: string;
+  data: ContractAccountDetails | null;
+  keyId: string;
+  isAuthenticated: boolean;
+  error: string | null;
+}
+
+export interface ContractAccountDetails {
+  contract: string;
+  account?: string;
+  created: number;
+  creator: string;
+  payments?: number;
+  trades?: number;
+  wasm?: string;
+  storage_entries?: number;
+  validation?: {
+    status?: "verified" | "unverified";
+    repository?: string;
+    commit?: string;
+    package?: string;
+    make?: string;
+    ts?: number;
+  };
+  versions?: number;
+  salt?: string;
+  asset?: string;
+  code?: string;
+  issuer?: string;
+  functions?: {
+    invocations: number;
+    subinvocations: number;
+    function: string;
+  }[];
+}
