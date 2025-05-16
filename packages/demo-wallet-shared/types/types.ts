@@ -23,6 +23,7 @@ export enum SearchParams {
   UNTRUSTED_ASSETS = "untrustedAssets",
   ASSET_OVERRIDES = "assetOverrides",
   CLAIMABLE_BALANCE_SUPPORTED = "claimableBalanceSupported",
+  CONTRACT_ID = "contractId",
 }
 
 export enum AssetCategory {
