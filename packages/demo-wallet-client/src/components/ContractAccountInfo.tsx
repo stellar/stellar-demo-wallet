@@ -15,7 +15,6 @@ import {
 } from "../ducks/contractAccount";
 import { AppDispatch } from "../config/store";
 import { useRedux } from "../hooks/useRedux";
-import { SmartWalletService } from "../services/SmartWalletService";
 
 export const ContractAccountInfo = () => {
   const { contractAccount } = useRedux("contractAccount")
@@ -33,11 +32,6 @@ export const ContractAccountInfo = () => {
       dispatch(fetchContractAccountAction(contractId));
     }
   };
-
-  const fundContract = async () => {
-    SmartWalletService.getInstance();
-    await SmartWalletService.getInstance().fundContractWithXLM(contractId)
-  }
 
   return (
     <Layout.Inset>
@@ -106,18 +100,6 @@ export const ContractAccountInfo = () => {
           </div>
         </div>
       )}
-
-      {
-        <div className="AccountInfoRow">
-          <div className="AccountInfoCell">
-            <div className="InfoButtonWrapper">
-              <TextLink onClick={fundContract}>
-                fund contract account
-              </TextLink>
-            </div>
-          </div>
-        </div>
-      }
     </Layout.Inset>
   );
 };

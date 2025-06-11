@@ -51,7 +51,8 @@ export const Landing = () => {
     dispatch(createRandomAccount());
   };
 
-  const isPending = account.status === ActionStatus.PENDING;
+  const isPending = account.status === ActionStatus.PENDING ||
+    contractAccount.status === ActionStatus.PENDING;
 
   return (
     <Layout.Inset>
@@ -114,6 +115,7 @@ export const Landing = () => {
               >
                 Create new contract account using Passkey (testnet only)
               </TextLink>
+              {!isCreatePasskeyModalVisible && isPending && <Loader />}
             </div>
           </div>
         </div>

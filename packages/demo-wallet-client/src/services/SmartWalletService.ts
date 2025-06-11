@@ -1,28 +1,28 @@
 import { PasskeyService } from "./PasskeyService";
 import {
-  Address, Asset,
+  Address, Asset, authorizeEntry,
   hash,
   Keypair, nativeToScVal, Networks, Operation,
   StrKey,
   TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
-// @ts-ignore
 import { Client, basicNodeSigner } from "@stellar/stellar-sdk/contract";
 import {
+  GetTxStatus,
+  SendTxStatus,
   SOROBAN_CONFIG,
   SOURCE_KEYPAIR_SECRET,
 } from "../config/constants";
 import base64url from "base64url";
-// @ts-ignore
 import { Api, Server } from "@stellar/stellar-sdk/rpc";
-import { RpcServer } from "@stellar/stellar-sdk/lib/rpc/server";
+import { SigningCallback } from "@stellar/stellar-base";
 
 export class SmartWalletService {
   private static instance: SmartWalletService;
   private passkeyService: PasskeyService;
   private readonly sourceKeypair: Keypair;
-  private rpcClient: RpcServer;
+  private server: Server;
 
   public static getInstance(): SmartWalletService {
     if (!SmartWalletService.instance) {
@@ -34,7 +34,7 @@ export class SmartWalletService {
   constructor() {
     this.passkeyService = new PasskeyService();
     this.sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
-    this.rpcClient = new Server(SOROBAN_CONFIG.RPC_URL);
+    this.server = new Server(SOROBAN_CONFIG.RPC_URL);
   }
 
   public async createPasskeyContract(passkeyName: string) {
@@ -97,106 +97,97 @@ export class SmartWalletService {
   }
 
   public async fundContractWithXLM(contractId: string) {
-    const sourceAcc = await this.rpcClient.getAccount(this.sourceKeypair.publicKey());
     const fromAcc = await this.generateFundedKeypair();
+    return await this.transfer(
+      Asset.native().contractId(Networks.TESTNET),
+      fromAcc.publicKey(),
+      contractId,
+      9999,
+      fromAcc
+    );
+  }
 
-    // const op = await this.buildContractCallOp(contractId)
-    const op = Operation.invokeContractFunction({
-      contract: Asset.native().contractId(Networks.TESTNET),
-      function: 'transfer',
-      args: [
-        nativeToScVal(fromAcc.publicKey(), { type: 'address' }), // from
-        nativeToScVal(contractId, { type: 'address' }),  // to
-        nativeToScVal(10000000, { type: 'i128' }) // amount
-      ],
-    })
+  public async transfer (
+    assetContract: string,
+    fromAcc: string,
+    toAcc: string,
+    amount: number,
+    signer: Keypair | SigningCallback,
+  ) {
+    const sourceAcc = await this.server.getAccount(this.sourceKeypair.publicKey());
 
     // 1. Build transaction
-    console.log(1)
     const tx = new TransactionBuilder(
       sourceAcc,
       {
         networkPassphrase: Networks.TESTNET,
-        fee: '10000',
+        fee: SOROBAN_CONFIG.MAX_FEE
       })
-      .addOperation(op)
+      .addOperation(Operation.invokeContractFunction({
+        contract: assetContract,
+        function: 'transfer',
+        args: [
+          nativeToScVal(fromAcc, { type: 'address' }), // from
+          nativeToScVal(toAcc, { type: 'address' }),  // to
+          nativeToScVal(amount * SOROBAN_CONFIG.ONE, { type: 'i128' }) // amount
+        ],
+      }))
       .setTimeout(300)
       .build();
 
-    // // 2. Simulate transaction
-    // console.log(2)
-    // const simulatedTx = await this.rpcClient.simulateTransaction(tx);
-    // if(!Api.isSimulationSuccess(simulatedTx)) {
-    //   throw new Error(`Transaction simulation failed: ${simulatedTx}`);
-    // }
-    //
-    // // 3. Sign auth entries
-    // console.log(3)
-    // // @ts-ignore
-    // const signedEntries = await Promise.all(simulatedTx.result.auth?.map(entry =>
-    //     authorizeEntry(entry, fromAcc, simulatedTx.latestLedger + 600, SOROBAN_CONFIG.NETWORK_PASSPHRASE)
-    //   ) ?? []
-    // );
-    //
-    // // Step 4: Simulate again to get updated resources
-    // console.log(4)
-    // const rawOp = tx.operations[0] as Operation.InvokeHostFunction;
-    // const preppedTx = TransactionBuilder.cloneFrom(tx)
-    //   .clearOperations()
-    //   .addOperation(
-    //     Operation.invokeHostFunction({
-    //       ...rawOp,
-    //       auth: signedEntries,
-    //     }),
-    //   ).build()
+    // 2. Simulate transaction
+    const simulatedTx = await this.server.simulateTransaction(tx);
+    if (Api.isSimulationError(simulatedTx)) {
+      throw new Error(simulatedTx.error);
+    }
 
-    // const preppedTx = new TransactionBuilder(
-    //   sourceAcc,
-    //   {
-    //     fee: '10000',
-    //     networkPassphrase: SOROBAN_CONFIG.NETWORK_PASSPHRASE,
-    //   })
-    //   .addOperation(Operation.invokeHostFunction({
-    //     ...rawOp,
-    //     auth: signedEntries,
-    //   }))
-    //   .setTimeout(30)
-    //   .build();
+    // 3. Sign auth entries
+    const signedEntries = await Promise.all(simulatedTx.result?.auth?.map(entry =>
+      authorizeEntry(entry, signer, simulatedTx.latestLedger + 600, Networks.TESTNET)
+    ) ?? []
+    );
 
-    const preppedTx = await this.rpcClient.prepareTransaction(tx)
-    preppedTx.sign(this.sourceKeypair)
+    // Step 4: Simulate again to get updated resources
+    const rawOp = tx.operations[0] as Operation.InvokeHostFunction;
+    const readyTx = TransactionBuilder.cloneFrom(tx)
+      .clearOperations()
+      .addOperation(
+        Operation.invokeHostFunction({
+          ...rawOp,
+          auth: signedEntries,
+        }),
+      ).build()
 
-    // Step 5: Send the transaction
-    // console.log(5)
-    const sendResult = await this.rpcClient.sendTransaction(preppedTx);
-    if (sendResult.status === 'ERROR') {
-      const errorXDR = sendResult.errorResult; // This is likely an xdr.TransactionResult
+    // Step 5: Prepare the transaction
+    const preppedTx = await this.server.prepareTransaction(readyTx)
+    preppedTx.sign(this.sourceKeypair);
 
-      try {
-        // @ts-ignore
-        const result = xdr.TransactionResult.fromXDR(errorXDR.toXDR()); // or .resultXdr if raw XDR string
-        console.log(result.result()); // Now you can see what the actual error is
-      } catch (e) {
-        console.error("Failed to parse error XDR:", e);
+    // Step 6: Send the transaction
+    const response = await this.server.sendTransaction(preppedTx);
+    if (response.errorResult) {
+      throw new Error(response.errorResult.result().toString());
+    }
+
+    if (response.status === SendTxStatus.Pending) {
+      let txResponse = await this.server.getTransaction(response.hash);
+
+      // Poll this until the status is not "NOT_FOUND"
+      while (txResponse.status === GetTxStatus.NotFound) {
+        // See if the transaction is complete, else wait a second
+        txResponse = await this.server.getTransaction(response.hash);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
+      return response;
+    } else {
+      throw new Error(
+        `Unabled to submit transaction, status: ${response.status}`,
+      );
     }
   }
 
-  // private async buildContractCallOp(contractId: string) {
-  //   const fromAcc = await this.generateFundedKeypair()
-  //   const tokenContract = new Contract(Asset.native().contractId(Networks.TESTNET));
-  //
-  //   const scFrom = accountToScVal(fromAcc.publicKey());
-  //   const scTo = accountToScVal(contractId);
-  //   const scAmount = new XdrLargeInt("i128", 10000).toScVal();
-  //
-  //   return tokenContract.call("transfer",
-  //     ...[ scFrom, scTo, scAmount ]);
-  // }
-
   private async generateFundedKeypair() {
     const keypair = Keypair.random();
-    await this.rpcClient.requestAirdrop(keypair.publicKey());
+    await this.server.requestAirdrop(keypair.publicKey());
     return keypair;
   }
 }
