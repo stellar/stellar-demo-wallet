@@ -1,21 +1,31 @@
 import { PasskeyService } from "./PasskeyService";
 import {
-  Address, Asset, authorizeEntry,
+  Address,
+  Asset,
+  authorizeEntry,
   hash,
-  Keypair, nativeToScVal, Networks, Operation,
+  Keypair,
+  nativeToScVal,
+  Networks,
+  Operation,
   StrKey,
+  Transaction,
   TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
-import { Client, basicNodeSigner } from "@stellar/stellar-sdk/contract";
+import { basicNodeSigner, Client } from "@stellar/stellar-sdk/contract";
 import {
-  GetTxStatus,
   SendTxStatus,
   SOROBAN_CONFIG,
   SOURCE_KEYPAIR_SECRET,
 } from "../config/constants";
 import base64url from "base64url";
-import { Api, Server } from "@stellar/stellar-sdk/rpc";
+import {
+  Api,
+  BasicSleepStrategy,
+  parseRawSimulation,
+  Server,
+} from "@stellar/stellar-sdk/rpc";
 import { SigningCallback } from "@stellar/stellar-base";
 
 export class SmartWalletService {
@@ -142,47 +152,81 @@ export class SmartWalletService {
     }
 
     // 3. Sign auth entries
-    const signedEntries = await Promise.all(simulatedTx.result?.auth?.map(entry =>
+    simulatedTx.result!.auth = await Promise.all(simulatedTx.result?.auth?.map(entry =>
       authorizeEntry(entry, signer, simulatedTx.latestLedger + 600, Networks.TESTNET)
     ) ?? []
     );
 
-    // Step 4: Simulate again to get updated resources
-    const rawOp = tx.operations[0] as Operation.InvokeHostFunction;
-    const readyTx = TransactionBuilder.cloneFrom(tx)
-      .clearOperations()
-      .addOperation(
-        Operation.invokeHostFunction({
-          ...rawOp,
-          auth: signedEntries,
-        }),
-      ).build()
-
-    // Step 5: Prepare the transaction
-    const preppedTx = await this.server.prepareTransaction(readyTx)
+    // 4. Assemble the transaction with signed auth entries
+    const preppedTx = await this.assembleTransaction(tx, simulatedTx);
     preppedTx.sign(this.sourceKeypair);
 
-    // Step 6: Send the transaction
+    // 5: Send the transaction
     const response = await this.server.sendTransaction(preppedTx);
     if (response.errorResult) {
       throw new Error(response.errorResult.result().toString());
     }
 
     if (response.status === SendTxStatus.Pending) {
-      let txResponse = await this.server.getTransaction(response.hash);
-
-      // Poll this until the status is not "NOT_FOUND"
-      while (txResponse.status === GetTxStatus.NotFound) {
-        // See if the transaction is complete, else wait a second
-        txResponse = await this.server.getTransaction(response.hash);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-      return response;
+      return await this.server.pollTransaction(
+        response.hash,
+        {
+          attempts: 100,
+          sleepStrategy: BasicSleepStrategy,
+        }
+      );
     } else {
       throw new Error(
         `Unabled to submit transaction, status: ${response.status}`,
       );
     }
+  }
+
+  /**
+   * Assembles a final `Transaction` from a base transaction and its simulation response.
+   *
+   * This is a simplified version of the `assembleTransaction()` method in `js-stellar-sdk`,
+   * tailored specifically for demo wallet transfer functionality using Soroban invokeHostFunction.
+   *
+   * ⚠️ WARNING: Do not use this function unless you fully understand the implications.
+   * It bypasses certain validations and assumptions made in the official SDK. This is meant for
+   * internal demo use only.
+   *
+   * @param tx - The base transaction to be assembled upon. Should contain a Soroban `invokeHostFunction` operation.
+   * @param simResponse - The result of simulating the transaction, containing signed auth entries if required.
+   * @returns A fully assembled `Transaction` ready submission.
+   */
+  private async assembleTransaction(
+    tx: Transaction,
+    simResponse: Api.SimulateTransactionResponse
+  ) {
+    const success = parseRawSimulation(simResponse);
+    if (!Api.isSimulationSuccess(success)) {
+      throw new Error(`simulation incorrect: ${JSON.stringify(success)}`);
+    }
+    const classicFeeNum = parseInt(tx.fee) || 0;
+    const minResourceFeeNum = parseInt(success.minResourceFee) || 0;
+    const txnBuilder = TransactionBuilder.cloneFrom(tx, {
+      fee: (classicFeeNum + minResourceFeeNum).toString(),
+      sorobanData: success.transactionData.build(),
+      networkPassphrase: tx.networkPassphrase
+    });
+
+    if (tx.operations[0].type === 'invokeHostFunction') {
+      // In this case, we don't want to clone the operation, so we drop it.
+      txnBuilder.clearOperations();
+
+      const invokeOp: Operation.InvokeHostFunction = tx.operations[0];
+      const existingAuth = invokeOp.auth ?? [];
+      txnBuilder.addOperation(
+        Operation.invokeHostFunction({
+          source: invokeOp.source,
+          func: invokeOp.func,
+          auth: existingAuth.length > 0 ? existingAuth : success.result!.auth
+        })
+      );
+    }
+    return txnBuilder.build();
   }
 
   private async generateFundedKeypair() {
