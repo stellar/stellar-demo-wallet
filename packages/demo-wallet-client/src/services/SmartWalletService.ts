@@ -8,6 +8,7 @@ import {
   nativeToScVal,
   Networks,
   Operation,
+  SigningCallback,
   StrKey,
   Transaction,
   TransactionBuilder,
@@ -26,7 +27,6 @@ import {
   parseRawSimulation,
   Server,
 } from "@stellar/stellar-sdk/rpc";
-import { SigningCallback } from "@stellar/stellar-base";
 
 export class SmartWalletService {
   private static instance: SmartWalletService;
