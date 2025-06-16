@@ -34,6 +34,8 @@ export const createPasskeyContract = createAsyncThunk<
     log.instruction({ title: "Deploying new contract" });
     const swService = SmartWalletService.getInstance();
     const { contractId, pkId } = await swService.createPasskeyContract(passkeyName);
+    log.instruction({ title: "Funding contract" });
+    await swService.fundContractWithXLM(contractId);
     return {
       contractId,
       keyId: pkId,

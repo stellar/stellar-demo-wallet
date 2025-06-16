@@ -15,7 +15,7 @@ import { Asset } from "types/types";
 import { ContractAccountInfo } from "../components/ContractAccountInfo";
 
 export const Account = () => {
-  const { account, contractAccount} = useRedux("account", "contractAccount");
+  const { account, contractAccount } = useRedux("account", "contractAccount");
   const [sendPaymentModalVisible, setSendPaymentModalVisible] = useState(false);
   const [currentAsset, setCurrentAsset] = useState<Asset | undefined>();
 
