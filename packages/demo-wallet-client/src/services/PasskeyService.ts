@@ -1,11 +1,9 @@
 import {
+  AuthenticatorAttestationResponseJSON,
   startAuthentication,
   startRegistration,
 } from "@simplewebauthn/browser";
 
-import {
-  AuthenticatorAttestationResponseJSON
-} from "@simplewebauthn/browser/esm/types";
 import * as cbor from 'cbor';
 import crypto from "crypto";
 import base64url from "base64url";
