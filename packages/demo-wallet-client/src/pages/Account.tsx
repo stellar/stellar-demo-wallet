@@ -13,6 +13,7 @@ import { resetActiveAssetAction } from "ducks/activeAsset";
 import { useRedux } from "hooks/useRedux";
 import { Asset } from "types/types";
 import { ContractAccountInfo } from "../components/ContractAccountInfo";
+import { ContractAccountAssets } from "../components/ContractAccountAssets";
 
 export const Account = () => {
   const { account, contractAccount } = useRedux("account", "contractAccount");
@@ -35,16 +36,27 @@ export const Account = () => {
     return null;
   }
 
+  const AccountDetails = () => {
+    return (
+      <>
+        {account.data?.id ? (
+          <>
+            <AccountInfo />
+            <Assets onSendPayment={handleSendPayment} />
+          </>
+        ) : (
+          <>
+            <ContractAccountInfo />
+            <ContractAccountAssets />
+          </>
+        )}
+      </>
+    );
+  };
+
   return (
     <>
-      {/* Account */}
-      <AccountInfo />
-
-      {/* Contract Account Info */}
-      <ContractAccountInfo />
-
-      {/* Assets / Balances */}
-      <Assets onSendPayment={handleSendPayment} />
+      <AccountDetails />
 
       {/* SEP-6 Deposit */}
       <Sep6Deposit />
