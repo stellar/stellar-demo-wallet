@@ -62,10 +62,23 @@ export const AddContractAsset = ({ onClose }: { onClose: () => void }) => {
 
     try {
       const asset = await validateContractAsset(assetCode, issuerPublicKey, homeDomain);
-      const search = searchParam.update(
+
+      // First update the contract assets parameter
+      let search = searchParam.update(
         "contractAssets" as any,
         `${asset.assetCode}:${asset.assetIssuer}`,
       );
+
+      // If home domain is provided, also update the asset overrides
+      if (asset.homeDomain) {
+        search = searchParam.updateKeyPair({
+          param: "assetOverrides" as any,
+          itemId: `${asset.assetCode}:${asset.assetIssuer}`,
+          keyPairs: { homeDomain: asset.homeDomain },
+          urlSearchParams: new URLSearchParams(search),
+        });
+      }
+
       navigate(search);
       setIsValidating(false);
       log.instruction({

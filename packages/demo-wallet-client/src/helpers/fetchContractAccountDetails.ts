@@ -1,4 +1,4 @@
-import { testInfo } from "../config/constants";
+import { STELLAR_EXPERT_API } from "../config/constants";
 import {
   Asset, AssetType,
   ContractAccountDetails,
@@ -16,22 +16,21 @@ import {
 } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 
 export const fetchContractAccountInfo = async (
-  _contractId: string,
+  contractId: string,
 ): Promise<ContractAccountDetails> => {
-  return testInfo;
-  // try {
-  //   const response = await fetch(
-  //     `${STELLAR_EXPERT_API}/contract/${contractId}`,
-  //   );
-  //   const responseJson = await response.json();
-  //   if (responseJson.error) {
-  //     throw responseJson.error;
-  //   }
-  //   return responseJson;
-  // } catch (error) {
-  //   console.error("Error fetching contract account details:", error);
-  //   throw error;
-  // }
+  try {
+    const response = await fetch(
+      `${STELLAR_EXPERT_API}/contract/${contractId}`,
+    );
+    const responseJson = await response.json();
+    if (responseJson.error) {
+      throw responseJson.error;
+    }
+    return responseJson;
+  } catch (error) {
+    console.error("Error fetching contract account details:", error);
+    throw error;
+  }
 };
 
 export const fetchContractAssets = async (

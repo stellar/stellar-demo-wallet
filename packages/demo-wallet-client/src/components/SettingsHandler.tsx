@@ -143,6 +143,7 @@ export const SettingsHandler = ({
           fetchContractAssetsAction({
             assetsString: contractAssetsParam,
             contractId: contractIdParam,
+            assetOverridesString: assetOverridesParam || undefined,
           }),
         );
       } catch (error) {
@@ -152,7 +153,7 @@ export const SettingsHandler = ({
         });
       }
     }
-  }, [contractAssetsParam, contractIdParam, dispatch]);
+  }, [contractAssetsParam, contractIdParam, assetOverridesParam, dispatch]);
 
   return <>{children}</>;
 };

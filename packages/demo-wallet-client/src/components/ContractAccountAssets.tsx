@@ -13,7 +13,7 @@ import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings
 import { AppDispatch } from "../config/store";
 import { useDispatch } from "react-redux";
 import {
-  addContractAssetAction,
+  fetchContractAssetsAction,
   removeContractAssetAction,
   resetContractAssetsAction,
 } from "../ducks/contractAssets";
@@ -40,11 +40,12 @@ export const ContractAccountAssets = () => {
     }
 
     // Always fetch fresh data from URL
-    dispatch(addContractAssetAction({
+    dispatch(fetchContractAssetsAction({
       assetsString: settings.contractAssets,
       contractId: contractAccount.contractId,
+      assetOverridesString: settings.assetOverrides || undefined,
     }));
-  }, [settings.contractAssets, contractAccount.contractId, dispatch, contractAccount.status]);
+  }, [settings.contractAssets, settings.assetOverrides, contractAccount.contractId, dispatch, contractAccount.status]);
 
   const [activeModal, setActiveModal] = useState("");
   enum ModalType {
@@ -57,9 +58,15 @@ export const ContractAccountAssets = () => {
 
   const handleRemoveAsset = (asset: Asset) => {
     const { assetString } = asset;
+
+    let search= searchParam.remove(SearchParams.CONTRACT_ASSETS, assetString);
+    search = searchParam.removeKeyPair({
+      param: SearchParams.ASSET_OVERRIDES,
+      itemId: asset.assetString,
+      urlSearchParams: new URLSearchParams(search)
+    });
     
-    // Use the asset string directly for removal - no conversion needed
-    navigate(searchParam.remove(SearchParams.CONTRACT_ASSETS, assetString));
+    navigate(search);
     dispatch(removeContractAssetAction(assetString));
     log.instruction({ title: `Asset \`${assetString}\` removed` });
   };

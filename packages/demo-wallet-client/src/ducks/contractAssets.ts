@@ -5,6 +5,7 @@ import {
   getErrorMessage,
 } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { log } from "demo-wallet-shared/build/helpers/log";
+import { searchKeyPairStringToArray } from "demo-wallet-shared/build/helpers/searchKeyPairStringToArray";
 import {
   ActionStatus,
   Asset,
@@ -18,20 +19,29 @@ import {
 
 export const fetchContractAssetsAction = createAsyncThunk<
   Asset[],
-  { assetsString: string; contractId: string },
+  { assetsString: string; contractId: string; assetOverridesString?: string },
   { rejectValue: RejectMessage; state: RootState }
 >(
   "contractAssets/fetchContractAssetsAction",
-  async ({ assetsString, contractId }, { rejectWithValue }) => {
-    const assetStrings = assetsString.split(",").filter(Boolean);
+  async ({ assetsString, contractId, assetOverridesString }, { rejectWithValue }) => {
     try {
+      // Parse basic asset strings from CONTRACT_ASSETS
+      const assetStrings = assetsString.split(",").filter(Boolean);
+
+      // Parse home domain overrides from ASSET_OVERRIDES
+      const assetOverrides = assetOverridesString ? searchKeyPairStringToArray(assetOverridesString) : [];
+
       const userAssets: Array<{ code: string; issuer: string; homeDomain?: string }> =
         assetStrings.map(assetString => {
           const [code, issuer] = assetString.split(":");
+
+          // Find matching home domain override
+          const override = assetOverrides.find((override: any) => override.assetString === assetString);
+
           return {
             code,
             issuer,
-            homeDomain: undefined,
+            homeDomain: override?.homeDomain,
           };
         });
       return await fetchContractAssets(contractId, userAssets);
@@ -45,20 +55,28 @@ export const fetchContractAssetsAction = createAsyncThunk<
 
 export const addContractAssetAction = createAsyncThunk<
   Asset,
-  { assetsString: string; contractId: string },
+  { assetsString: string; contractId: string; assetOverridesString?: string },
   { rejectValue: RejectMessage; state: RootState }
 >(
   "contractAssets/addContractAssetAction",
-  async ({ assetsString, contractId }, { rejectWithValue }) => {
+  async ({ assetsString, contractId, assetOverridesString }, { rejectWithValue }) => {
     const assetStrings = assetsString.split(",").filter(Boolean);
     const lastAssetString = assetStrings[assetStrings.length - 1];
+    
     try {
+      // Parse home domain overrides from ASSET_OVERRIDES
+      const assetOverrides = assetOverridesString ? searchKeyPairStringToArray(assetOverridesString) : [];
+      
       // Convert single asset string to userAssets format
       const [code, issuer] = lastAssetString.split(":");
+      
+      // Find matching home domain override
+      const override = assetOverrides.find((override: any) => override.assetString === lastAssetString);
+      
       const userAsset = {
         code,
         issuer,
-        homeDomain: undefined,
+        homeDomain: override?.homeDomain,
       };
       return await fetchContractAsset(contractId, userAsset); // Return the single asset
     } catch (e) {
