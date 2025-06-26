@@ -17,6 +17,32 @@ import {
   fetchContractAssets,
 } from "../helpers/fetchContractAccountDetails";
 
+// Shared helper function to parse assets and overrides
+const parseAssetsAndOverrides = (assetsString: string, assetOverridesString?: string) => {
+  // Parse basic asset strings
+  const assetStrings = assetsString.split(",").filter(Boolean);
+  
+  // Parse home domain overrides
+  const assetOverrides = assetOverridesString ? searchKeyPairStringToArray(assetOverridesString) : [];
+  
+  // Convert to userAssets format
+  const userAssets: Array<{ code: string; issuer: string; homeDomain?: string }> =
+    assetStrings.map(assetString => {
+      const [code, issuer] = assetString.split(":");
+      
+      // Find matching home domain override
+      const override = assetOverrides.find((override: any) => override.assetString === assetString);
+      
+      return {
+        code,
+        issuer,
+        homeDomain: override?.homeDomain,
+      };
+    });
+    
+  return { userAssets };
+};
+
 export const fetchContractAssetsAction = createAsyncThunk<
   Asset[],
   { assetsString: string; contractId: string; assetOverridesString?: string },
@@ -25,25 +51,7 @@ export const fetchContractAssetsAction = createAsyncThunk<
   "contractAssets/fetchContractAssetsAction",
   async ({ assetsString, contractId, assetOverridesString }, { rejectWithValue }) => {
     try {
-      // Parse basic asset strings from CONTRACT_ASSETS
-      const assetStrings = assetsString.split(",").filter(Boolean);
-
-      // Parse home domain overrides from ASSET_OVERRIDES
-      const assetOverrides = assetOverridesString ? searchKeyPairStringToArray(assetOverridesString) : [];
-
-      const userAssets: Array<{ code: string; issuer: string; homeDomain?: string }> =
-        assetStrings.map(assetString => {
-          const [code, issuer] = assetString.split(":");
-
-          // Find matching home domain override
-          const override = assetOverrides.find((override: any) => override.assetString === assetString);
-
-          return {
-            code,
-            issuer,
-            homeDomain: override?.homeDomain,
-          };
-        });
+      const { userAssets } = parseAssetsAndOverrides(assetsString, assetOverridesString);
       return await fetchContractAssets(contractId, userAssets);
     } catch (error) {
       return rejectWithValue({
@@ -60,25 +68,11 @@ export const addContractAssetAction = createAsyncThunk<
 >(
   "contractAssets/addContractAssetAction",
   async ({ assetsString, contractId, assetOverridesString }, { rejectWithValue }) => {
-    const assetStrings = assetsString.split(",").filter(Boolean);
-    const lastAssetString = assetStrings[assetStrings.length - 1];
-    
     try {
-      // Parse home domain overrides from ASSET_OVERRIDES
-      const assetOverrides = assetOverridesString ? searchKeyPairStringToArray(assetOverridesString) : [];
+      const { userAssets } = parseAssetsAndOverrides(assetsString, assetOverridesString);
+      const lastUserAsset = userAssets[userAssets.length - 1];
       
-      // Convert single asset string to userAssets format
-      const [code, issuer] = lastAssetString.split(":");
-      
-      // Find matching home domain override
-      const override = assetOverrides.find((override: any) => override.assetString === lastAssetString);
-      
-      const userAsset = {
-        code,
-        issuer,
-        homeDomain: override?.homeDomain,
-      };
-      return await fetchContractAsset(contractId, userAsset); // Return the single asset
+      return await fetchContractAsset(contractId, lastUserAsset);
     } catch (e) {
       const error = getCatchError(e);
       log.error({ title: error.toString() });
