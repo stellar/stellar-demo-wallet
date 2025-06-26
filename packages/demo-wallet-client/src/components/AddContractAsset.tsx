@@ -5,8 +5,7 @@ import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessag
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
-import { Horizon } from "@stellar/stellar-sdk";
-import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
+import { getValidatedAsset } from "demo-wallet-shared/build/helpers/getValidatedAsset";
 
 export const AddContractAsset = ({ onClose }: { onClose: () => void }) => {
   const [assetCode, setAssetCode] = useState("");
@@ -17,51 +16,17 @@ export const AddContractAsset = ({ onClose }: { onClose: () => void }) => {
 
   const navigate = useNavigate();
 
-  const validateContractAsset = async (code: string, issuer: string, domain?: string) => {
-    const networkUrl = getNetworkConfig().url;
-    const server = new Horizon.Server(networkUrl);
-
-    // Handle XLM/native asset
-    if (isNativeAsset(code)) {
-      return {
-        assetCode: "XLM",
-        assetIssuer: "native",
-        homeDomain: domain,
-      };
-    }
-
-    // Validate non-native asset exists on Stellar network
-    if (!issuer) {
-      throw new Error("Issuer public key is required for non-native assets");
-    }
-
-    try {
-      const assetResponse = await server
-        .assets()
-        .forCode(code)
-        .forIssuer(issuer)
-        .call();
-
-      if (!assetResponse.records.length) {
-        throw new Error(`Asset ${code}:${issuer} does not exist on the Stellar network`);
-      }
-
-      return {
-        assetCode: code,
-        assetIssuer: issuer,
-        homeDomain: domain,
-      };
-    } catch (error) {
-      throw new Error(`Failed to validate asset: ${getErrorMessage(error)}`);
-    }
-  };
-
   const handleSetContractAsset = async () => {
     setErrorMessage("");
     setIsValidating(true);
 
     try {
-      const asset = await validateContractAsset(assetCode, issuerPublicKey, homeDomain);
+      const asset = await getValidatedAsset({
+        assetCode,
+        issuerPublicKey,
+        homeDomain,
+        networkUrl: getNetworkConfig().url,
+      });
 
       // First update the contract assets parameter
       let search = searchParam.update(

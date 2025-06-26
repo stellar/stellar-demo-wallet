@@ -13,7 +13,7 @@ import {
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { getPresetAssets } from "demo-wallet-shared/build/helpers/getPresetAssets";
-import { getValidatedUntrustedAsset } from "demo-wallet-shared/build/helpers/getValidatedUntrustedAsset";
+import { getValidatedAsset } from "demo-wallet-shared/build/helpers/getValidatedAsset";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { shortenStellarKey } from "demo-wallet-shared/build/helpers/shortenStellarKey";
@@ -84,7 +84,7 @@ export const AddPresetAsset = ({ onClose }: { onClose: () => void }) => {
           throw new Error(errorMsg);
         }
 
-        const asset = await getValidatedUntrustedAsset({
+        const asset = await getValidatedAsset({
           assetCode,
           homeDomain,
           issuerPublicKey,
