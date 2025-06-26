@@ -155,5 +155,23 @@ export const SettingsHandler = ({
     }
   }, [contractAssetsParam, contractIdParam, assetOverridesParam, dispatch]);
 
+  // contract assets
+  useEffect(() => {
+    const cleanedAssets = contractAssetsParam
+      ?.split(",")
+      .reduce(
+        (unique: string[], item: string) =>
+          unique.includes(item) ? unique : [...unique, item],
+        [],
+      )
+      .join(",");
+
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.CONTRACT_ASSETS]: cleanedAssets || "",
+      }),
+    );
+  }, [contractAssetsParam, dispatch]);
+
   return <>{children}</>;
 };
