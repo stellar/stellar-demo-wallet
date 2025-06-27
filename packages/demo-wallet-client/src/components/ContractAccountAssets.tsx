@@ -16,11 +16,19 @@ import {
   fetchContractAssetsAction,
   removeContractAssetAction,
   resetContractAssetsAction,
+  resetContractAssetStatusAction,
 } from "../ducks/contractAssets";
 import { ActionStatus, Asset, SearchParams } from "../types/types";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { useNavigate } from "react-router-dom";
+import {
+  getPresetAssets
+} from "demo-wallet-shared/build/helpers/getPresetAssets";
+import {
+  PRESET_CONTRACT_ASSETS
+} from "demo-wallet-shared/build/constants/presetAssets";
+import { AddPresetContractAsset } from "./AddPresetContractAsset";
 
 export const ContractAccountAssets = () => {
   const { contractAccount, contractAssets, settings} = useRedux("contractAccount", "contractAssets", "settings");
@@ -50,6 +58,7 @@ export const ContractAccountAssets = () => {
   const [activeModal, setActiveModal] = useState("");
   enum ModalType {
     ADD_ASSET = "ADD_ASSET",
+    ADD_PRESET_ASSET = "ADD_PRESET_ASSET",
   }
 
   const handleCloseModal = () => {
@@ -69,6 +78,7 @@ export const ContractAccountAssets = () => {
     navigate(search);
     dispatch(removeContractAssetAction(assetString));
     log.instruction({ title: `Asset \`${assetString}\` removed` });
+    dispatch(resetContractAssetStatusAction());
   };
 
   return (
@@ -95,12 +105,19 @@ export const ContractAccountAssets = () => {
         </div>
         <Layout.Inset>
           <div className="BalancesButtons">
-            <Button 
-              onClick={() => setActiveModal(ModalType.ADD_ASSET)} 
+            <Button
+              onClick={() => setActiveModal(ModalType.ADD_ASSET)}
               disabled={false}
             >
               Add asset
             </Button>
+            {getPresetAssets(contractAssets.data, PRESET_CONTRACT_ASSETS).length > 0 && (
+              <TextLink
+                onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
+              >
+                Select from preset assets
+              </TextLink>
+            )}
           </div>
         </Layout.Inset>
       </div>
@@ -112,6 +129,10 @@ export const ContractAccountAssets = () => {
       >
         {activeModal === ModalType.ADD_ASSET && (
           <AddContractAsset onClose={handleCloseModal} />
+        )}
+        {/* Add preset asset */}
+        {activeModal === ModalType.ADD_PRESET_ASSET && (
+          <AddPresetContractAsset onClose={handleCloseModal} />
         )}
       </Modal>
     </>
