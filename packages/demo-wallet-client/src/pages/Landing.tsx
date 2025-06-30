@@ -43,7 +43,9 @@ export const Landing = () => {
 
   useEffect(() => {
     if (contractAccount.status === ActionStatus.SUCCESS && !contractAccount.isAuthenticated) {
-      navigate(searchParam.update(SearchParams.CONTRACT_ID, contractAccount.contractId));
+      // list XLM by default
+      let newSearch = searchParam.update(SearchParams.CONTRACT_ASSETS, "XLM:native");
+      navigate(searchParam.update(SearchParams.CONTRACT_ID, contractAccount.contractId, new URLSearchParams(newSearch)));
     }
   }, [contractAccount, contractAccount.contractId, contractAccount.isAuthenticated, contractAccount.status, navigate]);
 
