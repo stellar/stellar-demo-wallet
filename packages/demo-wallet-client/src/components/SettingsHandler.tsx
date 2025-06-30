@@ -11,6 +11,9 @@ import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
 import { ActionStatus, SearchParams } from "types/types";
 import { fetchContractAccountAction } from "../ducks/contractAccount";
+import {
+  fetchContractAssetsAction,
+} from "../ducks/contractAssets";
 
 export const SettingsHandler = ({
   children,
@@ -26,6 +29,7 @@ export const SettingsHandler = ({
   const secretKeyParam = queryParams.get(SearchParams.SECRET_KEY);
   const untrustedAssetsParam = queryParams.get(SearchParams.UNTRUSTED_ASSETS);
   const assetOverridesParam = queryParams.get(SearchParams.ASSET_OVERRIDES);
+  const contractAssetsParam = queryParams.get(SearchParams.CONTRACT_ASSETS);
   const claimableBalanceSupportedParam = queryParams.get(
     SearchParams.CLAIMABLE_BALANCE_SUPPORTED,
   );
@@ -114,6 +118,11 @@ export const SettingsHandler = ({
 
   // Handle contract ID from URL
   useEffect(() => {
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.CONTRACT_ID]: contractIdParam || "",
+      }),
+    );
     if (contractIdParam) {
       try {
         dispatch(fetchContractAccountAction(contractIdParam));
@@ -125,6 +134,44 @@ export const SettingsHandler = ({
       }
     }
   }, [contractIdParam, dispatch]);
+
+  // Handle contract assets from URL
+  useEffect(() => {
+    if (contractIdParam && contractAssetsParam) {
+      try {
+        dispatch(
+          fetchContractAssetsAction({
+            assetsString: contractAssetsParam,
+            contractId: contractIdParam,
+            assetOverridesString: assetOverridesParam || undefined,
+          }),
+        );
+      } catch (error) {
+        log.error({
+          title: "Fetch contract assets error",
+          body: getErrorMessage(error),
+        });
+      }
+    }
+  }, [contractAssetsParam, contractIdParam, assetOverridesParam, dispatch]);
+
+  // contract assets
+  useEffect(() => {
+    const cleanedAssets = contractAssetsParam
+      ?.split(",")
+      .reduce(
+        (unique: string[], item: string) =>
+          unique.includes(item) ? unique : [...unique, item],
+        [],
+      )
+      .join(",");
+
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.CONTRACT_ASSETS]: cleanedAssets || "",
+      }),
+    );
+  }, [contractAssetsParam, dispatch]);
 
   return <>{children}</>;
 };

@@ -10,7 +10,7 @@ import {
 } from "@stellar/design-system";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
-import { getValidatedUntrustedAsset } from "demo-wallet-shared/build/helpers/getValidatedUntrustedAsset";
+import { getValidatedAsset } from "demo-wallet-shared/build/helpers/getValidatedAsset";
 import { searchParam } from "demo-wallet-shared/build/helpers/searchParam";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { useRedux } from "hooks/useRedux";
@@ -63,7 +63,7 @@ export const AddAsset = ({ onClose }: { onClose: () => void }) => {
     setIsValidating(true);
 
     try {
-      const asset = await getValidatedUntrustedAsset({
+      const asset = await getValidatedAsset({
         assetCode,
         homeDomain,
         issuerPublicKey,

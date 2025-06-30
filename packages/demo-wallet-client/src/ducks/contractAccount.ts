@@ -10,11 +10,11 @@ import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessag
 import { SmartWalletService } from "../services/SmartWalletService";
 import { ActionStatus } from "../types/types";
 import {
+  fetchContractAccountInfo,
+} from "../helpers/fetchContractAccountDetails";
+import {
   getErrorString
 } from "demo-wallet-shared/build/helpers/getErrorString";
-import {
-  fetchContractAccountDetails
-} from "../helpers/fetchContractAccountDetails";
 
 const initialState: ContractAccountState = {
   status: undefined,
@@ -81,24 +81,23 @@ export const connectPasskeyContract = createAsyncThunk<
 );
 
 export const fetchContractAccountAction = createAsyncThunk<
-  { data: ContractAccountDetails },
+  ContractAccountDetails,
   string,
   { rejectValue: RejectMessage; state: RootState }
 >(
   "contractAccount/fetchContractAccountAction",
-  async ( contractId, { rejectWithValue }) => {
+  async (contractId, { rejectWithValue }) => {
     log.request({
       title: `Fetching contract info`,
       body: `Contract ID: ${contractId}`,
     });
-
-    let contractAccount: ContractAccountDetails | null = null;
     try {
-      contractAccount = await fetchContractAccountDetails(contractId);
+      const contractAccount = await fetchContractAccountInfo(contractId);
       log.response({
         title: `Contract info fetched`,
         body: contractAccount,
       });
+      return contractAccount;
     } catch (error) {
       log.error({
         title: `Fetching contract failed`,
@@ -108,7 +107,6 @@ export const fetchContractAccountAction = createAsyncThunk<
         errorString: getErrorString(error),
       });
     }
-    return { data: contractAccount };
   },
 );
 
@@ -161,7 +159,7 @@ const contractAccountSlice = createSlice({
       })
       .addCase(fetchContractAccountAction.fulfilled, (state, action) => {
         state.status = ActionStatus.SUCCESS;
-        state.data = action.payload.data;
+        state.data = action.payload;
         state.isAuthenticated = true;
       })
       .addCase(fetchContractAccountAction.rejected, (state, action) => {

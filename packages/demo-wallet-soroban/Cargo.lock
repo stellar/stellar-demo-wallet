@@ -214,14 +214,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "c-account"
-version = "0.0.0"
-dependencies = [
- "log",
- "soroban-sdk",
-]
-
-[[package]]
 name = "cc"
 version = "1.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -254,6 +246,14 @@ name = "const-oid"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2459377285ad874054d797f3ccebf984978aa39129f6eafde5cdc8315b612f8"
+
+[[package]]
+name = "contract-account"
+version = "0.0.0"
+dependencies = [
+ "log",
+ "soroban-sdk",
+]
 
 [[package]]
 name = "core-foundation-sys"

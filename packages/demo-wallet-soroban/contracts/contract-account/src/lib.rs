@@ -1,7 +1,5 @@
 #![no_std]
 
-mod test;
-
 use soroban_sdk::{
     auth::{Context, CustomAccountInterface},
     contract, contracterror, contractimpl, contracttype,
@@ -10,7 +8,7 @@ use soroban_sdk::{
 };
 
 #[contract]
-struct CAccount;
+struct ContractAccount;
 
 #[derive(Clone)]
 #[contracttype]
