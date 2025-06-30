@@ -33,6 +33,12 @@ const update = (
         updateValue({ currentVal: currentParamValue, newVal: value }),
       );
       break;
+    case SearchParams.CONTRACT_ASSETS:
+      queryParams.set(
+        SearchParams.CONTRACT_ASSETS,
+        updateValue({ currentVal: currentParamValue, newVal: value }),
+      );
+      break;
     case SearchParams.CONTRACT_ID:
       // Clear all auth-related params when setting contract ID
       queryParams.delete(SearchParams.SECRET_KEY);
@@ -42,7 +48,7 @@ const update = (
       queryParams.set(SearchParams.CONTRACT_ID, value);
       break;
     default:
-      throw new Error(`Search param \`${searchParam}\` does not exist`);
+      throw new Error(`Search param \`${param}\` does not exist`);
   }
 
   return `?${queryParams.toString()}`;

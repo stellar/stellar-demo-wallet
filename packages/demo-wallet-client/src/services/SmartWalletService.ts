@@ -106,6 +106,38 @@ export class SmartWalletService {
     }
   }
 
+  public async fetchBalance(
+    contractId: string,
+    assetCode: string,
+    assetIssuer: string,
+  ) {
+    const asset = assetCode === "XLM"
+      ? Asset.native()
+      : new Asset(assetCode, assetIssuer);
+
+    try {
+      const balance = await this.server.getSACBalance(
+        contractId,
+        asset,
+        Networks.TESTNET
+      );
+
+      const balanceAmount = balance?.balanceEntry?.amount
+        ? (Number(balance.balanceEntry.amount) / SOROBAN_CONFIG.ONE).toString()
+        : "0";
+      return {
+        type: asset.getAssetType(),
+        balance: balanceAmount,
+      }
+    } catch (error: any) {
+      // Return zero balance if fetching fails for a specific asset
+      return {
+        type: asset.getAssetType(),
+        balance: "0",
+      };
+    }
+  }
+
   public async fundContractWithXLM(contractId: string) {
     const fromAcc = await this.generateFundedKeypair();
     return await this.transfer(

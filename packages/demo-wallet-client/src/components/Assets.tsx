@@ -57,6 +57,7 @@ import {
   SearchParams,
   TransactionStatus,
 } from "types/types";
+import { PRESET_ASSETS } from "demo-wallet-shared/build/constants/presetAssets";
 
 export const Assets = ({
   onSendPayment,
@@ -444,7 +445,7 @@ export const Assets = ({
               Add asset
             </Button>
 
-            {getPresetAssets(allAssets.data).length > 0 && (
+            {getPresetAssets(allAssets.data, PRESET_ASSETS).length > 0 && (
               <TextLink
                 onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
                 disabled={Boolean(activeAsset.action)}

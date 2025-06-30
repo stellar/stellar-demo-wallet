@@ -15,13 +15,15 @@ import {
 } from "../ducks/contractAccount";
 import { AppDispatch } from "../config/store";
 import { useRedux } from "../hooks/useRedux";
+import { fetchContractAssetsAction } from "../ducks/contractAssets";
 
 export const ContractAccountInfo = () => {
-  const { contractAccount } = useRedux("contractAccount")
+  const { contractAccount, settings } = useRedux("contractAccount", "settings")
   const [isContractDetailsVisible, setIsContractDetailsVisible] = useState(false);
 
   const dispatch: AppDispatch = useDispatch();
-
+  console.log(123 + settings.contractAssets)
+  console.log(456 + settings.contractAssets)
   const contractId = contractAccount.data?.contract;
   if (!contractId) {
     return null;
@@ -29,6 +31,13 @@ export const ContractAccountInfo = () => {
 
   const handleRefreshAccount = () => {
     if (contractAccount.status !== ActionStatus.PENDING) {
+      console.log(123 + settings.contractAssets)
+      console.log(456 + settings.contractAssets)
+      dispatch(fetchContractAssetsAction({
+        assetsString: settings.contractAssets,
+        contractId: contractId,
+        assetOverridesString: settings.assetOverrides || undefined,
+      }))
       dispatch(fetchContractAccountAction(contractId));
     }
   };
