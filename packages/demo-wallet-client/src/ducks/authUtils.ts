@@ -167,7 +167,7 @@ export const authenticateWithSep45 = async (
 
   // SEP-45 start
   const challengeTransaction = await sep45AuthStart({
-    authEndpoint: tomlResponse.WEB_AUTH_FOR_CONTRACTS_ENDPOINT || "https://anchor-sep-server-dev.stellar.org/sep45/auth",
+    authEndpoint: tomlResponse.WEB_AUTH_FOR_CONTRACTS_ENDPOINT,
     contractAddress: contractId,
     homeDomain: normalizeHomeDomainUrl(homeDomain).host,
     clientDomain,
@@ -180,7 +180,7 @@ export const authenticateWithSep45 = async (
 
   // SEP-45 send
   return await sep45AuthSend({
-    authEndpoint: tomlResponse.WEB_AUTH_FOR_CONTRACTS_ENDPOINT || "https://anchor-sep-server-dev.stellar.org/sep45/auth",
+    authEndpoint: tomlResponse.WEB_AUTH_FOR_CONTRACTS_ENDPOINT,
     signedChallengeResponse,
   });
 };

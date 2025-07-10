@@ -106,7 +106,7 @@ export class PasskeyService {
     }
 
     // 6. Create uncompressed SEC1 format
-    return [Buffer.from([0x04]), x, y];
+    return Buffer.concat([Buffer.from([0x04]), x, y]);
   }
 
   public async connectPasskey() {
@@ -124,12 +124,6 @@ export class PasskeyService {
       optionsJSON: {
         challenge: base64url(payload),
         rpId: this.domain,
-        // allowCredentials: [
-        //   {
-        //     id: this.keyId,
-        //     type: "public-key",
-        //   },
-        // ],
       },
     });
 

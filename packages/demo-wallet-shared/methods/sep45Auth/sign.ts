@@ -1,72 +1,34 @@
 import {
   hash,
-  Networks,
   xdr,
 } from "@stellar/stellar-sdk";
 import { Server } from "@stellar/stellar-sdk/rpc";
 import { SOROBAN_CONFIG } from "demo-wallet-client/src/config/constants";
 import { PasskeyService } from "demo-wallet-client/src/services/PasskeyService";
 import * as xdrParser from "@stellar/js-xdr";
+import base64url from "base64url";
+import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 
 export const sign = async ({
   authEntries,
 } : {
   authEntries: string,
 }) => {
-
-  // Decode and find the web auth entry
   const decodedEntries = decodeAuthorizationEntries(authEntries);
-  const authEntry = decodedEntries.find(
-    entry =>
-      entry.credentials().address().address().switch().value === xdr.ScAddressType.scAddressTypeContract().value
-  );
-  if (!authEntry) {
-    throw new Error("Contract auth entry not found in challenge response");
-  }
 
-  // TODO: client domain auth
+  const signedEntries = await Promise.all(
+    decodedEntries.map(async (entry) => {
+      const isAuthEntry =
+        entry.credentials().address().address().switch().value ===
+        xdr.ScAddressType.scAddressTypeContract().value;
 
-  // Sign auth entry
-  const server = new Server(SOROBAN_CONFIG.RPC_URL);
-  const validUntilLedgerSeq = (await server.getLatestLedger()).sequence + 60;
-
-  const addrAuth = authEntry.credentials().address();
-  addrAuth.signatureExpirationLedger(validUntilLedgerSeq);
-
-  const networkId = hash(Buffer.from(Networks.TESTNET));
-  const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
-    new xdr.HashIdPreimageSorobanAuthorization({
-      networkId,
-      nonce: addrAuth.nonce(),
-      invocation: authEntry.rootInvocation(),
-      signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
-    }),
+      return isAuthEntry
+        ? await authorizeEntryWithPasskeyService(entry)
+        : entry;
+    })
   );
 
-  const { authenticationResponse, compactSignature } = await PasskeyService.getInstance().signPayload(preimage.toXDR());
-
-  addrAuth.signature(
-    xdr.ScVal.scvMap([
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol("authenticator_data"),
-        val: xdr.ScVal.scvBytes(Buffer.from(authenticationResponse.response.authenticatorData)),
-      }),
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol("client_data_json"),
-        val: xdr.ScVal.scvBytes(Buffer.from(authenticationResponse.response.clientDataJSON)),
-      }),
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol("id"),
-        val: xdr.ScVal.scvBytes(Buffer.from(authenticationResponse.id)),
-      }),
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol("signature"),
-        val: xdr.ScVal.scvBytes(compactSignature),
-      }),
-    ]),
-  );
-
-  return encodeAuthorizationEntries(decodedEntries);
+  return encodeAuthorizationEntries(signedEntries);
 }
 
 function decodeAuthorizationEntries(base64: string): xdr.SorobanAuthorizationEntry[] {
@@ -93,4 +55,42 @@ function encodeAuthorizationEntries(entries: xdr.SorobanAuthorizationEntry[]): s
   } catch (err) {
     throw new Error(`Failed to encode SorobanAuthorizationEntry array: ${err}`);
   }
+}
+
+async function authorizeEntryWithPasskeyService (
+  unsignedEntry: xdr.SorobanAuthorizationEntry,
+): Promise<xdr.SorobanAuthorizationEntry> {
+  const entry = xdr.SorobanAuthorizationEntry.fromXDR(unsignedEntry.toXDR());
+  const addrAuth = entry.credentials().address();
+
+  const server = new Server(SOROBAN_CONFIG.RPC_URL);
+  const validUntilLedgerSeq = (await server.getLatestLedger()).sequence + 60;
+  addrAuth.signatureExpirationLedger(validUntilLedgerSeq);
+
+  const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
+    new xdr.HashIdPreimageSorobanAuthorization({
+      networkId: hash(Buffer.from(getNetworkConfig().network)),
+      nonce: addrAuth.nonce(),
+      signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
+      invocation: entry.rootInvocation(),
+    }),
+  );
+  const payload = hash(preimage.toXDR());
+
+  const { authenticationResponse, compactSignature } = await PasskeyService.getInstance().signPayload(payload);
+
+  addrAuth.signature(
+    xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("credential_id"),
+        val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.id)),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("signature"),
+        val: xdr.ScVal.scvBytes(compactSignature),
+      }),
+    ]),
+  );
+
+  return entry;
 }

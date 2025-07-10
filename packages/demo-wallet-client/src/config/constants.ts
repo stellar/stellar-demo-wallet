@@ -5,7 +5,7 @@ export const SOROBAN_CONFIG = {
   MAX_FEE: "10000",
   ONE: 10 ** 7, // Stroops in 1
   RPC_URL: "https://soroban-testnet.stellar.org",
-  WASM_HASH: "e5da3b9950524b4276ccf2051e6cc8220bb581e869b892a6ff7812d7709c7a50",
+  WASM_HASH: "94913e7b127ccad22b3808b64246b0c17cf131a5a2375515912f63b883c542fd",
 } as const;
 
 export const STELLAR_EXPERT_API = "https://api.stellar.expert/explorer/testnet";
