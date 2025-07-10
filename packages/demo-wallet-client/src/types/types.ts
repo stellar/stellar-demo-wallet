@@ -6,8 +6,8 @@ import {
   NotFoundError,
 } from "@stellar/stellar-sdk";
 import BigNumber from "bignumber.js";
-import { Sep9Field } from "demo-wallet-shared/build/helpers/Sep9Fields";
-import { AnchorPriceItem } from "demo-wallet-shared/build/types/types";
+import { Sep9Field } from "demo-wallet-shared/helpers/Sep9Fields";
+import { AnchorPriceItem } from "demo-wallet-shared/types/types";
 
 declare global {
   interface Window {
@@ -51,6 +51,8 @@ export enum TomlFields {
   URI_REQUEST_SIGNING_KEY = "URI_REQUEST_SIGNING_KEY",
   VERSION = "VERSION",
   WEB_AUTH_ENDPOINT = "WEB_AUTH_ENDPOINT",
+  WEB_AUTH_FOR_CONTRACTS_ENDPOINT = "WEB_AUTH_FOR_CONTRACTS_ENDPOINT",
+  WEB_AUTH_CONTRACT_ID = "WEB_AUTH_CONTRACT_ID",
 }
 
 export interface PresetAsset {

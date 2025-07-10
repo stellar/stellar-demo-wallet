@@ -147,7 +147,7 @@ const contractAccountSlice = createSlice({
       })
       .addCase(connectPasskeyContract.fulfilled, (state, action) => {
         state.status = ActionStatus.SUCCESS;
-        state.contractId = action.payload.contractId
+        state.contractId = action.payload.contractId;
         state.keyId = action.payload.keyId;
       })
       .addCase(connectPasskeyContract.rejected, (state, action) => {
