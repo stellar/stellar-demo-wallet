@@ -159,6 +159,7 @@ const contractAccountSlice = createSlice({
       })
       .addCase(fetchContractAccountAction.fulfilled, (state, action) => {
         state.status = ActionStatus.SUCCESS;
+        state.contractId = action.payload.contract;
         state.data = action.payload;
         state.isAuthenticated = true;
       })

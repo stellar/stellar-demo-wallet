@@ -34,7 +34,7 @@ export const getUnifiedAccountData = (state: RootState): UnifiedAccountData | nu
   }
   
   // Check for contract account
-  if (contractAccount.contractId && contractAccount.keyId) {
+  if (contractAccount.contractId) {
     return {
       contractId: contractAccount.contractId,
       keyId: contractAccount.keyId,

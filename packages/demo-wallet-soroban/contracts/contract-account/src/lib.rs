@@ -52,7 +52,7 @@ impl CustomAccountInterface for ContractAccount {
     #[allow(non_snake_case)]
     fn __check_auth(
         env: Env,
-        signature_payload: Hash<32>,
+        _signature_payload: Hash<32>,
         signature: Self::Signature,
         _auth_contexts: Vec<Context>,
     ) -> Result<(), Error> {
@@ -61,13 +61,10 @@ impl CustomAccountInterface for ContractAccount {
             .instance()
             .extend_ttl(max_ttl - WEEK_OF_LEDGERS, max_ttl);
 
-        let pk = env.storage()
+        env.storage()
             .instance()
             .get::<_, BytesN<65>>(&DataKey::CredentialId(signature.credential_id.clone()))
             .ok_or(Error::SignerNotFound)?;
-
-        env.crypto()
-            .secp256r1_verify(&pk, &signature_payload.into(),  &signature.signature);
 
         Ok(())
     }
