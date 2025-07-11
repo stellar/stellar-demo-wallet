@@ -145,7 +145,9 @@ export const depositAssetAction = createAsyncThunk<
           AnchorActionType.DEPOSIT,
           assetCode,
           assetIssuer,
-          clientDomain,
+          // Skip client domain for contract accounts as the server is not hosted
+          // https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0045.md#verifying-the-client-domain
+          "",
           contractId,
           homeDomain,
           [
