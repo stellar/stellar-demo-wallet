@@ -145,9 +145,7 @@ export const depositAssetAction = createAsyncThunk<
           AnchorActionType.DEPOSIT,
           assetCode,
           assetIssuer,
-          // Skip client domain for contract accounts as the server is not hosted
-          // https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0045.md#verifying-the-client-domain
-          "",
+          clientDomain,
           contractId,
           homeDomain,
           [
@@ -156,6 +154,7 @@ export const depositAssetAction = createAsyncThunk<
             TomlFields.WEB_AUTH_FOR_CONTRACTS_ENDPOINT,
           ],
           "SEP-24 deposit",
+          walletBackendEndpoint,
         )
 
         // Interactive flow

@@ -1,5 +1,6 @@
 import {
-  hash,
+  Address, authorizeEntry,
+  hash, Keypair, Networks,
   xdr,
 } from "@stellar/stellar-sdk";
 import { Server } from "@stellar/stellar-sdk/rpc";
@@ -11,8 +12,10 @@ import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 
 export const sign = async ({
   authEntries,
+  clientAccount,
 } : {
   authEntries: string,
+  clientAccount: string | undefined,
 }) => {
   const decodedEntries = decodeAuthorizationEntries(authEntries);
 
@@ -22,9 +25,17 @@ export const sign = async ({
         entry.credentials().address().address().switch().value ===
         xdr.ScAddressType.scAddressTypeContract().value;
 
-      return isAuthEntry
-        ? await authorizeEntryWithPasskeyService(entry)
-        : entry;
+      if(isAuthEntry) {
+        return authorizeEntryWithPasskeyService(entry);
+      }
+
+      if(clientAccount && Address.fromScAddress(
+          entry.credentials().address().address(),
+        ).toString() === clientAccount) {
+        return authorizeClientDomainEntry(entry)
+      }
+
+      return entry;
     })
   );
 
@@ -55,6 +66,17 @@ function encodeAuthorizationEntries(entries: xdr.SorobanAuthorizationEntry[]): s
   } catch (err) {
     throw new Error(`Failed to encode SorobanAuthorizationEntry array: ${err}`);
   }
+}
+
+async function authorizeClientDomainEntry(
+  unsignedEntry: xdr.SorobanAuthorizationEntry,
+): Promise<xdr.SorobanAuthorizationEntry> {
+  const server = new Server(SOROBAN_CONFIG.RPC_URL);
+  const validUntilLedgerSeq = (await server.getLatestLedger()).sequence + 60;
+
+  const SERVER_SIGNING_KEY = String(process.env.SERVER_SIGNING_KEY);
+
+  return authorizeEntry(unsignedEntry, Keypair.fromSecret(SERVER_SIGNING_KEY), validUntilLedgerSeq, Networks.TESTNET)
 }
 
 async function authorizeEntryWithPasskeyService (

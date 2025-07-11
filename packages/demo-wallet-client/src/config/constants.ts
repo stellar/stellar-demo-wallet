@@ -19,14 +19,6 @@ export const SendTxStatus: {
   Error: "ERROR",
 };
 
-export const GetTxStatus: {
-  [index: string]: Api.GetTransactionStatus;
-} = {
-  Success: Api.GetTransactionStatus.SUCCESS,
-  NotFound: Api.GetTransactionStatus.NOT_FOUND,
-  Failed: Api.GetTransactionStatus.FAILED,
-};
-
 // -----------------------------------------------------------------------------
 // Temporary test constants for development and testing purposes only.
 // These will be removed or replaced when the project is complete.

@@ -7,7 +7,7 @@ import {
 import {
   checkTomlForFields,
 } from "demo-wallet-shared/build/methods/checkTomlForFields";
-import { TomlFields } from "demo-wallet-shared/build/types/types";
+import { AnyObject, TomlFields } from "demo-wallet-shared/build/types/types";
 import {
   sep10AuthSend,
   sep10AuthSign,
@@ -22,6 +22,8 @@ import { checkInfo } from "demo-wallet-shared/build/methods/sep24";
 import { AnchorActionType } from "../types/types";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { custodialSelector } from "./custodial";
+import { getToml } from "demo-wallet-shared/build/methods/getToml";
+import { isEmpty } from "lodash";
 
 export interface Sep10AuthParams {
   publicKey: string;
@@ -139,6 +141,7 @@ export const authenticateWithSep45 = async (
   homeDomain: string,
   requiredKeys: TomlFields[],
   sepName: string,
+  walletBackendEndpoint: string
 ): Promise<string> => {
   log.instruction({
     title: `Initiating a ${sepName} for classic account`,
@@ -173,9 +176,17 @@ export const authenticateWithSep45 = async (
     clientDomain,
   });
 
+
+  let clientAccount;
+  if (isEmpty(clientDomain)) {
+    const clientTomlResponse: AnyObject = await getToml(`${walletBackendEndpoint}/.well-known/stellar.toml`);
+    clientAccount = clientTomlResponse[TomlFields.ACCOUNTS][0];
+  }
+
   // SEP-45 sign
   const signedChallengeResponse = await sep45AuthSign({
     authEntries: challengeTransaction.authorizationEntries,
+    clientAccount,
   });
 
   // SEP-45 send
