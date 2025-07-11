@@ -7,7 +7,7 @@ import {
 import {
   checkTomlForFields,
 } from "demo-wallet-shared/build/methods/checkTomlForFields";
-import { AnyObject, TomlFields } from "demo-wallet-shared/build/types/types";
+import { TomlFields } from "demo-wallet-shared/build/types/types";
 import {
   sep10AuthSend,
   sep10AuthSign,
@@ -149,7 +149,7 @@ export const authenticateWithSep45 = async (
 
   const networkConfig = getNetworkConfig();
 
-  // Check TOML for required SEP-10 fields
+  // Check Anchor TOML for required SEP-10 fields
   const tomlResponse = await checkTomlForFields({
     sepName,
     assetIssuer: assetIssuer,
@@ -164,6 +164,13 @@ export const authenticateWithSep45 = async (
     assetCode,
   });
 
+  // Check Wallet TOML
+  let clientAccount;
+  if (!isEmpty(clientDomain)) {
+    const clientTomlResponse = await getToml(walletBackendEndpoint);
+    clientAccount = clientTomlResponse.ACCOUNTS?.[0];
+  }
+
   log.instruction({
     title: `${sepName} is enabled, and requires authentication so we should go through SEP-45`,
   });
@@ -173,15 +180,8 @@ export const authenticateWithSep45 = async (
     authEndpoint: tomlResponse.WEB_AUTH_FOR_CONTRACTS_ENDPOINT,
     contractAddress: contractId,
     homeDomain: normalizeHomeDomainUrl(homeDomain).host,
-    clientDomain,
+    walletBackendEndpoint,
   });
-
-
-  let clientAccount;
-  if (isEmpty(clientDomain)) {
-    const clientTomlResponse: AnyObject = await getToml(`${walletBackendEndpoint}/.well-known/stellar.toml`);
-    clientAccount = clientTomlResponse[TomlFields.ACCOUNTS][0];
-  }
 
   // SEP-45 sign
   const signedChallengeResponse = await sep45AuthSign({

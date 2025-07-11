@@ -4,17 +4,17 @@ export const start = async ({
   authEndpoint,
   contractAddress,
   homeDomain,
-  clientDomain,
+  walletBackendEndpoint,
 }: {
   authEndpoint: string;
   contractAddress: string;
   homeDomain: string;
-  clientDomain: string;
+  walletBackendEndpoint: string;
 }) => {
   const params = {
     account: contractAddress,
     home_domain: homeDomain,
-    ...(clientDomain && { client_domain: clientDomain }),
+    ...(walletBackendEndpoint && { client_domain: walletBackendEndpoint }),
   };
   log.instruction({
     title:
