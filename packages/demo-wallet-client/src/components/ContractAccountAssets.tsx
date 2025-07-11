@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   Button,
   Heading2,
-  Layout,
+  Layout, Loader,
   Modal,
   TextLink,
 } from "@stellar/design-system";
@@ -54,6 +54,7 @@ import { initiateSendAction as initiateSep31SendAction} from "ducks/sep31Send";
 import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import { resetCustodialAction } from "../ducks/custodial";
 import { removeExtraAction } from "../ducks/extra";
+import { ToastBanner } from "./ToastBanner";
 
 export const ContractAccountAssets = () => {
   const { 
@@ -72,29 +73,18 @@ export const ContractAccountAssets = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Only proceed if contract account is successfully fetched
-    if (contractAccount.status !== ActionStatus.SUCCESS || !contractAccount.contractId) {
-      return;
-    }
-
-    if (!settings.contractAssets) {
-      // Clear the store when no assets in URL
-      dispatch(resetContractAssetsAction());
-      return;
-    }
-
-    // Always fetch fresh data from URL
-    dispatch(fetchContractAssetsAction({
-      assetsString: settings.contractAssets,
-      contractId: contractAccount.contractId,
-      assetOverridesString: settings.assetOverrides || undefined,
-    }));
-  }, [settings.contractAssets, settings.assetOverrides, contractAccount.contractId, dispatch, contractAccount.status]);
+  const [toastMessage, setToastMessage] = useState<string | React.ReactNode>();
+  const [activeModal, setActiveModal] = useState("");
+  enum ModalType {
+    ADD_ASSET = "ADD_ASSET",
+    ADD_PRESET_ASSET = "ADD_PRESET_ASSET",
+    CONFIRM_ACTION = "CONFIRM_ACTION",
+  }
 
   const setActiveAssetStatusAndToastMessage = useCallback(
     ({
        status,
+       message,
      }: {
       status: ActionStatus | undefined;
       message: string | React.ReactNode;
@@ -114,42 +104,23 @@ export const ContractAccountAssets = () => {
         status === ActionStatus.NEEDS_INPUT
       ) {
         dispatch(setActiveAssetStatusAction(ActionStatus.PENDING));
-        // setToastMessage(message);
+        setToastMessage(message);
       }
     },
     [dispatch],
   );
 
-  // SEP-24 Deposit asset
-  useEffect(() => {
-    if (sep24DepositAsset.status === ActionStatus.SUCCESS) {
-      dispatch(resetSep24DepositAssetAction());
-
-      if (
-        sep24DepositAsset.data.currentStatus === TransactionStatus.COMPLETED
-      ) {
-        // handleRefreshAccount();
-      }
+  const handleRefreshAccount = useCallback(() => {
+    if (contractAccount.contractId) {
+      dispatch(
+        fetchContractAssetsAction({
+          assetsString: settings.contractAssets,
+          contractId: contractAccount.contractId,
+          assetOverridesString: settings.assetOverrides || undefined,
+        }),
+      );
     }
-
-    setActiveAssetStatusAndToastMessage({
-      status: sep24DepositAsset.status,
-      message: "SEP-24 deposit in progress",
-    });
-  }, [
-    sep24DepositAsset.status,
-    sep24DepositAsset.data.currentStatus,
-    sep24DepositAsset.data.trustedAssetAdded,
-    setActiveAssetStatusAndToastMessage,
-    dispatch,
-  ]);
-
-  const [activeModal, setActiveModal] = useState("");
-  enum ModalType {
-    ADD_ASSET = "ADD_ASSET",
-    ADD_PRESET_ASSET = "ADD_PRESET_ASSET",
-    CONFIRM_ACTION = "CONFIRM_ACTION",
-  }
+  }, [contractAccount.contractId, dispatch, settings.assetOverrides, settings.contractAssets]);
 
   const handleCloseModal = () => {
     setActiveModal("");
@@ -316,6 +287,51 @@ export const ContractAccountAssets = () => {
     dispatch(resetContractAssetStatusAction());
   };
 
+  useEffect(() => {
+    // Only proceed if contract account is successfully fetched
+    if (contractAccount.status !== ActionStatus.SUCCESS || !contractAccount.contractId) {
+      return;
+    }
+
+    if (!settings.contractAssets) {
+      // Clear the store when no assets in URL
+      dispatch(resetContractAssetsAction());
+      return;
+    }
+
+    // Always fetch fresh data from URL
+    dispatch(fetchContractAssetsAction({
+      assetsString: settings.contractAssets,
+      contractId: contractAccount.contractId,
+      assetOverridesString: settings.assetOverrides || undefined,
+    }));
+  }, [settings.contractAssets, settings.assetOverrides, contractAccount.contractId, dispatch, contractAccount.status]);
+
+  // 4. Auto-clear when action completes
+  useEffect(() => {
+    if (!activeAsset.action) {
+      setToastMessage(undefined);  // Clear local state
+    }
+  }, [activeAsset.action]);
+
+  // SEP-24 Deposit asset
+  useEffect(() => {
+    if (sep24DepositAsset.status === ActionStatus.SUCCESS) {
+      dispatch(resetSep24DepositAssetAction());
+
+      if (
+        sep24DepositAsset.data.currentStatus === TransactionStatus.COMPLETED
+      ) {
+        handleRefreshAccount();
+      }
+    }
+
+    setActiveAssetStatusAndToastMessage({
+      status: sep24DepositAsset.status,
+      message: "SEP-24 deposit in progress",
+    });
+  }, [sep24DepositAsset.status, sep24DepositAsset.data.currentStatus, sep24DepositAsset.data.trustedAssetAdded, setActiveAssetStatusAndToastMessage, dispatch, handleRefreshAccount]);
+
   return (
     <>
       <div className="Section">
@@ -375,6 +391,13 @@ export const ContractAccountAssets = () => {
           <ConfirmAssetAction onClose={handleCloseModal} />
         )}
       </Modal>
+
+      <ToastBanner parentId="app-wrapper" visible={Boolean(toastMessage)}>
+        <div className="Layout__inline">
+          <div>{toastMessage}</div>
+          <Loader />
+        </div>
+      </ToastBanner>
     </>
   );
 };
