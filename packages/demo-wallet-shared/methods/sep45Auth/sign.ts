@@ -15,7 +15,7 @@ export const sign = async ({
   clientAccount,
 } : {
   authEntries: string,
-  clientAccount: string | undefined,
+  clientAccount: string,
 }) => {
   const decodedEntries = decodeAuthorizationEntries(authEntries);
 

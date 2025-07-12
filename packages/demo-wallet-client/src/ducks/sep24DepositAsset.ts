@@ -145,7 +145,6 @@ export const depositAssetAction = createAsyncThunk<
           AnchorActionType.DEPOSIT,
           assetCode,
           assetIssuer,
-          clientDomain,
           contractId,
           homeDomain,
           [

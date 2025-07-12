@@ -9,7 +9,7 @@ export const normalizeHomeDomainUrl = (homeDomain: string): URL => {
   } else {
     _homeDomain = _homeDomain.startsWith("http")
       ? _homeDomain
-      : _homeDomain.startsWith("https") ? _homeDomain : `https://${_homeDomain}`;
+      : `https://${_homeDomain}`;
   }
 
   return new URL(_homeDomain.replace(/\/$/, ""));
