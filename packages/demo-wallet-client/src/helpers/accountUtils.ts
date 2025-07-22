@@ -79,7 +79,7 @@ export const getSepAuthenticationData = (state: RootState) => {
 
   if (unifiedAccount.accountType === 'classic') {
     return {
-      accountType: 'regular' as const,
+      accountType: 'classic' as const,
       publicKey: unifiedAccount.publicKey!,
       secretKey: unifiedAccount.secretKey!,
       authFlow: 'sep10' as const,
@@ -89,7 +89,7 @@ export const getSepAuthenticationData = (state: RootState) => {
       accountType: 'contract' as const,
       contractId: unifiedAccount.contractId!,
       keyId: unifiedAccount.keyId!,
-      authFlow: 'contract' as const,
+      authFlow: 'sep45' as const,
     };
   }
 };
