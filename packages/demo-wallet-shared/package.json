@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@stellar/frontend-helpers": "^2.1.4",
+    "@stellar/js-xdr": "^3.1.2",
     "@stellar/prettier-config": "^1.0.1",
     "@stellar/stellar-sdk": "13.3.0",
     "bignumber.js": "^9.1.1",
