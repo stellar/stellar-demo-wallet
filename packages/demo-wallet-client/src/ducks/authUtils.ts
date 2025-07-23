@@ -148,7 +148,7 @@ export const authenticateWithSep45 = async (
 
   const networkConfig = getNetworkConfig();
 
-  // Check Anchor TOML for required SEP-10 fields
+  // Check Anchor TOML for required SEP-45 fields
   const tomlResponse = await checkTomlForFields({
     sepName,
     assetIssuer: assetIssuer,
@@ -188,9 +188,21 @@ export const authenticateWithSep45 = async (
   });
 
   // SEP-45 sign
+  const expectedArgs = {
+    account: contractId,
+    home_domain: normalizeHomeDomainUrl(homeDomain).host,
+    web_auth_domain:  new URL(tomlResponse.WEB_AUTH_FOR_CONTRACTS_ENDPOINT).host,
+    web_auth_domain_account: tomlResponse.SIGNING_KEY,
+    ...(clientDomain && { client_domain: clientDomain }),
+    ...(clientAccount && { client_domain_account: clientAccount }),
+  } as const;
+
   const signedChallengeResponse = await sep45AuthSign({
     authEntries: challengeTransaction.authorizationEntries,
     clientAccount,
+    expectedArgs,
+    serverSigningKey: tomlResponse.SIGNING_KEY,
+    webAuthContractId: tomlResponse.WEB_AUTH_CONTRACT_ID,
   });
 
   // SEP-45 send
