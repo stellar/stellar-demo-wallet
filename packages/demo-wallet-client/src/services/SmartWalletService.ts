@@ -185,7 +185,7 @@ export class SmartWalletService {
 
     // 3. Sign auth entries
     simulatedTx.result!.auth = await Promise.all(simulatedTx.result?.auth?.map(entry =>
-      authorizeEntry(entry, signer, simulatedTx.latestLedger + 600, Networks.TESTNET)
+      authorizeEntry(entry, signer, simulatedTx.latestLedger + 60, Networks.TESTNET)
     ) ?? []
     );
 

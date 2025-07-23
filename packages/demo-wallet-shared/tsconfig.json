@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "declarationDir": "build",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "outDir": "build",
     "jsx": "react-jsx",
     "allowJs": true,
