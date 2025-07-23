@@ -16,13 +16,13 @@ const server = new Server(SOROBAN_CONFIG.RPC_URL);
 
 export const sign = async ({
   authEntries,
-  clientAccount,
+  clientDomainSigningKey,
   expectedArgs,
   serverSigningKey,
   webAuthContractId,
 } : {
   authEntries: string,
-  clientAccount: string,
+  clientDomainSigningKey: string,
   expectedArgs: Record<string, string>,
   serverSigningKey: string,
   webAuthContractId: string,
@@ -51,9 +51,9 @@ export const sign = async ({
       }
 
       // Sign client domain entry
-      if(clientAccount && Address.fromScAddress(
+      if(clientDomainSigningKey && Address.fromScAddress(
           entry.credentials().address().address(),
-        ).toString() === clientAccount) {
+        ).toString() === clientDomainSigningKey) {
         return authorizeClientDomainEntry(entry)
       }
 
@@ -87,6 +87,29 @@ export const sign = async ({
   const simulateTxResponse = await server.simulateTransaction(tx);
   if (Api.isSimulationError(simulateTxResponse)) {
     throw new Error(simulateTxResponse.error);
+  }
+
+  // verify ledger footprint
+  const allowedContracts = new Set([
+    expectedArgs.account,
+    serverSigningKey,
+    ...(clientDomainSigningKey ? [clientDomainSigningKey] : [])
+  ]);
+  const readWrite = simulateTxResponse.transactionData.getReadWrite()!;
+
+  for (const ledgerKey of readWrite) {
+    if (ledgerKey.switch().value !== xdr.LedgerEntryType.contractData().value) {
+      throw new Error(`Unexpected ledger key type: ${ledgerKey.switch().name}`);
+    }
+    const contractData = ledgerKey.contractData();
+    const contractAddress = Address.fromScAddress(contractData.contract()).toString();
+
+    if (!allowedContracts.has(contractAddress)) {
+      throw new Error(`Unauthorized contract access: ${contractAddress}`);
+    }
+    if (contractData.key().switch().value !== xdr.ScValType.scvLedgerKeyNonce().value) {
+      throw new Error(`Invalid contract data access. Key: ${contractData.key().switch().name}`);
+    }
   }
 
   return encodeAuthorizationEntries(signedEntries);

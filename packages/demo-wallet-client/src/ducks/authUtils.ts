@@ -166,13 +166,13 @@ export const authenticateWithSep45 = async (
   // Check Wallet TOML
   // When authenticating with SEP-45, we need to pass the client domain where the toml is hosted. Not where the application is running
   let clientDomain = "";
-  let clientAccount = "";
+  let clientDomainSigningKey = "";
   if (!isEmpty(walletBackendEndpoint)) {
     const url = new URL(walletBackendEndpoint);
     const clientDomain = url.host;
 
     const clientTomlResponse = await getToml(clientDomain);
-    clientAccount = clientTomlResponse.ACCOUNTS![0];
+    clientDomainSigningKey = clientTomlResponse.SIGNING_KEY!;
   }
 
   log.instruction({
@@ -194,12 +194,12 @@ export const authenticateWithSep45 = async (
     web_auth_domain:  new URL(tomlResponse.WEB_AUTH_FOR_CONTRACTS_ENDPOINT).host,
     web_auth_domain_account: tomlResponse.SIGNING_KEY,
     ...(clientDomain && { client_domain: clientDomain }),
-    ...(clientAccount && { client_domain_account: clientAccount }),
+    ...(clientDomainSigningKey && { client_domain_account: clientDomainSigningKey }),
   } as const;
 
   const signedChallengeResponse = await sep45AuthSign({
     authEntries: challengeTransaction.authorizationEntries,
-    clientAccount,
+    clientDomainSigningKey,
     expectedArgs,
     serverSigningKey: tomlResponse.SIGNING_KEY,
     webAuthContractId: tomlResponse.WEB_AUTH_CONTRACT_ID,
