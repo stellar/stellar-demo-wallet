@@ -46,14 +46,14 @@ impl ContractAccount {
 
 #[contractimpl]
 impl CustomAccountInterface for ContractAccount {
-    type Signature = Vec<Signature>;
+    type Signature = Signature;
     type Error = Error;
 
     #[allow(non_snake_case)]
     fn __check_auth(
         env: Env,
-        signature_payload: Hash<32>,
-        signatures: Self::Signature,
+        _signature_payload: Hash<32>,
+        signature: Self::Signature,
         _auth_contexts: Vec<Context>,
     ) -> Result<(), Error> {
         let max_ttl = env.storage().max_ttl();
@@ -61,15 +61,10 @@ impl CustomAccountInterface for ContractAccount {
             .instance()
             .extend_ttl(max_ttl - WEEK_OF_LEDGERS, max_ttl);
 
-        // Check if there's at least one signature
-        let signature = signatures.get(0).ok_or(Error::NoSignature)?;
-        let pk = env.storage()
+        env.storage()
             .instance()
             .get::<_, BytesN<65>>(&DataKey::CredentialId(signature.credential_id.clone()))
             .ok_or(Error::SignerNotFound)?;
-
-        env.crypto()
-            .secp256r1_verify(&pk, &signature_payload.into(),  &signature.signature);
 
         Ok(())
     }

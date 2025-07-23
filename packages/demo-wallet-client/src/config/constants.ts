@@ -5,7 +5,7 @@ export const SOROBAN_CONFIG = {
   MAX_FEE: "10000",
   ONE: 10 ** 7, // Stroops in 1
   RPC_URL: "https://soroban-testnet.stellar.org",
-  WASM_HASH: "e5da3b9950524b4276ccf2051e6cc8220bb581e869b892a6ff7812d7709c7a50",
+  WASM_HASH: "03dbb8b88b981e944ae44f48edba5a39c8351ea8c84959b92707108837654f6f",
 } as const;
 
 export const STELLAR_EXPERT_API = "https://api.stellar.expert/explorer/testnet";
@@ -17,14 +17,6 @@ export const SendTxStatus: {
   Duplicate: "DUPLICATE",
   Retry: "TRY_AGAIN_LATER",
   Error: "ERROR",
-};
-
-export const GetTxStatus: {
-  [index: string]: Api.GetTransactionStatus;
-} = {
-  Success: Api.GetTransactionStatus.SUCCESS,
-  NotFound: Api.GetTransactionStatus.NOT_FOUND,
-  Failed: Api.GetTransactionStatus.FAILED,
 };
 
 // -----------------------------------------------------------------------------

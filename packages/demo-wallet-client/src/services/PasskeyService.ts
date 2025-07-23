@@ -4,14 +4,23 @@ import {
   startRegistration,
 } from "@simplewebauthn/browser";
 
-import * as cbor from 'cbor';
+import * as cbor from "cbor";
 import crypto from "crypto";
 import base64url from "base64url";
 
 const DEMO_WALLET_NAME = "Stellar Demo Wallet";
 
 export class PasskeyService {
+  private static instance: PasskeyService;
   public domain: string;
+
+  public static getInstance(): PasskeyService {
+    if (!PasskeyService.instance) {
+      PasskeyService.instance = new PasskeyService();
+    }
+
+    return PasskeyService.instance;
+  }
 
   constructor() {
     this.domain = window.location.hostname;
@@ -47,7 +56,7 @@ export class PasskeyService {
 
     return {
       pkId: id,
-      pk: await this.getPublicKey(response),
+      pk: this.getPublicKey(response),
     };
   }
 
@@ -55,7 +64,7 @@ export class PasskeyService {
   // negotiate a public-key algorithm that the user agent doesn't understand.
   // If using such an algorithm then the public key must be parsed directly
   // from attestationObject or authenticatorData.
-  private async getPublicKey (response: AuthenticatorAttestationResponseJSON) {
+  private getPublicKey (response: AuthenticatorAttestationResponseJSON) {
     if (response.publicKey) {
       // If publicKey is provided directly, decode it
       let publicKey = base64url.toBuffer(response.publicKey);
@@ -97,16 +106,74 @@ export class PasskeyService {
     }
 
     // 6. Create uncompressed SEC1 format
-    return [Buffer.from([0x04]), x, y];
+    return Buffer.concat([Buffer.from([0x04]), x, y]);
   }
 
   public async connectPasskey() {
-    const authResponse = await startAuthentication({
+    const { id } = await startAuthentication({
       optionsJSON: {
         challenge: base64url(crypto.randomBytes(32)),
         rpId: this.domain
       }
     });
-    return authResponse.id;
+    return id;
+  }
+
+  public async signPayload(payload: Buffer) {
+    const authenticationResponse = await startAuthentication({
+      optionsJSON: {
+        challenge: base64url(payload),
+        rpId: this.domain,
+      },
+    });
+
+    const compactSignature = this.compactSignature(base64url.toBuffer(authenticationResponse.response.signature));
+    return { authenticationResponse, compactSignature };
+  }
+
+  /**
+   * Converts a DER-encoded ECDSA signature into a raw, canonicalized 64-byte (r || s) signature.
+   *
+   * This method:
+   * - Extracts the `r` and `s` values from the ASN.1 DER-encoded signature.
+   * - Ensures the `s` value is in its "low-S" form, as required by standards like BIP-62 and Stellar.
+   * - Pads `r` and `s` to 32 bytes each if needed.
+   * - Returns the concatenation of `r || s`, forming a 64-byte compact signature.
+   *
+   * This is required when submitting signatures to systems like Stellar or Soroban,
+   * which enforce low-S signatures and expect raw `r || s` format instead of DER encoding.
+   */
+  private compactSignature(signature: Buffer) {
+    // Decode the DER signature
+    let offset = 2;
+
+    const rLength = signature[offset + 1];
+    const r = signature.slice(offset + 2, offset + 2 + rLength);
+
+    offset += 2 + rLength;
+
+    const sLength = signature[offset + 1];
+    const s = signature.slice(offset + 2, offset + 2 + sLength);
+
+    // Convert r and s to BigInt
+    const rBigInt = BigInt("0x" + r.toString("hex"));
+    let sBigInt = BigInt("0x" + s.toString("hex"));
+
+    // Ensure s is in the low-S form
+    // https://github.com/stellar/stellar-protocol/discussions/1435#discussioncomment-8809175
+    // https://discord.com/channels/897514728459468821/1233048618571927693
+    // Define the order of the curve secp256r1
+    // https://github.com/RustCrypto/elliptic-curves/blob/master/p256/src/lib.rs#L72
+    const n = BigInt("0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551");
+    const halfN = n / 2n;
+
+    if (sBigInt > halfN) sBigInt = n - sBigInt;
+
+    // Convert back to buffers and ensure they are 32 bytes
+    const rPadded = Buffer.from(rBigInt.toString(16).padStart(64, "0"), "hex");
+    const sLowS = Buffer.from(sBigInt.toString(16).padStart(64, "0"), "hex");
+
+    // Concatenate r and low-s
+    return Buffer.concat([rPadded, sLowS]);
   }
 }

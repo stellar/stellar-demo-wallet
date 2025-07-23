@@ -1,25 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
-import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 import { custodialSelector } from "ducks/custodial";
 import { extraSelector } from "ducks/extra";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
-import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import {
-  sep10AuthStart,
-  sep10AuthSign,
-  sep10AuthSend,
-} from "demo-wallet-shared/build/methods/sep10Auth";
-import {
-  checkInfo,
   interactiveDepositFlow,
   createPopup,
   pollDepositUntilComplete,
 } from "demo-wallet-shared/build/methods/sep24";
-import { checkTomlForFields } from "demo-wallet-shared/build/methods/checkTomlForFields";
+import { getFromToml } from "demo-wallet-shared/build/methods/checkTomlForFields";
 import { trustAsset } from "demo-wallet-shared/build/methods/trustAsset";
 import {
   Asset,
@@ -29,6 +21,8 @@ import {
   TomlFields,
   AnchorActionType,
 } from "types/types";
+import { getUnifiedAccountData } from "helpers/accountUtils";
+import { authenticateWithSep10, authenticateWithSep45 } from "./authUtils";
 
 export const depositAssetAction = createAsyncThunk<
   { currentStatus: string; trustedAssetAdded?: string },
@@ -38,144 +32,158 @@ export const depositAssetAction = createAsyncThunk<
   "sep24DepositAsset/depositAssetAction",
   async (asset, { rejectWithValue, getState }) => {
     const { assetCode, assetIssuer, homeDomain } = asset;
+    if (!homeDomain) {
+      throw new Error("Something went wrong, home domain is not defined.");
+    }
 
-    const { data, secretKey } = accountSelector(getState());
-    const { claimableBalanceSupported } = settingsSelector(getState());
-    const {
-      isEnabled: custodialIsEnabled,
-      secretKey: custodialSecretKey,
-      publicKey: custodialPublicKey,
-      memoId: custodialMemoId,
-    } = custodialSelector(getState());
+    const networkConfig = getNetworkConfig();
+    const sep24TransferServerUrl = await getFromToml({
+      assetIssuer,
+      homeDomain,
+      networkUrl: networkConfig.url,
+      requiredKey: TomlFields.TRANSFER_SERVER_SEP0024,
+    });
+
     const { sep9Fields, memo } = extraSelector(getState());
+    const unifiedAccount = getUnifiedAccountData(getState());
+    if (!unifiedAccount) {
+      throw new Error("No valid account found.");
+    }
 
     try {
-      const networkConfig = getNetworkConfig();
-      const publicKey = data?.id;
+      if (unifiedAccount.accountType === 'classic') {
+        // Regular account - use SEP-10 authentication
+        const { publicKey, secretKey } = unifiedAccount;
+        if (!publicKey || !secretKey) {
+          throw new Error("Public key and secret key are required for SEP-24 deposit.");
+        }
 
-      // This is unlikely
-      if (!publicKey) {
-        throw new Error("Something is wrong with Account, no public key.");
-      }
+        const { claimableBalanceSupported } = settingsSelector(getState());
+        const { isEnabled: custodialIsEnabled } = custodialSelector(getState());
 
-      // This is unlikely (except for XLM)
-      if (!homeDomain) {
-        throw new Error("Something went wrong, home domain is not defined.");
-      }
-
-      // This is unlikely
-      if (
-        custodialIsEnabled &&
-        !(custodialSecretKey && custodialPublicKey && custodialMemoId)
-      ) {
-        throw new Error(
-          "Custodial mode requires secret key, public key, and memo ID",
-        );
-      }
-
-      log.instruction({ title: "Initiating a SEP-24 deposit" });
-
-      const trustAssetCallback = async () => {
-        const assetString = `${assetCode}:${assetIssuer}`;
-
-        await trustAsset({
+        // SEP-10 send
+        const token = await authenticateWithSep10(
+          AnchorActionType.DEPOSIT,
+          assetCode,
+          assetIssuer,
+          clientDomain,
+          homeDomain,
+          publicKey,
+          [
+            TomlFields.SIGNING_KEY,
+            TomlFields.TRANSFER_SERVER_SEP0024,
+            TomlFields.WEB_AUTH_ENDPOINT,
+          ],
           secretKey,
-          networkPassphrase: networkConfig.network,
-          networkUrl: networkConfig.url,
-          untrustedAsset: {
-            assetString,
-            assetCode,
-            assetIssuer,
-          },
-        });
+          "SEP-24 deposit",
+          getState(),
+          walletBackendEndpoint,
+        )
 
-        return assetString;
-      };
+        const trustAssetCallback = async () => {
+          const assetString = `${assetCode}:${assetIssuer}`;
 
-      // Check toml
-      const tomlResponse = await checkTomlForFields({
-        sepName: "SEP-24 deposit",
-        assetIssuer,
-        requiredKeys: [
-          TomlFields.SIGNING_KEY,
-          TomlFields.TRANSFER_SERVER_SEP0024,
-          TomlFields.WEB_AUTH_ENDPOINT,
-        ],
-        networkUrl: networkConfig.url,
-        homeDomain,
-      });
+          await trustAsset({
+            secretKey,
+            networkPassphrase: networkConfig.network,
+            networkUrl: networkConfig.url,
+            untrustedAsset: {
+              assetString,
+              assetCode,
+              assetIssuer,
+            },
+          });
 
-      // Check info
-      await checkInfo({
-        type: AnchorActionType.DEPOSIT,
-        toml: tomlResponse,
-        assetCode,
-      });
+          return assetString;
+        };
 
-      log.instruction({
-        title:
-          "SEP-24 deposit is enabled, and requires authentication so we should go through SEP-10",
-      });
+        const generatedMemoId = custodialIsEnabled
+          ? Math.floor(Math.random() * 100).toString()
+          : undefined;
 
-      // SEP-10 start
-      const challengeTransaction = await sep10AuthStart({
-        authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
-        serverSigningKey: tomlResponse.SIGNING_KEY,
-        publicKey: custodialPublicKey || publicKey,
-        homeDomain: normalizeHomeDomainUrl(homeDomain).host,
-        clientDomain,
-        memoId: custodialMemoId,
-      });
-
-      // SEP-10 sign
-      const signedChallengeTransaction = await sep10AuthSign({
-        secretKey: custodialSecretKey || secretKey,
-        networkPassphrase: networkConfig.network,
-        challengeTransaction,
-        walletBackendEndpoint,
-      });
-
-      // SEP-10 send
-      const token = await sep10AuthSend({
-        authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
-        signedChallengeTransaction,
-      });
-
-      const generatedMemoId = custodialIsEnabled
-        ? Math.floor(Math.random() * 100).toString()
-        : undefined;
-
-      // Interactive flow
-      const interactiveResponse = await interactiveDepositFlow({
-        assetCode,
-        publicKey,
-        sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
-        token,
-        claimableBalanceSupported,
-        memo: memo?.memo || generatedMemoId,
-        memoType: custodialIsEnabled || memo?.memo ? "id" : undefined,
-        sep9Fields,
-      });
-
-      // Create popup
-      const popup = createPopup(interactiveResponse.url);
-
-      // Poll transaction until complete
-      const { currentStatus, trustedAssetAdded } =
-        await pollDepositUntilComplete({
-          popup,
-          transactionId: interactiveResponse.id,
+        // Interactive flow
+        const interactiveResponse = await interactiveDepositFlow({
+          assetCode,
+          publicKey,
+          sep24TransferServerUrl,
           token,
-          sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
-          trustAssetCallback,
-          custodialMemoId: generatedMemoId,
+          claimableBalanceSupported,
+          memo: memo?.memo || generatedMemoId,
+          memoType: custodialIsEnabled || memo?.memo ? "id" : undefined,
           sep9Fields,
         });
 
-      return {
-        currentStatus,
-        trustedAssetAdded,
-      };
+        // Create popup
+        const popup = createPopup(interactiveResponse.url);
+
+        // Poll transaction until complete
+        const { currentStatus, trustedAssetAdded } =
+          await pollDepositUntilComplete({
+            popup,
+            transactionId: interactiveResponse.id,
+            token,
+            sep24TransferServerUrl,
+            trustAssetCallback,
+            custodialMemoId: generatedMemoId,
+            sep9Fields,
+          });
+
+        return {
+          currentStatus,
+          trustedAssetAdded,
+        };
+
+      } else {
+        // Contract account - use contract authentication
+        const { contractId } = unifiedAccount;
+        if (!contractId) {
+          throw new Error("Contract ID is required for SEP-24 deposit.");
+        }
+
+        // SEP-45 start
+        const token = await authenticateWithSep45(
+          AnchorActionType.DEPOSIT,
+          assetCode,
+          assetIssuer,
+          contractId,
+          homeDomain,
+          [
+            TomlFields.SIGNING_KEY,
+            TomlFields.TRANSFER_SERVER_SEP0024,
+            TomlFields.WEB_AUTH_FOR_CONTRACTS_ENDPOINT,
+          ],
+          "SEP-24 deposit",
+          walletBackendEndpoint,
+        )
+
+        // Interactive flow
+        const interactiveResponse = await interactiveDepositFlow({
+          assetCode,
+          publicKey: contractId!,
+          sep24TransferServerUrl,
+          token,
+          claimableBalanceSupported: false,
+          sep9Fields,
+        });
+
+        // Create popup
+        const popup = createPopup(interactiveResponse.url);
+
+        // Poll transaction until complete
+        const { currentStatus, trustedAssetAdded } =
+          await pollDepositUntilComplete({
+            popup,
+            transactionId: interactiveResponse.id,
+            token,
+            sep24TransferServerUrl,
+            sep9Fields,
+          });
+
+        return {
+          currentStatus,
+          trustedAssetAdded,
+        };
+      }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 
