@@ -33,9 +33,9 @@ export const sign = async ({
       validateEntryGeneralInfo(entry, expectedArgs, webAuthContractId);
 
       // Validate Server Account and signature from the Server Account
-      const isServerEntry =
-        entry.credentials().address().address().switch().value ===
-        xdr.ScAddressType.scAddressTypeAccount().value;
+      const isServerEntry = Address.fromScAddress(
+        entry.credentials().address().address(),
+      ).toString() === serverSigningKey
       if(isServerEntry) {
         validateServerEntryAndSignature(entry, serverSigningKey);
       }
