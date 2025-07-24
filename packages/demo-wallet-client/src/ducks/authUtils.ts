@@ -137,10 +137,10 @@ export const authenticateWithSep45 = async (
   assetCode: string,
   assetIssuer: string,
   contractId: string,
+  clientDomain: string,
   homeDomain: string,
   requiredKeys: TomlFields[],
   sepName: string,
-  walletBackendEndpoint: string
 ): Promise<string> => {
   log.instruction({
     title: `Initiating a ${sepName} for classic account`,
@@ -163,14 +163,8 @@ export const authenticateWithSep45 = async (
     assetCode,
   });
 
-  // Check Wallet TOML
-  // When authenticating with SEP-45, we need to pass the client domain where the toml is hosted. Not where the application is running
-  let clientDomain = "";
   let clientDomainSigningKey = "";
-  if (!isEmpty(walletBackendEndpoint)) {
-    const url = new URL(walletBackendEndpoint);
-    const clientDomain = url.host;
-
+  if (!isEmpty(clientDomain)) {
     const clientTomlResponse = await getToml(clientDomain);
     clientDomainSigningKey = clientTomlResponse.SIGNING_KEY!;
   }

@@ -152,6 +152,7 @@ export const depositAssetAction = createAsyncThunk<
           assetCode,
           assetIssuer,
           contractId,
+          clientDomain,
           homeDomain,
           [
             TomlFields.SIGNING_KEY,
@@ -160,7 +161,6 @@ export const depositAssetAction = createAsyncThunk<
             TomlFields.WEB_AUTH_FOR_CONTRACTS_ENDPOINT,
           ],
           "SEP-24 deposit",
-          walletBackendEndpoint,
         )
 
         // Interactive flow

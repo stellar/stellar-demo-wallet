@@ -1,18 +1,16 @@
 import {
-  Address, authorizeEntry, BASE_FEE,
-  hash, Keypair, Networks, Operation, StrKey, TransactionBuilder,
+  Address, authorizeEntry,
+  hash, Keypair, Operation, StrKey, TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
 import { Api, Server } from "@stellar/stellar-sdk/rpc";
-import {
-  SOROBAN_CONFIG,
-  SOURCE_KEYPAIR_SECRET,
-} from "demo-wallet-client/src/config/constants";
+import { SOURCE_KEYPAIR_SECRET } from "demo-wallet-client/src/config/constants";
 import { PasskeyService } from "demo-wallet-client/src/services/PasskeyService";
 import * as xdrParser from "@stellar/js-xdr";
 import base64url from "base64url";
+import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 
-const server = new Server(SOROBAN_CONFIG.RPC_URL);
+const server = new Server(getNetworkConfig().rpcUrl);
 
 export const sign = async ({
   authEntries,
@@ -77,8 +75,8 @@ export const sign = async ({
   const sourceAcc = await server.getAccount(sourceKeypair.publicKey());
 
   const tx = new TransactionBuilder(sourceAcc, {
-    fee: BASE_FEE,
-    networkPassphrase: Networks.TESTNET, // or mainnet if needed
+    fee: getNetworkConfig().baseFee,
+    networkPassphrase: getNetworkConfig().rpcNetwork, // or mainnet if needed
   })
     .addOperation(op)
     .setTimeout(300)
@@ -148,7 +146,7 @@ function validateEntryGeneralInfo(
 ) {
   // 1. No sub_invocations
   if (entry.rootInvocation().subInvocations().length) {
-    throw new Error("Transfer authorizes sub-invocations to another contract");
+    throw new Error("Invocation authorizes sub-invocations to another contract");
   }
 
   // 2. contract_address matches the WEB_AUTH_CONTRACT_ID
@@ -200,7 +198,7 @@ function validateServerEntryAndSignature (
 
   const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
     new xdr.HashIdPreimageSorobanAuthorization({
-      networkId: hash(Buffer.from(Networks.TESTNET)),
+      networkId: hash(Buffer.from(getNetworkConfig().rpcNetwork)),
       nonce:entry.credentials().address().nonce(),
       invocation:entry.rootInvocation(),
       signatureExpirationLedger: entry.credentials().address().signatureExpirationLedger(),
@@ -223,7 +221,7 @@ async function authorizeClientDomainEntry(
 
   const SERVER_SIGNING_KEY = String(process.env.SERVER_SIGNING_KEY);
 
-  return authorizeEntry(unsignedEntry, Keypair.fromSecret(SERVER_SIGNING_KEY), validUntilLedgerSeq, Networks.TESTNET)
+  return authorizeEntry(unsignedEntry, Keypair.fromSecret(SERVER_SIGNING_KEY), validUntilLedgerSeq, getNetworkConfig().rpcNetwork)
 }
 
 async function authorizeEntryWithPasskeyService (
@@ -237,7 +235,7 @@ async function authorizeEntryWithPasskeyService (
 
   const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
     new xdr.HashIdPreimageSorobanAuthorization({
-      networkId: hash(Buffer.from(Networks.TESTNET)),
+      networkId: hash(Buffer.from(getNetworkConfig().rpcNetwork)),
       nonce: addrAuth.nonce(),
       signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
       invocation: entry.rootInvocation(),
