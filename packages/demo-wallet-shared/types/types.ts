@@ -12,6 +12,8 @@ declare global {
       HORIZON_URL?: string;
       WALLET_BACKEND_ENDPOINT?: string;
       CLIENT_DOMAIN?: string;
+      RPC_PASSPHRASE?: string;
+      RPC_URL?: string;
     };
   }
 }

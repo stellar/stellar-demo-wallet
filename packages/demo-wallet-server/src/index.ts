@@ -1,5 +1,10 @@
 import express, { ErrorRequestHandler } from "express";
-import { Transaction, Keypair } from "@stellar/stellar-sdk";
+import {
+  Transaction,
+  Keypair,
+  authorizeEntry,
+  xdr,
+} from "@stellar/stellar-sdk";
 import bodyParser from "body-parser";
 
 require("dotenv").config({ path: require("find-config")(".env") });
@@ -55,6 +60,26 @@ app.post("/sign", (req, res) => {
   res.send({
     transaction: transaction.toEnvelope().toXDR("base64"),
     network_passphrase: network_passphrase,
+  });
+});
+
+app.post("/sep45/sign", async (req, res) => {
+  console.log("request to /sep45/sign");
+  const unsigned_entry = req.body.unsigned_entry;
+  const valid_until_ledger_seq= req.body.valid_until_ledger_seq;
+  const network_passphrase = req.body.network_passphrase;
+
+  const signed_entry = await authorizeEntry(
+    xdr.SorobanAuthorizationEntry.fromXDR(unsigned_entry, "base64"),
+    Keypair.fromSecret(SERVER_SIGNING_KEY),
+    Number(valid_until_ledger_seq),
+    network_passphrase,
+  );
+
+  res.set("Access-Control-Allow-Origin", "*");
+  res.status(200);
+  res.send({
+    signed_entry: signed_entry.toXDR('base64'),
   });
 });
 

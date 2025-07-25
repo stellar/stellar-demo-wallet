@@ -6,7 +6,6 @@ import {
   hash,
   Keypair,
   nativeToScVal,
-  Networks,
   Operation,
   SigningCallback,
   StrKey,
@@ -27,6 +26,9 @@ import {
   parseRawSimulation,
   Server,
 } from "@stellar/stellar-sdk/rpc";
+import {
+  getNetworkConfig
+} from "demo-wallet-shared/build/helpers/getNetworkConfig";
 
 export class SmartWalletService {
   private static instance: SmartWalletService;
@@ -44,7 +46,7 @@ export class SmartWalletService {
   constructor() {
     this.passkeyService = new PasskeyService();
     this.sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
-    this.server = new Server(SOROBAN_CONFIG.RPC_URL);
+    this.server = new Server(getNetworkConfig().rpcUrl);
   }
 
   public async createPasskeyContract(passkeyName: string) {
@@ -52,15 +54,15 @@ export class SmartWalletService {
     const { pkId, pk } = await this.passkeyService.registerPasskey(passkeyName);
 
     // 2. Deploy contract
-    const { signTransaction } = basicNodeSigner(this.sourceKeypair, Networks.TESTNET);
+    const { signTransaction } = basicNodeSigner(this.sourceKeypair, getNetworkConfig().rpcNetwork);
     const deployTx = await Client.deploy(
       {
         credential_id: pkId,
         public_key: pk,
       },
       {
-        networkPassphrase: Networks.TESTNET,
-        rpcUrl: SOROBAN_CONFIG.RPC_URL,
+        networkPassphrase: getNetworkConfig().rpcNetwork,
+        rpcUrl: getNetworkConfig().rpcUrl,
         wasmHash: SOROBAN_CONFIG.WASM_HASH,
         salt: hash(base64url.toBuffer(pkId)),
         publicKey: this.sourceKeypair.publicKey(),
@@ -88,7 +90,7 @@ export class SmartWalletService {
     // 2. retrieve the contractId through the networkId, pkId, and deployer address
     const preimage = xdr.HashIdPreimage.envelopeTypeContractId(
       new xdr.HashIdPreimageContractId({
-        networkId: hash(Buffer.from(Networks.TESTNET,)),
+        networkId: hash(Buffer.from(getNetworkConfig().rpcNetwork,)),
         contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAddress(
           new xdr.ContractIdPreimageFromAddress({
             address: Address.fromString(this.sourceKeypair.publicKey()).toScAddress(),
@@ -119,7 +121,7 @@ export class SmartWalletService {
       const balance = await this.server.getSACBalance(
         contractId,
         asset,
-        Networks.TESTNET
+        getNetworkConfig().rpcNetwork
       );
 
       const balanceAmount = balance?.balanceEntry?.amount
@@ -141,7 +143,7 @@ export class SmartWalletService {
   public async fundContractWithXLM(contractId: string) {
     const fromAcc = await this.generateFundedKeypair();
     return await this.transfer(
-      Asset.native().contractId(Networks.TESTNET),
+      Asset.native().contractId(getNetworkConfig().rpcNetwork),
       fromAcc.publicKey(),
       contractId,
       9999,
@@ -162,7 +164,7 @@ export class SmartWalletService {
     const tx = new TransactionBuilder(
       sourceAcc,
       {
-        networkPassphrase: Networks.TESTNET,
+        networkPassphrase: getNetworkConfig().rpcNetwork,
         fee: SOROBAN_CONFIG.MAX_FEE
       })
       .addOperation(Operation.invokeContractFunction({
@@ -185,7 +187,7 @@ export class SmartWalletService {
 
     // 3. Sign auth entries
     simulatedTx.result!.auth = await Promise.all(simulatedTx.result?.auth?.map(entry =>
-      authorizeEntry(entry, signer, simulatedTx.latestLedger + 60, Networks.TESTNET)
+      authorizeEntry(entry, signer, simulatedTx.latestLedger + 60, getNetworkConfig().rpcNetwork)
     ) ?? []
     );
 

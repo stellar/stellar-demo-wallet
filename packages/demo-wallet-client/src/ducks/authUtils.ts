@@ -137,10 +137,11 @@ export const authenticateWithSep45 = async (
   assetCode: string,
   assetIssuer: string,
   contractId: string,
+  clientDomain: string,
   homeDomain: string,
   requiredKeys: TomlFields[],
   sepName: string,
-  walletBackendEndpoint: string
+  walletBackendEndpoint: string,
 ): Promise<string> => {
   log.instruction({
     title: `Initiating a ${sepName} for classic account`,
@@ -148,7 +149,7 @@ export const authenticateWithSep45 = async (
 
   const networkConfig = getNetworkConfig();
 
-  // Check Anchor TOML for required SEP-10 fields
+  // Check Anchor TOML for required SEP-45 fields
   const tomlResponse = await checkTomlForFields({
     sepName,
     assetIssuer: assetIssuer,
@@ -163,16 +164,10 @@ export const authenticateWithSep45 = async (
     assetCode,
   });
 
-  // Check Wallet TOML
-  // When authenticating with SEP-45, we need to pass the client domain where the toml is hosted. Not where the application is running
-  let clientDomain = "";
-  let clientAccount = "";
-  if (!isEmpty(walletBackendEndpoint)) {
-    const url = new URL(walletBackendEndpoint);
-    const clientDomain = url.host;
-
+  let clientDomainSigningKey = "";
+  if (!isEmpty(clientDomain)) {
     const clientTomlResponse = await getToml(clientDomain);
-    clientAccount = clientTomlResponse.ACCOUNTS![0];
+    clientDomainSigningKey = clientTomlResponse.SIGNING_KEY!;
   }
 
   log.instruction({
@@ -188,9 +183,22 @@ export const authenticateWithSep45 = async (
   });
 
   // SEP-45 sign
+  const expectedArgs = {
+    account: contractId,
+    home_domain: normalizeHomeDomainUrl(homeDomain).host,
+    web_auth_domain:  new URL(tomlResponse.WEB_AUTH_FOR_CONTRACTS_ENDPOINT).host,
+    web_auth_domain_account: tomlResponse.SIGNING_KEY,
+    ...(clientDomain && { client_domain: clientDomain }),
+    ...(clientDomainSigningKey && { client_domain_account: clientDomainSigningKey }),
+  } as const;
+
   const signedChallengeResponse = await sep45AuthSign({
     authEntries: challengeTransaction.authorizationEntries,
-    clientAccount,
+    clientDomainSigningKey,
+    expectedArgs,
+    serverSigningKey: tomlResponse.SIGNING_KEY,
+    walletBackendEndpoint,
+    webAuthContractId: tomlResponse.WEB_AUTH_CONTRACT_ID,
   });
 
   // SEP-45 send

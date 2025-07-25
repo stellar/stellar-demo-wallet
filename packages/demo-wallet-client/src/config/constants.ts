@@ -4,7 +4,6 @@ import { ContractAccountDetails } from "../types/types";
 export const SOROBAN_CONFIG = {
   MAX_FEE: "10000",
   ONE: 10 ** 7, // Stroops in 1
-  RPC_URL: "https://soroban-testnet.stellar.org",
   WASM_HASH: "03dbb8b88b981e944ae44f48edba5a39c8351ea8c84959b92707108837654f6f",
 } as const;
 
