@@ -1,28 +1,34 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
+import { clientDomain, RootState, walletBackendEndpoint } from "config/store";
 import { settingsSelector } from "ducks/settings";
 import { custodialSelector } from "ducks/custodial";
 import { extraSelector } from "ducks/extra";
-import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
-import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+import {
+  getErrorMessage,
+} from "demo-wallet-shared/build/helpers/getErrorMessage";
+import {
+  getNetworkConfig,
+} from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import {
-  interactiveDepositFlow,
   createPopup,
+  interactiveDepositFlow,
   pollDepositUntilComplete,
 } from "demo-wallet-shared/build/methods/sep24";
-import { getFromToml } from "demo-wallet-shared/build/methods/checkTomlForFields";
+import {
+  getFromToml,
+} from "demo-wallet-shared/build/methods/checkTomlForFields";
 import { trustAsset } from "demo-wallet-shared/build/methods/trustAsset";
 import {
-  Asset,
   ActionStatus,
-  Sep24DepositAssetInitialState,
-  RejectMessage,
-  TomlFields,
   AnchorActionType,
+  Asset,
+  RejectMessage,
+  Sep24DepositAssetInitialState,
 } from "types/types";
 import { getUnifiedAccountData } from "helpers/accountUtils";
 import { authenticateWithSep10, authenticateWithSep45 } from "./authUtils";
+import { TomlFields } from "demo-wallet-shared/build/types/types";
 
 export const depositAssetAction = createAsyncThunk<
   { currentStatus: string; trustedAssetAdded?: string },
@@ -146,10 +152,12 @@ export const depositAssetAction = createAsyncThunk<
           assetCode,
           assetIssuer,
           contractId,
+          clientDomain,
           homeDomain,
           [
             TomlFields.SIGNING_KEY,
             TomlFields.TRANSFER_SERVER_SEP0024,
+            TomlFields.WEB_AUTH_CONTRACT_ID,
             TomlFields.WEB_AUTH_FOR_CONTRACTS_ENDPOINT,
           ],
           "SEP-24 deposit",
