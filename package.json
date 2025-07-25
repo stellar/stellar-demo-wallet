@@ -14,7 +14,7 @@
     "clean": "rm -rf node_modules && rm -rf */**/node_modules && rm -rf */**/build"
   },
   "dependencies": {
-    "@stellar/stellar-sdk": "^13.3.0",
+    "@stellar/stellar-sdk": "^^14.0.0-rc.3",
     "demo-wallet-shared": "^1.0.0",
     "npm-run-all": "^4.1.5"
   }
