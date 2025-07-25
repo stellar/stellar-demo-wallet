@@ -154,7 +154,9 @@ function validateEntryGeneralInfo(
 
   // 2. contract_address matches the WEB_AUTH_CONTRACT_ID
   const contractFn = entry.rootInvocation().function().contractFn()
-  const contractId = Address.contract(contractFn.contractAddress().contractId()).toString();
+  const contractId = Address.contract(
+    Buffer.from(contractFn.contractAddress().contractId() as any as Uint8Array),
+  ).toString();
   if (contractId !== webAuthContractId) {
     throw new Error(`contractId is invalid! Expected: ${webAuthContractId} but got: ${contractId}`);
   }
