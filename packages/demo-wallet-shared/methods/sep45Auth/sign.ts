@@ -1,5 +1,5 @@
 import {
-  Address, authorizeEntry,
+  Address,
   hash, Keypair, Operation, StrKey, TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
@@ -9,6 +9,7 @@ import { PasskeyService } from "demo-wallet-client/src/services/PasskeyService";
 import * as xdrParser from "@stellar/js-xdr";
 import base64url from "base64url";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
+import { log } from "../../helpers/log";
 
 const server = new Server(getNetworkConfig().rpcUrl);
 
@@ -17,12 +18,14 @@ export const sign = async ({
   clientDomainSigningKey,
   expectedArgs,
   serverSigningKey,
+  walletBackendEndpoint,
   webAuthContractId,
 } : {
   authEntries: string,
   clientDomainSigningKey: string,
   expectedArgs: Record<string, string>,
   serverSigningKey: string,
+  walletBackendEndpoint: string,
   webAuthContractId: string,
 }) => {
   const decodedEntries = decodeAuthorizationEntries(authEntries);
@@ -52,7 +55,7 @@ export const sign = async ({
       if(clientDomainSigningKey && Address.fromScAddress(
           entry.credentials().address().address(),
         ).toString() === clientDomainSigningKey) {
-        return authorizeClientDomainEntry(entry)
+        return authorizeClientDomainEntry(entry, walletBackendEndpoint);
       }
 
       return entry;
@@ -216,12 +219,37 @@ function validateServerEntryAndSignature (
 
 async function authorizeClientDomainEntry(
   unsignedEntry: xdr.SorobanAuthorizationEntry,
+  walletBackendEndpoint: string,
 ): Promise<xdr.SorobanAuthorizationEntry> {
+  log.instruction({
+    title:
+      "anchor supports SEP-45 client attribution, requesting signature from demo wallet backend...",
+  });
+
   const validUntilLedgerSeq = (await server.getLatestLedger()).sequence + 60;
+  const params = {
+    unsigned_entry: unsignedEntry.toXDR('base64'),
+    valid_until_ledger_seq: validUntilLedgerSeq.toString(),
+    network_passphrase: getNetworkConfig().rpcNetwork,
+  };
 
-  const SERVER_SIGNING_KEY = String(process.env.SERVER_SIGNING_KEY);
+  log.request({ title: "POST `/sep45/sign`", body: params });
+  const urlParams = new URLSearchParams(params);
+  const walletBackendSignEndpoint = `${walletBackendEndpoint}/sep45/sign`;
+  const result = await fetch(walletBackendSignEndpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: urlParams.toString(),
+  });
+  const resultJson = await result.json();
 
-  return authorizeEntry(unsignedEntry, Keypair.fromSecret(SERVER_SIGNING_KEY), validUntilLedgerSeq, getNetworkConfig().rpcNetwork)
+  log.response({ title: "POST `/sep45/sign`", body: resultJson });
+  const signedEntry = resultJson.signed_entry;
+
+  log.instruction({ title: "challenge signed by demo wallet backend" });
+  return xdr.SorobanAuthorizationEntry.fromXDR(signedEntry, "base64");
 }
 
 async function authorizeEntryWithPasskeyService (

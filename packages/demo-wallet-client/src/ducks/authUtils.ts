@@ -141,6 +141,7 @@ export const authenticateWithSep45 = async (
   homeDomain: string,
   requiredKeys: TomlFields[],
   sepName: string,
+  walletBackendEndpoint: string,
 ): Promise<string> => {
   log.instruction({
     title: `Initiating a ${sepName} for classic account`,
@@ -196,6 +197,7 @@ export const authenticateWithSep45 = async (
     clientDomainSigningKey,
     expectedArgs,
     serverSigningKey: tomlResponse.SIGNING_KEY,
+    walletBackendEndpoint,
     webAuthContractId: tomlResponse.WEB_AUTH_CONTRACT_ID,
   });
 
