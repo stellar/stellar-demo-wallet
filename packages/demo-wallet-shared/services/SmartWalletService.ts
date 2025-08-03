@@ -7,7 +7,6 @@ import {
   Keypair,
   nativeToScVal,
   Operation,
-  SigningCallback,
   StrKey,
   Transaction,
   TransactionBuilder,
@@ -156,7 +155,7 @@ export class SmartWalletService {
     fromAcc: string,
     toAcc: string,
     amount: number,
-    signer: Keypair | SigningCallback,
+    signer: Keypair | string,
   ) {
     const sourceAcc = await this.server.getAccount(this.sourceKeypair.publicKey());
 
@@ -181,18 +180,39 @@ export class SmartWalletService {
 
     // 2. Simulate transaction
     const simulatedTx = await this.server.simulateTransaction(tx);
-    if (Api.isSimulationError(simulatedTx)) {
+    if (!Api.isSimulationSuccess(simulatedTx)) {
       throw new Error(simulatedTx.error);
     }
 
+    // // 3. Sign auth entries
+    // simulatedTx.result!.auth = await Promise.all(simulatedTx.result?.auth?.map(entry =>
+    //   authorizeEntry(entry, signer, simulatedTx.latestLedger + 60, getNetworkConfig().rpcNetwork)
+    // ) ?? []
+    // );
+
     // 3. Sign auth entries
-    simulatedTx.result!.auth = await Promise.all(simulatedTx.result?.auth?.map(entry =>
-      authorizeEntry(entry, signer, simulatedTx.latestLedger + 60, getNetworkConfig().rpcNetwork)
-    ) ?? []
-    );
+    if (signer instanceof Keypair) {
+      simulatedTx.result!.auth =
+        await Promise.all(simulatedTx.result?.auth?.map(entry =>
+          authorizeEntry(entry, signer, simulatedTx.latestLedger + 60, getNetworkConfig().rpcNetwork)
+        ) ?? []
+        );
+    } else {
+      simulatedTx.result!.auth =
+        await Promise.all(simulatedTx.result?.auth?.map(entry =>
+          this.signWithContractAccount(entry, simulatedTx.latestLedger)
+        ) ?? []
+        );
+    }
+
+    // simulate the transaction again with signed auth entries
+    const simulatedAgain = await this.server.simulateTransaction(tx);
+    if (!Api.isSimulationSuccess(simulatedAgain)) {
+      throw new Error(simulatedAgain.error);
+    }
 
     // 4. Assemble the transaction with signed auth entries
-    const preppedTx = await this.assembleTransaction(tx, simulatedTx);
+    const preppedTx = await this.assembleTransaction(tx, simulatedAgain);
     preppedTx.sign(this.sourceKeypair);
 
     // 5: Send the transaction
@@ -214,6 +234,52 @@ export class SmartWalletService {
         `Unabled to submit transaction, status: ${response.status}`,
       );
     }
+  }
+
+  async signWithClassicAccount (
+    unsignedEntry: xdr.SorobanAuthorizationEntry,
+    signer: Keypair,
+    validUntilLedgerSeq: number
+  ) {
+    // return signed auth entries
+    return await authorizeEntry(unsignedEntry, signer, validUntilLedgerSeq, getNetworkConfig().rpcNetwork)
+  }
+
+  async signWithContractAccount (
+    unsignedEntry: xdr.SorobanAuthorizationEntry,
+    validUntilLedgerSeq: number
+  ) {
+    const entry = xdr.SorobanAuthorizationEntry.fromXDR(unsignedEntry.toXDR());
+    const addrAuth = entry.credentials().address();
+
+    addrAuth.signatureExpirationLedger(validUntilLedgerSeq);
+
+    const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
+      new xdr.HashIdPreimageSorobanAuthorization({
+        networkId: hash(Buffer.from(getNetworkConfig().rpcNetwork)),
+        nonce: addrAuth.nonce(),
+        signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
+        invocation: entry.rootInvocation(),
+      }),
+    );
+    const payload = hash(preimage.toXDR());
+
+    const { authenticationResponse, compactSignature } = await PasskeyService.getInstance().signPayload(payload);
+
+    addrAuth.signature(
+      xdr.ScVal.scvMap([
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol("credential_id"),
+          val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.id)),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol("signature"),
+          val: xdr.ScVal.scvBytes(compactSignature),
+        }),
+      ]),
+    );
+
+    return entry;
   }
 
   /**
