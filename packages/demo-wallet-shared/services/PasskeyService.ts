@@ -23,6 +23,10 @@ export class PasskeyService {
   }
 
   constructor() {
+    // Guard against server-side usage
+    if (typeof window === 'undefined') {
+      throw new Error('PasskeyService can only be used in browser environments');
+    }
     this.domain = window.location.hostname;
   }
 

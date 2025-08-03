@@ -18,7 +18,7 @@ import {
   SendTxStatus,
   SOROBAN_CONFIG,
   SOURCE_KEYPAIR_SECRET,
-} from "../config/constants";
+} from "../constants/soroban";
 import base64url from "base64url";
 import {
   Api,
@@ -28,7 +28,7 @@ import {
 } from "@stellar/stellar-sdk/rpc";
 import {
   getNetworkConfig
-} from "demo-wallet-shared/build/helpers/getNetworkConfig";
+} from "../helpers/getNetworkConfig";
 
 export class SmartWalletService {
   private static instance: SmartWalletService;

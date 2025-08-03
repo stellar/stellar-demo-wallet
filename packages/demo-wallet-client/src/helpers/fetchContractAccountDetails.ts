@@ -1,9 +1,8 @@
-import { STELLAR_EXPERT_API } from "../config/constants";
 import {
   Asset, AssetType,
   ContractAccountDetails,
 } from "../types/types";
-import { SmartWalletService } from "../services/SmartWalletService";
+import { SmartWalletService } from "demo-wallet-shared/build/services/SmartWalletService";
 import {
   getAssetSettingsFromToml
 } from "demo-wallet-shared/build/helpers/getAssetSettingsFromToml";
@@ -14,6 +13,8 @@ import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import {
   getNetworkConfig
 } from "demo-wallet-shared/build/helpers/getNetworkConfig";
+
+export const STELLAR_EXPERT_API = "https://api.stellar.expert/explorer/testnet";
 
 export const fetchContractAccountInfo = async (
   contractId: string,

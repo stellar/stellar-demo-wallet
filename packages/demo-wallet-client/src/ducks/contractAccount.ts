@@ -7,7 +7,7 @@ import {
 import { RootState } from "../config/store";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
-import { SmartWalletService } from "../services/SmartWalletService";
+import { SmartWalletService } from "demo-wallet-shared/build/services/SmartWalletService";
 import { ActionStatus } from "../types/types";
 import {
   fetchContractAccountInfo,

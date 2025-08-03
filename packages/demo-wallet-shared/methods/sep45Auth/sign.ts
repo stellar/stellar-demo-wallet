@@ -4,8 +4,8 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { Api, Server } from "@stellar/stellar-sdk/rpc";
-import { SOURCE_KEYPAIR_SECRET } from "demo-wallet-client/src/config/constants";
-import { PasskeyService } from "demo-wallet-client/src/services/PasskeyService";
+import { SOURCE_KEYPAIR_SECRET } from "../../constants/soroban";
+import { PasskeyService } from "../../services/PasskeyService";
 import * as xdrParser from "@stellar/js-xdr";
 import base64url from "base64url";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
