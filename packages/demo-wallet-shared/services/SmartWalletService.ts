@@ -200,20 +200,20 @@ export class SmartWalletService {
     } else {
       simulatedTx.result!.auth =
         await Promise.all(simulatedTx.result?.auth?.map(entry =>
-          this.signWithContractAccount(entry, simulatedTx.latestLedger)
+          this.signWithContractAccount(entry, simulatedTx.latestLedger + 60)
         ) ?? []
         );
     }
 
-    // simulate the transaction again with signed auth entries
-    const simulatedAgain = await this.server.simulateTransaction(tx);
-    if (!Api.isSimulationSuccess(simulatedAgain)) {
-      throw new Error(simulatedAgain.error);
-    }
-
     // 4. Assemble the transaction with signed auth entries
-    const preppedTx = await this.assembleTransaction(tx, simulatedAgain);
+    const preppedTx = await this.assembleTransaction(tx, simulatedTx);
     preppedTx.sign(this.sourceKeypair);
+
+    console.log("📋 TRANSACTION ENVELOPE (base64) - Copy this to Stellar Laboratory:");
+    console.log("🔗 Paste at: " + "https://lab.stellar.org/transaction/submit?$=network$id=testnet&label=Testnet&horizonUrl=https:////horizon-testnet.stellar.org&rpcUrl=https:////soroban-testnet.stellar.org&passphrase=Test%20SDF%20Network%20/;%20September%202015;");
+    console.log("📄 TransactionEnvelope XDR:");
+    console.log(preppedTx.toXDR());
+    console.log("--- END TRANSACTION ENVELOPE ---");
 
     // 5: Send the transaction
     const response = await this.server.sendTransaction(preppedTx);
