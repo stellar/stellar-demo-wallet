@@ -49,7 +49,10 @@ import {
   depositAssetAction as initiateSep24DepositAction,
   resetSep24DepositAssetAction,
 } from "ducks/sep24DepositAsset";
-import { withdrawAssetAction as initiateSep24WithdrawAction } from "ducks/sep24WithdrawAsset";
+import {
+  withdrawAssetAction as initiateSep24WithdrawAction,
+  resetSep24WithdrawAssetAction,
+} from "ducks/sep24WithdrawAsset";
 import { initiateSendAction as initiateSep31SendAction} from "ducks/sep31Send";
 import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import { resetCustodialAction } from "../ducks/custodial";
@@ -63,12 +66,14 @@ export const ContractAccountAssets = () => {
     settings, 
     activeAsset,
     sep24DepositAsset,
+    sep24WithdrawAsset,
   } = useRedux(
     "contractAccount", 
     "contractAssets", 
     "settings", 
     "activeAsset",
     "sep24DepositAsset",
+    "sep24WithdrawAsset",
   );
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
@@ -330,7 +335,26 @@ export const ContractAccountAssets = () => {
       status: sep24DepositAsset.status,
       message: "SEP-24 deposit in progress",
     });
-  }, [sep24DepositAsset.status, sep24DepositAsset.data.currentStatus, sep24DepositAsset.data.trustedAssetAdded, setActiveAssetStatusAndToastMessage, dispatch, handleRefreshAccount]);
+  }, [sep24DepositAsset.status, sep24DepositAsset.data.currentStatus, setActiveAssetStatusAndToastMessage, dispatch, handleRefreshAccount]);
+
+
+  // SEP-24 Withdraw asset
+  useEffect(() => {
+    if (sep24WithdrawAsset.status === ActionStatus.SUCCESS) {
+      dispatch(resetSep24WithdrawAssetAction());
+
+      if (
+        sep24WithdrawAsset.data.currentStatus === TransactionStatus.COMPLETED
+      ) {
+        handleRefreshAccount();
+      }
+    }
+
+    setActiveAssetStatusAndToastMessage({
+      status: sep24WithdrawAsset.status,
+      message: "SEP-24 withdrawal in progress",
+    });
+  }, [sep24WithdrawAsset.status, sep24WithdrawAsset.data.currentStatus, setActiveAssetStatusAndToastMessage, dispatch, handleRefreshAccount]);
 
   return (
     <>

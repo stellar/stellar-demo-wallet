@@ -56,7 +56,7 @@ export class SmartWalletService {
     const { signTransaction } = basicNodeSigner(this.sourceKeypair, getNetworkConfig().rpcNetwork);
     const deployTx = await Client.deploy(
       {
-        credential_id: pkId,
+        credential_id: base64url.toBuffer(pkId),
         public_key: pk,
       },
       {
@@ -184,11 +184,6 @@ export class SmartWalletService {
       throw new Error(simulatedTx.error);
     }
 
-    // // 3. Sign auth entries
-    // simulatedTx.result!.auth = await Promise.all(simulatedTx.result?.auth?.map(entry =>
-    //   authorizeEntry(entry, signer, simulatedTx.latestLedger + 60, getNetworkConfig().rpcNetwork)
-    // ) ?? []
-    // );
 
     // 3. Sign auth entries
     if (signer instanceof Keypair) {
@@ -206,14 +201,15 @@ export class SmartWalletService {
     }
 
     // 4. Assemble the transaction with signed auth entries
-    const preppedTx = await this.assembleTransaction(tx, simulatedTx);
-    preppedTx.sign(this.sourceKeypair);
+    let preppedTx = await this.assembleTransaction(tx, simulatedTx);
 
-    console.log("📋 TRANSACTION ENVELOPE (base64) - Copy this to Stellar Laboratory:");
-    console.log("🔗 Paste at: " + "https://lab.stellar.org/transaction/submit?$=network$id=testnet&label=Testnet&horizonUrl=https:////horizon-testnet.stellar.org&rpcUrl=https:////soroban-testnet.stellar.org&passphrase=Test%20SDF%20Network%20/;%20September%202015;");
-    console.log("📄 TransactionEnvelope XDR:");
-    console.log(preppedTx.toXDR());
-    console.log("--- END TRANSACTION ENVELOPE ---");
+    // 5. Simulate and assemble again to update the resource for custom auth check
+    const simulatedAgain = await this.server.simulateTransaction(preppedTx);
+    if (!Api.isSimulationSuccess(simulatedAgain)) {
+      throw new Error(simulatedAgain.error);
+    }
+    preppedTx = await this.assembleTransaction(preppedTx, simulatedAgain);
+    preppedTx.sign(this.sourceKeypair);
 
     // 5: Send the transaction
     const response = await this.server.sendTransaction(preppedTx);
