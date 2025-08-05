@@ -5,11 +5,10 @@ import {
 } from "@stellar/stellar-sdk";
 import { Api, Server } from "@stellar/stellar-sdk/rpc";
 import { SOURCE_KEYPAIR_SECRET } from "../../constants/soroban";
-import { PasskeyService } from "../../services/PasskeyService";
 import * as xdrParser from "@stellar/js-xdr";
-import base64url from "base64url";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 import { log } from "../../helpers/log";
+import { SmartWalletService } from "../../services/SmartWalletService";
 
 const server = new Server(getNetworkConfig().rpcUrl);
 
@@ -28,6 +27,7 @@ export const sign = async ({
   walletBackendEndpoint: string,
   webAuthContractId: string,
 }) => {
+  const swService = SmartWalletService.getInstance();
   const decodedEntries = decodeAuthorizationEntries(authEntries);
 
   const signedEntries = await Promise.all(
@@ -48,7 +48,8 @@ export const sign = async ({
         entry.credentials().address().address().switch().value ===
         xdr.ScAddressType.scAddressTypeContract().value;
       if(isAuthEntry) {
-        return authorizeEntryWithPasskeyService(entry);
+        const validUntilLedgerSeq = (await server.getLatestLedger()).sequence + 60;
+        return swService.signWithContractAccount(entry, validUntilLedgerSeq)
       }
 
       // Sign client domain entry
@@ -252,41 +253,4 @@ async function authorizeClientDomainEntry(
 
   log.instruction({ title: "challenge signed by demo wallet backend" });
   return xdr.SorobanAuthorizationEntry.fromXDR(signedEntry, "base64");
-}
-
-async function authorizeEntryWithPasskeyService (
-  unsignedEntry: xdr.SorobanAuthorizationEntry,
-): Promise<xdr.SorobanAuthorizationEntry> {
-  const entry = xdr.SorobanAuthorizationEntry.fromXDR(unsignedEntry.toXDR());
-  const addrAuth = entry.credentials().address();
-
-  const validUntilLedgerSeq = (await server.getLatestLedger()).sequence + 60;
-  addrAuth.signatureExpirationLedger(validUntilLedgerSeq);
-
-  const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
-    new xdr.HashIdPreimageSorobanAuthorization({
-      networkId: hash(Buffer.from(getNetworkConfig().rpcNetwork)),
-      nonce: addrAuth.nonce(),
-      signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
-      invocation: entry.rootInvocation(),
-    }),
-  );
-  const payload = hash(preimage.toXDR());
-
-  const { authenticationResponse, compactSignature } = await PasskeyService.getInstance().signPayload(payload);
-
-  addrAuth.signature(
-    xdr.ScVal.scvMap([
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol("credential_id"),
-        val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.id)),
-      }),
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol("signature"),
-        val: xdr.ScVal.scvBytes(compactSignature),
-      }),
-    ]),
-  );
-
-  return entry;
 }

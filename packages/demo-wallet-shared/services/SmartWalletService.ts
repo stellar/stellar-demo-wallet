@@ -189,7 +189,7 @@ export class SmartWalletService {
     if (signer instanceof Keypair) {
       simulatedTx.result!.auth =
         await Promise.all(simulatedTx.result?.auth?.map(entry =>
-          authorizeEntry(entry, signer, simulatedTx.latestLedger + 60, getNetworkConfig().rpcNetwork)
+          this.signWithClassicAccount(entry, signer, simulatedTx.latestLedger + 60)
         ) ?? []
         );
     } else {
@@ -232,7 +232,7 @@ export class SmartWalletService {
     }
   }
 
-  async signWithClassicAccount (
+  public async signWithClassicAccount (
     unsignedEntry: xdr.SorobanAuthorizationEntry,
     signer: Keypair,
     validUntilLedgerSeq: number
@@ -241,7 +241,7 @@ export class SmartWalletService {
     return await authorizeEntry(unsignedEntry, signer, validUntilLedgerSeq, getNetworkConfig().rpcNetwork)
   }
 
-  async signWithContractAccount (
+  public async signWithContractAccount (
     unsignedEntry: xdr.SorobanAuthorizationEntry,
     validUntilLedgerSeq: number
   ) {
