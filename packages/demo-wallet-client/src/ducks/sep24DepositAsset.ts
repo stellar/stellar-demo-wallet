@@ -67,7 +67,7 @@ export const depositAssetAction = createAsyncThunk<
         const { claimableBalanceSupported } = settingsSelector(getState());
         const { isEnabled: custodialIsEnabled } = custodialSelector(getState());
 
-        // SEP-10 send
+        // SEP-10 start
         const token = await authenticateWithSep10(
           AnchorActionType.DEPOSIT,
           assetCode,
