@@ -47,6 +47,7 @@ import {
   TransactionStatus,
 } from "types/types";
 import { AnchorPriceItem } from "demo-wallet-shared/build/types/types";
+import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 
 type InitiateDepositActionPayload = Sep6DepositAssetInitialState["data"] & {
   status: ActionStatus;
@@ -93,7 +94,9 @@ export const initiateDepositAction = createAsyncThunk<
         assetCode,
       });
 
-      const buyAsset = `stellar:${assetCode}:${assetIssuer}`;
+      const buyAsset = isNativeAsset(assetCode)
+        ? "stellar:native"
+        : `stellar:${assetCode}:${assetIssuer}`;
 
       let anchorQuoteServer;
       let depositAssets;
@@ -146,7 +149,7 @@ export const initiateDepositAction = createAsyncThunk<
           supportsQuotes && depositAssets && depositAssets?.length > 0
             ? AnchorActionType.DEPOSIT_EXCHANGE
             : AnchorActionType.DEPOSIT
-        ]?.[assetCode];
+        ]?.[isNativeAsset(assetCode) ? "native" : assetCode];
 
       // This is unlikely
       if (!assetInfoData) {

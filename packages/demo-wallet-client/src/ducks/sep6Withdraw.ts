@@ -47,6 +47,7 @@ import {
   TomlFields,
   TransactionStatus,
 } from "types/types";
+import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 
 type InitiateWithdrawActionPayload = Sep6WithdrawAssetInitialState["data"] & {
   status: ActionStatus;
@@ -93,7 +94,9 @@ export const initiateWithdrawAction = createAsyncThunk<
         assetCode,
       });
 
-      const sellAsset = `stellar:${assetCode}:${assetIssuer}`;
+      const sellAsset = isNativeAsset(assetCode)
+        ? "stellar:native"
+        : `stellar:${assetCode}:${assetIssuer}`;
 
       let anchorQuoteServer;
       let withdrawAssets;
@@ -141,7 +144,8 @@ export const initiateWithdrawAction = createAsyncThunk<
       });
 
       // Get either withdarw or withdraw-exchange asset data
-      const assetInfoData = infoData[actionType]?.[assetCode];
+      const assetInfoData =
+        infoData[actionType]?.[isNativeAsset(assetCode) ? "native" : assetCode];
 
       // This is unlikely
       if (!assetInfoData) {
