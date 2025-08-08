@@ -18,12 +18,14 @@ import {
   sep45AuthSign,
   sep45AuthStart,
 } from "demo-wallet-shared/build/methods/sep45Auth";
-import { checkInfo } from "demo-wallet-shared/build/methods/sep24";
 import { AnchorActionType } from "../types/types";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import { custodialSelector } from "./custodial";
 import { getToml } from "demo-wallet-shared/build/methods/getToml";
 import { isEmpty } from "lodash";
+import {
+  checkDepositWithdrawInfo
+} from "demo-wallet-shared/build/methods/checkDepositWithdrawInfo";
 
 export interface Sep10AuthParams {
   publicKey: string;
@@ -93,11 +95,11 @@ export const authenticateWithSep10 = async (
     homeDomain,
   });
 
-  await checkInfo({
+  await  checkDepositWithdrawInfo ({
     type: anchorActionType,
-    toml: tomlResponse,
+    transferServerUrl: sepName.startsWith("SEP-24") ? tomlResponse.TRANSFER_SERVER_SEP0024 : tomlResponse.TRANSFER_SERVER,
     assetCode,
-  });
+  })
 
   log.instruction({
     title: `${sepName} is enabled, and requires authentication so we should go through SEP-10`,
@@ -158,11 +160,11 @@ export const authenticateWithSep45 = async (
     homeDomain,
   });
 
-  await checkInfo({
+  await  checkDepositWithdrawInfo ({
     type: anchorActionType,
-    toml: tomlResponse,
+    transferServerUrl: sepName.startsWith("SEP-24") ? tomlResponse.TRANSFER_SERVER_SEP0024 : tomlResponse.TRANSFER_SERVER,
     assetCode,
-  });
+  })
 
   let clientDomainSigningKey = "";
   if (!isEmpty(clientDomain)) {
