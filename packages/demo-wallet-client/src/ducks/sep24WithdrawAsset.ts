@@ -1,24 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState, walletBackendEndpoint, clientDomain } from "config/store";
-import { accountSelector } from "ducks/account";
-import { custodialSelector } from "ducks/custodial";
 import { extraSelector } from "ducks/extra";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
-import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
 import { log } from "demo-wallet-shared/build/helpers/log";
 import {
-  sep10AuthStart,
-  sep10AuthSign,
-  sep10AuthSend,
-} from "demo-wallet-shared/build/methods/sep10Auth";
-import {
-  checkInfo,
   interactiveWithdrawFlow,
   createPopup,
   pollWithdrawUntilComplete,
 } from "demo-wallet-shared/build/methods/sep24";
-import { checkTomlForFields } from "demo-wallet-shared/build/methods/checkTomlForFields";
+import {
+  getFromToml,
+} from "demo-wallet-shared/build/methods/checkTomlForFields";
 import {
   Asset,
   ActionStatus,
@@ -27,6 +20,9 @@ import {
   TomlFields,
   AnchorActionType,
 } from "types/types";
+import { getUnifiedAccountData } from "../helpers/accountUtils";
+import { authenticateWithSep10, authenticateWithSep45 } from "./authUtils";
+import { SOURCE_KEYPAIR_SECRET } from "demo-wallet-shared/constants/soroban";
 
 export const withdrawAssetAction = createAsyncThunk<
   { currentStatus: string },
@@ -36,117 +32,134 @@ export const withdrawAssetAction = createAsyncThunk<
   "sep24WithdrawAsset/withdrawAssetAction",
   async (asset, { rejectWithValue, getState }) => {
     const { assetIssuer, assetCode, homeDomain } = asset;
-    const { data, secretKey } = accountSelector(getState());
-    const {
-      isEnabled: custodialIsEnabled,
-      secretKey: custodialSecretKey,
-      publicKey: custodialPublicKey,
-      memoId: custodialMemoId,
-    } = custodialSelector(getState());
-    const { sep9Fields } = extraSelector(getState());
-
-    const networkConfig = getNetworkConfig();
-    const publicKey = data?.id;
-
-    // This is unlikely
-    if (!publicKey) {
-      throw new Error("Something is wrong with Account, no public key.");
-    }
-
-    // This is unlikely
     if (!homeDomain) {
       throw new Error("Something went wrong, home domain is not defined.");
     }
 
-    // This is unlikely
-    if (
-      custodialIsEnabled &&
-      !(custodialSecretKey && custodialPublicKey && custodialMemoId)
-    ) {
-      throw new Error(
-        "Custodial mode requires secret key, public key, and memo ID",
-      );
+    const { sep9Fields } = extraSelector(getState());
+    const networkConfig = getNetworkConfig();
+    const sep24TransferServerUrl = await getFromToml({
+      assetIssuer,
+      homeDomain,
+      networkUrl: networkConfig.url,
+      requiredKey: TomlFields.TRANSFER_SERVER_SEP0024,
+    });
+
+    const unifiedAccount = getUnifiedAccountData(getState());
+    if (!unifiedAccount) {
+      throw new Error("No valid account found.");
     }
 
     try {
-      // Check toml
-      const tomlResponse = await checkTomlForFields({
-        sepName: "SEP-24 withdrawal",
-        assetIssuer,
-        requiredKeys: [
-          TomlFields.SIGNING_KEY,
-          TomlFields.TRANSFER_SERVER_SEP0024,
-          TomlFields.WEB_AUTH_ENDPOINT,
-        ],
-        networkUrl: networkConfig.url,
-        homeDomain,
-      });
+      if (unifiedAccount.accountType === 'classic') {
+        // Regular account - use SEP-10 authentication
+        const { publicKey, secretKey } = unifiedAccount;
+        if (!publicKey || !secretKey) {
+          throw new Error("Public key and secret key are required for SEP-24 withdraw.");
+        }
 
-      // Check info
-      await checkInfo({
-        type: AnchorActionType.WITHDRAWAL,
-        toml: tomlResponse,
-        assetCode,
-      });
+        // SEP-10 start
+        const token = await authenticateWithSep10(
+          AnchorActionType.WITHDRAWAL,
+          assetCode,
+          assetIssuer,
+          clientDomain,
+          homeDomain,
+          publicKey,
+          [
+            TomlFields.SIGNING_KEY,
+            TomlFields.TRANSFER_SERVER_SEP0024,
+            TomlFields.WEB_AUTH_ENDPOINT,
+          ],
+          secretKey,
+          "SEP-24 withdrawal",
+          getState(),
+          walletBackendEndpoint,
+        )
 
-      log.instruction({
-        title:
-          "SEP-24 withdrawal is enabled, and requires authentication so we should go through SEP-10",
-      });
+        // Interactive flow
+        const interactiveResponse = await interactiveWithdrawFlow({
+          assetCode,
+          publicKey,
+          sep24TransferServerUrl,
+          token,
+          sep9Fields,
+        });
 
-      // SEP-10 start
-      const challengeTransaction = await sep10AuthStart({
-        authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
-        serverSigningKey: tomlResponse.SIGNING_KEY,
-        publicKey: custodialPublicKey || publicKey,
-        homeDomain: normalizeHomeDomainUrl(homeDomain).host,
-        clientDomain,
-        memoId: custodialMemoId,
-      });
+        const popup = createPopup(interactiveResponse.url);
 
-      // SEP-10 sign
-      const signedChallengeTransaction = await sep10AuthSign({
-        secretKey: custodialSecretKey || secretKey,
-        networkPassphrase: networkConfig.network,
-        challengeTransaction,
-        walletBackendEndpoint,
-      });
+        // Poll transaction until complete
+        const currentStatus = await pollWithdrawUntilComplete({
+          secretKey,
+          popup,
+          transactionId: interactiveResponse.id,
+          token,
+          sep24TransferServerUrl,
+          networkPassphrase: networkConfig.network,
+          networkUrl: networkConfig.url,
+          assetCode,
+          assetIssuer,
+          sep9Fields,
+        });
 
-      // SEP-10 send
-      const token = await sep10AuthSend({
-        authEndpoint: tomlResponse.WEB_AUTH_ENDPOINT,
-        signedChallengeTransaction,
-      });
+        return {
+          currentStatus,
+        };
+      } else {
+        // Contract account - use contract authentication
+        const { contractId } = unifiedAccount;
+        if (!contractId) {
+          throw new Error("Contract ID is required for SEP-24 deposit.");
+        }
 
-      // Interactive flow
-      const interactiveResponse = await interactiveWithdrawFlow({
-        assetCode,
-        publicKey,
-        sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
-        token,
-        sep9Fields,
-      });
+        // SEP-45 start
+        const token = await authenticateWithSep45(
+          AnchorActionType.WITHDRAWAL,
+          assetCode,
+          assetIssuer,
+          contractId,
+          clientDomain,
+          homeDomain,
+          [
+            TomlFields.SIGNING_KEY,
+            TomlFields.TRANSFER_SERVER_SEP0024,
+            TomlFields.WEB_AUTH_CONTRACT_ID,
+            TomlFields.WEB_AUTH_FOR_CONTRACTS_ENDPOINT,
+          ],
+          "SEP-24 withdrawal",
+          walletBackendEndpoint,
+        )
 
-      // Create popup
-      const popup = createPopup(interactiveResponse.url);
+        // Interactive flow
+        const interactiveResponse = await interactiveWithdrawFlow({
+          assetCode,
+          publicKey: contractId!,
+          sep24TransferServerUrl,
+          token,
+          sep9Fields,
+        });
 
-      // Poll transaction until complete
-      const currentStatus = await pollWithdrawUntilComplete({
-        secretKey,
-        popup,
-        transactionId: interactiveResponse.id,
-        token,
-        sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024,
-        networkPassphrase: networkConfig.network,
-        networkUrl: networkConfig.url,
-        assetCode,
-        assetIssuer,
-        sep9Fields,
-      });
+        const popup = createPopup(interactiveResponse.url);
 
-      return {
-        currentStatus,
-      };
+        // Poll transaction until complete
+        const currentStatus = await pollWithdrawUntilComplete({
+          secretKey: SOURCE_KEYPAIR_SECRET,
+          popup,
+          transactionId: interactiveResponse.id,
+          token,
+          sep24TransferServerUrl,
+          networkPassphrase: networkConfig.network,
+          networkUrl: networkConfig.url,
+          assetCode,
+          assetIssuer,
+          sep9Fields,
+          contractId,
+        });
+
+        return {
+          currentStatus,
+        };
+      }
     } catch (error: any) {
       const errorMessage = getErrorMessage(error);
       const resultCodes = error?.response?.data?.extras?.result_codes;
