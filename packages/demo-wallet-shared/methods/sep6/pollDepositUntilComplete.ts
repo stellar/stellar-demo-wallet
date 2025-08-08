@@ -12,7 +12,7 @@ export const pollDepositUntilComplete = async ({
   transactionId: string;
   token: string;
   transferServerUrl: string;
-  trustAssetCallback: () => Promise<string>;
+  trustAssetCallback?: () => Promise<string>;
   dispatchInstructions: (instructions: SepInstructions) => void;
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
@@ -90,7 +90,9 @@ export const pollDepositUntilComplete = async ({
 
           try {
             // eslint-disable-next-line no-await-in-loop
-            trustedAssetAdded = await trustAssetCallback();
+            if (trustAssetCallback) {
+              trustedAssetAdded = await trustAssetCallback();
+            }
           } catch (error) {
             throw new Error(getErrorMessage(error));
           }

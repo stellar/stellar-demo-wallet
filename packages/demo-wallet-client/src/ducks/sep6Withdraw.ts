@@ -518,7 +518,7 @@ export const submitSep6WithdrawAction = createAsyncThunk<
 
         customerFields = (
           await collectSep12Fields({
-            publicKey: data?.id!,
+            account: data?.id!,
             token,
             kycServer,
             transactionId: withdrawResponse?.id,
@@ -559,7 +559,7 @@ export const submitSep6WithdrawCustomerInfoFieldsAction = createAsyncThunk<
   "sep6Withdraw/submitSep6WithdrawCustomerInfoFieldsAction",
   async (customerFields, { rejectWithValue, getState }) => {
     try {
-      const { data: account, secretKey } = accountSelector(getState());
+      const { data: account } = accountSelector(getState());
       const { data: sep6Data } = sep6WithdrawSelector(getState());
       const { kycServer, token } = sep6Data;
 
@@ -567,7 +567,7 @@ export const submitSep6WithdrawCustomerInfoFieldsAction = createAsyncThunk<
         await putSep12FieldsRequest({
           fields: customerFields,
           kycServer,
-          secretKey,
+          account: account?.id!,
           token,
           transactionId: sep6Data.withdrawResponse?.id,
         });
@@ -579,7 +579,7 @@ export const submitSep6WithdrawCustomerInfoFieldsAction = createAsyncThunk<
       });
 
       const sep12Response = await collectSep12Fields({
-        publicKey: account?.id!,
+        account: account?.id!,
         token,
         kycServer,
         transactionId: sep6Data.withdrawResponse?.id,

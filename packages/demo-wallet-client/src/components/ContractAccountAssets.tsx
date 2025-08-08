@@ -42,9 +42,12 @@ import {
 } from "../ducks/activeAsset";
 import { ConfirmAssetAction } from "./ConfirmAssetAction";
 // Import SEP action handlers
-import { initiateDepositAction as initiateSep6DepositAction } from "ducks/sep6Deposit";
 import { initiateWithdrawAction as initiateSep6WithdrawAction } from "ducks/sep6Withdraw";
 import { initiateSep8SendAction } from "ducks/sep8Send";
+import {
+  initiateDepositAction as initiateSep6DepositAction,
+  resetSep6DepositAction,
+} from "ducks/sep6Deposit";
 import {
   depositAssetAction as initiateSep24DepositAction,
   resetSep24DepositAssetAction,
@@ -65,6 +68,7 @@ export const ContractAccountAssets = () => {
     contractAssets, 
     settings, 
     activeAsset,
+    sep6Deposit,
     sep24DepositAsset,
     sep24WithdrawAsset,
   } = useRedux(
@@ -72,6 +76,7 @@ export const ContractAccountAssets = () => {
     "contractAssets", 
     "settings", 
     "activeAsset",
+    "sep6Deposit",
     "sep24DepositAsset",
     "sep24WithdrawAsset",
   );
@@ -318,6 +323,22 @@ export const ContractAccountAssets = () => {
       setToastMessage(undefined);  // Clear local state
     }
   }, [activeAsset.action]);
+
+  // SEP-6 Deposit
+  useEffect(() => {
+    if (sep6Deposit.status === ActionStatus.SUCCESS) {
+      dispatch(resetSep6DepositAction());
+    }
+
+    if (sep6Deposit.data.currentStatus === TransactionStatus.COMPLETED) {
+      handleRefreshAccount();
+    }
+
+    setActiveAssetStatusAndToastMessage({
+      status: sep6Deposit.status,
+      message: "SEP-6 deposit in progress",
+    });
+  }, [sep6Deposit.status, sep6Deposit.data.currentStatus, setActiveAssetStatusAndToastMessage, dispatch, handleRefreshAccount]);
 
   // SEP-24 Deposit asset
   useEffect(() => {

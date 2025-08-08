@@ -4,7 +4,7 @@ import { putSep12FieldsRequest } from "../sep12";
 
 interface PutSep12FieldsProps {
   formData: any;
-  secretKey: string;
+  account: string;
   senderMemo: string;
   receiverMemo: string;
   fields: any;
@@ -14,7 +14,7 @@ interface PutSep12FieldsProps {
 
 export const putSep12Fields = async ({
   formData,
-  secretKey,
+  account,
   senderMemo,
   receiverMemo,
   fields,
@@ -32,7 +32,7 @@ export const putSep12Fields = async ({
 
   if (fields.sender) {
     const resultJson = await putSep12FieldsRequest({
-      secretKey,
+      account,
       fields: formData.sender,
       memo: senderMemo,
       token,
@@ -45,7 +45,7 @@ export const putSep12Fields = async ({
 
   if (fields.receiver) {
     const resultJson = await putSep12FieldsRequest({
-      secretKey,
+      account,
       fields: formData.receiver,
       memo: receiverMemo,
       token,
