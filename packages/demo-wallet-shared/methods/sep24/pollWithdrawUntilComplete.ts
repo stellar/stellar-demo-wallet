@@ -1,15 +1,16 @@
 import {
   Account,
   Asset,
+  Horizon,
   Keypair,
   Operation,
-  Horizon,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import { log } from "../../helpers/log";
 import { createMemoFromType } from "../createMemoFromType";
 import { AnyObject, TransactionStatus } from "../../types/types";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
+import { SmartWalletService } from "../../services/SmartWalletService";
 
 export const pollWithdrawUntilComplete = async ({
   secretKey,
@@ -22,6 +23,7 @@ export const pollWithdrawUntilComplete = async ({
   assetCode,
   assetIssuer,
   sep9Fields,
+  contractId,
 }: {
   secretKey: string;
   popup: any;
@@ -33,6 +35,7 @@ export const pollWithdrawUntilComplete = async ({
   assetCode: string;
   assetIssuer: string;
   sep9Fields?: AnyObject;
+  contractId?: string;
 }) => {
   const keypair = Keypair.fromSecret(secretKey);
   const server = new Horizon.Server(networkUrl);
@@ -73,59 +76,29 @@ export const pollWithdrawUntilComplete = async ({
             title:
               "The anchor is waiting for you to send the funds for withdrawal",
           });
-
-          const memo = createMemoFromType(
-            transactionJson.transaction.withdraw_memo,
-            transactionJson.transaction.withdraw_memo_type,
-          );
-
-          log.request({
-            title: "Fetching account sequence number",
-            body: keypair.publicKey(),
-          });
-
-          // eslint-disable-next-line no-await-in-loop
-          const { sequence } = await server
-            .accounts()
-            .accountId(keypair.publicKey())
-            .call();
-
-          log.response({
-            title: "Fetching account sequence number",
-            body: sequence,
-          });
-
           const paymentAsset = assetCode === "XLM" ? Asset.native() : new Asset(assetCode, assetIssuer);
-          const account = new Account(keypair.publicKey(), sequence);
-          const txn = new TransactionBuilder(account, {
-            fee: getNetworkConfig().baseFee,
-            networkPassphrase,
-          })
-            .addOperation(
-              Operation.payment({
-                destination:
-                transactionJson.transaction.withdraw_anchor_account,
-                asset: paymentAsset,
-                amount: transactionJson.transaction.amount_in,
-              }),
-            )
-            .addMemo(memo)
-            .setTimeout(0)
-            .build();
 
-          txn.sign(keypair);
-
-          log.request({
-            title: "Submitting withdrawal transaction to Stellar",
-            body: txn,
-          });
-
-          // eslint-disable-next-line no-await-in-loop
-          const horizonResponse = await server.submitTransaction(txn);
-
+          let response;
+          if (!contractId) {
+            response = await sendFromClassicAccount(
+              transactionJson,
+              keypair,
+              server,
+              paymentAsset,
+              networkPassphrase,
+            );
+          } else {
+            response = await sendFromContractAccount(
+              paymentAsset,
+              contractId,
+              transactionJson.transaction.withdraw_anchor_account,
+              transactionJson.transaction.amount_in,
+              contractId,
+            );
+          }
           log.response({
             title: "Submitted withdrawal transaction to Stellar",
-            body: horizonResponse,
+            body: response,
           });
           break;
         }
@@ -179,3 +152,76 @@ export const pollWithdrawUntilComplete = async ({
 
   return currentStatus;
 };
+
+
+async function sendFromClassicAccount (
+  transactionJson: any,
+  keypair: Keypair,
+  server: Horizon.Server,
+  paymentAsset: Asset,
+  networkPassphrase: string,
+) {
+  const memo = createMemoFromType(
+    transactionJson.transaction.withdraw_memo,
+    transactionJson.transaction.withdraw_memo_type,
+  );
+
+  log.request({
+    title: "Fetching account sequence number",
+    body: keypair.publicKey(),
+  });
+
+  // eslint-disable-next-line no-await-in-loop
+  const { sequence } = await server
+    .accounts()
+    .accountId(keypair.publicKey())
+    .call();
+
+  log.response({
+    title: "Fetching account sequence number",
+    body: sequence,
+  });
+
+  const account = new Account(keypair.publicKey(), sequence);
+  const txn = new TransactionBuilder(account, {
+    fee: getNetworkConfig().baseFee,
+    networkPassphrase,
+  })
+    .addOperation(
+      Operation.payment({
+        destination: transactionJson.transaction.withdraw_anchor_account,
+        asset: paymentAsset,
+        amount: transactionJson.transaction.amount_in,
+      }),
+    )
+    .addMemo(memo)
+    .setTimeout(0)
+    .build();
+
+  txn.sign(keypair);
+
+  log.request({
+    title: "Submitting withdrawal transaction to Stellar",
+    body: txn,
+  });
+
+  // eslint-disable-next-line no-await-in-loop
+  return await server.submitTransaction(txn);
+}
+
+async function sendFromContractAccount (
+  asset: Asset,
+  fromAcc: string,
+  toAcc: string,
+  amount: number,
+  contractId: string,
+) {
+  const swService = SmartWalletService.getInstance();
+  return await swService.transfer(
+    asset.contractId(getNetworkConfig().rpcNetwork),
+    fromAcc,
+    toAcc,
+    amount,
+    contractId,
+  );
+}
