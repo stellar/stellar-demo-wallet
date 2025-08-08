@@ -153,7 +153,6 @@ export const pollWithdrawUntilComplete = async ({
   return currentStatus;
 };
 
-
 async function sendFromClassicAccount (
   transactionJson: any,
   keypair: Keypair,
@@ -213,15 +212,20 @@ async function sendFromContractAccount (
   asset: Asset,
   fromAcc: string,
   toAcc: string,
-  amount: number,
+  amount: string,
   contractId: string,
 ) {
   const swService = SmartWalletService.getInstance();
+
+  log.request({
+    title: "Submitting withdrawal transaction to Stellar",
+  });
+
   return await swService.transfer(
     asset.contractId(getNetworkConfig().rpcNetwork),
     fromAcc,
     toAcc,
-    amount,
+    Number(amount),
     contractId,
   );
 }
