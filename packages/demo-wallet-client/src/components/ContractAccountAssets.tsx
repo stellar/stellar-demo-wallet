@@ -53,7 +53,6 @@ import {
   withdrawAssetAction as initiateSep24WithdrawAction,
   resetSep24WithdrawAssetAction,
 } from "ducks/sep24WithdrawAsset";
-import { initiateSendAction as initiateSep31SendAction} from "ducks/sep31Send";
 import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import { resetCustodialAction } from "../ducks/custodial";
 import { removeExtraAction } from "../ducks/extra";
@@ -251,20 +250,6 @@ export const ContractAccountAssets = () => {
           showExtra: true,
         };
         break;
-      case AssetActionId.SEP31_SEND: {
-        let description = `Start SEP-31 send to ${balance.assetCode} from contract account?\n\n`;
-        description +=
-          "Please be aware that specifically in the case of demo-ing SEP-31 in the Demo Wallet the public and secret keys don't represent the Sending Client but instead the Sending Anchor's account.\n\n";
-        description +=
-          "In SEP-31, the only Stellar transaction happening is between the Sending and the Receiving anchors.";
-        props = {
-          ...defaultProps,
-          title: `SEP-31 send ${balance.assetCode}`,
-          description,
-          callback: () => dispatch(initiateSep31SendAction(balance)),
-        };
-        break;
-      }
       default:
       // do nothing
     }
