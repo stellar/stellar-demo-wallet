@@ -8,7 +8,7 @@ import { AnyObject, TransactionStatus } from "../../types/types";
 import {
   sendFromClassicAccount,
   sendFromContractAccount,
-} from "../sendWithrawPayment";
+} from "../sendWithdrawPayment";
 
 export const pollWithdrawUntilComplete = async ({
   secretKey,
