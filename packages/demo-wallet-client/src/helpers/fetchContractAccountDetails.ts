@@ -76,7 +76,7 @@ export const fetchContractAsset = async (
     assetIssuer: userAsset.issuer,
     assetType: type,
     homeDomain: homeDomain,
-    supportedActions: supportedActions,
+    supportedActions: { ...supportedActions, sep31: false },
     isUntrusted: false,
     isOverride: Boolean(userAsset.homeDomain),
   });
