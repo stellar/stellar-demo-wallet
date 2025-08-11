@@ -531,7 +531,7 @@ export const submitSep6DepositAction = createAsyncThunk<
       } = sep6Data;
 
       let trustAssetCallback;
-      if (unifiedAccount.accountType === 'contract') {
+      if (unifiedAccount.accountType === 'classic') {
         trustAssetCallback = async () => {
           const assetString = `${assetCode}:${assetIssuer}`;
 
@@ -616,7 +616,6 @@ export const submitSep6CustomerInfoFieldsAction = createAsyncThunk<
   "sep6Deposit/submitSep6CustomerInfoFieldsAction",
   async (customerFields, { rejectWithValue, getState }) => {
     try {
-      // ✅ With this:
       const unifiedAccount = getUnifiedAccountData(getState());
       if (!unifiedAccount) {
         throw new Error("No valid account found");
