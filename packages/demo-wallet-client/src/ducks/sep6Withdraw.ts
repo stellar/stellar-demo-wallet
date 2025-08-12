@@ -1,12 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import { checkTomlForFields } from "demo-wallet-shared/build/methods/checkTomlForFields";
-import { checkDepositWithdrawInfo } from "demo-wallet-shared/build/methods/checkDepositWithdrawInfo";
 import {
-  sep10AuthSend,
-  sep10AuthSign,
-  sep10AuthStart,
-} from "demo-wallet-shared/build/methods/sep10Auth";
+  checkTomlForFields,
+  getFromToml,
+} from "demo-wallet-shared/build/methods/checkTomlForFields";
+import { checkDepositWithdrawInfo } from "demo-wallet-shared/build/methods/checkDepositWithdrawInfo";
 import {
   getInfo,
   getPrice,
@@ -24,14 +22,11 @@ import {
 
 import { getNetworkConfig } from "demo-wallet-shared/build/helpers/getNetworkConfig";
 import { log } from "demo-wallet-shared/build/helpers/log";
-import { normalizeHomeDomainUrl } from "demo-wallet-shared/build/helpers/normalizeHomeDomainUrl";
 import { getErrorMessage } from "demo-wallet-shared/build/helpers/getErrorMessage";
 import { AnchorPriceItem } from "demo-wallet-shared/build/types/types";
 
 import { clientDomain, RootState, walletBackendEndpoint } from "config/store";
 import { sanitizeObject } from "helpers/sanitizeObject";
-
-import { accountSelector } from "ducks/account";
 import { settingsSelector } from "ducks/settings";
 
 import {
@@ -48,6 +43,11 @@ import {
   TransactionStatus,
 } from "types/types";
 import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
+import { getUnifiedAccountData } from "../helpers/accountUtils";
+import { authenticateWithSep10, authenticateWithSep45 } from "./authUtils";
+import {
+  SOURCE_KEYPAIR_SECRET
+} from "demo-wallet-shared/build/constants/soroban";
 
 type InitiateWithdrawActionPayload = Sep6WithdrawAssetInitialState["data"] & {
   status: ActionStatus;
@@ -61,20 +61,23 @@ export const initiateWithdrawAction = createAsyncThunk<
   "sep6Withdraw/initiateWithdrawAction",
   async (asset, { rejectWithValue, getState }) => {
     const { assetCode, assetIssuer, homeDomain } = asset;
-    const { data, secretKey } = accountSelector(getState());
-    const networkConfig = getNetworkConfig();
-    const publicKey = data?.id;
-
-    // This is unlikely
-    if (!publicKey) {
-      throw new Error("Something is wrong with Account, no public key.");
-    }
-
     // This is unlikely
     if (!homeDomain) {
       throw new Error("Something went wrong, home domain is not defined.");
     }
 
+    const networkConfig = getNetworkConfig();
+    const kycServerUrl = await getFromToml({
+      assetIssuer,
+      homeDomain,
+      networkUrl: networkConfig.url,
+      requiredKey: TomlFields.KYC_SERVER,
+    });
+
+    const unifiedAccount = getUnifiedAccountData(getState());
+    if (!unifiedAccount) {
+      throw new Error("No valid account found.");
+    }
     log.instruction({ title: "Initiating a SEP-6 withdrawal" });
 
     try {
@@ -177,51 +180,72 @@ export const initiateWithdrawAction = createAsyncThunk<
       } as InitiateWithdrawActionPayload;
 
       if (isAuthenticationRequired) {
-        // Re-check toml for auth endpoint
-        const webAuthTomlResponse = await checkTomlForFields({
-          sepName: "SEP-6 withdrawal",
-          assetIssuer,
-          requiredKeys: [
-            TomlFields.WEB_AUTH_ENDPOINT,
-            TomlFields.SIGNING_KEY,
-            TomlFields.KYC_SERVER,
-          ],
-          networkUrl: networkConfig.url,
-          homeDomain,
-        });
-        log.instruction({
-          title:
-            "SEP-6 withdrawal is enabled, and requires authentication so we should go through SEP-10",
-        });
+        if (unifiedAccount.accountType === 'classic') {
+          // Regular account - use SEP-10 authentication
+          const { publicKey, secretKey } = unifiedAccount;
+          if (!publicKey || !secretKey) {
+            throw new Error("Public key and secret key are required for SEP-6 deposit.");
+          }
 
-        // SEP-10 start
-        const challengeTransaction = await sep10AuthStart({
-          authEndpoint: webAuthTomlResponse.WEB_AUTH_ENDPOINT,
-          serverSigningKey: webAuthTomlResponse.SIGNING_KEY,
-          publicKey,
-          homeDomain: normalizeHomeDomainUrl(homeDomain).host,
-          clientDomain,
-        });
+          log.instruction({
+            title:
+              "SEP-6 deposit is enabled, and requires authentication so we should go through SEP-10",
+          });
+          const token = await authenticateWithSep10(
+            actionType,
+            assetCode,
+            assetIssuer,
+            clientDomain,
+            homeDomain,
+            publicKey,
+            [
+              TomlFields.WEB_AUTH_ENDPOINT,
+              TomlFields.SIGNING_KEY,
+              TomlFields.TRANSFER_SERVER,
+              TomlFields.KYC_SERVER,
+            ],
+            secretKey,
+            "SEP-6 withdrawal",
+            getState(),
+            walletBackendEndpoint,
+          )
 
-        // SEP-10 sign
-        const signedChallengeTransaction = await sep10AuthSign({
-          secretKey,
-          networkPassphrase: networkConfig.network,
-          challengeTransaction,
-          walletBackendEndpoint,
-        });
+          payload = {
+            ...payload,
+            kycServer: kycServerUrl,
+            token,
+          };
+        } else {
+          // Contract account - use contract authentication
+          const { contractId } = unifiedAccount;
+          if (!contractId) {
+            throw new Error("Contract ID is required for SEP-6 deposit.");
+          }
+          // SEP-45 start
+          const token = await authenticateWithSep45(
+            actionType,
+            assetCode,
+            assetIssuer,
+            contractId,
+            clientDomain,
+            homeDomain,
+            [
+              TomlFields.WEB_AUTH_CONTRACT_ID,
+              TomlFields.WEB_AUTH_FOR_CONTRACTS_ENDPOINT,
+              TomlFields.SIGNING_KEY,
+              TomlFields.TRANSFER_SERVER,
+              TomlFields.KYC_SERVER,
+            ],
+            "SEP-6 withdrawal",
+            walletBackendEndpoint,
+          )
 
-        // SEP-10 send
-        const token = await sep10AuthSend({
-          authEndpoint: webAuthTomlResponse.WEB_AUTH_ENDPOINT,
-          signedChallengeTransaction,
-        });
-
-        payload = {
-          ...payload,
-          kycServer: webAuthTomlResponse.KYC_SERVER,
-          token,
-        };
+          payload = {
+            ...payload,
+            kycServer: kycServerUrl,
+            token,
+          };
+        }
       }
 
       return payload;
@@ -378,9 +402,13 @@ export const initSep6WithdrawFlowWithQuoteAction = createAsyncThunk<
     { rejectWithValue, getState },
   ) => {
     try {
-      const { data } = accountSelector(getState());
+      const unifiedAccount = getUnifiedAccountData(getState());
+      if (!unifiedAccount) {
+        throw new Error("No valid account found");
+      }
+      const account = unifiedAccount.identifier;
+
       const { claimableBalanceSupported } = settingsSelector(getState());
-      const publicKey = data?.id || "";
 
       const { data: sep6Data } = sep6WithdrawSelector(getState());
       const { transferServerUrl, token } = sep6Data;
@@ -390,7 +418,7 @@ export const initSep6WithdrawFlowWithQuoteAction = createAsyncThunk<
         sourceAssetCode,
         destinationAsset,
         quoteId,
-        publicKey,
+        account,
         transferServerUrl,
         token,
         type: withdrawType.type,
@@ -431,16 +459,20 @@ export const initSep6WithdrawFlow = createAsyncThunk<
   "sep6Withdraw/initSep6WithdrawFlow",
   async ({ withdrawType, infoFields }, { rejectWithValue, getState }) => {
     try {
-      const { data } = accountSelector(getState());
+      const unifiedAccount = getUnifiedAccountData(getState());
+      if (!unifiedAccount) {
+        throw new Error("No valid account found");
+      }
+      const account = unifiedAccount.identifier;
+
       const { claimableBalanceSupported } = settingsSelector(getState());
-      const publicKey = data?.id || "";
 
       const { data: sep6Data } = sep6WithdrawSelector(getState());
       const { assetCode, transferServerUrl, token } = sep6Data;
 
       const withdrawResponse = (await programmaticWithdrawFlow({
         assetCode,
-        publicKey,
+        account,
         transferServerUrl,
         token,
         type: withdrawType.type,
@@ -480,7 +512,10 @@ export const submitSep6WithdrawAction = createAsyncThunk<
   "sep6Withdraw/submitSep6WithdrawAction",
   async (amount, { rejectWithValue, getState }) => {
     try {
-      const { secretKey, data } = accountSelector(getState());
+      const unifiedAccount = getUnifiedAccountData(getState());
+      if (!unifiedAccount) {
+        throw new Error("No valid account found");
+      }
       const networkConfig = getNetworkConfig();
       const { data: sep6Data } = sep6WithdrawSelector(getState());
 
@@ -497,7 +532,9 @@ export const submitSep6WithdrawAction = createAsyncThunk<
       const { currentStatus, transaction, requiredCustomerInfoUpdates } =
         await pollWithdrawUntilComplete({
           amount,
-          secretKey,
+          secretKey: unifiedAccount.accountType === 'classic'
+            ? unifiedAccount.secretKey!
+            : SOURCE_KEYPAIR_SECRET,
           transactionId: withdrawResponse?.id || "",
           token,
           transferServerUrl,
@@ -505,6 +542,7 @@ export const submitSep6WithdrawAction = createAsyncThunk<
           networkUrl: networkConfig.url,
           assetCode,
           assetIssuer,
+          ...(unifiedAccount.contractId && { contractId: unifiedAccount.contractId }),
         });
 
       let customerFields;
@@ -518,7 +556,7 @@ export const submitSep6WithdrawAction = createAsyncThunk<
 
         customerFields = (
           await collectSep12Fields({
-            publicKey: data?.id!,
+            account: unifiedAccount.identifier,
             token,
             kycServer,
             transactionId: withdrawResponse?.id,
@@ -559,7 +597,11 @@ export const submitSep6WithdrawCustomerInfoFieldsAction = createAsyncThunk<
   "sep6Withdraw/submitSep6WithdrawCustomerInfoFieldsAction",
   async (customerFields, { rejectWithValue, getState }) => {
     try {
-      const { data: account, secretKey } = accountSelector(getState());
+      const unifiedAccount = getUnifiedAccountData(getState());
+      if (!unifiedAccount) {
+        throw new Error("No valid account found");
+      }
+
       const { data: sep6Data } = sep6WithdrawSelector(getState());
       const { kycServer, token } = sep6Data;
 
@@ -567,7 +609,7 @@ export const submitSep6WithdrawCustomerInfoFieldsAction = createAsyncThunk<
         await putSep12FieldsRequest({
           fields: customerFields,
           kycServer,
-          secretKey,
+          account: unifiedAccount.identifier,
           token,
           transactionId: sep6Data.withdrawResponse?.id,
         });
@@ -579,7 +621,7 @@ export const submitSep6WithdrawCustomerInfoFieldsAction = createAsyncThunk<
       });
 
       const sep12Response = await collectSep12Fields({
-        publicKey: account?.id!,
+        account: unifiedAccount.identifier,
         token,
         kycServer,
         transactionId: sep6Data.withdrawResponse?.id,

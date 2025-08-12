@@ -5,7 +5,7 @@ import { AnyObject } from "../../types/types";
 type ProgrammaticDepositFlowProps = {
   amount?: string;
   assetCode: string;
-  publicKey: string;
+  account: string;
   transferServerUrl: string;
   token: string;
   type: string;
@@ -16,7 +16,7 @@ type ProgrammaticDepositFlowProps = {
 export const programmaticDepositFlow = async ({
   amount = "",
   assetCode,
-  publicKey,
+  account,
   transferServerUrl,
   token,
   type,
@@ -31,7 +31,7 @@ export const programmaticDepositFlow = async ({
 
   const getDepositParams = {
     asset_code: assetCode,
-    account: publicKey,
+    account,
     claimable_balance_supported: claimableBalanceSupported.toString(),
     type,
     amount,
