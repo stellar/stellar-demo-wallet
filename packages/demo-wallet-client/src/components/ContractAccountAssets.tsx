@@ -64,7 +64,11 @@ import { resetCustodialAction } from "../ducks/custodial";
 import { removeExtraAction } from "../ducks/extra";
 import { ToastBanner } from "./ToastBanner";
 
-export const ContractAccountAssets = () => {
+export const ContractAccountAssets = ({
+  onSendPayment,
+}: {
+  onSendPayment: (asset?: Asset) => void;
+}) => {
   const { 
     contractAccount, 
     contractAssets, 
@@ -200,8 +204,7 @@ export const ContractAccountAssets = () => {
               </TextLink>
             </p>
           ),
-          // TODO(jiahuihu): Implement contract account send payment
-          callback: () => {},
+          callback: onSendPayment,
         };
         break;
       case AssetActionId.SEP6_DEPOSIT:
@@ -362,7 +365,6 @@ export const ContractAccountAssets = () => {
       message: "SEP-24 deposit in progress",
     });
   }, [sep24DepositAsset.status, sep24DepositAsset.data.currentStatus, setActiveAssetStatusAndToastMessage, dispatch, handleRefreshAccount]);
-
 
   // SEP-24 Withdraw asset
   useEffect(() => {

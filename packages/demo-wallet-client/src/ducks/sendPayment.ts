@@ -1,32 +1,67 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Horizon } from "@stellar/stellar-sdk";
+import { Horizon, Keypair } from "@stellar/stellar-sdk";
+import { Api } from "@stellar/stellar-sdk/rpc";
 import { RootState } from "config/store";
-import { settingsSelector } from "ducks/settings";
 import { getErrorString } from "demo-wallet-shared/build/helpers/getErrorString";
 import { log } from "demo-wallet-shared/build/helpers/log";
-import { submitPaymentTransaction } from "demo-wallet-shared/build/methods/submitPaymentTransaction";
+import {
+  submitPaymentTransaction,
+  submitSorobanPaymentTransaction,
+} from "demo-wallet-shared/build/methods/submitPaymentTransaction";
 import {
   ActionStatus,
-  PaymentTransactionParams,
   SendPaymentInitialState,
   RejectMessage,
 } from "types/types";
+import { PaymentTransactionParams } from "demo-wallet-shared/build/types/types";
+import { getUnifiedAccountData } from "../helpers/accountUtils";
+
+// Union type to handle both classic account (Horizon) and contract account (RPC) responses
+type SendPaymentResponse = Horizon.HorizonApi.SubmitTransactionResponse | Api.GetTransactionResponse;
 
 export const sendPaymentAction = createAsyncThunk<
-  Horizon.HorizonApi.SubmitTransactionResponse,
-  PaymentTransactionParams,
+  SendPaymentResponse,
+  { destination: string; isDestinationFunded: boolean; amount: string; assetCode: string; assetIssuer?: string },
   { rejectValue: RejectMessage; state: RootState }
 >(
   "sendPayment/sendPaymentAction",
-  async (params, { rejectWithValue, getState }) => {
-    const { secretKey } = settingsSelector(getState());
-    let result;
+  async ({destination, isDestinationFunded, amount, assetCode, assetIssuer}, { rejectWithValue, getState }) => {
+    const unifiedAccount = getUnifiedAccountData(getState())
+    if (!unifiedAccount) {
+      return rejectWithValue({
+        errorString: "No valid account found",
+      });
+    }
 
     try {
-      result = await submitPaymentTransaction({
-        params,
-        secretKey,
-      });
+      if (unifiedAccount.accountType === 'classic' && destination.startsWith('G')) {
+        // G to G payment
+        const params: PaymentTransactionParams = {
+          destination,
+          isDestinationFunded,
+          amount,
+          assetCode,
+          assetIssuer,
+          publicKey: unifiedAccount.publicKey!,
+        }
+        return await submitPaymentTransaction({
+          params,
+          secretKey: unifiedAccount.secretKey!,
+        });
+      } else {
+        // payment involving contract account (either as sender or receiver)
+        const signer = unifiedAccount.accountType === 'classic'
+          ? Keypair.fromSecret(unifiedAccount.secretKey!)
+          : unifiedAccount.contractId!;
+        return await submitSorobanPaymentTransaction({
+          destination,
+          assetCode,
+          assetIssuer,
+          amount,
+          fromAcc: unifiedAccount.identifier,
+          signer,
+        });
+      }
     } catch (error) {
       const errorString = getErrorString(error);
       log.error({ title: errorString });
@@ -34,8 +69,6 @@ export const sendPaymentAction = createAsyncThunk<
         errorString,
       });
     }
-
-    return result;
   },
 );
 

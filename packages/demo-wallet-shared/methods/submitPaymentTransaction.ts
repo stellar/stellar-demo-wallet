@@ -11,6 +11,8 @@ import { getErrorString } from "../helpers/getErrorString";
 import { getNetworkConfig } from "../helpers/getNetworkConfig";
 import { log } from "../helpers/log";
 import { PaymentTransactionParams } from "../types/types";
+import { SmartWalletService } from "../services/SmartWalletService";
+import { isNativeAsset } from "../helpers/isNativeAsset";
 
 export const submitPaymentTransaction = async ({
   params,
@@ -20,6 +22,7 @@ export const submitPaymentTransaction = async ({
   secretKey: string;
 }) => {
   const server = new Horizon.Server(getNetworkConfig().url);
+  const keypair = Keypair.fromSecret(secretKey);
 
   log.instruction({
     title: `Sending payment of ${params.amount} ${params.assetCode}`,
@@ -42,7 +45,6 @@ export const submitPaymentTransaction = async ({
 
   try {
     // Sign transaction
-    const keypair = Keypair.fromSecret(secretKey);
     await transaction.sign(keypair);
   } catch (error) {
     throw new Error(
@@ -126,3 +128,51 @@ export const buildPaymentTransaction = async ({
 
   return transaction;
 };
+
+export const submitSorobanPaymentTransaction = async ({
+  destination,
+  assetCode,
+  assetIssuer,
+  amount,
+  fromAcc,
+  signer,
+} : {
+  destination: string;
+  assetCode: string;
+  assetIssuer?: string;
+  amount: string;
+  fromAcc: string,
+  signer: Keypair |string;
+}) => {
+  log.instruction({
+    title: `Sending payment of ${amount} ${assetCode}`,
+    body: `Destination: ${destination}`,
+  });
+
+  const swService = SmartWalletService.getInstance();
+  const asset = isNativeAsset(assetCode)
+    ? Asset.native()
+    : new Asset(assetCode, assetIssuer!);
+
+  try {
+    const result = await swService.transfer(
+      asset.contractId(getNetworkConfig().rpcNetwork),
+      fromAcc,
+      destination,
+      Number(amount),
+      signer,
+    );
+
+    log.response({ title: "Submitted send payment transaction", body: result });
+    log.instruction({
+      title: `Payment of ${amount} ${assetCode} sent`,
+      body: `Destination: ${destination}`,
+    });
+
+    return result;
+  } catch (error) {
+    throw new Error(
+      `Failed to submit transaction, error: ${getErrorString(error)}`,
+    );
+  }
+}

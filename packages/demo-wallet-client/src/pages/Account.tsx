@@ -47,7 +47,7 @@ export const Account = () => {
         ) : (
           <>
             <ContractAccountInfo />
-            <ContractAccountAssets />
+            <ContractAccountAssets onSendPayment={handleSendPayment} />
           </>
         )}
       </>

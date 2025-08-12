@@ -8,6 +8,7 @@ import {
 import BigNumber from "bignumber.js";
 import { Sep9Field } from "demo-wallet-shared/helpers/Sep9Fields";
 import { AnchorPriceItem } from "demo-wallet-shared/types/types";
+import { Api } from "@stellar/stellar-sdk/rpc";
 
 declare global {
   interface Window {
@@ -155,7 +156,7 @@ export interface LogsInitialState {
 }
 
 export interface SendPaymentInitialState {
-  data: Horizon.HorizonApi.SubmitTransactionResponse | null;
+  data: Horizon.HorizonApi.SubmitTransactionResponse | Api.GetTransactionResponse | null;
   errorString?: string;
   status: ActionStatus | undefined;
 }
