@@ -1,8 +1,7 @@
-import { Keypair } from "@stellar/stellar-sdk";
 import { log } from "../../helpers/log";
 
 interface PutSep12FieldsRequestProps {
-  secretKey: string;
+  account: string;
   fields: any;
   memo?: string;
   token: string;
@@ -12,7 +11,7 @@ interface PutSep12FieldsRequestProps {
 }
 
 export const putSep12FieldsRequest = async ({
-  secretKey,
+  account,
   fields,
   memo,
   token,
@@ -20,9 +19,8 @@ export const putSep12FieldsRequest = async ({
   transactionId,
   isSender,
 }: PutSep12FieldsRequestProps) => {
-  const publicKey = Keypair.fromSecret(secretKey).publicKey();
   const data: { [key: string]: string } = {
-    account: publicKey,
+    account,
     ...(memo ? { memo, memo_type: "hash" } : {}),
     ...(transactionId ? { transaction_id: transactionId } : {}),
     ...fields,

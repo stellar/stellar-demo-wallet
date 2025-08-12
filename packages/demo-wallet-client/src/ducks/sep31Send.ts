@@ -305,7 +305,7 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
     { rejectWithValue, getState },
   ) => {
     try {
-      const { secretKey } = accountSelector(getState());
+      const { data: account, secretKey } = accountSelector(getState());
       const { data } = sep31SendSelector(getState());
       const networkConfig = getNetworkConfig();
       const {
@@ -323,7 +323,7 @@ export const submitSep31SendTransactionAction = createAsyncThunk<
       const putSep12FieldsResponse = await putSep12Fields({
         fields,
         formData: { sender, receiver },
-        secretKey,
+        account: account?.id!,
         senderMemo,
         receiverMemo,
         kycServer,

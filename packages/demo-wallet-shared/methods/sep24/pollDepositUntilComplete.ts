@@ -114,13 +114,13 @@ export const pollDepositUntilComplete = async ({
               "You must add a trustline to the asset in order to receive your deposit",
           });
 
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            if(trustAssetCallback) {
+          if (trustAssetCallback) {
+            try {
+              // eslint-disable-next-line no-await-in-loop
               trustedAssetAdded = await trustAssetCallback();
+            } catch (error) {
+              throw new Error(getErrorMessage(error));
             }
-          } catch (error) {
-            throw new Error(getErrorMessage(error));
           }
           break;
         }
