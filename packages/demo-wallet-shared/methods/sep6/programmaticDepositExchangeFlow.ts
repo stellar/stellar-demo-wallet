@@ -7,7 +7,7 @@ type ProgrammaticDepositExchangeFlowProps = {
   destinationAssetCode: string;
   sourceAsset: string;
   quoteId: string;
-  publicKey: string;
+  account: string;
   transferServerUrl: string;
   token: string;
   type: string;
@@ -20,7 +20,7 @@ export const programmaticDepositExchangeFlow = async ({
   destinationAssetCode,
   sourceAsset,
   quoteId,
-  publicKey,
+  account,
   transferServerUrl,
   token,
   type,
@@ -40,7 +40,7 @@ export const programmaticDepositExchangeFlow = async ({
     destination_asset: destinationAssetCode,
     source_asset: sourceAsset,
     quote_id: quoteId,
-    account: publicKey,
+    account,
     claimable_balance_supported: claimableBalanceSupported.toString(),
     type,
     ...depositFields,
