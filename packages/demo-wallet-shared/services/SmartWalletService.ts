@@ -265,6 +265,14 @@ export class SmartWalletService {
     addrAuth.signature(
       xdr.ScVal.scvMap([
         new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol("authenticator_data"),
+          val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.response.authenticatorData))
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol("client_data_json"),
+          val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.response.clientDataJSON))
+        }),
+        new xdr.ScMapEntry({
           key: xdr.ScVal.scvSymbol("credential_id"),
           val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.id)),
         }),
