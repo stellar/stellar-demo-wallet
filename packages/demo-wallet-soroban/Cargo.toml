@@ -5,7 +5,18 @@ members = [
 ]
 
 [workspace.dependencies]
-soroban-sdk = "22.0.0"
+soroban-sdk = "23.0.0-rc.2.4"
+
+[workspace.dependencies.serde]
+version = "1"
+default-features = false
+
+[workspace.dependencies.serde-json-core]
+version = "0.6.0"
+default-features = false
+
+[workspace.dependencies.sha256]
+version = "1.6.0"
 
 [profile.release]
 opt-level = "z"
