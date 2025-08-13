@@ -54,7 +54,6 @@ export const ContractAccountInfo = () => {
               </CopyText>
             </div>
           </div>
-          {/* TODO(jiahuihu): Replace key id with something more meaningful  */}
           <div className="AccountInfoRow">
             <div className="AccountInfoCell AccountLabel">Key ID</div>
             <div className="AccountInfoCell">

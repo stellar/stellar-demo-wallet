@@ -184,7 +184,6 @@ export class SmartWalletService {
       throw new Error(simulatedTx.error);
     }
 
-
     // 3. Sign auth entries
     if (signer instanceof Keypair) {
       simulatedTx.result!.auth =
