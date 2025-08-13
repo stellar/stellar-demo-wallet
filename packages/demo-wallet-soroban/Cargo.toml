@@ -15,10 +15,6 @@ default-features = false
 version = "0.6.0"
 default-features = false
 
-[workspace.dependencies.stellar-xdr]
-version = "23.0.0-rc.2"
-default-features = false
-
 [workspace.dependencies.sha256]
 version = "1.6.0"
 

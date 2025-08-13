@@ -100,7 +100,7 @@ impl CustomAccountInterface for ContractAccount {
     #[allow(non_snake_case)]
     fn __check_auth(
         env: Env,
-        _signature_payload: Hash<32>,
+        signature_payload: Hash<32>,
         signature: Self::Signature,
         _auth_contexts: Vec<Context>,
     ) -> Result<(), Error> {
