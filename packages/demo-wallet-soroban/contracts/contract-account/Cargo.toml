@@ -10,7 +10,9 @@ doctest = false
 
 [dependencies]
 soroban-sdk = { workspace = true }
-log = "0.4.27"
+serde = { workspace = true }
+serde-json-core = { workspace = true }
 
 [dev-dependencies]
-soroban-sdk = { workspace = true, features = ["testutils"] }
+soroban-sdk = { workspace = true }
+sha256 = { workspace = true }
