@@ -129,7 +129,7 @@ export const buildPaymentTransaction = async ({
   return transaction;
 };
 
-export const submitSorobanPaymentTransaction = async ({
+export const submitSorobanTransferTransaction = async ({
   destination,
   assetCode,
   assetIssuer,
@@ -145,7 +145,7 @@ export const submitSorobanPaymentTransaction = async ({
   signer: Keypair |string;
 }) => {
   log.instruction({
-    title: `Sending payment of ${amount} ${assetCode}`,
+    title: `Sending transfer of ${amount} ${assetCode}`,
     body: `Destination: ${destination}`,
   });
 
@@ -163,9 +163,9 @@ export const submitSorobanPaymentTransaction = async ({
       signer,
     );
 
-    log.response({ title: "Submitted send payment transaction", body: result });
+    log.response({ title: "Submitted transfer transaction", body: result });
     log.instruction({
-      title: `Payment of ${amount} ${assetCode} sent`,
+      title: `Transfer of ${amount} ${assetCode} sent`,
       body: `Destination: ${destination}`,
     });
 

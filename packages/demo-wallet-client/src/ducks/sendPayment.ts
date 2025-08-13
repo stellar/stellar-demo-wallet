@@ -6,7 +6,7 @@ import { getErrorString } from "demo-wallet-shared/build/helpers/getErrorString"
 import { log } from "demo-wallet-shared/build/helpers/log";
 import {
   submitPaymentTransaction,
-  submitSorobanPaymentTransaction,
+  submitSorobanTransferTransaction,
 } from "demo-wallet-shared/build/methods/submitPaymentTransaction";
 import {
   ActionStatus,
@@ -53,7 +53,7 @@ export const sendPaymentAction = createAsyncThunk<
         const signer = unifiedAccount.accountType === 'classic'
           ? Keypair.fromSecret(unifiedAccount.secretKey!)
           : unifiedAccount.contractId!;
-        return await submitSorobanPaymentTransaction({
+        return await submitSorobanTransferTransaction({
           destination,
           assetCode,
           assetIssuer,
