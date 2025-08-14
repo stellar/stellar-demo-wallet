@@ -45,9 +45,7 @@ import {
 import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import { getUnifiedAccountData } from "../helpers/accountUtils";
 import { authenticateWithSep10, authenticateWithSep45 } from "./authUtils";
-import {
-  SOURCE_KEYPAIR_SECRET
-} from "demo-wallet-shared/build/constants/soroban";
+
 
 type InitiateWithdrawActionPayload = Sep6WithdrawAssetInitialState["data"] & {
   status: ActionStatus;
@@ -532,9 +530,7 @@ export const submitSep6WithdrawAction = createAsyncThunk<
       const { currentStatus, transaction, requiredCustomerInfoUpdates } =
         await pollWithdrawUntilComplete({
           amount,
-          secretKey: unifiedAccount.accountType === 'classic'
-            ? unifiedAccount.secretKey!
-            : SOURCE_KEYPAIR_SECRET,
+          ...(unifiedAccount.secretKey && { secretKey: unifiedAccount.secretKey }),
           transactionId: withdrawResponse?.id || "",
           token,
           transferServerUrl,
