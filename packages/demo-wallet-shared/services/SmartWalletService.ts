@@ -12,7 +12,7 @@ import {
   TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
-import { basicNodeSigner, Client } from "@stellar/stellar-sdk/contract";
+import { Client } from "@stellar/stellar-sdk/contract";
 import {
   SendTxStatus,
   SOROBAN_CONFIG,
@@ -25,15 +25,15 @@ import {
   parseRawSimulation,
   Server,
 } from "@stellar/stellar-sdk/rpc";
-import {
-  getNetworkConfig
-} from "../helpers/getNetworkConfig";
+import { getNetworkConfig } from "../helpers/getNetworkConfig";
+import { getWalletBackendEndpoint } from "../helpers/getWalletBackendEndpoint";
 
 export class SmartWalletService {
   private static instance: SmartWalletService;
   private passkeyService: PasskeyService;
   private readonly sourceKeypair: Keypair;
   private server: Server;
+  private readonly networkPassphrase: string;
 
   public static getInstance(): SmartWalletService {
     if (!SmartWalletService.instance) {
@@ -46,37 +46,66 @@ export class SmartWalletService {
     this.passkeyService = new PasskeyService();
     this.sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
     this.server = new Server(getNetworkConfig().rpcUrl);
+    this.networkPassphrase = getNetworkConfig().rpcNetwork;
   }
 
   public async createPasskeyContract(passkeyName: string) {
     // 1. Register passkey
     const { pkId, pk } = await this.passkeyService.registerPasskey(passkeyName);
 
-    // 2. Deploy contract
-    const { signTransaction } = basicNodeSigner(this.sourceKeypair, getNetworkConfig().rpcNetwork);
+    // 2. Build deploy transaction
     const deployTx = await Client.deploy(
       {
         credential_id: base64url.toBuffer(pkId),
         public_key: pk,
       },
       {
-        networkPassphrase: getNetworkConfig().rpcNetwork,
+        networkPassphrase: this.networkPassphrase,
         rpcUrl: getNetworkConfig().rpcUrl,
         wasmHash: SOROBAN_CONFIG.WASM_HASH,
         salt: hash(base64url.toBuffer(pkId)),
         publicKey: this.sourceKeypair.publicKey(),
-        signTransaction,
       }
     );
 
-    const { result: client } = await deployTx.signAndSend();
-    const contractId = client.options.contractId;
-    console.log("Contract Deployed: " + contractId);
+    // 3. Sign with source keypair
+    const result = await this.signTxWithSourceKeypair(deployTx.toXDR());
+    const resultJson = await result.json();
+    const signedTx =
+      TransactionBuilder.fromXDR(resultJson.signed_tx, this.networkPassphrase);
 
-    return {
-      contractId,
-      pkId,
-    };
+    // 4. Submit the transaction
+    const sendResponse = await this.server.sendTransaction(signedTx);
+    if (sendResponse.errorResult) {
+      throw new Error(sendResponse.errorResult.result().toString());
+    }
+
+    if (sendResponse.status === SendTxStatus.Pending) {
+      await this.server.pollTransaction(
+        sendResponse.hash,
+        {
+          attempts: 100,
+          sleepStrategy: BasicSleepStrategy,
+        }
+      );
+    } else {
+      throw new Error(
+        `Error happened during deploy: ${sendResponse}`,
+      );
+    }
+
+    // 5. Poll for transaction status
+    let getResponse = await this.server.getTransaction(sendResponse.hash);
+    if (getResponse.status === Api.GetTransactionStatus.SUCCESS) {
+      const contractId = Address.fromScVal(getResponse.returnValue!).toString();
+      console.log("Contract Deployed: " + contractId);
+      return {
+        contractId,
+        pkId,
+      };
+    }
+
+    throw new Error(`Failed to deploy: ${getResponse}`);
   }
 
   public async connectPasskeyContract() {
@@ -89,7 +118,7 @@ export class SmartWalletService {
     // 2. retrieve the contractId through the networkId, pkId, and deployer address
     const preimage = xdr.HashIdPreimage.envelopeTypeContractId(
       new xdr.HashIdPreimageContractId({
-        networkId: hash(Buffer.from(getNetworkConfig().rpcNetwork,)),
+        networkId: hash(Buffer.from(this.networkPassphrase)),
         contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAddress(
           new xdr.ContractIdPreimageFromAddress({
             address: Address.fromString(this.sourceKeypair.publicKey()).toScAddress(),
@@ -120,7 +149,7 @@ export class SmartWalletService {
       const balance = await this.server.getSACBalance(
         contractId,
         asset,
-        getNetworkConfig().rpcNetwork
+        this.networkPassphrase,
       );
 
       const balanceAmount = balance?.balanceEntry?.amount
@@ -142,7 +171,7 @@ export class SmartWalletService {
   public async fundContractWithXLM(contractId: string) {
     const fromAcc = await this.generateFundedKeypair();
     return await this.transfer(
-      Asset.native().contractId(getNetworkConfig().rpcNetwork),
+      Asset.native().contractId(this.networkPassphrase),
       fromAcc.publicKey(),
       contractId,
       9999,
@@ -163,7 +192,7 @@ export class SmartWalletService {
     const tx = new TransactionBuilder(
       sourceAcc,
       {
-        networkPassphrase: getNetworkConfig().rpcNetwork,
+        networkPassphrase: this.networkPassphrase,
         fee: SOROBAN_CONFIG.MAX_FEE
       })
       .addOperation(Operation.invokeContractFunction({
@@ -208,10 +237,15 @@ export class SmartWalletService {
       throw new Error(simulatedAgain.error);
     }
     preppedTx = await this.assembleTransaction(preppedTx, simulatedAgain);
-    preppedTx.sign(this.sourceKeypair);
 
-    // 5: Send the transaction
-    const response = await this.server.sendTransaction(preppedTx);
+    // 6. Sign the transaction with the source keypair
+    const result = await this.signTxWithSourceKeypair(preppedTx.toXDR());
+    const resultJson = await result.json();
+    const signedTx =
+      TransactionBuilder.fromXDR(resultJson.signed_tx, this.networkPassphrase);
+
+    // 7. Submit the transaction
+    const response = await this.server.sendTransaction(signedTx);
     if (response.errorResult) {
       throw new Error(response.errorResult.result().toString());
     }
@@ -226,7 +260,7 @@ export class SmartWalletService {
       );
     } else {
       throw new Error(
-        `Unabled to submit transaction, status: ${response.status}`,
+        `Failed to submit transaction, status: ${response}`,
       );
     }
   }
@@ -237,7 +271,7 @@ export class SmartWalletService {
     validUntilLedgerSeq: number
   ) {
     // return signed auth entries
-    return await authorizeEntry(unsignedEntry, signer, validUntilLedgerSeq, getNetworkConfig().rpcNetwork)
+    return await authorizeEntry(unsignedEntry, signer, validUntilLedgerSeq, this.networkPassphrase)
   }
 
   public async signWithContractAccount (
@@ -251,7 +285,7 @@ export class SmartWalletService {
 
     const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
       new xdr.HashIdPreimageSorobanAuthorization({
-        networkId: hash(Buffer.from(getNetworkConfig().rpcNetwork)),
+        networkId: hash(Buffer.from(this.networkPassphrase)),
         nonce: addrAuth.nonce(),
         signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
         invocation: entry.rootInvocation(),
@@ -283,6 +317,24 @@ export class SmartWalletService {
     );
 
     return entry;
+  }
+
+  async signTxWithSourceKeypair(
+    txXDR: string,
+  ) {
+    const params = {
+      unsigned_tx: txXDR,
+      network_passphrase: this.networkPassphrase,
+    };
+    const urlParams = new URLSearchParams(params);
+    const walletBackendSignEndpoint = `${getWalletBackendEndpoint()}/sign-tx`;
+    return await fetch(walletBackendSignEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: urlParams.toString(),
+    });
   }
 
   /**
