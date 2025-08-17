@@ -16,7 +16,6 @@ import { Client } from "@stellar/stellar-sdk/contract";
 import {
   SendTxStatus,
   SOROBAN_CONFIG,
-  SOURCE_KEYPAIR_SECRET,
 } from "../constants/soroban";
 import base64url from "base64url";
 import {
@@ -31,22 +30,39 @@ import { getWalletBackendEndpoint } from "../helpers/getWalletBackendEndpoint";
 export class SmartWalletService {
   private static instance: SmartWalletService;
   private passkeyService: PasskeyService;
-  private readonly sourceKeypair: Keypair;
   private server: Server;
   private readonly networkPassphrase: string;
+  public readonly sourcePublicKey: string;
 
-  public static getInstance(): SmartWalletService {
+  public static async getInstance(): Promise<SmartWalletService> {
     if (!SmartWalletService.instance) {
-      SmartWalletService.instance = new SmartWalletService();
+      const sourcePublicKey = await SmartWalletService.fetchSourcePublicKey();
+      SmartWalletService.instance = new SmartWalletService(sourcePublicKey);
     }
     return SmartWalletService.instance;
   }
 
-  constructor() {
+  constructor(sourcePublicKey: string) {
     this.passkeyService = new PasskeyService();
-    this.sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
     this.server = new Server(getNetworkConfig().rpcUrl);
     this.networkPassphrase = getNetworkConfig().rpcNetwork;
+    this.sourcePublicKey = sourcePublicKey;
+  }
+
+  private static async fetchSourcePublicKey(): Promise<string> {
+    try {
+      const walletBackendEndpoint = getWalletBackendEndpoint();
+      const response = await fetch(`${walletBackendEndpoint}/source-public-key`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch source public key: ${response}`);
+      }
+      const responseJson = await response.json();
+      const sourcePublicKey = responseJson.public_key;
+      console.log('Source public key fetched:', sourcePublicKey);
+      return sourcePublicKey;
+    } catch (error) {
+      throw new Error('Failed to fetch source public key from server. This is required for contract operations. Please ensure the server is running and accessible.');
+    }
   }
 
   public async createPasskeyContract(passkeyName: string) {
@@ -64,7 +80,7 @@ export class SmartWalletService {
         rpcUrl: getNetworkConfig().rpcUrl,
         wasmHash: SOROBAN_CONFIG.WASM_HASH,
         salt: hash(base64url.toBuffer(pkId)),
-        publicKey: this.sourceKeypair.publicKey(),
+        publicKey: this.sourcePublicKey,
       }
     );
 
@@ -121,7 +137,7 @@ export class SmartWalletService {
         networkId: hash(Buffer.from(this.networkPassphrase)),
         contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAddress(
           new xdr.ContractIdPreimageFromAddress({
-            address: Address.fromString(this.sourceKeypair.publicKey()).toScAddress(),
+            address: Address.fromString(this.sourcePublicKey).toScAddress(),
             salt: hash(base64url.toBuffer(pkId)),
           }),
         ),
@@ -186,7 +202,7 @@ export class SmartWalletService {
     amount: number,
     signer: Keypair | string,
   ) {
-    const sourceAcc = await this.server.getAccount(this.sourceKeypair.publicKey());
+    const sourceAcc = await this.server.getAccount(this.sourcePublicKey);
 
     // 1. Build transaction
     const tx = new TransactionBuilder(

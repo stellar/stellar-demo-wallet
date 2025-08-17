@@ -73,7 +73,7 @@ export const sendFromContractAccount = async (
   amount: string,
   contractId: string,
 ) => {
-  const swService = SmartWalletService.getInstance();
+  const swService = await SmartWalletService.getInstance();
 
   log.request({
     title: "Submitting withdrawal transaction to Stellar",

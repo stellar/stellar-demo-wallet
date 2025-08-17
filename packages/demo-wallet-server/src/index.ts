@@ -102,6 +102,20 @@ app.post("/sign-tx", async (req, res) => {
   }
 });
 
+// Get source account public key for client-side operations
+app.get("/source-public-key", (_req, res) => {
+  try {
+    const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
+    res.set("Access-Control-Allow-Origin", "*");
+    res.status(200);
+    res.send({
+      public_key: sourceKeypair.publicKey(),
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Error handling middleware
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   const isProduction = process.env.NODE_ENV === "production";
