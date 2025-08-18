@@ -6,8 +6,13 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import bodyParser from "body-parser";
+import { ContractManager } from "./ContractManager.js";
 
-require("dotenv").config({ path: require("find-config")(".env") });
+import dotenv from "dotenv";
+// @ts-ignore
+import findConfig from "find-config";
+
+dotenv.config({ path: findConfig(".env") as string });
 
 const PORT = process.env.SERVER_PORT ?? 7000;
 const SERVER_SIGNING_KEY = String(process.env.SERVER_SIGNING_KEY);
@@ -139,6 +144,8 @@ async function startup() {
     // Only check testnet accounts during startup. For mainnet usage, users must
     // manually fund their own accounts as we cannot operate on their behalf.
     // Mainnet account validation failures will surface during SEP-45 signing operations.
+
+    // source account
     const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
     const sourceUrl = `${HORIZON_TESTNET_URL}/accounts/${sourceKeypair.publicKey()}`;
     const sourceResponse = await fetch(sourceUrl);
@@ -147,6 +154,7 @@ async function startup() {
     }
     console.log("Source account ready");
 
+    // signing account
     const signingKeypair = Keypair.fromSecret(SERVER_SIGNING_KEY);
     const signingUrl = `${HORIZON_TESTNET_URL}/accounts/${signingKeypair.publicKey()}`;
     const signingResponse = await fetch(signingUrl);
@@ -154,8 +162,12 @@ async function startup() {
       await fetch(`${FRIENDBOT_URL}?addr=${signingKeypair.publicKey()}`);
     }
     console.log("Signing account ready");
+
+    // contract build and upload
+    const cm = new ContractManager();
+    await cm.manageContractWasm();
   } catch (error) {
-    console.error("Account startup error:", error);
+    console.error("Contract Account startup error:", error);
   }
 }
 

@@ -2,6 +2,7 @@
   "name": "demo-wallet-server",
   "main": "dist/index.js",
   "version": "1.0.0",
+  "type": "module",
   "description": "Stellar Demo Wallet server",
   "repository": {
     "type": "git",
