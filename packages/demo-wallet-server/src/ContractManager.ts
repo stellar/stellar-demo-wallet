@@ -16,21 +16,15 @@ const RPC_TESTNET_URL = "https://soroban-testnet.stellar.org";
 export class ContractManager {
   private rpcClient = new Server(RPC_TESTNET_URL);
 
-  private readonly CONTRACT_DIR = path.resolve(
+  private readonly WASM_PATH = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
-    "../../../packages/demo-wallet-soroban",
-  );
-
-  private readonly WASM_PATH = path.join(
-    this.CONTRACT_DIR,
-    "target/wasm32v1-none/release/contract_account.wasm",
+    "../../../packages/demo-wallet-soroban/example-wasm/contract_account.wasm",
   );
 
   public async manageContractWasm() {
     // check if contract wasm hash available on network
     if (!(await this.isContractWasmOnNetwork(this.WASM_PATH))) {
-      console.log("WASM not found on network. Building and uploading...");
-      await this.buildContract();
+      console.log("WASM not found on network. Uploading...");
       await this.uploadContract(this.WASM_PATH);
     } else {
       console.log("WASM already uploaded on network");
@@ -48,19 +42,6 @@ export class ContractManager {
     } catch (error) {
       console.log("WASM not found:", error);
       return false;
-    }
-  }
-
-  async buildContract() {
-    const cmd = `stellar contract build`;
-
-    try {
-      execSync(cmd, {
-        cwd: this.CONTRACT_DIR,
-        stdio: "inherit", // Show output in console
-      });
-    } catch (error) {
-      throw new Error(`Contract build failed: ${error}`);
     }
   }
 
