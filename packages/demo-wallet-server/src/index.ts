@@ -1,13 +1,18 @@
+import { Api, Server } from "@stellar/stellar-sdk/rpc";
 import express, { ErrorRequestHandler } from "express";
 import {
-  Transaction,
+  Address,
   Keypair,
+  Transaction,
   authorizeEntry,
   xdr,
 } from "@stellar/stellar-sdk";
 import bodyParser from "body-parser";
+import dotenv from "dotenv";
+// @ts-ignore
+import findConfig from "find-config";
 
-require("dotenv").config({ path: require("find-config")(".env") });
+dotenv.config({ path: findConfig(".env") as string });
 
 const PORT = process.env.SERVER_PORT ?? 7000;
 const SERVER_SIGNING_KEY = String(process.env.SERVER_SIGNING_KEY);
@@ -15,6 +20,7 @@ const SOURCE_KEYPAIR_SECRET = String(process.env.SOURCE_KEYPAIR_SECRET);
 const HORIZON_TESTNET_URL = "https://horizon-testnet.stellar.org";
 const FRIENDBOT_URL = "https://friendbot.stellar.org";
 const app = express();
+const rpcClient = new Server("https://soroban-testnet.stellar.org");
 
 // JSON parsing with error handling
 app.use(bodyParser.json({
@@ -87,12 +93,36 @@ app.post("/sep45/sign", async (req, res) => {
 });
 
 app.post("/sign-tx", async (req, res) => {
+  console.log("request to /sign-tx");
   const unsigned_tx = req.body.unsigned_tx;
   const network_passphrase = req.body.network_passphrase;
 
   try {
     const tx = new Transaction(unsigned_tx, network_passphrase);
     const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
+
+    // verify that the transaction is a Soroban transaction
+    tx.operations.forEach((op) => {
+      if (op.type != "invokeHostFunction") {
+        console.log(op.type);
+        throw new Error("Transaction operations is not a invokeHostFunction");
+      }
+    });
+
+    // verify that the transaction does not operate on the source account
+    const simulatedTx = await rpcClient.simulateTransaction(tx);
+    if (Api.isSimulationSuccess(simulatedTx)) {
+      simulatedTx.result?.auth?.forEach((entry) => {
+        if (
+          Address.fromScAddress(
+            entry.credentials().address().address(),
+          ).toString() === sourceKeypair.publicKey()
+        ) {
+          throw new Error("Transaction cannot operate on the source account");
+        }
+      });
+    }
+
     tx.sign(sourceKeypair);
     res.set("Access-Control-Allow-Origin", "*");
     res.status(200);
