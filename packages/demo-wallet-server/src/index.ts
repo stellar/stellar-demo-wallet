@@ -114,6 +114,8 @@ app.post("/sign-tx", async (req, res) => {
     if (Api.isSimulationSuccess(simulatedTx)) {
       simulatedTx.result?.auth?.forEach((entry) => {
         if (
+          entry.credentials().switch() !=
+          xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount() &&
           Address.fromScAddress(
             entry.credentials().address().address(),
           ).toString() === sourceKeypair.publicKey()
