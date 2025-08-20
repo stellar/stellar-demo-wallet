@@ -8,6 +8,8 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import bodyParser from "body-parser";
+import { ContractManager } from "./ContractManager.js";
+
 import dotenv from "dotenv";
 // @ts-ignore
 import findConfig from "find-config";
@@ -136,6 +138,7 @@ app.post("/sign-tx", async (req, res) => {
 
 // Get source account public key for client-side operations
 app.get("/source-public-key", (_req, res) => {
+  console.log("request to /source-public-key");
   try {
     const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
     res.set("Access-Control-Allow-Origin", "*");
@@ -171,6 +174,8 @@ async function startup() {
     // Only check testnet accounts during startup. For mainnet usage, users must
     // manually fund their own accounts as we cannot operate on their behalf.
     // Mainnet account validation failures will surface during SEP-45 signing operations.
+
+    // source account
     const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
     const sourceUrl = `${HORIZON_TESTNET_URL}/accounts/${sourceKeypair.publicKey()}`;
     const sourceResponse = await fetch(sourceUrl);
@@ -179,6 +184,7 @@ async function startup() {
     }
     console.log("Source account ready");
 
+    // signing account
     const signingKeypair = Keypair.fromSecret(SERVER_SIGNING_KEY);
     const signingUrl = `${HORIZON_TESTNET_URL}/accounts/${signingKeypair.publicKey()}`;
     const signingResponse = await fetch(signingUrl);
@@ -186,8 +192,13 @@ async function startup() {
       await fetch(`${FRIENDBOT_URL}?addr=${signingKeypair.publicKey()}`);
     }
     console.log("Signing account ready");
+
+
+    // contract build and upload
+    const cm = new ContractManager();
+    await cm.manageContractWasm();
   } catch (error) {
-    console.error("Account startup error:", error);
+    console.error("Contract Account startup error:", error);
   }
 }
 
