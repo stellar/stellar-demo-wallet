@@ -14,10 +14,3 @@ export const SendTxStatus: {
   Retry: "TRY_AGAIN_LATER",
   Error: "ERROR",
 };
-
-// -----------------------------------------------------------------------------
-// Temporary test constants for development and testing purposes only.
-// These will be removed or replaced when the project is complete.
-// -----------------------------------------------------------------------------
-
-export const SOURCE_KEYPAIR_SECRET = "SDIHUAHOUBN5G4GBM276BVG7JYVFTCJYRCDK2ZI37IJ5KRX7LFRRIQNV"; 

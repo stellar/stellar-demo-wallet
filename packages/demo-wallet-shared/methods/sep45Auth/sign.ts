@@ -4,7 +4,6 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { Api, Server } from "@stellar/stellar-sdk/rpc";
-import { SOURCE_KEYPAIR_SECRET } from "../../constants/soroban";
 import * as xdrParser from "@stellar/js-xdr";
 import { getNetworkConfig } from "../../helpers/getNetworkConfig";
 import { log } from "../../helpers/log";
@@ -27,7 +26,7 @@ export const sign = async ({
   walletBackendEndpoint: string,
   webAuthContractId: string,
 }) => {
-  const swService = SmartWalletService.getInstance();
+  const swService = await SmartWalletService.getInstance();
   const decodedEntries = decodeAuthorizationEntries(authEntries);
 
   const signedEntries = await Promise.all(
@@ -75,9 +74,7 @@ export const sign = async ({
     auth: signedEntries,
   });
 
-  const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
-  const sourceAcc = await server.getAccount(sourceKeypair.publicKey());
-
+  const sourceAcc = await server.getAccount(swService.sourcePublicKey);
   const tx = new TransactionBuilder(sourceAcc, {
     fee: getNetworkConfig().baseFee,
     networkPassphrase: getNetworkConfig().rpcNetwork, // or mainnet if needed
