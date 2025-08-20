@@ -22,7 +22,7 @@ import {
 } from "types/types";
 import { getUnifiedAccountData } from "../helpers/accountUtils";
 import { authenticateWithSep10, authenticateWithSep45 } from "./authUtils";
-import { SOURCE_KEYPAIR_SECRET } from "demo-wallet-shared/constants/soroban";
+
 
 export const withdrawAssetAction = createAsyncThunk<
   { currentStatus: string },
@@ -143,7 +143,6 @@ export const withdrawAssetAction = createAsyncThunk<
 
         // Poll transaction until complete
         const currentStatus = await pollWithdrawUntilComplete({
-          secretKey: SOURCE_KEYPAIR_SECRET,
           popup,
           transactionId: interactiveResponse.id,
           token,

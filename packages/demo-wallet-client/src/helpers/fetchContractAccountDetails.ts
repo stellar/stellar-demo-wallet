@@ -54,7 +54,7 @@ export const fetchContractAsset = async (
     homeDomain?: string;
   },
 ): Promise<Asset> => {
-  const swService = SmartWalletService.getInstance();
+  const swService = await SmartWalletService.getInstance();
   const networkUrl = getNetworkConfig().url;
 
   const { type, balance } = await swService.fetchBalance(

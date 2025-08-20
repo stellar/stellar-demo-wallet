@@ -23,7 +23,7 @@ export const pollWithdrawUntilComplete = async ({
   contractId,
 }: {
   amount: string;
-  secretKey: string;
+  secretKey?: string;
   transactionId: string;
   token: string;
   transferServerUrl: string;
@@ -33,7 +33,6 @@ export const pollWithdrawUntilComplete = async ({
   assetIssuer: string;
   contractId?: string;
 }) => {
-  const keypair = Keypair.fromSecret(secretKey);
   const server = new Horizon.Server(networkUrl);
   let currentStatus = TransactionStatus.INCOMPLETE;
   let requiredCustomerInfoUpdates: string[] | undefined;
@@ -76,6 +75,7 @@ export const pollWithdrawUntilComplete = async ({
           let response;
 
           if (!contractId) {
+            const keypair = Keypair.fromSecret(secretKey!);
             response = await sendFromClassicAccount(
               amount,
               transactionJson,

@@ -149,7 +149,7 @@ export const submitSorobanTransferTransaction = async ({
     body: `Destination: ${destination}`,
   });
 
-  const swService = SmartWalletService.getInstance();
+  const swService = await SmartWalletService.getInstance();
   const asset = isNativeAsset(assetCode)
     ? Asset.native()
     : new Asset(assetCode, assetIssuer!);
