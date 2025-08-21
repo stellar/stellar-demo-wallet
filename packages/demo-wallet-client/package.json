@@ -1,6 +1,6 @@
 {
   "name": "demo-wallet-client",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Stellar Demo Wallet client",
   "repository": {
     "type": "git",
