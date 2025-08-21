@@ -1,12 +1,15 @@
 # Stellar Demo Wallet Server
 
-This Stellar Demo Wallet is the backend to the demo wallet, currently it is only
-used to host the stellar.toml file and also sign requests to enable ([SEP-10])
-client attribution. During the signing phase of the SEP-10 flow, the wallet
-client will make a request to the backend server to have the backend server sign
-the challenge that was issued by the anchor server. The wallet client will then
-sign the same request with the user's key before sending the challenge back to
-the anchor server for verification.
+This Stellar Demo Wallet is the backend to the demo wallet, currently it is used for:
+1. Host the stellar.toml file
+2. Sign requests to enable ([SEP-10]) client attribution.
+3. Sign requests to enable ([SEP-45]) client attribution.
+4. Sign for soroban transactions.
+
+During the signing phase, the wallet client will make a request to the backend 
+server to have the backend server sign the challenge that was issued by the anchor 
+server. The wallet client will then sign the same request with the user's key before 
+sending the challenge back to the anchor server for verification.
 
 ### Running the Demo Wallet Server
 
