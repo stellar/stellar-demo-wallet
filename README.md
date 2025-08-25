@@ -166,7 +166,7 @@ hosting the `stellar.toml`) is running. ex:
 
 ```typescript
 window._env_ = {
-  CLIENT_DOMAIN: "localhsot:7000",
+  CLIENT_DOMAIN: "localhost:7000",
   WALLET_BACKEND_ENDPOINT: "http://localhost:7000",
 };
 ```
