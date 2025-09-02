@@ -2,7 +2,7 @@ import {
   Account,
   Asset,
   Horizon,
-  Keypair, Operation,
+  Keypair, MuxedAccount, Operation,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import { createMemoFromType } from "./createMemoFromType";
@@ -67,13 +67,23 @@ export const sendFromClassicAccount = async (
 }
 
 export const sendFromContractAccount = async (
+  amount: string,
   asset: Asset,
   fromAcc: string,
   toAcc: string,
-  amount: string,
-  contractId: string,
+  transactionJson: any,
+  server: Horizon.Server,
 ) => {
   const swService = await SmartWalletService.getInstance();
+  const memo =  transactionJson.transaction.withdraw_memo_type === "id"
+    ? transactionJson.transaction.withdraw_memo
+    : undefined;
+
+  let destAddress = toAcc;
+  if (memo != null) {
+    const toAccount = await server.loadAccount(toAcc)
+    destAddress = new MuxedAccount(toAccount, memo).accountId();
+  }
 
   log.request({
     title: "Submitting withdrawal transaction to Stellar",
@@ -82,8 +92,8 @@ export const sendFromContractAccount = async (
   return await swService.transfer(
     asset.contractId(getNetworkConfig().rpcNetwork),
     fromAcc,
-    toAcc,
+    destAddress,
     Number(amount),
-    contractId,
+    fromAcc,
   );
 }

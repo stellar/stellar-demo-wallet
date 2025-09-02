@@ -171,6 +171,8 @@ export const depositAssetAction = createAsyncThunk<
           sep24TransferServerUrl,
           token,
           claimableBalanceSupported: false,
+          memo: memo?.memo,
+          memoType: memo?.memo ? "id" : undefined,
           sep9Fields,
         });
 
