@@ -86,11 +86,12 @@ export const pollWithdrawUntilComplete = async ({
             );
           } else {
             response = await sendFromContractAccount(
+              amount,
               paymentAsset,
               contractId,
               transactionJson.transaction.withdraw_anchor_account,
-              amount,
-              contractId,
+              transactionJson,
+              server,
             );
           }
 
