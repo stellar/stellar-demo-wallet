@@ -35,7 +35,7 @@ export class ContractManager {
     try {
       console.log("Checking for WASM hash existence");
       const fileBuffer = fs.readFileSync(filePath);
-      const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+      const hash = crypto.createHash('sha256').update(new Uint8Array(fileBuffer)).digest('hex');
       await this.rpcClient.getContractWasmByHash(hash, "hex");
       console.log("WASM found:", hash);
       return true;
