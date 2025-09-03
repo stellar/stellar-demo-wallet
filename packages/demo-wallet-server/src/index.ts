@@ -9,6 +9,9 @@ import {
 } from "@stellar/stellar-sdk";
 import bodyParser from "body-parser";
 import { ContractManager } from "./ContractManager.js";
+import * as fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import dotenv from "dotenv";
 // @ts-ignore
@@ -23,6 +26,9 @@ const HORIZON_TESTNET_URL = "https://horizon-testnet.stellar.org";
 const FRIENDBOT_URL = "https://friendbot.stellar.org";
 const app = express();
 const rpcClient = new Server("https://soroban-testnet.stellar.org");
+
+let signingKeypair : Keypair;
+let stellarToml = "";
 
 // JSON parsing with error handling
 app.use(bodyParser.json({
@@ -40,16 +46,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //TODO: add logging middleware
 // Serve the sep-1 stellar.toml file
-app.use(
-  "/.well-known",
-  express.static("./src/static/well_known", {
-    setHeaders: function (res, _) {
-      res.set("Access-Control-Allow-Headers", "Content-Type,X-Requested-With");
-      res.type("application/json");
-      console.log("request to /.well-known");
-    },
-  }),
-);
+ app.get("/.well-known/stellar.toml", (_req, res) => {
+    res.set("Access-Control-Allow-Headers", "Content-Type,X-Requested-With");
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Content-Type", "text/plain");
+    res.send(stellarToml);
+  });
 
 // Sign requests from the demo wallet client for sep-10 client attribution
 app.post("/sign", (req, res) => {
@@ -64,7 +66,7 @@ app.post("/sign", (req, res) => {
     return;
   }
 
-  transaction.sign(Keypair.fromSecret(SERVER_SIGNING_KEY));
+  transaction.sign(signingKeypair);
 
   res.set("Access-Control-Allow-Origin", "*");
   res.status(200);
@@ -82,7 +84,7 @@ app.post("/sep45/sign", async (req, res) => {
 
   const signed_entry = await authorizeEntry(
     xdr.SorobanAuthorizationEntry.fromXDR(unsigned_entry, "base64"),
-    Keypair.fromSecret(SERVER_SIGNING_KEY),
+    signingKeypair,
     Number(valid_until_ledger_seq),
     network_passphrase,
   );
@@ -175,28 +177,40 @@ async function startup() {
     // manually fund their own accounts as we cannot operate on their behalf.
     // Mainnet account validation failures will surface during SEP-45 signing operations.
 
-    // source account
+    // 1. source account
     const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
     const sourceUrl = `${HORIZON_TESTNET_URL}/accounts/${sourceKeypair.publicKey()}`;
     const sourceResponse = await fetch(sourceUrl);
     if (sourceResponse.status === 404) {
       await fetch(`${FRIENDBOT_URL}?addr=${sourceKeypair.publicKey()}`);
     }
-    console.log("Source account ready");
+    console.log("1. Source account ready");
 
-    // signing account
-    const signingKeypair = Keypair.fromSecret(SERVER_SIGNING_KEY);
+    // 2. signing account;
+    signingKeypair = Keypair.fromSecret(SERVER_SIGNING_KEY);
     const signingUrl = `${HORIZON_TESTNET_URL}/accounts/${signingKeypair.publicKey()}`;
     const signingResponse = await fetch(signingUrl);
     if (signingResponse.status === 404) {
       await fetch(`${FRIENDBOT_URL}?addr=${signingKeypair.publicKey()}`);
     }
-    console.log("Signing account ready");
+    console.log("2. Signing account ready");
 
+    // 3. stellar.toml generation
+    const templatePath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "src/static/well-known/stellar.toml"
+    );
+    
+    const stellarTomlTemplate = fs.readFileSync(templatePath, "utf-8");
+    stellarToml = stellarTomlTemplate
+      .replace("{{SERVER_ACCOUNT}}", signingKeypair.publicKey())
+      .replace("{{SERVER_SIGNING_PUBLIC_KEY}}", signingKeypair.publicKey());
+    console.log("3. Stellar.toml ready");
 
-    // contract build and upload
+    // 4. contract build and upload
     const cm = new ContractManager();
     await cm.manageContractWasm();
+    console.log("4. Contract ready");
   } catch (error) {
     console.error("Contract Account startup error:", error);
   }

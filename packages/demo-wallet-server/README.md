@@ -20,13 +20,10 @@ sending the challenge back to the anchor server for verification.
 2. Create a .env file in the package/demo-wallet-server directory.
    ```
    SERVER_PORT = 7000
-   SERVER_SIGNING_KEY = <private signing key 1 generated in step 1>
-   SOURCE_KEYPAIR_SECRET = <private signing key 2 generated in step 1>
+   SERVER_SIGNING_KEY = <private key of keypair 1 generated in step 1>
+   SOURCE_KEYPAIR_SECRET = <private key of keypair 2 generated in step 1>
    ```
-3. Modify the _stellar.toml_ file in
-   _package/demo-wallet-server/src/static/well_known_ Replace the
-   **SIGNING_KEY** with the public key that was generated in step 1
-4. Run the server
+3. Run the server
    ```
    yarn start:server
    ```
