@@ -20,15 +20,14 @@ import findConfig from "find-config";
 dotenv.config({ path: findConfig(".env") as string });
 
 const PORT = process.env.SERVER_PORT ?? 7000;
-const SERVER_ACCOUNT = String(process.env.SERVER_ACCOUNT ?? process.env.SERVER_SIGNING_PUBLIC_KEY);
-const SERVER_SIGNING_PUBLIC_KEY = String(process.env.SERVER_SIGNING_PUBLIC_KEY);
-const SERVER_SIGNING_PRIVATE_KEY = String(process.env.SERVER_SIGNING_PRIVATE_KEY);
+const SERVER_SIGNING_KEY = String(process.env.SERVER_SIGNING_KEY);
 const SOURCE_KEYPAIR_SECRET = String(process.env.SOURCE_KEYPAIR_SECRET);
 const HORIZON_TESTNET_URL = "https://horizon-testnet.stellar.org";
 const FRIENDBOT_URL = "https://friendbot.stellar.org";
 const app = express();
 const rpcClient = new Server("https://soroban-testnet.stellar.org");
 
+let signingKeypair : Keypair;
 let stellarToml = "";
 
 // JSON parsing with error handling
@@ -67,7 +66,7 @@ app.post("/sign", (req, res) => {
     return;
   }
 
-  transaction.sign(Keypair.fromSecret(SERVER_SIGNING_PRIVATE_KEY));
+  transaction.sign(signingKeypair);
 
   res.set("Access-Control-Allow-Origin", "*");
   res.status(200);
@@ -85,7 +84,7 @@ app.post("/sep45/sign", async (req, res) => {
 
   const signed_entry = await authorizeEntry(
     xdr.SorobanAuthorizationEntry.fromXDR(unsigned_entry, "base64"),
-    Keypair.fromSecret(SERVER_SIGNING_PRIVATE_KEY),
+    signingKeypair,
     Number(valid_until_ledger_seq),
     network_passphrase,
   );
@@ -187,8 +186,8 @@ async function startup() {
     }
     console.log("1. Source account ready");
 
-    // 2. signing account
-    const signingKeypair = Keypair.fromSecret(SERVER_SIGNING_PRIVATE_KEY);
+    // 2. signing account;
+    signingKeypair = Keypair.fromSecret(SERVER_SIGNING_KEY);
     const signingUrl = `${HORIZON_TESTNET_URL}/accounts/${signingKeypair.publicKey()}`;
     const signingResponse = await fetch(signingUrl);
     if (signingResponse.status === 404) {
@@ -204,8 +203,8 @@ async function startup() {
     
     const stellarTomlTemplate = fs.readFileSync(templatePath, "utf-8");
     stellarToml = stellarTomlTemplate
-      .replace("{{SERVER_ACCOUNT}}", SERVER_ACCOUNT)
-      .replace("{{SERVER_SIGNING_PUBLIC_KEY}}", SERVER_SIGNING_PUBLIC_KEY);
+      .replace("{{SERVER_ACCOUNT}}", signingKeypair.publicKey())
+      .replace("{{SERVER_SIGNING_PUBLIC_KEY}}", signingKeypair.publicKey());
     console.log("3. Stellar.toml ready");
 
     // 4. contract build and upload
