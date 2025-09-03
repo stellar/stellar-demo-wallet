@@ -20,9 +20,8 @@ sending the challenge back to the anchor server for verification.
 2. Create a .env file in the package/demo-wallet-server directory.
    ```
    SERVER_PORT = 7000
-   SERVER_SIGNING_PUBLIC_KEY = <public key of keypair 1 generated in step 1>
-   SERVER_SIGNING_PRIVATE_KEY = <private key of keypair 1 generated in step 1>
-   SOURCE_KEYPAIR_SECRET = <public key of keypair 2 generated in step 1>
+   SERVER_SIGNING_KEY = <private key of keypair 1 generated in step 1>
+   SOURCE_KEYPAIR_SECRET = <private key of keypair 2 generated in step 1>
    ```
 3. Run the server
    ```
