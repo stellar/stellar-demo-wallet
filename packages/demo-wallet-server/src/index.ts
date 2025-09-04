@@ -177,14 +177,18 @@ async function startup() {
     // manually fund their own accounts as we cannot operate on their behalf.
     // Mainnet account validation failures will surface during SEP-45 signing operations.
 
-    // 1. source account
-    const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
-    const sourceUrl = `${HORIZON_TESTNET_URL}/accounts/${sourceKeypair.publicKey()}`;
-    const sourceResponse = await fetch(sourceUrl);
-    if (sourceResponse.status === 404) {
-      await fetch(`${FRIENDBOT_URL}?addr=${sourceKeypair.publicKey()}`);
+    // 1. source account (optional)
+    if (SOURCE_KEYPAIR_SECRET) {
+      const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
+      const sourceUrl = `${HORIZON_TESTNET_URL}/accounts/${sourceKeypair.publicKey()}`;
+      const sourceResponse = await fetch(sourceUrl);
+      if (sourceResponse.status === 404) {
+        await fetch(`${FRIENDBOT_URL}?addr=${sourceKeypair.publicKey()}`);
+      }
+      console.log("1. Source account ready");
+    } else {
+      console.log("1. SOURCE_KEYPAIR_SECRET not configured - smart contract operations will be unavailable");
     }
-    console.log("1. Source account ready");
 
     // 2. signing account;
     signingKeypair = Keypair.fromSecret(SERVER_SIGNING_KEY);
