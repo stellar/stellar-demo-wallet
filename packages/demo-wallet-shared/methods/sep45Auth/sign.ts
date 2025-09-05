@@ -102,9 +102,7 @@ export const sign = async ({
     if (entryType === xdr.LedgerEntryType.contractCode().value) {
       // Allow contract code access for restoration/TTL extension
       continue;
-    }
-
-    if (entryType !== xdr.LedgerEntryType.contractData().value) {
+    } else if (entryType !== xdr.LedgerEntryType.contractData().value) {
       throw new Error(`Unexpected ledger key type: ${ledgerKey.switch().name}`);
     }
     
