@@ -97,9 +97,15 @@ export const sign = async ({
   const readWrite = simulateTxResponse.transactionData.getReadWrite()!;
 
   for (const ledgerKey of readWrite) {
-    if (ledgerKey.switch().value !== xdr.LedgerEntryType.contractData().value) {
+    const entryType = ledgerKey.switch().value;
+
+    if (entryType === xdr.LedgerEntryType.contractCode().value) {
+      // Allow contract code access for restoration/TTL extension
+      continue;
+    } else if (entryType !== xdr.LedgerEntryType.contractData().value) {
       throw new Error(`Unexpected ledger key type: ${ledgerKey.switch().name}`);
     }
+    
     const contractData = ledgerKey.contractData();
     const contractAddress = Address.fromScAddress(contractData.contract()).toString();
 
