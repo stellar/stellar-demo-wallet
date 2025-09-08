@@ -56,8 +56,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Sign requests from the demo wallet client for sep-10 client attribution
 app.post("/sign", (req, res) => {
   console.log("request to /sign");
-  const envelope_xdr = req.body.transaction;
-  const network_passphrase = req.body.network_passphrase;
+  const { envelope_xdr, network_passphrase } = req.body;
   const transaction = new Transaction(envelope_xdr, network_passphrase);
 
   if (Number.parseInt(transaction.sequence, 10) !== 0) {
@@ -78,28 +77,34 @@ app.post("/sign", (req, res) => {
 
 app.post("/sep45/sign", async (req, res) => {
   console.log("request to /sep45/sign");
-  const unsigned_entry = req.body.unsigned_entry;
-  const valid_until_ledger_seq = req.body.valid_until_ledger_seq;
-  const network_passphrase = req.body.network_passphrase;
+  const { unsigned_entry, valid_until_ledger_seq, network_passphrase } = req.body;
 
-  const signed_entry = await authorizeEntry(
-    xdr.SorobanAuthorizationEntry.fromXDR(unsigned_entry, "base64"),
-    signingKeypair,
-    Number(valid_until_ledger_seq),
-    network_passphrase,
-  );
+  let entry;
+  try {
+    entry = xdr.SorobanAuthorizationEntry.fromXDR(unsigned_entry, "base64");
+  } catch (err: any) {
+    return res.status(400).json({ error: "Invalid XDR: " + err.message });
+  }
 
-  res.set("Access-Control-Allow-Origin", "*");
-  res.status(200);
-  res.send({
-    signed_entry: signed_entry.toXDR("base64"),
-  });
+  try {
+    const signed_entry = await authorizeEntry(
+      entry,
+      signingKeypair,
+      Number(valid_until_ledger_seq),
+      network_passphrase,
+    );
+    res.set("Access-Control-Allow-Origin", "*");
+    return res.status(200).json({
+      signed_entry: signed_entry.toXDR("base64"),
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
 });
 
 app.post("/sign-tx", async (req, res) => {
   console.log("request to /sign-tx");
-  const unsigned_tx = req.body.unsigned_tx;
-  const network_passphrase = req.body.network_passphrase;
+  const { unsigned_tx, network_passphrase } = req.body;
 
   try {
     const tx = new Transaction(unsigned_tx, network_passphrase);
