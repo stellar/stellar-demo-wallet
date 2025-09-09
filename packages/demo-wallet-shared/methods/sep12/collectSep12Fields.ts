@@ -7,7 +7,7 @@ import {
 export const collectSep12Fields = async ({
   kycServer,
   memo,
-  publicKey,
+  account,
   token,
   type,
   transactionId,
@@ -15,7 +15,7 @@ export const collectSep12Fields = async ({
 }: {
   kycServer: string;
   memo?: string;
-  publicKey: string;
+  account: string;
   token: string;
   type?: string;
   transactionId?: string;
@@ -25,7 +25,7 @@ export const collectSep12Fields = async ({
   // since the wallet uses the same 'account' for both.
   const params = {
     ...(type ? { type } : {}),
-    account: publicKey,
+    account,
     ...(memo ? { memo, memo_type: "hash" } : {}),
     ...(transactionId ? { transaction_id: transactionId } : {}),
   };

@@ -18,6 +18,8 @@ import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
 import { ActionStatus, Asset, AssetType } from "types/types";
 import { fetchAccountDetails } from "helpers/fetchAccountDetails";
+import { fetchContractAssetsAction } from "../ducks/contractAssets";
+import { fetchContractAccountAction } from "../ducks/contractAccount";
 
 export const SendPayment = ({
   asset,
@@ -26,8 +28,16 @@ export const SendPayment = ({
   asset?: Asset;
   onClose: () => void;
 }) => {
-  const { account, sendPayment } = useRedux("account", "sendPayment");
-  const { data, secretKey } = account;
+  const {
+    account,
+    contractAccount,
+    sendPayment,
+    settings
+  } = useRedux(
+    "account",
+    "contractAccount",
+    "sendPayment",
+    "settings");
   const dispatch: AppDispatch = useDispatch();
 
   // Form data
@@ -56,43 +66,50 @@ export const SendPayment = ({
   );
 
   useEffect(() => {
-    if (sendPayment.status === ActionStatus.SUCCESS && data?.id) {
-      dispatch(
-        fetchAccountAction({
-          publicKey: data.id,
-          secretKey,
-        }),
-      );
+    if (sendPayment.status === ActionStatus.SUCCESS) {
+      if (account.data?.id) {
+        dispatch(
+          fetchAccountAction({
+            publicKey: account.data?.id,
+            secretKey: account.secretKey,
+          }),
+        );
+      } else if (contractAccount.contractId) {
+        dispatch(
+          fetchContractAssetsAction({
+            assetsString: settings.contractAssets,
+            contractId: contractAccount.contractId,
+            assetOverridesString: settings.assetOverrides || undefined,
+          }),
+        );
+        dispatch(fetchContractAccountAction(contractAccount.contractId));
+      }
       dispatch(resetSendPaymentAction());
       dispatch(resetActiveAssetAction());
       resetFormState();
       onClose();
     }
-  }, [sendPayment.status, secretKey, data?.id, dispatch, onClose]);
+  }, [sendPayment.status, dispatch, onClose, account.data?.id, account.secretKey, contractAccount.contractId, settings.contractAssets, settings.assetOverrides]);
 
   const checkAndSetIsDestinationFunded = async () => {
-    if (!destination || !StrKey.isValidEd25519PublicKey(destination)) {
-      return;
+    if (destination.startsWith('G') && StrKey.isValidEd25519PublicKey(destination)) {
+      setIsDestinationFunded(
+        Boolean(await fetchAccountDetails(getNetworkConfig().url, destination)),
+      );
     }
-
-    setIsDestinationFunded(
-      Boolean(await fetchAccountDetails(getNetworkConfig().url, destination)),
-    );
   };
 
   const handleSubmit = () => {
-    if (data?.id) {
-      const params = {
-        destination,
-        isDestinationFunded,
-        amount,
-        assetCode,
-        assetIssuer,
-        publicKey: data.id,
-      };
-
-      dispatch(sendPaymentAction(params));
+    if (!assetCode) {
+      throw new Error("Asset code is required to send a payment.");
     }
+    dispatch(sendPaymentAction({
+      destination,
+      isDestinationFunded,
+      amount,
+      assetCode,
+      assetIssuer,
+    }));
   };
 
   return (

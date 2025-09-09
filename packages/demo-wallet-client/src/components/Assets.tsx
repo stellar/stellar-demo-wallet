@@ -57,6 +57,9 @@ import {
   SearchParams,
   TransactionStatus,
 } from "types/types";
+import { PRESET_ASSETS } from "demo-wallet-shared/build/constants/presetAssets";
+import { resetSep6DepositAction } from "../ducks/sep6Deposit";
+import { resetSep6WithdrawAction } from "../ducks/sep6Withdraw";
 
 export const Assets = ({
   onSendPayment,
@@ -289,11 +292,11 @@ export const Assets = ({
 
   // SEP-6 Deposit
   useEffect(() => {
-    if (
-      sep6Deposit.status === ActionStatus.SUCCESS &&
-      sep6Deposit.data.trustedAssetAdded
-    ) {
-      handleRemoveUntrustedAsset(sep6Deposit.data.trustedAssetAdded);
+    if (sep6Deposit.status === ActionStatus.SUCCESS) {
+      dispatch(resetSep6DepositAction());
+      if (sep6Deposit.data.trustedAssetAdded) {
+        handleRemoveUntrustedAsset(sep6Deposit.data.trustedAssetAdded);
+      }
     }
 
     if (sep6Deposit.data.currentStatus === TransactionStatus.COMPLETED) {
@@ -305,35 +308,22 @@ export const Assets = ({
       status: sep6Deposit.status,
       message: "SEP-6 deposit in progress",
     });
-  }, [
-    sep6Deposit.status,
-    sep6Deposit.data.currentStatus,
-    sep6Deposit.data.trustedAssetAdded,
-    handleRefreshAccount,
-    handleFetchClaimableBalances,
-    handleRemoveUntrustedAsset,
-    setActiveAssetStatusAndToastMessage,
-  ]);
+  }, [sep6Deposit.status, sep6Deposit.data.currentStatus, sep6Deposit.data.trustedAssetAdded, handleRefreshAccount, handleFetchClaimableBalances, handleRemoveUntrustedAsset, setActiveAssetStatusAndToastMessage, dispatch]);
 
   // SEP-6 Withdraw
   useEffect(() => {
-    if (
-      sep6Withdraw.status === ActionStatus.SUCCESS &&
-      sep6Withdraw.data.currentStatus === TransactionStatus.COMPLETED
-    ) {
-      handleRefreshAccount();
+    if (sep6Withdraw.status === ActionStatus.SUCCESS) {
+      dispatch(resetSep6WithdrawAction());
+      if(sep6Withdraw.data.currentStatus === TransactionStatus.COMPLETED) {
+        handleRefreshAccount();
+      }
     }
 
     setActiveAssetStatusAndToastMessage({
       status: sep6Withdraw.status,
       message: "SEP-6 withdrawal in progress",
     });
-  }, [
-    sep6Withdraw.status,
-    sep6Withdraw.data.currentStatus,
-    handleRefreshAccount,
-    setActiveAssetStatusAndToastMessage,
-  ]);
+  }, [sep6Withdraw.status, sep6Withdraw.data.currentStatus, handleRefreshAccount, setActiveAssetStatusAndToastMessage, dispatch]);
 
   // SEP-24 Deposit asset
   useEffect(() => {
@@ -444,7 +434,7 @@ export const Assets = ({
               Add asset
             </Button>
 
-            {getPresetAssets(allAssets.data).length > 0 && (
+            {getPresetAssets(allAssets.data, PRESET_ASSETS).length > 0 && (
               <TextLink
                 onClick={() => setActiveModal(ModalType.ADD_PRESET_ASSET)}
                 disabled={Boolean(activeAsset.action)}

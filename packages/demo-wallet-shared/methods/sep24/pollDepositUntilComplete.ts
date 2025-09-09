@@ -15,7 +15,7 @@ export const pollDepositUntilComplete = async ({
   transactionId: string;
   token: string;
   sep24TransferServerUrl: string;
-  trustAssetCallback: () => Promise<string>;
+  trustAssetCallback?: () => Promise<string>;
   custodialMemoId?: string;
   sep9Fields?: AnyObject;
 }) => {
@@ -114,11 +114,13 @@ export const pollDepositUntilComplete = async ({
               "You must add a trustline to the asset in order to receive your deposit",
           });
 
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            trustedAssetAdded = await trustAssetCallback();
-          } catch (error) {
-            throw new Error(getErrorMessage(error));
+          if (trustAssetCallback) {
+            try {
+              // eslint-disable-next-line no-await-in-loop
+              trustedAssetAdded = await trustAssetCallback();
+            } catch (error) {
+              throw new Error(getErrorMessage(error));
+            }
           }
           break;
         }

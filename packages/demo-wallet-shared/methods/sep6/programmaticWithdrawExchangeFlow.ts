@@ -7,7 +7,7 @@ type ProgrammaticWithdrawExchangeFlowProps = {
   sourceAssetCode: string;
   destinationAsset: string;
   quoteId?: string;
-  publicKey: string;
+  account: string;
   transferServerUrl: string;
   token: string;
   type: string;
@@ -20,7 +20,7 @@ export const programmaticWithdrawExchangeFlow = async ({
   sourceAssetCode,
   destinationAsset,
   quoteId,
-  publicKey,
+  account,
   transferServerUrl,
   token,
   type,
@@ -40,7 +40,7 @@ export const programmaticWithdrawExchangeFlow = async ({
     source_asset: sourceAssetCode,
     destination_asset: destinationAsset,
     quote_id: quoteId,
-    account: publicKey,
+    account,
     claimable_balance_supported: claimableBalanceSupported.toString(),
     type,
     ...withdrawFields,

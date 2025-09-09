@@ -1,8 +1,7 @@
-import { PRESET_ASSETS } from "../constants/presetAssets";
-import { Asset } from "../types/types";
+import { Asset, PresetAsset } from "../types/types";
 
-export const getPresetAssets = (allAssets: Asset[]) => {
-  const newPresetAssets = PRESET_ASSETS.filter(
+export const getPresetAssets = (allAssets: Asset[], presetAssets:  PresetAsset[]) => {
+  return presetAssets.filter(
     (pAsset) =>
       !allAssets.some(
         (a) =>
@@ -11,5 +10,4 @@ export const getPresetAssets = (allAssets: Asset[]) => {
             a.assetIssuer === pAsset.issuerPublicKey),
       ),
   );
-  return newPresetAssets;
 };

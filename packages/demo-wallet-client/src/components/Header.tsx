@@ -7,7 +7,7 @@ import { useRedux } from "hooks/useRedux";
 export const Header = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { account } = useRedux("account");
+  const { account, contractAccount } = useRedux("account", "contractAccount");
 
   const handleCloseModal = () => {
     setModalVisible(false);
@@ -17,7 +17,7 @@ export const Header = () => {
     <>
       <Layout.Header
         projectTitle="Demo Wallet"
-        {...(account.isAuthenticated
+        {...(account.isAuthenticated || contractAccount.isAuthenticated
           ? { onSignOut: () => setModalVisible(true) }
           : {})}
         hasDarkModeToggle

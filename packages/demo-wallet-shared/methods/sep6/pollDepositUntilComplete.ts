@@ -12,7 +12,7 @@ export const pollDepositUntilComplete = async ({
   transactionId: string;
   token: string;
   transferServerUrl: string;
-  trustAssetCallback: () => Promise<string>;
+  trustAssetCallback?: () => Promise<string>;
   dispatchInstructions: (instructions: SepInstructions) => void;
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
@@ -88,11 +88,13 @@ export const pollDepositUntilComplete = async ({
               "You must add a trustline to the asset in order to receive your deposit",
           });
 
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            trustedAssetAdded = await trustAssetCallback();
-          } catch (error) {
-            throw new Error(getErrorMessage(error));
+          if (trustAssetCallback) {
+            try {
+              // eslint-disable-next-line no-await-in-loop
+              trustedAssetAdded = await trustAssetCallback();
+            } catch (error) {
+              throw new Error(getErrorMessage(error));
+            }
           }
           break;
         }

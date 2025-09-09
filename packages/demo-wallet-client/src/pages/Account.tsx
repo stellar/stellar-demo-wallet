@@ -12,9 +12,11 @@ import { CSS_MODAL_PARENT_ID } from "demo-wallet-shared/build/constants/settings
 import { resetActiveAssetAction } from "ducks/activeAsset";
 import { useRedux } from "hooks/useRedux";
 import { Asset } from "types/types";
+import { ContractAccountInfo } from "../components/ContractAccountInfo";
+import { ContractAccountAssets } from "../components/ContractAccountAssets";
 
 export const Account = () => {
-  const { account } = useRedux("account");
+  const { account, contractAccount } = useRedux("account", "contractAccount");
   const [sendPaymentModalVisible, setSendPaymentModalVisible] = useState(false);
   const [currentAsset, setCurrentAsset] = useState<Asset | undefined>();
 
@@ -30,17 +32,31 @@ export const Account = () => {
     setSendPaymentModalVisible(true);
   };
 
-  if (!account.data?.id) {
+  if (!account.data?.id && !contractAccount.data?.contract) {
     return null;
   }
 
+  const AccountDetails = () => {
+    return (
+      <>
+        {account.data?.id ? (
+          <>
+            <AccountInfo />
+            <Assets onSendPayment={handleSendPayment} />
+          </>
+        ) : (
+          <>
+            <ContractAccountInfo />
+            <ContractAccountAssets onSendPayment={handleSendPayment} />
+          </>
+        )}
+      </>
+    );
+  };
+
   return (
     <>
-      {/* Account */}
-      <AccountInfo />
-
-      {/* Assets / Balances */}
-      <Assets onSendPayment={handleSendPayment} />
+      <AccountDetails />
 
       {/* SEP-6 Deposit */}
       <Sep6Deposit />

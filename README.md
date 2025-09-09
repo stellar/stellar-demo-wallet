@@ -126,6 +126,17 @@ between the Sending and the Receiving anchors._
 4. If the payment has been successfully sent you'll see "SEP-31 send payment
    completed" in the logs.
 
+### Demo-ing Contract Accounts on Testnet
+1. Click "Create new contract account" and follow the passkey setup instruction on popup - this will create a contract
+   account with balance of 9,999 XLM. You can later reconnect to this contract account using the same passkey.
+2. To use XLM directly, add the home domain `testanchor.stellar.org`. To add other assets, specify the asset code, 
+   the anchor's home domain, or the issuer (details are available in the anchor's `stellar.toml`).
+3. For deposits or withdrawals, follow the steps in "Demo-ing a Deposit on Testnet with Hosted Deposit and Withdrawal 
+   ([SEP-24])" section. The difference is that you must authorize using the passkey created in step 1. For withdrawals,
+   you'll also need an extra passkey authorization to approve the outgoing transfer.
+4. For SEND payments, follow the steps in "Demo-ing a Regulated Asset Payment ([SEP-8])" section. You will need to sign
+   and confirm the transfer using the passkey created in step 1.
+
 ### Hosting Anchor Services Locally
 
 You can serve `stellar.toml` files from `localhost`. When using locally hosted
@@ -155,8 +166,8 @@ hosting the `stellar.toml`) is running. ex:
 
 ```typescript
 window._env_ = {
-  CLIENT_DOMAIN: "docker.for.mac.host.internal:7000",
-  WALLET_BACKEND_ENDPOINT: "http://demo-wallet-server.stellar.org",
+  CLIENT_DOMAIN: "localhost:7000",
+  WALLET_BACKEND_ENDPOINT: "http://localhost:7000",
 };
 ```
 
@@ -210,6 +221,18 @@ but you are free to edit the compose file to use a local instance of the server.
 ---
 
 ## Release Notes
+
+### v3.0
+- Support for Contract Accounts
+  - SEP-45 authentication
+  - SEP-06
+  - SEP-24
+
+### v2.0
+- Turned this repo into monorepo with three packages:
+  - demo-wallet-client: website code
+  - demo-wallet-server: new server code
+  - demo-wallet-shared: moved all shared methods that are used in both client and server
 
 ### v1.2
 

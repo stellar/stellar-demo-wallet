@@ -10,14 +10,17 @@ import { log } from "demo-wallet-shared/build/helpers/log";
 import { useRedux } from "hooks/useRedux";
 import { AppDispatch } from "config/store";
 import { ActionStatus, SearchParams } from "types/types";
+import { fetchContractAccountAction } from "../ducks/contractAccount";
+import {
+  fetchContractAssetsAction,
+} from "../ducks/contractAssets";
 
 export const SettingsHandler = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const { account } = useRedux("account");
-
+  const { account, contractAccount } = useRedux("account", "contractAccount");
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,9 +29,11 @@ export const SettingsHandler = ({
   const secretKeyParam = queryParams.get(SearchParams.SECRET_KEY);
   const untrustedAssetsParam = queryParams.get(SearchParams.UNTRUSTED_ASSETS);
   const assetOverridesParam = queryParams.get(SearchParams.ASSET_OVERRIDES);
+  const contractAssetsParam = queryParams.get(SearchParams.CONTRACT_ASSETS);
   const claimableBalanceSupportedParam = queryParams.get(
     SearchParams.CLAIMABLE_BALANCE_SUPPORTED,
   );
+  const contractIdParam = queryParams.get(SearchParams.CONTRACT_ID);
 
   // Asset overrides
   useEffect(() => {
@@ -102,13 +107,71 @@ export const SettingsHandler = ({
 
   // Go to /account page if fetching account was success
   useEffect(() => {
-    if (account.status === ActionStatus.SUCCESS && account.isAuthenticated) {
+    if ((account.status === ActionStatus.SUCCESS && account.isAuthenticated) ||
+      (contractAccount.status === ActionStatus.SUCCESS && contractAccount.isAuthenticated)) {
       navigate({
         pathname: "/account",
         search: location.search,
       });
     }
-  }, [account.status, location.search, account.isAuthenticated, navigate]);
+  }, [account.status, location.search, account.isAuthenticated, navigate, contractAccount.status, contractAccount.isAuthenticated]);
+
+  // Handle contract ID from URL
+  useEffect(() => {
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.CONTRACT_ID]: contractIdParam || "",
+      }),
+    );
+    if (contractIdParam) {
+      try {
+        dispatch(fetchContractAccountAction(contractIdParam));
+      } catch (error) {
+        log.error({
+          title: "Fetch contract account error",
+          body: getErrorMessage(error),
+        });
+      }
+    }
+  }, [contractIdParam, dispatch]);
+
+  // Handle contract assets from URL
+  useEffect(() => {
+    if (contractIdParam && contractAssetsParam) {
+      try {
+        dispatch(
+          fetchContractAssetsAction({
+            assetsString: contractAssetsParam,
+            contractId: contractIdParam,
+            assetOverridesString: assetOverridesParam || undefined,
+          }),
+        );
+      } catch (error) {
+        log.error({
+          title: "Fetch contract assets error",
+          body: getErrorMessage(error),
+        });
+      }
+    }
+  }, [contractAssetsParam, contractIdParam, assetOverridesParam, dispatch]);
+
+  // contract assets
+  useEffect(() => {
+    const cleanedAssets = contractAssetsParam
+      ?.split(",")
+      .reduce(
+        (unique: string[], item: string) =>
+          unique.includes(item) ? unique : [...unique, item],
+        [],
+      )
+      .join(",");
+
+    dispatch(
+      updateSettingsAction({
+        [SearchParams.CONTRACT_ASSETS]: cleanedAssets || "",
+      }),
+    );
+  }, [contractAssetsParam, dispatch]);
 
   return <>{children}</>;
 };

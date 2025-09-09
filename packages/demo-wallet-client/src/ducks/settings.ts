@@ -7,6 +7,8 @@ const initialState: SettingsInitialState = {
   secretKey: "",
   untrustedAssets: "",
   claimableBalanceSupported: false,
+  contractId: "",
+  contractAssets: "",
 };
 
 const settingsSlice = createSlice({

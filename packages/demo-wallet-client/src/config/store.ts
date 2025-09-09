@@ -27,6 +27,8 @@ import { reducer as trustAsset } from "ducks/trustAsset";
 import { reducer as untrustedAssets } from "ducks/untrustedAssets";
 import { reducer as custodial } from "ducks/custodial";
 import { reducer as extra } from "ducks/extra";
+import { reducer as contractAccount } from "../ducks/contractAccount";
+import { reducer as contractAssets } from "../ducks/contractAssets";
 
 const RESET_STORE_ACTION_TYPE = "RESET";
 export type RootState = ReturnType<typeof store.getState>;
@@ -62,6 +64,10 @@ const reducers = combineReducers({
   settings,
   trustAsset,
   untrustedAssets,
+
+  // Contract Account Reducer
+  contractAccount,
+  contractAssets,
 });
 
 export const resetStoreAction = createAction(RESET_STORE_ACTION_TYPE);

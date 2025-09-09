@@ -10,7 +10,7 @@ import { AppDispatch } from "config/store";
 import { LogItemProps } from "types/types";
 
 export const Logs = () => {
-  const { account, logs } = useRedux("account", "logs");
+  const { logs } = useRedux("logs");
   const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export const Logs = () => {
     document.body.removeChild(element);
   };
 
-  if (!account.isAuthenticated) {
+  if (!logs.items.length) {
     return (
       <div className="SplitContainer Logs">
         <div className="Logs__content">
@@ -98,20 +98,16 @@ export const Logs = () => {
         <div className="Logs__content">
           <Layout.Inset>
             <div className="Logs__wrapper">
-              {logs.items.length ? (
-                logs.items.map((log: LogItemProps, index: number) => (
-                  <LogItem
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={`${log.timestamp}-${index}`}
-                    variant={log.type}
-                    title={log.title}
-                    body={log.body}
-                    link={log.link}
-                  />
-                ))
-              ) : (
-                <p>No logs to show</p>
-              )}
+              {logs.items.map((log: LogItemProps, index: number) => (
+                <LogItem
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={`${log.timestamp}-${index}`}
+                  variant={log.type}
+                  title={log.title}
+                  body={log.body}
+                  link={log.link}
+                />
+              ))}
             </div>
           </Layout.Inset>
         </div>

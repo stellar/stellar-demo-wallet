@@ -34,16 +34,15 @@ export const HomeDomainOverrideModal = ({
 
     const { assetCode, assetIssuer } = asset;
     const networkUrl = getNetworkConfig().url;
+    const isNative = isNativeAsset(assetCode);
 
     try {
       const validAsset = await getAssetFromHomeDomain({
         assetCode,
         homeDomain,
-        issuerPublicKey: assetIssuer,
+        issuerPublicKey: isNative ? undefined : assetIssuer,
         networkUrl,
       });
-
-      const isNative = isNativeAsset(assetCode);
 
       if (validAsset.homeDomain || isNative) {
         const assetString = isNative

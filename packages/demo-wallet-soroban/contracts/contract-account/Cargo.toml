@@ -1,0 +1,18 @@
+[package]
+name = "contract-account"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["lib", "cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+serde = { workspace = true }
+serde-json-core = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true }
+sha256 = { workspace = true }

@@ -35,7 +35,7 @@ export const getSep12Fields = async ({
       await collectSep12Fields({
         type: senderType,
         memo,
-        publicKey,
+        account: publicKey,
         token,
         kycServer,
         isNewCustomer: true,
@@ -52,7 +52,7 @@ export const getSep12Fields = async ({
       await collectSep12Fields({
         type: receiverType,
         memo,
-        publicKey,
+        account: publicKey,
         token,
         kycServer,
         isNewCustomer: true,

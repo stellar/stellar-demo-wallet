@@ -3,10 +3,10 @@
   "compilerOptions": {
     "baseUrl": "src/",
     "outDir": "build/",
-    "target": "es5",
+    "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true

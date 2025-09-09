@@ -6,8 +6,9 @@ import {
   NotFoundError,
 } from "@stellar/stellar-sdk";
 import BigNumber from "bignumber.js";
-import { Sep9Field } from "demo-wallet-shared/build/helpers/Sep9Fields";
-import { AnchorPriceItem } from "demo-wallet-shared/build/types/types";
+import { Sep9Field } from "demo-wallet-shared/helpers/Sep9Fields";
+import { AnchorPriceItem } from "demo-wallet-shared/types/types";
+import { Api } from "@stellar/stellar-sdk/rpc";
 
 declare global {
   interface Window {
@@ -18,6 +19,8 @@ declare global {
       HORIZON_URL?: string;
       WALLET_BACKEND_ENDPOINT?: string;
       CLIENT_DOMAIN?: string;
+      RPC_PASSPHRASE?: string;
+      RPC_URL?: string;
     };
   }
 }
@@ -27,6 +30,8 @@ export enum SearchParams {
   UNTRUSTED_ASSETS = "untrustedAssets",
   ASSET_OVERRIDES = "assetOverrides",
   CLAIMABLE_BALANCE_SUPPORTED = "claimableBalanceSupported",
+  CONTRACT_ID = "contractId",
+  CONTRACT_ASSETS = "contractAssets",
 }
 
 export enum AssetCategory {
@@ -49,6 +54,8 @@ export enum TomlFields {
   URI_REQUEST_SIGNING_KEY = "URI_REQUEST_SIGNING_KEY",
   VERSION = "VERSION",
   WEB_AUTH_ENDPOINT = "WEB_AUTH_ENDPOINT",
+  WEB_AUTH_FOR_CONTRACTS_ENDPOINT = "WEB_AUTH_FOR_CONTRACTS_ENDPOINT",
+  WEB_AUTH_CONTRACT_ID = "WEB_AUTH_CONTRACT_ID",
 }
 
 export interface PresetAsset {
@@ -83,6 +90,11 @@ export interface AssetSupportedActions {
   sep8?: boolean;
   sep24?: boolean;
   sep31?: boolean;
+}
+
+export interface AccountKeyPair {
+  publicKey: string;
+  secretKey: string;
 }
 
 export interface AccountInitialState {
@@ -144,7 +156,7 @@ export interface LogsInitialState {
 }
 
 export interface SendPaymentInitialState {
-  data: Horizon.HorizonApi.SubmitTransactionResponse | null;
+  data: Horizon.HorizonApi.SubmitTransactionResponse | Api.GetTransactionResponse | null;
   errorString?: string;
   status: ActionStatus | undefined;
 }
@@ -154,6 +166,8 @@ export interface SettingsInitialState {
   secretKey: string;
   untrustedAssets: string;
   claimableBalanceSupported: boolean;
+  contractId: string;
+  contractAssets: string;
 }
 
 export interface UntrustedAssetsInitialState {
@@ -416,6 +430,8 @@ export interface Store {
   settings: SettingsInitialState;
   trustAsset: TrustAssetInitialState;
   untrustedAssets: UntrustedAssetsInitialState;
+  contractAccount: ContractAccountState;
+  contractAssets: ContractAssetsInitialState;
 }
 
 export type StoreKey = keyof Store;
@@ -778,3 +794,47 @@ export type FetchAccountError =
   | BadRequestError
   | NetworkError
   | (NotFoundError & NotFundedError);
+
+export interface ContractAccountState {
+  status: ActionStatus | undefined;
+  contractId: string;
+  data: ContractAccountDetails | null;
+  keyId: string;
+  isAuthenticated: boolean;
+  error: string | null;
+}
+
+export interface ContractAccountDetails {
+  contract: string;
+  account?: string;
+  created: number;
+  creator: string;
+  payments?: number;
+  trades?: number;
+  wasm?: string;
+  storage_entries?: number;
+  validation?: {
+    status?: "verified" | "unverified";
+    repository?: string;
+    commit?: string;
+    package?: string;
+    make?: string;
+    ts?: number;
+  };
+  versions?: number;
+  salt?: string;
+  asset?: string;
+  code?: string;
+  issuer?: string;
+  functions?: {
+    invocations: number;
+    subinvocations: number;
+    function: string;
+  }[];
+}
+
+export interface ContractAssetsInitialState {
+  data: Asset[];
+  errorString?: string;
+  status: ActionStatus | undefined;
+}

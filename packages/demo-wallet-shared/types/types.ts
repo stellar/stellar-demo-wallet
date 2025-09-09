@@ -12,6 +12,8 @@ declare global {
       HORIZON_URL?: string;
       WALLET_BACKEND_ENDPOINT?: string;
       CLIENT_DOMAIN?: string;
+      RPC_PASSPHRASE?: string;
+      RPC_URL?: string;
     };
   }
 }
@@ -23,6 +25,8 @@ export enum SearchParams {
   UNTRUSTED_ASSETS = "untrustedAssets",
   ASSET_OVERRIDES = "assetOverrides",
   CLAIMABLE_BALANCE_SUPPORTED = "claimableBalanceSupported",
+  CONTRACT_ID = "contractId",
+  CONTRACT_ASSETS = "contractAssets",
 }
 
 export enum AssetCategory {
@@ -45,6 +49,8 @@ export enum TomlFields {
   URI_REQUEST_SIGNING_KEY = "URI_REQUEST_SIGNING_KEY",
   VERSION = "VERSION",
   WEB_AUTH_ENDPOINT = "WEB_AUTH_ENDPOINT",
+  WEB_AUTH_FOR_CONTRACTS_ENDPOINT = "WEB_AUTH_FOR_CONTRACTS_ENDPOINT",
+  WEB_AUTH_CONTRACT_ID = "WEB_AUTH_CONTRACT_ID",
 }
 
 export interface PresetAsset {

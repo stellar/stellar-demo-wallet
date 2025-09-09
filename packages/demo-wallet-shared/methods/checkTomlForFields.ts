@@ -56,3 +56,27 @@ export const checkTomlForFields = async ({
 
   return result;
 };
+
+export const getFromToml = async ({
+  assetIssuer,
+  homeDomain,
+  networkUrl,
+  requiredKey,
+}: {
+  assetIssuer: string;
+  homeDomain?: string;
+  networkUrl: string;
+  requiredKey: TomlFields;
+}) => {
+  let homeDomainParam = homeDomain;
+  if (!homeDomainParam) {
+    homeDomainParam = await getHomeDomainFromAssetIssuer({
+      assetIssuer,
+      networkUrl,
+    });
+  }
+
+  const tomlResponse: AnyObject = await getToml(homeDomainParam);
+
+  return tomlResponse[requiredKey] ;
+}

@@ -4,7 +4,7 @@ import { AnyObject, TransactionStatus } from "../../types/types";
 
 type ProgrammaticWithdrawFlowProps = {
   assetCode: string;
-  publicKey: string;
+  account: string;
   transferServerUrl: string;
   token: string;
   type: string;
@@ -14,7 +14,7 @@ type ProgrammaticWithdrawFlowProps = {
 
 export const programmaticWithdrawFlow = async ({
   assetCode,
-  publicKey,
+  account,
   transferServerUrl,
   token,
   type,
@@ -29,7 +29,7 @@ export const programmaticWithdrawFlow = async ({
 
   const getWithdrawParams = {
     asset_code: assetCode,
-    account: publicKey,
+    account,
     claimable_balance_supported: claimableBalanceSupported.toString(),
     type,
     ...withdrawFields,

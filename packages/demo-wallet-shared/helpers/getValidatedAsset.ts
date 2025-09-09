@@ -4,7 +4,7 @@ import { getAssetFromHomeDomain } from "./getAssetFromHomeDomain";
 import { log } from "./log";
 import { BalanceMap } from "../types/types";
 
-interface GetUntrustedAssetProps {
+interface GetValidatedAssetProps {
   assetCode: string;
   homeDomain?: string;
   issuerPublicKey?: string;
@@ -12,21 +12,21 @@ interface GetUntrustedAssetProps {
   networkUrl: string;
 }
 
-interface GetUntrustedAssetResponse {
+interface GetValidatedAssetResponse {
   assetCode: string;
   assetIssuer: string;
   homeDomain?: string;
 }
 
-export const getValidatedUntrustedAsset = async ({
+export const getValidatedAsset = async ({
   assetCode,
   homeDomain,
   issuerPublicKey,
   accountBalances,
   networkUrl,
-}: GetUntrustedAssetProps): Promise<GetUntrustedAssetResponse> => {
+}: GetValidatedAssetProps): Promise<GetValidatedAssetResponse> => {
   log.instruction({
-    title: `Validating untrusted asset ${assetCode}`,
+    title: `Validating asset ${assetCode}`,
   });
 
   if (assetCode && !(homeDomain || issuerPublicKey)) {
