@@ -16,6 +16,7 @@
   "dependencies": {
     "@stellar/stellar-sdk": "^14.1.0",
     "demo-wallet-shared": "^2.0.0",
+    "form-data": "^4.0.4",
     "npm-run-all": "^4.1.5"
   }
 }
