@@ -13,21 +13,27 @@ import { isNativeAsset } from "demo-wallet-shared/build/helpers/isNativeAsset";
 import {
   getNetworkConfig
 } from "demo-wallet-shared/build/helpers/getNetworkConfig";
-
-export const STELLAR_EXPERT_API = "https://api.stellar.expert/explorer/testnet";
+import { Server } from "@stellar/stellar-sdk/rpc";
+import { Contract, xdr } from "@stellar/stellar-sdk";
 
 export const fetchContractAccountInfo = async (
   contractId: string,
 ): Promise<ContractAccountDetails> => {
   try {
-    const response = await fetch(
-      `${STELLAR_EXPERT_API}/contract/${contractId}`,
+    const server = new Server(getNetworkConfig().rpcUrl);
+    const contractInstanceKey = xdr.LedgerKey.contractData(
+      new xdr.LedgerKeyContractData({
+        contract: new Contract(contractId).address().toScAddress(),
+        key: xdr.ScVal.scvLedgerKeyContractInstance(),
+        durability: xdr.ContractDataDurability.persistent(),
+      })
     );
-    const responseJson = await response.json();
-    if (responseJson.error) {
-      throw responseJson.error;
+    const ledgerResponse = await server.getLedgerEntries(contractInstanceKey);
+    const resp= {
+      contract: contractId,
+      ledgerEntries: ledgerResponse.entries,
     }
-    return responseJson;
+    return resp;
   } catch (error) {
     console.error("Error fetching contract account details:", error);
     throw error;
