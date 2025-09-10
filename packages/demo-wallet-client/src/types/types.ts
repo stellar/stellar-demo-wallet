@@ -807,8 +807,8 @@ export interface ContractAccountState {
 export interface ContractAccountDetails {
   contract: string;
   account?: string;
-  created: number;
-  creator: string;
+  created?: number;
+  creator?: string;
   payments?: number;
   trades?: number;
   wasm?: string;
