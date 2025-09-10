@@ -56,7 +56,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Sign requests from the demo wallet client for sep-10 client attribution
 app.post("/sign", (req, res) => {
   console.log("request to /sign");
-  const { envelope_xdr, network_passphrase } = req.body;
+  const envelope_xdr = req.body.transaction;
+  const network_passphrase = req.body.network_passphrase;
   const transaction = new Transaction(envelope_xdr, network_passphrase);
 
   if (Number.parseInt(transaction.sequence, 10) !== 0) {
