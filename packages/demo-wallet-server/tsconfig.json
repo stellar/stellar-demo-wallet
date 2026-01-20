@@ -1,11 +1,12 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "@stellar/tsconfig",
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
     "esModuleInterop": true,
     "moduleResolution": "bundler",
     "sourceMap": true,
+    "rootDir": "src",
     "outDir": "build",
     "allowJs": true
   },

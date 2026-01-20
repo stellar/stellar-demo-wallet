@@ -31,6 +31,10 @@ export class ContractManager {
     }
   }
 
+  public async isWasmUploaded(): Promise<boolean> {
+    return this.isContractWasmOnNetwork(this.WASM_PATH);
+  }
+
   private async isContractWasmOnNetwork(filePath: string): Promise<boolean> {
     try {
       console.log("Checking for WASM hash existence");

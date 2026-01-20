@@ -29,17 +29,32 @@ import { getWalletBackendEndpoint } from "../helpers/getWalletBackendEndpoint";
 
 export class SmartWalletService {
   private static instance: SmartWalletService;
+  private static initializing?: Promise<SmartWalletService>;
   private passkeyService: PasskeyService;
   private server: Server;
   private readonly networkPassphrase: string;
   public readonly sourcePublicKey: string;
 
   public static async getInstance(): Promise<SmartWalletService> {
-    if (!SmartWalletService.instance) {
-      const sourcePublicKey = await SmartWalletService.fetchSourcePublicKey();
-      SmartWalletService.instance = new SmartWalletService(sourcePublicKey);
+    if (SmartWalletService.instance) {
+      return SmartWalletService.instance;
     }
-    return SmartWalletService.instance;
+
+    if (!SmartWalletService.initializing) {
+      SmartWalletService.initializing = (async () => {
+        const sourcePublicKey = await SmartWalletService.fetchSourcePublicKey();
+        const service = new SmartWalletService(sourcePublicKey);
+        await service.ensureBackendStartup();
+        SmartWalletService.instance = service;
+        return service;
+      })();
+
+      SmartWalletService.initializing.finally(() => {
+        SmartWalletService.initializing = undefined;
+      });
+    }
+
+    return SmartWalletService.initializing;
   }
 
   constructor(sourcePublicKey: string) {
@@ -47,6 +62,17 @@ export class SmartWalletService {
     this.server = new Server(getNetworkConfig().rpcUrl);
     this.networkPassphrase = getNetworkConfig().rpcNetwork;
     this.sourcePublicKey = sourcePublicKey;
+  }
+
+  private async ensureBackendStartup() {
+    const walletBackendEndpoint = getWalletBackendEndpoint();
+    const response = await fetch(`${walletBackendEndpoint}/check-startup`, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to check startup status");
+    }
   }
 
   private static async fetchSourcePublicKey(): Promise<string> {
@@ -58,7 +84,7 @@ export class SmartWalletService {
       }
       const responseJson = await response.json();
       const sourcePublicKey = responseJson.public_key;
-      console.log('Source public key fetched:', sourcePublicKey);
+      console.log('Source public key fetched');
       return sourcePublicKey;
     } catch (error) {
       throw new Error('Failed to fetch source public key from server. This is required for contract operations. Please ensure the server is running and accessible.');
@@ -111,7 +137,7 @@ export class SmartWalletService {
     }
 
     // 5. Poll for transaction status
-    let getResponse = await this.server.getTransaction(sendResponse.hash);
+    const getResponse = await this.server.getTransaction(sendResponse.hash);
     if (getResponse.status === Api.GetTransactionStatus.SUCCESS) {
       const contractId = Address.fromScVal(getResponse.returnValue!).toString();
       console.log("Contract Deployed: " + contractId);

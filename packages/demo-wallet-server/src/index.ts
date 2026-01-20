@@ -53,6 +53,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
     res.send(stellarToml);
   });
 
+app.post("/check-startup", async (_req, res) => {
+  console.log("request to /check-startup");
+
+  if (!SOURCE_KEYPAIR_SECRET) {
+    return res.status(400).json({ error: "SOURCE_KEYPAIR_SECRET is not configured" });
+  }
+
+  try {
+    await startup();
+    res.set("Access-Control-Allow-Origin", "*");
+    return res.status(200).json({ status: "ok" });
+  } catch (err: any) {
+    console.error("Failed to startup:", err);
+    return res.status(500).json({ error: err.message ?? "Unknown error" });
+  }
+});
+
 // Sign requests from the demo wallet client for sep-10 client attribution
 app.post("/sign", (req, res) => {
   console.log("request to /sign");

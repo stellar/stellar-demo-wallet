@@ -1,7 +1,9 @@
 {
   "extends": "@stellar/tsconfig",
   "compilerOptions": {
-    "baseUrl": "src/",
+    "paths": {
+      "*": ["./src/*"]
+    },
     "outDir": "build/",
     "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
