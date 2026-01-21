@@ -89,10 +89,11 @@ export const sign = async ({
   }
 
   // verify ledger footprint
-  const allowedContracts = new Set([
+  const allowedLedgerAddresses = new Set([
     expectedArgs.account,
     serverSigningKey,
-    ...(clientDomainSigningKey ? [clientDomainSigningKey] : [])
+    ...(clientDomainSigningKey ? [clientDomainSigningKey] : []),
+    webAuthContractId,
   ]);
   const readWrite = simulateTxResponse.transactionData.getReadWrite()!;
 
@@ -107,12 +108,18 @@ export const sign = async ({
     }
     
     const contractData = ledgerKey.contractData();
-    const contractAddress = Address.fromScAddress(contractData.contract()).toString();
+    const ledgerAccount = Address.fromScAddress(contractData.contract()).toString();
 
-    if (!allowedContracts.has(contractAddress)) {
-      throw new Error(`Unauthorized contract access: ${contractAddress}`);
+    if (!allowedLedgerAddresses.has(ledgerAccount)) {
+      throw new Error(`Unauthorized contract access: ${ledgerAccount}`);
     }
-    if (contractData.key().switch().value !== xdr.ScValType.scvLedgerKeyNonce().value) {
+
+    const contractDataKeyType = contractData.key().switch().value;
+
+    if (
+      contractDataKeyType !== xdr.ScValType.scvLedgerKeyNonce().value && 
+      contractDataKeyType !== xdr.ScValType.scvLedgerKeyContractInstance().value
+    ) {
       throw new Error(`Invalid contract data access. Key: ${contractData.key().switch().name}`);
     }
   }

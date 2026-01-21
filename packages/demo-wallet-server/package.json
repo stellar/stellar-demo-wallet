@@ -1,6 +1,6 @@
 {
   "name": "demo-wallet-server",
-  "main": "dist/index.js",
+  "main": "build/index.js",
   "version": "2.0.0",
   "type": "module",
   "description": "Stellar Demo Wallet server",
@@ -18,6 +18,7 @@
   "scripts": {
     "clean": "rimraf ./build",
     "dev": "ts-node ./src/index.ts",
+    "prestart": "yarn build",
     "start": "node ./build/index.js",
     "build": "tsc && yarn copy-static-files",
     "copy-static-files": "mkdir -p ./build/src/static/well-known/ && cp ./src/static/well_known/* ./build/src/static/well-known/"
