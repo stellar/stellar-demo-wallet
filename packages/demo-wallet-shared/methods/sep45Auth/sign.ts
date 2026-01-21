@@ -119,7 +119,7 @@ export const sign = async ({
     if (
       contractDataKeyType !== xdr.ScValType.scvLedgerKeyNonce().value && 
       contractDataKeyType !== xdr.ScValType.scvLedgerKeyContractInstance().value
-  ) {
+    ) {
       throw new Error(`Invalid contract data access. Key: ${contractData.key().switch().name}`);
     }
   }
