@@ -138,19 +138,20 @@ app.post("/sign-tx", async (req, res) => {
 
     // verify that the transaction does not operate on the source account
     const simulatedTx = await rpcClient.simulateTransaction(tx);
-    if (Api.isSimulationSuccess(simulatedTx)) {
-      simulatedTx.result?.auth?.forEach((entry) => {
-        if (
-          entry.credentials().switch() !=
-          xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount() &&
-          Address.fromScAddress(
-            entry.credentials().address().address(),
-          ).toString() === sourceKeypair.publicKey()
-        ) {
-          throw new Error("Transaction cannot operate on the source account");
-        }
-      });
+    if (!Api.isSimulationSuccess(simulatedTx)) {
+      throw new Error("Transaction simulation failed");
     }
+    simulatedTx.result?.auth?.forEach((entry) => {
+      if (
+        entry.credentials().switch() ==
+        xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount() ||
+        Address.fromScAddress(
+          entry.credentials().address().address(),
+        ).toString() === sourceKeypair.publicKey()
+      ) {
+        throw new Error("Transaction cannot operate on the source account");
+      }
+    });
 
     tx.sign(sourceKeypair);
     res.set("Access-Control-Allow-Origin", "*");
