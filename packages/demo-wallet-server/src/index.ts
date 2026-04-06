@@ -150,9 +150,23 @@ app.post("/sign-tx", async (req, res) => {
       throw new Error("Transaction simulation failed");
     }
     simulatedTx.result?.auth?.forEach((entry) => {
-      if (
+      const isSourceAccountCred =
         entry.credentials().switch() ==
-        xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount() ||
+        xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount();
+
+      if (isSourceAccountCred) {
+        // Allow source account credentials only for deploy
+        const isCreateContractFn = 
+          entry.rootInvocation().function().switch() == 
+          xdr.SorobanAuthorizedFunctionType.sorobanAuthorizedFunctionTypeCreateContractV2HostFn();
+        if (!isCreateContractFn) {
+          throw new Error("Source account credentials are only allowed for contract deployment");
+        }
+        return;
+      }
+
+      // Reject address credentials that operate as the source account
+      if (
         Address.fromScAddress(
           entry.credentials().address().address(),
         ).toString() === sourceKeypair.publicKey()
