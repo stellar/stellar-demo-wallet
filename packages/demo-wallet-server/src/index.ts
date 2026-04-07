@@ -30,6 +30,18 @@ const rpcClient = new Server("https://soroban-testnet.stellar.org");
 let signingKeypair : Keypair;
 let stellarToml = "";
 
+// CORS
+app.use((_req, res, next) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+  if (_req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
+
 // JSON parsing with error handling
 app.use(bodyParser.json({
   verify: (_req, _res, buf, encoding) => {
@@ -47,8 +59,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //TODO: add logging middleware
 // Serve the sep-1 stellar.toml file
  app.get("/.well-known/stellar.toml", (_req, res) => {
-    res.set("Access-Control-Allow-Headers", "Content-Type,X-Requested-With");
-    res.set("Access-Control-Allow-Origin", "*");
     res.set("Content-Type", "text/plain");
     res.send(stellarToml);
   });
@@ -85,7 +95,6 @@ app.post("/sign", (req, res) => {
 
   transaction.sign(signingKeypair);
 
-  res.set("Access-Control-Allow-Origin", "*");
   res.status(200);
   res.send({
     transaction: transaction.toEnvelope().toXDR("base64"),
@@ -111,7 +120,6 @@ app.post("/sep45/sign", async (req, res) => {
       Number(valid_until_ledger_seq),
       network_passphrase,
     );
-    res.set("Access-Control-Allow-Origin", "*");
     return res.status(200).json({
       signed_entry: signed_entry.toXDR("base64"),
     });
@@ -142,9 +150,23 @@ app.post("/sign-tx", async (req, res) => {
       throw new Error("Transaction simulation failed");
     }
     simulatedTx.result?.auth?.forEach((entry) => {
-      if (
+      const isSourceAccountCred =
         entry.credentials().switch() ==
-        xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount() ||
+        xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount();
+
+      if (isSourceAccountCred) {
+        // Allow source account credentials only for deploy
+        const isCreateContractFn = 
+          entry.rootInvocation().function().switch() == 
+          xdr.SorobanAuthorizedFunctionType.sorobanAuthorizedFunctionTypeCreateContractV2HostFn();
+        if (!isCreateContractFn) {
+          throw new Error("Source account credentials are only allowed for contract deployment");
+        }
+        return;
+      }
+
+      // Reject address credentials that operate as the source account
+      if (
         Address.fromScAddress(
           entry.credentials().address().address(),
         ).toString() === sourceKeypair.publicKey()
@@ -154,7 +176,6 @@ app.post("/sign-tx", async (req, res) => {
     });
 
     tx.sign(sourceKeypair);
-    res.set("Access-Control-Allow-Origin", "*");
     res.status(200);
     res.send({ signed_tx: tx.toXDR() });
   } catch (err: any) {
@@ -167,7 +188,6 @@ app.get("/source-public-key", (_req, res) => {
   console.log("request to /source-public-key");
   try {
     const sourceKeypair = Keypair.fromSecret(SOURCE_KEYPAIR_SECRET);
-    res.set("Access-Control-Allow-Origin", "*");
     res.status(200);
     res.send({
       public_key: sourceKeypair.publicKey(),
