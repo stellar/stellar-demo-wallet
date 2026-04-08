@@ -8,7 +8,8 @@
     "sourceMap": true,
     "rootDir": "src",
     "outDir": "build",
-    "allowJs": true
+    "allowJs": true,
+    "types": ["node", "express"]
   },
   "lib": ["es2015"]
 }
