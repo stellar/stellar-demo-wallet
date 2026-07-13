@@ -1,0 +1,70 @@
+name: Build and push stellar-demo-wallet
+
+# Deployed to: https://github.com/stellar/stellar-demo-wallet
+#
+# Converted from the Jenkins pipeline (Jenkinsfile). Builds the server and
+# client docker images and pushes both to the prd ECR namespace on pushes to
+# master. Posts a Slack notification on success/failure.
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  SLACK_CHANNEL: alerts-product-eng
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Determine image label
+        id: vars
+        run: echo "label=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: ECR login
+        id: ecr-login
+        uses: stellar/actions/sdf-ecr-login@main
+
+      - name: Build and push images
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.ecr-registry }}
+          LABEL: ${{ steps.vars.outputs.label }}
+        run: |
+          set -eu
+          export SERVER_TAG="${ECR_REGISTRY}/prd/stellar-demo-wallet-server:${LABEL}"
+          export CLIENT_TAG="${ECR_REGISTRY}/prd/stellar-demo-wallet-client:${LABEL}"
+
+          make docker-build-server
+          make docker-build-client
+
+          ecr-push "${SERVER_TAG}"
+          ecr-push "${CLIENT_TAG}"
+
+      - name: Slack notification — success
+        if: success()
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: "${{ env.SLACK_CHANNEL }}"
+            text: "Stellar Demo Wallet *prd* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|build> complete for <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ steps.vars.outputs.label }}>."
+
+      - name: Slack notification — failure
+        if: failure()
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: "${{ env.SLACK_CHANNEL }}"
+            text: "Stellar Demo Wallet *prd* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|build> failed for <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ steps.vars.outputs.label }}>."
