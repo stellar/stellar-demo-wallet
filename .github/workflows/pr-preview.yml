@@ -1,0 +1,77 @@
+# PR preview environments, replacing the Jenkins preview pipeline
+# (Jenkinsfile-preview). CI only builds the client and server images and
+# signals with the `preview` label; ArgoCD's preview-stellar-demo-wallet-client
+# and preview-stellar-demo-wallet-server ApplicationSets (stellar/kube) do the
+# deploying. The client's runtime env-config.js points at the server preview
+# host, so both previews come and go together with the label.
+# See https://github.com/stellar/actions/tree/main/sdf-pr-preview
+
+name: pr-preview
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed]
+
+# pull_request_target runs in base-repo context, so these are real write
+# permissions even for fork PRs. On `pull_request`, fork runs get no OIDC
+# token and a read-only token.
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  ECR_CLIENT_REPOSITORY: dev/stellar-demo-wallet-client
+  ECR_SERVER_REPOSITORY: dev/stellar-demo-wallet-server
+  PREVIEW_HOST: stellar-demo-wallet-client-pr-${{ github.event.pull_request.number }}.previews.kube001.services.stellar-ops.com
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      # Nothing that touches PR code may run before the gate, and every step
+      # after it must be guarded by `member == 'true'`.
+      - id: gate
+        uses: stellar/actions/sdf-pr-preview/gate@main
+        with:
+          app-id: ${{ vars.PREVIEW_BOT_APP_ID }}
+          private-key: ${{ secrets.PREVIEW_BOT_PRIVATE_KEY }}
+
+      # PR head SHA, not the default base ref - must match the
+      # ApplicationSet's {{ .head_sha }}.
+      - uses: actions/checkout@v6
+        if: steps.gate.outputs.member == 'true'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - id: ecr-login
+        if: steps.gate.outputs.member == 'true'
+        uses: stellar/actions/sdf-ecr-login@main
+
+      - name: Build and push preview images
+        if: steps.gate.outputs.member == 'true'
+        env:
+          ECR_SERVER_TAG: ${{ steps.ecr-login.outputs.ecr-registry }}/${{ env.ECR_SERVER_REPOSITORY }}:${{ steps.gate.outputs.image-tag }}
+          ECR_CLIENT_TAG: ${{ steps.ecr-login.outputs.ecr-registry }}/${{ env.ECR_CLIENT_REPOSITORY }}:${{ steps.gate.outputs.image-tag }}
+        run: |
+          set -eu
+          export SERVER_TAG=${ECR_SERVER_TAG}
+          make docker-build-server
+          make docker-push-server
+
+          export CLIENT_TAG=${ECR_CLIENT_TAG}
+          make docker-build-client
+          make docker-push-client
+
+      - uses: stellar/actions/sdf-pr-preview/publish@main
+        if: steps.gate.outputs.member == 'true'
+        with:
+          images: |
+            ${{ steps.ecr-login.outputs.ecr-registry }}/${{ env.ECR_CLIENT_REPOSITORY }}:${{ steps.gate.outputs.image-tag }}
+            ${{ steps.ecr-login.outputs.ecr-registry }}/${{ env.ECR_SERVER_REPOSITORY }}:${{ steps.gate.outputs.image-tag }}
+          preview-host: ${{ env.PREVIEW_HOST }}
