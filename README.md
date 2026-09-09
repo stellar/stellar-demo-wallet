@@ -273,3 +273,11 @@ but you are free to edit the compose file to use a local instance of the server.
   https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0031.md
 [sep-6]:
   https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0006.md
+
+---
+
+> **Security Policy**: This repository is out of scope for the
+> [Stellar HackerOne program](https://hackerone.com/stellar). It is no longer
+> actively maintained, and does not receive security patches. Please do not
+> submit vulnerability reports against this repo. Any vulnerability reports
+> submitted against this repository will be closed as informational.
