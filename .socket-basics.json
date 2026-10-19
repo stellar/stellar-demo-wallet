@@ -1,0 +1,13 @@
+{
+  "workspace": ".",
+  "javascript_sast_enabled": true,
+  "rust_sast_enabled": true,
+  "javascript_disabled_rules": "js-express-async-no-error-handler,js-unhandled-promise-rejection",
+  "sast_ignore_overrides": "rust-hardcoded-secrets:packages/demo-wallet-soroban/contracts/contract-account/src/lib.rs,js-insecure-random:packages/demo-wallet-client/src/ducks/sep24DepositAsset.ts,js-sensitive-data-in-logs:packages/demo-wallet-client/src/helpers/fetchContractAccountDetails.ts,js-sensitive-data-in-logs:packages/demo-wallet-server/src/index.ts,js-sensitive-data-in-logs:packages/demo-wallet-shared/helpers/log.ts,rust-panic-in-production:packages/demo-wallet-soroban/contracts/contract-account/src/lib.rs",
+  "secret_scanning_enabled": true,
+  "console_tabular_enabled": true,
+  "dockerfiles": "Dockerfile-client,Dockerfile-server",
+  "socket_tier_1_enabled": false,
+  "trivy_vuln_enabled": false,
+  "trufflehog_exclude_dir": "node_modules,dist,build,target,.git,yarn.lock,package-lock.json,pnpm-lock.yaml,Cargo.lock,go.sum,poetry.lock,Gemfile.lock,composer.lock"
+}
