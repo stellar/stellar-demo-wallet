@@ -34,7 +34,7 @@
     "cbor": "^10.0.3",
     "crypto": "^1.0.1",
     "crypto-browserify": "^3.12.1",
-    "dompurify": "^3.0.5",
+    "dompurify": "^3.2.4",
     "env-cmd": "^10.1.0",
     "find-config": "^1.0.0",
     "html-react-parser": "^4.2.1",
