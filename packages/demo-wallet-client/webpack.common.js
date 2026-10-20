@@ -1,6 +1,5 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
@@ -41,6 +40,7 @@ module.exports = {
   output: {
     filename: "static/[name].[contenthash].js",
     path: path.resolve(__dirname, "build"),
+    clean: true,
   },
   module: {
     rules: [
@@ -148,8 +148,7 @@ module.exports = {
       filename: "static/[name].[contenthash].css",
       chunkFilename: "[id].css",
     }),
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
+new HtmlWebpackPlugin({
       template: "./src/index.html",
     }),
     new ForkTsCheckerWebpackPlugin(),
