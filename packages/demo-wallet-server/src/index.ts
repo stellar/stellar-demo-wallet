@@ -1,5 +1,6 @@
 import { Api, Server } from "@stellar/stellar-sdk/rpc";
 import express, { ErrorRequestHandler } from "express";
+import rateLimit from "express-rate-limit";
 import {
   Address,
   Keypair,
@@ -56,6 +57,13 @@ app.use(bodyParser.json({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const signingRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 100,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+});
+
 //TODO: add logging middleware
 // Serve the sep-1 stellar.toml file
  app.get("/.well-known/stellar.toml", (_req, res) => {
@@ -63,7 +71,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
     res.send(stellarToml);
   });
 
-app.post("/check-startup", async (_req, res) => {
+app.post("/check-startup", signingRateLimiter, async (_req, res) => {
   console.log("request to /check-startup");
 
   if (!SOURCE_KEYPAIR_SECRET) {
@@ -81,7 +89,7 @@ app.post("/check-startup", async (_req, res) => {
 });
 
 // Sign requests from the demo wallet client for sep-10 client attribution
-app.post("/sign", (req, res) => {
+app.post("/sign", signingRateLimiter, (req, res) => {
   console.log("request to /sign");
   const envelope_xdr = req.body.transaction;
   const network_passphrase = req.body.network_passphrase;
@@ -102,7 +110,7 @@ app.post("/sign", (req, res) => {
   });
 });
 
-app.post("/sep45/sign", async (req, res) => {
+app.post("/sep45/sign", signingRateLimiter, async (req, res) => {
   console.log("request to /sep45/sign");
   const { unsigned_entry, valid_until_ledger_seq, network_passphrase } = req.body;
 
@@ -128,7 +136,7 @@ app.post("/sep45/sign", async (req, res) => {
   }
 });
 
-app.post("/sign-tx", async (req, res) => {
+app.post("/sign-tx", signingRateLimiter, async (req, res) => {
   console.log("request to /sign-tx");
   const { unsigned_tx, network_passphrase } = req.body;
 
