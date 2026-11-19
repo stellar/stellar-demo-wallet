@@ -115,7 +115,7 @@ export const sendPayment = async ({
     .build();
 
   tx.sign(keypair);
-  submitTransaction({ tx, server });
+  await submitTransaction({ tx, server });
 };
 
 const submitTransaction = async ({ tx, server }: { tx: any; server: any }) => {
