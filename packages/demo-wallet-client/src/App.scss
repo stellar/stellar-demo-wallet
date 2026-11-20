@@ -48,6 +48,16 @@
   position: relative;
 }
 
+.MobileLogHint {
+  display: none;
+  font-size: 0.875rem;
+  color: var(--pal-text-secondary);
+
+  @media (max-width: 799px) {
+    display: block;
+  }
+}
+
 .SplitContainer {
   width: 50%;
   position: relative;
