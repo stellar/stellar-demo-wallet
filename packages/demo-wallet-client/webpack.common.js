@@ -148,7 +148,7 @@ module.exports = {
       filename: "static/[name].[contenthash].css",
       chunkFilename: "[id].css",
     }),
-new HtmlWebpackPlugin({
+    new HtmlWebpackPlugin({
       template: "./src/index.html",
     }),
     new ForkTsCheckerWebpackPlugin(),
