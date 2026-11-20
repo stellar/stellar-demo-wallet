@@ -78,6 +78,11 @@ export const App = () => (
                     </TextLink>{" "}
                     on GitHub
                   </p>
+
+                  <p className="MobileLogHint">
+                    On smaller screens, rotate your device to landscape or
+                    scroll right to view the logs.
+                  </p>
                 </Layout.Inset>
 
                 <RouterRoutes>

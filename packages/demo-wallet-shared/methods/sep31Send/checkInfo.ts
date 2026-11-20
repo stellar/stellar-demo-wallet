@@ -1,4 +1,3 @@
-import { isEmptyObject } from "../../helpers/isEmptyObject";
 import { log } from "../../helpers/log";
 
 export const checkInfo = async ({
@@ -31,17 +30,14 @@ export const checkInfo = async ({
     );
   }
 
-  if (!asset.enabled) {
+  if (asset.enabled === false) {
     throw new Error(`${assetCode} is not enabled for deposit`);
   }
 
-  if (!asset.fields || isEmptyObject(asset.fields)) {
-    throw new Error("No `fields` object specified in `/info`");
-  }
-
-  if (!asset.fields.transaction) {
-    throw new Error("No `transaction` object specified in `fields`");
-  }
+  const fields = {
+    ...(asset.fields || {}),
+    transaction: asset.fields?.transaction || {},
+  };
 
   let senderType;
   let receiverType;
@@ -127,7 +123,7 @@ export const checkInfo = async ({
   log.instruction({ title: `Send is enabled for asset ${assetCode}` });
   log.instruction({
     title: "The receiving anchor requires the following fields",
-    body: asset.fields,
+    body: fields,
   });
 
   // SEP-38 quotes
@@ -145,7 +141,7 @@ export const checkInfo = async ({
   });
 
   return {
-    fields: asset.fields,
+    fields,
     senderType,
     receiverType,
     multipleSenderTypes,

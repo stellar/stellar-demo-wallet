@@ -54,7 +54,7 @@ export const putSep12FieldsRequest = async ({
     });
   }
 
-  if (result.status !== 202) {
+  if (result.status !== 200 && result.status !== 202) {
     throw new Error(
       `Unexpected status for PUT \`/customer\` request: ${result.status}`,
     );

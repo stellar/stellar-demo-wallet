@@ -52,78 +52,98 @@ export const BalanceRow = ({
   };
 
   const renderActionsSelect = () => {
-    if (onAction) {
-      // Regulated asset needs to be trusted first
-      if (isUntrusted && asset.supportedActions?.sep8) {
-        return null;
-      }
-
-      return (
-        <div className="BalanceCellSelect">
-          <DetailsTooltip
-            details={
-              <>
-                {
-                  "What you can do with an asset (deposit, withdraw, or send) depends on what transactions the anchor supports."
-                }{" "}
-                <TextLink href="https://developers.stellar.org/docs/anchoring-assets">
-                  Learn more
-                </TextLink>
-              </>
-            }
-          >
-            <Select
-              id={`${assetString}-actions`}
-              onChange={handleSelectChange}
-              disabled={disabled}
-              value={selectValue}
-            >
-              <option value="">Select action</option>
-              {!isUntrusted && !asset.supportedActions?.sep8 && (
-                <option value={AssetActionId.SEND_PAYMENT}>Send payment</option>
-              )}
-
-              {supportedActions?.sep6 && (
-                <>
-                  <option value={AssetActionId.SEP6_DEPOSIT}>
-                    SEP-6 Deposit
-                  </option>
-                  {!isUntrusted && (
-                    <option value={AssetActionId.SEP6_WITHDRAW}>
-                      SEP-6 Withdraw
-                    </option>
-                  )}
-                </>
-              )}
-
-              {!isUntrusted && asset.supportedActions?.sep8 && (
-                <option value={AssetActionId.SEP8_SEND_PAYMENT}>
-                  SEP-8 Send
-                </option>
-              )}
-
-              {supportedActions?.sep24 && (
-                <>
-                  <option value={AssetActionId.SEP24_DEPOSIT}>
-                    SEP-24 Deposit
-                  </option>
-                  {!isUntrusted && (
-                    <option value={AssetActionId.SEP24_WITHDRAW}>
-                      SEP-24 Withdraw
-                    </option>
-                  )}
-                </>
-              )}
-              {!isUntrusted && supportedActions?.sep31 && (
-                <option value={AssetActionId.SEP31_SEND}>SEP-31 Send</option>
-              )}
-            </Select>
-          </DetailsTooltip>
-        </div>
-      );
+    if (!onAction) {
+      return null;
     }
 
-    return null;
+    // Regulated asset needs to be trusted first
+    if (isUntrusted && supportedActions?.sep8) {
+      return null;
+    }
+
+    const actionOptions: { value: AssetActionId; label: string }[] = [];
+
+    if (!isUntrusted && !supportedActions?.sep8) {
+      actionOptions.push({
+        value: AssetActionId.SEND_PAYMENT,
+        label: "Send payment",
+      });
+    }
+
+    if (supportedActions?.sep6) {
+      actionOptions.push({
+        value: AssetActionId.SEP6_DEPOSIT,
+        label: "SEP-6 Deposit",
+      });
+      if (!isUntrusted) {
+        actionOptions.push({
+          value: AssetActionId.SEP6_WITHDRAW,
+          label: "SEP-6 Withdraw",
+        });
+      }
+    }
+
+    if (!isUntrusted && supportedActions?.sep8) {
+      actionOptions.push({
+        value: AssetActionId.SEP8_SEND_PAYMENT,
+        label: "SEP-8 Send",
+      });
+    }
+
+    if (supportedActions?.sep24) {
+      actionOptions.push({
+        value: AssetActionId.SEP24_DEPOSIT,
+        label: "SEP-24 Deposit",
+      });
+      if (!isUntrusted) {
+        actionOptions.push({
+          value: AssetActionId.SEP24_WITHDRAW,
+          label: "SEP-24 Withdraw",
+        });
+      }
+    }
+
+    if (!isUntrusted && supportedActions?.sep31) {
+      actionOptions.push({
+        value: AssetActionId.SEP31_SEND,
+        label: "SEP-31 Send",
+      });
+    }
+
+    if (actionOptions.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="BalanceCellSelect">
+        <DetailsTooltip
+          details={
+            <>
+              {
+                "What you can do with an asset (deposit, withdraw, or send) depends on what transactions the anchor supports."
+              }{" "}
+              <TextLink href="https://developers.stellar.org/docs/anchoring-assets">
+                Learn more
+              </TextLink>
+            </>
+          }
+        >
+          <Select
+            id={`${assetString}-actions`}
+            onChange={handleSelectChange}
+            disabled={disabled}
+            value={selectValue}
+          >
+            <option value="">Select action</option>
+            {actionOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </DetailsTooltip>
+      </div>
+    );
   };
 
   return (

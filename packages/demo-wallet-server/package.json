@@ -16,7 +16,7 @@
     ]
   },
   "scripts": {
-    "clean": "rimraf ./build",
+    "clean": "node -e \"require('fs').rmSync('./build', { recursive: true, force: true })\"",
     "dev": "ts-node ./src/index.ts",
     "prestart": "yarn build",
     "start": "node ./build/index.js",
