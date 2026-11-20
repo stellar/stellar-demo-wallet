@@ -1,7 +1,7 @@
 import { Server } from "@stellar/stellar-sdk/rpc";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import dotenv from "dotenv";
 // @ts-ignore
 import findConfig from "find-config";
@@ -50,13 +50,21 @@ export class ContractManager {
   }
 
   private async uploadContract(wasmPath: string) {
-    const cmd = `stellar contract upload \
-    --wasm ${wasmPath} \
-    --network testnet \
-    --source-account ${SOURCE_KEYPAIR_SECRET}`;
-
     try {
-      execSync(cmd, { stdio: "inherit" });
+      execFileSync(
+        "stellar",
+        [
+          "contract",
+          "upload",
+          "--wasm",
+          wasmPath,
+          "--network",
+          "testnet",
+          "--source-account",
+          SOURCE_KEYPAIR_SECRET,
+        ],
+        { stdio: "inherit" },
+      );
     } catch (error) {
       throw new Error(`Contract upload failed: ${error}`);
     }
