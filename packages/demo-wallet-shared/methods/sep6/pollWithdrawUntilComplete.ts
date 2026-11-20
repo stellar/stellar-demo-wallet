@@ -72,12 +72,30 @@ export const pollWithdrawUntilComplete = async ({
             title: "The anchor is waiting for the funds for withdrawal",
           });
           const paymentAsset = assetCode === "XLM" ? Asset.native() : new Asset(assetCode, assetIssuer);
+          const rawPaymentAmount =
+            transactionJson.transaction.amount_in !== undefined &&
+            transactionJson.transaction.amount_in !== null &&
+            transactionJson.transaction.amount_in !== ""
+              ? String(transactionJson.transaction.amount_in)
+              : amount;
+          const numericPaymentAmount = Number(rawPaymentAmount);
+
+          if (
+            !rawPaymentAmount ||
+            !Number.isFinite(numericPaymentAmount) ||
+            numericPaymentAmount <= 0
+          ) {
+            throw new Error(
+              `Invalid or missing withdrawal \`amount_in\` for transaction \`${transactionId}\``,
+            );
+          }
+
           let response;
 
           if (!contractId) {
             const keypair = Keypair.fromSecret(secretKey!);
             response = await sendFromClassicAccount(
-              amount,
+              rawPaymentAmount,
               transactionJson,
               keypair,
               server,
@@ -86,7 +104,7 @@ export const pollWithdrawUntilComplete = async ({
             );
           } else {
             response = await sendFromContractAccount(
-              amount,
+              rawPaymentAmount,
               paymentAsset,
               contractId,
               transactionJson.transaction.withdraw_anchor_account,

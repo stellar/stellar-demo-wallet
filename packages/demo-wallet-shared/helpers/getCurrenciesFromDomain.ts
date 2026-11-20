@@ -12,24 +12,27 @@ export const getCurrenciesFromDomain = async (
     throw new Error("Anchor home domain is not a valid URL using HTTPS");
   }
 
+  let toml;
+
   try {
-    const toml =
+    toml =
       domainURL.protocol === "http:"
         ? await StellarToml.Resolver.resolve(domainURL.host, {
             allowHttp: true,
           })
         : await StellarToml.Resolver.resolve(domainURL.host);
-
-    if (!toml.CURRENCIES) {
-      throw new Error(
-        "The home domain specified does not have a `CURRENCIES` section on its TOML file",
-      );
-    }
-
-    return toml.CURRENCIES;
   } catch (e) {
+    const reason = e instanceof Error && e.message ? `: ${e.message}` : "";
     throw new Error(
-      `\`${homeDomain}\` is not a valid home domain, TOML file was not found`,
+      `Unable to resolve \`stellar.toml\` for \`${homeDomain}\`${reason}`,
     );
   }
+
+  if (!toml.CURRENCIES) {
+    throw new Error(
+      "The home domain specified does not have a `CURRENCIES` section on its TOML file",
+    );
+  }
+
+  return toml.CURRENCIES;
 };
